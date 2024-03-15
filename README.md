@@ -1,2 +1,2 @@
 # FungEye
-Aplikacja dla Grzybiarzy
+Aplikacja dla Grzybiarzy :-))

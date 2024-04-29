@@ -1,4 +1,6 @@
-﻿using FungEyeApi.Models;
+﻿using Azure.Core;
+using FungEyeApi.Interfaces;
+using FungEyeApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FungEyeApi.Controllers
@@ -14,34 +16,39 @@ namespace FungEyeApi.Controllers
             _authService = authService;
         }
 
-        [HttpPost("register")]
-        public ActionResult<User> Register([FromBody] User request)
+        [HttpPost("registerUser")]
+        public async Task<IActionResult> RegisterUser([FromBody] User user)
         {
             try
             {
-                var registerUser = _authService.Register(request);
-                return Ok(registerUser);
+                bool result = await _authService.Register(user);
+                if (result)
+                {
+                    return Ok("User registered successfully.");
+                }
+                else
+                {
+                    return BadRequest("User registration failed.");
+                }
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
 
-        [HttpPost("login")]
-        public ActionResult<string> Login([FromBody] LoginUser request)
+        [HttpPost("loginUser")]
+        public async Task<IActionResult> LoginUser([FromBody] LoginUser loginUser)
         {
             try
             {
-                var token = _authService.Login(request);
-                return Ok(token);
+                var token = await _authService.Login(loginUser);
+                return token != null ? Ok(token) : BadRequest("User login failed");
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
-
     }
 }

@@ -4,6 +4,6 @@ namespace FungEyeApi.Interfaces
 {
     public interface IUserService
     {
-        Task RemoveAccount(string userId, string token);
+        Task<bool> RemoveAccount(int userId, string token);
     }
 }

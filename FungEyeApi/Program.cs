@@ -47,6 +47,7 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlite("Data Source=mydatabase.db");
 });
 builder.Services.AddTransient<IAuthService, AuthService>();
+builder.Services.AddTransient<IUserService, UserService>();
 
 var app = builder.Build();
 app.UseCors();

@@ -1,45 +1,91 @@
+using FungEyeApi.Data;
+using FungEyeApi.Data.Entities;
 using FungEyeApi.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
 
 namespace FungEyeApi.Models
 {
     public class UserService : IUserService
     {
-        public async Task RemoveAccount(string userId, string token)
+        private readonly DataContext db;
+
+        public UserService(DataContext db)
         {
-            //// SprawdŸ, czy token JWT jest prawid³owy
-            //var isValidToken = ValidateJWTToken(token);
-            //if (!isValidToken)
-            //{
-            //    return new HttpResponseMessage(HttpStatusCode.Unauthorized)
-            //    {
-            //        Content = new StringContent("{ \"message\": \"Nieautoryzowany dostêp.\" }",
-            //            Encoding.UTF8, "application/json")
-            //    };
-            //}
+            this.db = db;
+        }
 
-            //// SprawdŸ, czy identyfikator u¿ytkownika w ¿¹daniu zgadza siê z identyfikatorem u¿ytkownika w tokenie JWT
-            //var tokenUserId = ExtractUserIdFromToken(token);
-            //if (tokenUserId != userId)
-            //{
-            //    return new HttpResponseMessage(HttpStatusCode.Forbidden)
-            //    {
-            //        Content = new StringContent("{ \"message\": \"Brak uprawnieñ do usuniêcia konta.\" }",
-            //            Encoding.UTF8, "application/json")
-            //    };
-            //}
+        public async Task<bool> RemoveAccount(int userId, string token)
+        {
+            try
+            {
+                // SprawdŸ, czy token JWT jest prawid³owy
+                var isValidToken = ValidateJWTToken(token, userId);
+                if (!isValidToken)
+                {
+                    throw new Exception("Unauthorized");
+                }
 
-            //// Logika usuwania konta
-            //await _userService.RemoveUser(userId);
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user == null)
+                {
+                    throw new Exception("User doesn't exist");
+                }
 
-            //return new HttpResponseMessage(HttpStatusCode.OK)
-            //{
-            //    Content = new StringContent("{ \"message\": \"Konto zosta³o usuniête.\" }",
-            //        Encoding.UTF8, "application/json")
-            //};
+                // Logika usuwania konta
+                db.Users.Remove(user);
+                await db.SaveChangesAsync();
 
-            throw new NotImplementedException();
+                return true;
+            }
+            catch(Exception ex) 
+            {
+                throw new Exception("Error during removing account :" + ex.Message);
+            }
+        }
+
+        private int ExtractUserIdFromJWTToken(string token)
+        {
+            int userId = 0;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                try
+                {
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+                    if (jwtToken != null)
+                    {
+                        var claim = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+
+                        if (claim != null && int.TryParse(claim.Value, out userId))
+                        {
+                            return userId;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Error decoding JWT token: {ex.Message}");
+                }
+            }
+
+            return userId;
+        }
+
+        private bool ValidateJWTToken(string token, int PassedUserId)
+        {
+            var userIdFromToken = ExtractUserIdFromJWTToken(token);
+            if(userIdFromToken != PassedUserId)
+            {
+                throw new Exception("User id passed in the request and one from JWT token doesn't match");
+            }
+            return true;
         }
     }
 }

@@ -2,6 +2,7 @@ using FungEyeApi.Data;
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
+using FungEyeApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,7 +10,7 @@ using System.Security.Claims;
 using System.Text;
 
 
-namespace FungEyeApi.Models
+namespace FungEyeApi.Services
 {
     public class AuthService : IAuthService
     {

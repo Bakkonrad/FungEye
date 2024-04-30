@@ -8,7 +8,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Text;
 
-namespace FungEyeApi.Models
+namespace FungEyeApi.Services
 {
     public class UserService : IUserService
     {

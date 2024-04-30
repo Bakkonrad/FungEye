@@ -1,6 +1,6 @@
 using FungEyeApi.Data;
 using FungEyeApi.Interfaces;
-using FungEyeApi.Models;
+using FungEyeApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

@@ -1,9 +1,10 @@
 <template>
-  <div class="profile-img-container">
+  <div class="profile-img-container" :style="{ width: `${width}px`, height: `${height}px` }">
     <img
       class="profile-img"
       :src="imgSrc"
       alt="Profile Image"
+      
     />
   </div>
 </template>
@@ -11,7 +12,7 @@
 <script>
 export default {
   name: "ProfileImage",
-  props: ['imgSrc']
+  props: ['imgSrc', 'width', 'height']
 };
 </script>
 
@@ -31,4 +32,5 @@ export default {
   height: 100%;
   border-radius: 50%;
 }
+
 </style>

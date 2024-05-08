@@ -9,19 +9,19 @@ import "@fontsource/lobster-two";
 
 <script>
 import ProfileImage from "./components/ProfileImage.vue";
+import Navbar from "./components/Navbar.vue";
 
 export default {
   components: {
     ProfileImage,
+    Navbar,
   },
 };
 </script>
 
 <template>
   <header>
-    <h1 id="logo-text">Fungeye</h1>
-    <button type="button" class="btn fungeye-default-button">Button</button>
-    <ProfileImage :imgSrc="'src/assets/images/profile-images/profile-img1.jpeg'"/>
+    <Navbar />
   </header>
 </template>
 
@@ -35,12 +35,6 @@ body {
   --light-green: #a7c957;
   --beige: #f2e8cf;
   --red: #bc4749;
-}
-
-#logo-text {
-  font-family: "Lobster Two";
-  font-size: 2em;
-  color: var(--dark-green);
 }
 
 h1 {
@@ -70,11 +64,12 @@ p {
   align-items: center;
   padding-left: 26px;
   padding-right: 26px;
-  gap: 10px;
+  padding-top: 0;
+  padding-bottom: 0;
 
   background: var(--green);
   color: white;
-  border-radius: 30px;
+  border-radius: 35px;
 
   font-family: "Cormorant Garamond";
   font-weight: 500;

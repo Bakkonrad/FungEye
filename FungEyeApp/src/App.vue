@@ -4,7 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
   <header>
-    <h1>Siema grzybiarze</h1>
+    <h1>Fungeye</h1>
   </header>
 
 </template>

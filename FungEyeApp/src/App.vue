@@ -18,7 +18,9 @@ export default {
 </script>
 
 <template>
-  <Navbar />
+  <div>
+    <RouterView />
+  </div>
 </template>
 
 <style>

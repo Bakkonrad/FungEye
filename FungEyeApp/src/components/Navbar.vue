@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary fungeye-navbar">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#"><Logo /></a>
+      <RouterLink  to="/" class="navbar-brand"><Logo /></RouterLink>
       <button
         class="navbar-toggler"
         type="button"
@@ -16,19 +16,23 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Home</a>
+            <RouterLink to="/" class="nav-link active" aria-current="page">Strona główna</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Features</a>
+            <RouterLink to="/recognize" class="nav-link">Rozpoznawanie grzybów</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Pricing</a>
+            <RouterLink to="/portal" class="nav-link">Portal</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link">Disabled</a>
+            <RouterLink to="/weather" class="nav-link">Pogoda</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink to="/atlas" class="nav-link">Atlas</RouterLink>
           </li>
         </ul>
     </div>
+    <RouterLink to="/log-in" class="btn fungeye-default-button" id="logInButton">Zaloguj / Zarejestruj się</RouterLink>
     <MyProfileButton />
     </div>
   </nav>
@@ -57,6 +61,13 @@ export default {
   justify-content: center;
 }
 
+.navbar-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2em;
+}
+
 .nav-link {
   font-family: "Cormorant Garamond";
   font-style: normal;
@@ -71,6 +82,10 @@ export default {
   color: var(--green) !important;
   font-weight: 500;
   text-decoration: underline;
+}
+
+#logInButton {
+    height: 50px;
 }
 
 </style>

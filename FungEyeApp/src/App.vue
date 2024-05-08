@@ -8,21 +8,17 @@ import "@fontsource/lobster-two";
 </script>
 
 <script>
-import ProfileImage from "./components/ProfileImage.vue";
 import Navbar from "./components/Navbar.vue";
 
 export default {
   components: {
-    ProfileImage,
     Navbar,
   },
 };
 </script>
 
 <template>
-  <header>
-    <Navbar />
-  </header>
+  <Navbar />
 </template>
 
 <style>
@@ -88,5 +84,4 @@ p {
   color: white;
   font-weight: 600;
 }
-
 </style>

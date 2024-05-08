@@ -2,7 +2,7 @@
   <div class="profile-button">
     <button type="button" class="btn fungeye-default-button">
       <ProfileImage
-        :imgSrc="'src/assets/images/profile-images/profile-img1.jpeg'"
+        :imgSrc="imgSrc"
         :width="50"
         :height="50"
       />
@@ -18,6 +18,11 @@ export default {
   name: "MyProfileButton",
   components: {
     ProfileImage,
+  },
+  data() {
+    return {
+        imgSrc: 'src/assets/images/profile-images/profile-img1.jpeg'
+    };
   },
 };
 </script>

@@ -24,6 +24,7 @@ export default {
 </template>
 
 <style>
+/* body */
 body {
   background-color: #f2e8cf !important;
   font-family: "Cormorant Garamond";
@@ -35,6 +36,7 @@ body {
   --red: #bc4749;
 }
 
+/* fonts */
 h1 {
   font-family: "Lobster Two";
   font-size: 3em;
@@ -55,6 +57,7 @@ p {
   font-size: 1.2em;
 }
 
+/* buttons */
 .fungeye-default-button {
   display: flex;
   flex-direction: row;
@@ -72,6 +75,7 @@ p {
   font-family: "Cormorant Garamond";
   font-weight: 500;
   font-size: 1.2em;
+  height: 50px;
 }
 
 .fungeye-default-button:hover {
@@ -86,4 +90,45 @@ p {
   color: white;
   font-weight: 600;
 }
+
+/* forms */
+.invalidInput {
+  color: var(--red);
+}
+
+input {
+  color: white !important;
+  /* width: 90% !important; */
+
+  box-sizing: border-box;
+  height: 50px;
+
+  background: rgba(255, 255, 255, 0.3) !important;
+  /* input-stroke */
+  border: 1px solid rgba(56, 102, 65, 0.2) !important;
+  border-radius: 15px !important;
+}
+
+input::placeholder {
+  color: rgba(0, 0, 0, 0.572) !important;
+}
+
+input:focus {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border-color: var(--dark-green) !important;
+  box-shadow: 0 0 0 0.15rem rgba(56, 102, 65, 0.25) !important;
+}
+
+#forgotPassword {
+  color: white;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submitFormButton {
+  width: 100%;
+  margin-top: 1em;
+}
+
+
 </style>

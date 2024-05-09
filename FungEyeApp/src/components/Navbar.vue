@@ -71,7 +71,7 @@ export default {
 .nav-link {
   font-family: "Cormorant Garamond";
   font-style: normal;
-  font-size: 1.5em;
+  font-size: 1.3em;
   line-height: 29px;
 
   color: #000000;

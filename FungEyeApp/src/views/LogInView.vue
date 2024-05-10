@@ -9,6 +9,7 @@
         <div class="mb-3">
           <label for="exampleFormControlInput1" class="form-label">Email</label>
           <input
+            autofocus
             type="email"
             class="form-control"
             id="exampleFormControlInput1"
@@ -48,7 +49,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .container {
   margin-top: 3em;
   display: flex;
@@ -67,7 +68,6 @@ export default {
   position: absolute;
   height: auto;
 
-  position: absolute;
   width: 25vw;
 
   background: rgba(0, 0, 0, 0.45);

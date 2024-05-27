@@ -67,6 +67,7 @@ p {
   padding-right: 26px;
   padding-top: 0;
   padding-bottom: 0;
+  width: fit-content;
 
   background: var(--green);
   color: white;

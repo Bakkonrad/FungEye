@@ -1,3 +1,7 @@
+<!-- TODO responsywność -->
+<!-- TODO czy chcemy żeby to były prawdziwe posty - jeśli tak to będzie trzeba zrobić je jako zmienne, slider -->
+<!-- TODO kolory dodać jako zmienne (nazwy w App) -->
+
 <template>
   <div>
     <Navbar />
@@ -5,8 +9,10 @@
   <div class="container">
     <section class="header">
       <div class="header-content">
-        <h1>miej oko na grzyby z</h1>
-        <h2>FungEye</h2>
+        <!-- <h1>miej oko na grzyby z</h1>
+        <h2>FungEye</h2> -->
+        <h3>miej oko na grzyby z</h3>
+        <h1>FungEye</h1>
         <p>
           jakiś tekst zachęcający do naszej super aplikacji<br />
           taki dłuższy trochę<br />
@@ -20,7 +26,8 @@
             <li>a co najważniejsze - rozpoznawaj gatunki grzybów!</li>
           </ul>
         </p>
-        <button>Rozpoznaj grzyba</button>
+        <!-- <button>Rozpoznaj grzyba</button> -->
+        <RouterLink to="/recognize" class="btn fungeye-default-button">Rozpoznaj grzyba</RouterLink>
       </div>
       <div class="header-image">
         <img src="..\assets\images\backgrounds\Rectangle 11.png" alt="Mushrooms in forest" />
@@ -52,7 +59,10 @@
           </div>
         </div>
       </div>
-      <button class="portal-button">Przejdź do portalu</button>
+      <!-- <button class="portal-button">Przejdź do portalu</button> -->
+      <div class="button-container">
+        <RouterLink to="/portal" class="btn fungeye-default-button" id="portal-button" >Przejdź do portalu</RouterLink>
+      </div>
     </section>
   </div>
   <div>
@@ -71,7 +81,8 @@ export default {
 };
 </script>
 
-<style>
+<!-- scoped? -->
+<style scoped>
 .container {
   color: #333;
   padding: 20px;
@@ -100,7 +111,7 @@ export default {
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
 }
-
+/* można by było dodać klasy/idiki do tekstu (np. .header h1 na header-title albo coś w tym stylu) */
 .header h1, .header h2 {
   margin: 0;
 }
@@ -119,7 +130,7 @@ export default {
   padding-left: 20px;
 }
 
-.header button {
+/* .header button {
   margin-top: 20px;
   padding: 10px 25px;
   background-color: #8fb339;
@@ -127,7 +138,7 @@ export default {
   border: none;
   cursor: pointer;
   border-radius: 20px;
-}
+} */
 
 .header-image img {
   max-width: 100%;
@@ -159,6 +170,7 @@ export default {
   justify-content: space-around;
   margin-top: 130px; /* Dodanie marginesu górnego dla sekcji kart */
   align-items: flex-start; 
+  margin-bottom: 50px;
 }
 
 .card {
@@ -206,7 +218,7 @@ export default {
   margin-top: 0;
 }
 
-.portal-button {
+/* .portal-button {
   margin-top: 40px;
   padding: 10px 20px;
   background-color: #6A994E;
@@ -214,6 +226,11 @@ export default {
   border: none;
   cursor: pointer;
   border-radius: 20px; /* Zaokrąglenie ramek */
+/* } */
+
+.button-container {
+  display: flex;
+  justify-content: center;
 }
 
 </style>

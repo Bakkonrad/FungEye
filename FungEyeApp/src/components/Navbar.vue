@@ -33,7 +33,7 @@
         </ul>
     </div>
     <RouterLink to="/log-in" class="btn fungeye-default-button" id="logInButton">Zaloguj / Zarejestruj się</RouterLink>
-    <MyProfileButton />
+    <RouterLink to="/my-profile"><MyProfileButton /></RouterLink>
     </div>
   </nav>
 </template>

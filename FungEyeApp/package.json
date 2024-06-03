@@ -9,6 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/acme": "^5.0.19",
+    "@fontsource/cormorant-garamond": "^5.0.13",
+    "@fontsource/lato": "^5.0.21",
+    "@fontsource/lobster-two": "^5.0.19",
+    "@fontsource/signika": "^5.0.20",
+    "bootstrap": "^5.3.3",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },

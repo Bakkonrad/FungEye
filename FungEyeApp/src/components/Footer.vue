@@ -14,7 +14,7 @@
   
   <style>
   .footer {
-    border-top: 1px solid #386641;
+    border-top: 1px solid;
     padding: 1px 0;
     text-align: center;
     font-size: 14px;
@@ -30,6 +30,8 @@
   }
   
   .copyright {
+    font-family: "Lato";
+    font-weight: 300;
     float: left;
   }
   </style>

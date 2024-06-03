@@ -1,7 +1,7 @@
 <template>
   <div>
     <Navbar />
-    <div class="container">
+    <div class="container-md">
       <div id="user-info">
         <div class="left-side">
           <ProfileImage :imgSrc="imgSrc" width="170" height="170" />
@@ -11,9 +11,14 @@
             <p id="email">{{ email }}</p>
           </div>
         </div>
-        <button type="button" class="btn fungeye-default-button">
-          Edytuj profil
-        </button>
+        <div class="buttons">
+          <button @click="editProfile" type="button" class="btn fungeye-default-button">
+            Edytuj profil
+          </button>
+          <button @click="logOut" type="button" class="btn fungeye-red-button">
+            Wyloguj się
+          </button>
+        </div>
       </div>
       <div class="collection">
         <h2>Moja kolekcja -></h2>
@@ -104,7 +109,16 @@ export default {
       ],
     };
   },
+  methods: {
+    editProfile() {
+      alert("Edytuj profil");
+    },
+    logOut() {
+      alert("Wyloguj się");
+    },
+  }
 };
+
 </script>
 
 <style scoped>
@@ -117,6 +131,12 @@ export default {
   flex-direction: row;
   align-items: center;
   gap: 2em;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
 }
 
 #user-info {
@@ -133,7 +153,8 @@ export default {
 #login {
   font-size: 1.5em;
   font-weight: 700;
-  font-family: "Lobster Two";
+  /* font-family: "Lobster Two"; */
+  font-family: "Signika";
 }
 
 .collection {
@@ -163,6 +184,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
-
 </style>

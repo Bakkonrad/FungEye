@@ -32,8 +32,8 @@
           </li>
         </ul>
     </div>
-    <RouterLink to="/log-in" class="btn fungeye-default-button" id="logInButton">Zaloguj / Zarejestruj się</RouterLink>
-    <RouterLink to="/my-profile"><MyProfileButton /></RouterLink>
+    <RouterLink to="/log-in" class="btn fungeye-default-button" id="logInButton" v-if="!loggedIn">Zaloguj / Zarejestruj się</RouterLink>
+    <RouterLink to="/my-profile" id="myProfileButton" v-else><MyProfileButton /></RouterLink>
     </div>
   </nav>
 </template>
@@ -49,6 +49,11 @@ export default {
     Logo,
     MyProfileButton,
   },
+  data() {
+    return {
+      loggedIn: true,
+    }
+  }
 };
 </script>
 
@@ -69,7 +74,8 @@ export default {
 }
 
 .nav-link {
-  font-family: "Cormorant Garamond";
+  /* font-family: "Cormorant Garamond"; */
+  font-family: "Lato";
   font-style: normal;
   font-size: 1.3em;
   line-height: 29px;
@@ -86,6 +92,10 @@ export default {
 
 #logInButton {
     height: 50px;
+}
+
+#myProfileButton {
+  text-decoration: none;
 }
 
 </style>

@@ -25,9 +25,10 @@ export default {
 }
 
 #logo-text {
-    font-family: "Lobster Two";
-    font-size: 1.5em;
-    color: var(--dark-green);
+    /* font-family: "Lobster Two"; */
+    font-family: "Signika";
+    font-size: 1.7em;
+    /* color: var(--dark-green); */
 }
 
 </style>

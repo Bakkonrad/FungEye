@@ -1,10 +1,9 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
 
-import "@fontsource/cormorant-garamond";
-import "@fontsource/cormorant-garamond/500.css";
-import "@fontsource/cormorant-garamond/600.css";
-import "@fontsource/lobster-two";
+import "@fontsource/signika";
+import "@fontsource/lato";
+import "@fontsource/lato/300.css";
 </script>
 
 <script>
@@ -27,7 +26,7 @@ export default {
 /* body */
 body {
   background-color: #f2e8cf !important;
-  font-family: "Cormorant Garamond";
+  font-family: "Lato";
   /* zmienne css, przykładowe użycie: color: var(--dark-green); */
   --dark-green: #386641;
   --green: #6a994e;
@@ -38,27 +37,33 @@ body {
 
 /* fonts */
 h1 {
-  font-family: "Lobster Two";
+  font-family: "Signika";
   font-size: 3em;
 }
 
 h2 {
-  font-family: "Lobster Two";
+  font-family: "Signika";
   font-size: 2em;
 }
 
 h3 {
-  font-family: "Lobster Two";
+  font-family: "Signika";
   font-size: 1.5em;
 }
 
 p {
-  font-family: "Cormorant Garamond";
+  font-family: "Lato";
+  font-weight: 300;
   font-size: 1.2em;
 }
 
+ul {
+  font-family: "Lato";
+  font-weight: 300;
+}
+
 /* buttons */
-.fungeye-default-button {
+.fungeye-default-button, .fungeye-red-button {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -73,8 +78,9 @@ p {
   color: white;
   border-radius: 35px;
 
-  font-family: "Cormorant Garamond";
-  font-weight: 500;
+  /* font-family: "Cormorant Garamond"; */
+  font-family: "Lato";
+  font-weight: 300;
   font-size: 1.2em;
   height: 50px;
 }
@@ -88,6 +94,29 @@ p {
 .fungeye-default-button:active,
 .fungeye-default-button:active:focus {
   background: var(--dark-green);
+  color: white;
+  font-weight: 600;
+}
+
+.fungeye-default-button:disabled {
+  background: var(--light-green);
+  color: white;
+}
+
+.fungeye-red-button {
+  background: var(--red);
+  color: white;
+}
+
+.fungeye-red-button:hover {
+  background: #712b2c;
+  color: white;
+}
+
+.fungeye-red-button:focus,
+.fungeye-red-button:active,
+.fungeye-red-button:active:focus {
+  background: #712b2c;
   color: white;
   font-weight: 600;
 }

@@ -4,6 +4,8 @@ import { RouterLink, RouterView } from "vue-router";
 import "@fontsource/signika";
 import "@fontsource/lato";
 import "@fontsource/lato/300.css";
+
+
 </script>
 
 <script>
@@ -147,6 +149,10 @@ input:focus {
   background: rgba(255, 255, 255, 0.5) !important;
   border-color: var(--dark-green) !important;
   box-shadow: 0 0 0 0.15rem rgba(56, 102, 65, 0.25) !important;
+}
+
+.form-label {
+  color: white;
 }
 
 #forgotPassword {

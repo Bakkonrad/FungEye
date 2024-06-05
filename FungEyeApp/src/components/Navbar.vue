@@ -74,8 +74,7 @@ export default {
 }
 
 .nav-link {
-  /* font-family: "Cormorant Garamond"; */
-  font-family: "Lato";
+  font-family: "Nunito";
   font-style: normal;
   font-size: 1.3em;
   line-height: 29px;

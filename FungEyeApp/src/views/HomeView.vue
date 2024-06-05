@@ -117,7 +117,7 @@ export default {
 }
 
 .header p1 {
-  font-family: "Lato";
+  font-family: "Nunito";
   margin-top: 20px;
 }
 
@@ -157,8 +157,8 @@ export default {
 }
 
 .main p1 {
-  font-family: "Lato";
-  font-weight: 300;
+  font-family: "Nunito";
+  font-weight: 200;
   font-size: 30px;
   margin-bottom: 30px;
 }

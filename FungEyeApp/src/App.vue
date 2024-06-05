@@ -1,10 +1,12 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
 
-import "@fontsource/signika";
-import "@fontsource/lato";
-import "@fontsource/lato/300.css";
-
+import "@fontsource/open-sans";
+import "@fontsource/open-sans/300.css";
+import "@fontsource/open-sans/500.css";
+import "@fontsource/open-sans/700.css";
+import "@fontsource/nunito";
+import "@fontsource/nunito/200.css";
 
 </script>
 
@@ -28,7 +30,7 @@ export default {
 /* body */
 body {
   background-color: #f2e8cf !important;
-  font-family: "Lato";
+  font-family: "Nunito";
   /* zmienne css, przykładowe użycie: color: var(--dark-green); */
   --dark-green: #386641;
   --green: #6a994e;
@@ -39,28 +41,31 @@ body {
 
 /* fonts */
 h1 {
-  font-family: "Signika";
+  font-family: "Open Sans";
+  font-weight: 700;
   font-size: 3em;
 }
 
 h2 {
-  font-family: "Signika";
+  font-family: "Open Sans";
+  font-weight: 500;
   font-size: 2em;
 }
 
 h3 {
-  font-family: "Signika";
+  font-family: "Open Sans";
+  font-weight: 500;
   font-size: 1.5em;
 }
 
-p {
-  font-family: "Lato";
+p, p1 {
+  font-family: "Nunito";
   font-weight: 300;
   font-size: 1.2em;
 }
 
 ul {
-  font-family: "Lato";
+  font-family: "Nunito";
   font-weight: 300;
 }
 
@@ -80,8 +85,7 @@ ul {
   color: white;
   border-radius: 35px;
 
-  /* font-family: "Cormorant Garamond"; */
-  font-family: "Lato";
+  font-family: "Nunito";
   font-weight: 300;
   font-size: 1.2em;
   height: 50px;

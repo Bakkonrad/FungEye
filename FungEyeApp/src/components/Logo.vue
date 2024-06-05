@@ -25,8 +25,8 @@ export default {
 }
 
 #logo-text {
-    /* font-family: "Lobster Two"; */
-    font-family: "Signika";
+    font-family: "Open Sans";
+    font-weight: 700;
     font-size: 1.7em;
     /* color: var(--dark-green); */
 }

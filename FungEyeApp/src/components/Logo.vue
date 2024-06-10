@@ -1,6 +1,6 @@
 <template>
 <div class="logo">
-    <img id="logo-img" src="../../public/ikona-aplikacji.svg" alt="" />
+    <img id="logo-img" src="../assets/images/ikona-aplikacji.svg" alt="" />
     <h1 id="logo-text">FungEye</h1>
 </div>
 </template>

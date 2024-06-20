@@ -1,6 +1,5 @@
 <template>
-  <Navbar />
-  <div class="container">
+  <div class="container-md">
     <img class="log-in-bg" src="../assets/images/backgrounds/log-in-bg.jpeg" />
     <div class="log-in-content">
       <h1>Witaj ponownie!</h1>
@@ -30,13 +29,11 @@
 </template>
 
 <script>
-import Navbar from "../components/Navbar.vue";
 import BaseInput from "../components/BaseInput.vue";
 import {ref } from "vue";
 
 export default {
   components: {
-    Navbar,
     BaseInput,
   },
   data() {
@@ -58,7 +55,7 @@ export default {
 </script>
 
 <style scoped>
-.container {
+.container-md {
   margin-top: 3em;
   display: flex;
   justify-content: center;

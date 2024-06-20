@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Navbar />
     <div class="container-md">
       <h1>Rozpoznawianie grzybów</h1>
       <div class="photo-upload">
@@ -70,11 +69,7 @@
 </template>
 
 <script>
-import Navbar from "../components/Navbar.vue";
 export default {
-  components: {
-    Navbar,
-  },
   data() {
     return {
       images: [],

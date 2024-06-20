@@ -3,9 +3,6 @@
 <!-- TODO kolory dodać jako zmienne (nazwy w App) -->
 
 <template>
-  <div>
-    <Navbar />
-  </div>
   <div class="container">
     <section class="header">
       <div class="header-content">
@@ -65,20 +62,9 @@
       </div>
     </section>
   </div>
-  <div>
-    <Footer></Footer>
-  </div>
 </template>
 
 <script>
-import Navbar from "../components/Navbar.vue";
-import Footer from "../components/Footer.vue";
-export default {
-  components: {
-    Navbar,
-    Footer,
-  },
-};
 </script>
 
 <!-- scoped? -->

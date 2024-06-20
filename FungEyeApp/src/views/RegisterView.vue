@@ -1,5 +1,4 @@
 <template>
-  <Navbar></Navbar>
   <div class="container-md">
     <img
       class="register-bg"
@@ -130,7 +129,6 @@
 </template>
 
 <script>
-import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
 import BaseInput from "@/components/BaseInput.vue";
 import { ref, reactive, computed } from "vue";
@@ -140,7 +138,6 @@ import { required, email, minLength, sameAs } from "@vuelidate/validators";
 export default {
   name: "RegisterView",
   components: {
-    Navbar,
     Footer,
     BaseInput,
   },

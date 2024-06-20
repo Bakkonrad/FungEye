@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Navbar />
     <div class="container-md">
       <div id="user-info">
         <div class="left-side">
@@ -57,12 +56,10 @@
 </template>
 
 <script>
-import Navbar from "../components/Navbar.vue";
 import ProfileImage from "@/components/ProfileImage.vue";
 
 export default {
   components: {
-    Navbar,
     ProfileImage,
   },
   data() {

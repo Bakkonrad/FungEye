@@ -51,7 +51,7 @@ export default {
   },
   data() {
     return {
-      loggedIn: false,
+      loggedIn: true,
     }
   }
 };
@@ -74,7 +74,7 @@ export default {
 }
 
 .nav-link {
-  font-family: "Nunito";
+  font-family:   "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-style: normal;
   font-size: 1.3em;
   line-height: 29px;

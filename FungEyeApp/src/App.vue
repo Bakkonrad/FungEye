@@ -7,7 +7,6 @@ import "@fontsource/open-sans/500.css";
 import "@fontsource/open-sans/700.css";
 import "@fontsource/nunito";
 import "@fontsource/nunito/200.css";
-
 </script>
 
 <script>
@@ -24,7 +23,7 @@ export default {
 
 <template>
   <Navbar />
-  <div>
+  <div class="r-view">
     <RouterView />
   </div>
   <Footer />
@@ -34,7 +33,7 @@ export default {
 /* body */
 body {
   background-color: #f2e8cf !important;
-  font-family: "Nunito";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   /* zmienne css, przykładowe użycie: color: var(--dark-green); */
   --dark-green: #386641;
   --green: #6a994e;
@@ -45,36 +44,55 @@ body {
 
 /* fonts */
 h1 {
-  font-family: "Open Sans";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
   font-size: 3em;
 }
 
 h2 {
-  font-family: "Open Sans";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500;
   font-size: 2em;
 }
 
 h3 {
-  font-family: "Open Sans";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 500;
   font-size: 1.5em;
 }
 
-p, p1 {
-  font-family: "Nunito";
+p,
+p1 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
   font-size: 1.2em;
 }
 
 ul {
-  font-family: "Nunito";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #d7ceb8;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: var(--dark-green);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green);
+}
+
 /* buttons */
-.fungeye-default-button, .fungeye-red-button {
+.fungeye-default-button,
+.fungeye-red-button {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -89,7 +107,7 @@ ul {
   color: white;
   border-radius: 35px;
 
-  font-family: "Nunito";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
   font-size: 1.2em;
   height: 50px;
@@ -105,7 +123,7 @@ ul {
 .fungeye-default-button:active:focus {
   background: var(--dark-green);
   color: white;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .fungeye-default-button:disabled {
@@ -174,5 +192,8 @@ input:focus {
   margin-top: 1em;
 }
 
-
+.r-view {
+  margin-top: 2em;
+  min-height: calc(100vh - 70px);
+}
 </style>

@@ -20,7 +20,7 @@
         </div>
       </div>
       <div class="collection">
-        <h2>Moja kolekcja -></h2>
+        <h3>Moja kolekcja &rarr;</h3>
         <div class="hstack gap-3" id="mushroom-collection">
           <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
             <img class="mushroom" :src="mushroom" alt="Mushroom" />
@@ -29,7 +29,7 @@
       </div>
       <div class="bottom-collections">
         <div class="collection">
-          <h2>Trofea -></h2>
+          <h3>Trofea &rarr;</h3>
           <div class="hstack gap-3" id="trophy-collection">
             <div class="p-2" v-for="trophy in trophys" :key="trophy">
               <div class="trophy-content">
@@ -40,7 +40,7 @@
           </div>
         </div>
         <div class="collection">
-          <h2>Znajomi -></h2>
+          <h3>Znajomi &rarr;</h3>
           <div class="hstack gap-3" id="friends-collection">
             <div class="p-2" v-for="friend in friends" :key="friend">
               <div class="friend-content">
@@ -127,7 +127,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 2em;
+  gap: 1.5em;
 }
 
 .buttons {
@@ -149,9 +149,8 @@ export default {
 
 #login {
   font-size: 1.5em;
-  font-weight: 700;
-  /* font-family: "Lobster Two"; */
-  font-family: "Signika";
+  font-weight: 500;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .collection {

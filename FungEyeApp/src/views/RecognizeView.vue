@@ -1,7 +1,6 @@
 <template>
   <div>
     <div class="container-md">
-      <h1>Rozpoznawianie grzybów</h1>
       <div class="photo-upload">
         <div class="card">
           <input

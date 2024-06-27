@@ -25,7 +25,7 @@ export default {
 }
 
 #logo-text {
-    font-family: "Open Sans";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 700;
     font-size: 1.7em;
     /* color: var(--dark-green); */

@@ -32,14 +32,18 @@ export default {
 <style>
 /* body */
 body {
-  background-color: #f2e8cf !important;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  /* zmienne css, przykładowe użycie: color: var(--dark-green); */
+  /* zmienne css, przykładowe użycie: color: var(--dark-green); */ 
   --dark-green: #386641;
   --green: #6a994e;
   --light-green: #a7c957;
   --beige: #f2e8cf;
+  --dark-beige: #e0d7b5;
   --red: #bc4749;
+  --dark-red: #712b2c;
+  --black: #333333;
+  background-color: var(--beige) !important;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: var(--black);
 }
 
 /* fonts */
@@ -78,7 +82,7 @@ ul {
 }
 
 ::-webkit-scrollbar-track {
-  background: #d7ceb8;
+  background: var(--dark-beige);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -137,14 +141,14 @@ ul {
 }
 
 .fungeye-red-button:hover {
-  background: #712b2c;
+  background: var(--dark-red);
   color: white;
 }
 
 .fungeye-red-button:focus,
 .fungeye-red-button:active,
 .fungeye-red-button:active:focus {
-  background: #712b2c;
+  background: var(--dark-red);
   color: white;
   font-weight: 600;
 }

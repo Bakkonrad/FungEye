@@ -46,6 +46,7 @@
           </button>
         </div>
       </div>
+      <RouterLink :to="'/mushroom/' + id" class="btn fungeye-default-button">Strona grzyba</RouterLink>
       <div v-if="showResult" class="result">
         <h2>Wynik</h2>
         <div class="card">
@@ -74,6 +75,7 @@ export default {
       images: [],
       isDragging: false,
       showResult: false,
+      id: 2,
     };
   },
   methods: {
@@ -231,4 +233,5 @@ export default {
   justify-content: flex-end;
   margin-top: 20px;
 }
+
 </style>

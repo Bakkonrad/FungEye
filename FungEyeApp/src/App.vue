@@ -123,7 +123,6 @@ ul {
 .fungeye-default-button:active:focus {
   background: var(--dark-green);
   color: white;
-  font-weight: 500;
 }
 
 .fungeye-default-button:disabled {
@@ -146,7 +145,6 @@ ul {
 .fungeye-red-button:active:focus {
   background: var(--dark-red);
   color: white;
-  font-weight: 600;
 }
 
 /* forms */
@@ -175,6 +173,10 @@ input:focus {
   background: rgba(255, 255, 255, 0.5) !important;
   border-color: var(--dark-green) !important;
   box-shadow: 0 0 0 0.15rem rgba(56, 102, 65, 0.25) !important;
+}
+
+.r-link {
+  color: var(--dark-green);
 }
 
 .form-label {

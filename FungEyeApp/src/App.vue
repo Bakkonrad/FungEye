@@ -33,8 +33,10 @@ export default {
 /* body */
 body {
   /* zmienne css, przykładowe użycie: color: var(--dark-green); */ 
-  --dark-green: #386641;
-  --green: #6a994e;
+  /* --dark-green: #386641; */
+  --dark-green: #355F3D;
+  /* --green: #6a994e; */
+  --green: #538237;
   --light-green: #a7c957;
   --beige: #f2e8cf;
   --dark-beige: #e0d7b5;

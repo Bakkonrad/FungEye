@@ -77,7 +77,7 @@
 .header {
   display: flex;
   justify-content: space-between;
-  background: linear-gradient(to top, #386641, #6A994E);
+  background: linear-gradient(to top, var(--dark-green), var(--green));
   border-radius: 20px;
   color: white;
   max-width: 1520px; /* Maksymalna szerokość */
@@ -175,21 +175,21 @@
 .left-card {
   width: 22%; /* Ustawienie szerokości left-card i right-card na 25% */
   height: 600px;
-  background: linear-gradient(to left, #386641, #6A994E);
+  background: linear-gradient(to left, var(--dark-green), var(--green));
   margin-left: 150px;
 }
 
 .right-card {
   width: 22%; /* Ustawienie szerokości left-card i right-card na 25% */
   height: 600px;
-  background: linear-gradient(to left, #386641, #6A994E);
+  background: linear-gradient(to left,var(--dark-green), var(--green));
   margin-right: 150px;
 }
 
 .middle-card {
   width: 28%;
   height: 700px; /* Zwiększona wysokość środkowej karty */
-  background: linear-gradient(to right, #386641, #6A994E);
+  background: linear-gradient(to right, var(--dark-green), var(--green));
   margin-top: -50px;
 }
 

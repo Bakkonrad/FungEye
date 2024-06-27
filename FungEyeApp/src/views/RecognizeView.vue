@@ -129,7 +129,7 @@ export default {
 .card {
   background: radial-gradient(
       135.63% 132.41% at 149.88% 23.51%,
-      var(--light-green) 0%,
+      var(--green) 50%,
       var(--dark-green) 100%
     )
     /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;

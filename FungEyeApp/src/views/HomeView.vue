@@ -9,7 +9,7 @@
         <!-- <h1>miej oko na grzyby z</h1>
         <h2>FungEye</h2> -->
         <h3>miej oko na grzyby z</h3>
-        <h1>FungEye</h1>
+        <h1 id="fungeye">FungEye</h1>
         <p>
           jakiś tekst zachęcający do naszej super aplikacji<br />
           taki dłuższy trochę<br />
@@ -102,8 +102,12 @@
   margin: 0;
 }
 
+#fungeye {
+  font-family: 'Avenir Next', sans-serif;
+}
+
 .header p1 {
-  font-family: "Nunito";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin-top: 20px;
 }
 
@@ -143,7 +147,7 @@
 }
 
 .main p1 {
-  font-family: "Nunito";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 200;
   font-size: 30px;
   margin-bottom: 30px;

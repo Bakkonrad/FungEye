@@ -1,30 +1,18 @@
 <template>
-  <Navbar />
-  <div class="container">
+  <div class="container-md">
     <img class="log-in-bg" src="../assets/images/backgrounds/log-in-bg.jpeg" />
     <div class="log-in-content">
       <h1>Witaj ponownie!</h1>
       <p>Zaloguj się, aby móc w pełni korzystać z możliwości FungEye</p>
       <form>
         <div class="mb-3">
-          <label for="exampleFormControlInput1" class="form-label">Email</label>
-          <input
-            autofocus
-            type="email"
-            class="form-control"
-            id="exampleFormControlInput1"
-            placeholder="name@example.com"
-          />
+          <BaseInput autofocus v-model="loginFormData.email" type="text" label="Email" class="email-input"/>
         </div>
         <div class="mb-3">
-          <label for="exampleInputPassword1" class="form-label">Hasło</label>
-          <input
-            type="password"
-            class="form-control"
-            id="exampleInputPassword1"
-          />
+          <BaseInput v-model="loginFormData.password" type="password" label="Hasło" class="password-input"/>
         </div>
         <!-- <div id="forgotPassword" class="form-text">Zapomniałeś/aś hasła?</div> -->
+        <span v-if="error" class="error-message">Email/Login lub hasło są nieprawidłowe.</span>
         <button
           type="submit"
           class="btn fungeye-default-button submitFormButton"
@@ -41,16 +29,33 @@
 </template>
 
 <script>
-import Navbar from "../components/Navbar.vue";
+import BaseInput from "../components/BaseInput.vue";
+import {ref } from "vue";
+
 export default {
   components: {
-    Navbar,
+    BaseInput,
+  },
+  data() {
+    return {
+      error: false,
+    };
+  },
+  setup() {
+    const loginFormData = ref({
+      email: "",
+      password: "",
+    });
+    return {
+      loginFormData,
+    };
   },
 };
+
 </script>
 
 <style scoped>
-.container {
+.container-md {
   margin-top: 3em;
   display: flex;
   justify-content: center;
@@ -94,10 +99,6 @@ p {
   .log-in-content {
     width: 80vw;
   }
-}
-
-label {
-  color: white;
 }
 
 #registerLink {

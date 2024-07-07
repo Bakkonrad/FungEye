@@ -1,6 +1,5 @@
 <template>
-  <Navbar></Navbar>
-  <div class="container">
+  <div class="container-md">
     <img
       class="register-bg"
       src="../assets/images/backgrounds/register-bg.jpg"
@@ -8,75 +7,106 @@
     <div class="content">
       <div class="join-text">
         <h1>Dołącz do społeczności!</h1>
-        <p id="join-p">Zarejestruj się, aby móc w pełni korzystać z możliwości FungEye</p>
+        <p id="join-p">
+          Zarejestruj się, aby móc w pełni korzystać z możliwości FungEye
+        </p>
       </div>
       <div class="form-content">
-        <form>
+        <form @submit.prevent="submitForm">
           <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label"
-              >Email*</label
-            >
-            <input
+            <BaseInput
               autofocus
-              type="email"
-              class="form-control"
-              id="exampleFormControlInput1"
-              placeholder="name@example.com"
+              v-model="registerFormData.email"
+              type="text"
+              label="Email*"
+              class="email-input"
             />
+            <span
+              class="error-message"
+              v-for="error in v$.email.$errors"
+              :key="error.$uid"
+            >
+              {{ error.$message }}
+            </span>
           </div>
           <div class="row mb-3">
             <div class="col">
-                <label for="exampleFormControlInput1" class="form-label"
-                  >Imię</label
-                >
-                <input
-                  autofocus
-                  type="text"
-                  class="form-control"
-                  id="exampleFormControlInput1"
-                />
+              <BaseInput
+                v-model="registerFormData.firstName"
+                type="text"
+                label="Imię"
+                class="firstName-input"
+              />
+              <span
+                class="error-message"
+                v-for="error in v$.firstName.$errors"
+                :key="error.$uid"
+              >
+                {{ error.$message }}
+              </span>
             </div>
             <div class="col">
-                <label for="exampleFormControlInput1" class="form-label"
-                  >Nazwisko</label
-                >
-                <input
-                  autofocus
-                  type="text"
-                  class="form-control"
-                  id="exampleFormControlInput1"
-                />
+              <BaseInput
+                v-model="registerFormData.lastName"
+                type="text"
+                label="Nazwisko"
+                class="lastName-input"
+              />
+              <span
+                class="error-message"
+                v-for="error in v$.lastName.$errors"
+                :key="error.$uid"
+              >
+                {{ error.$message }}
+              </span>
             </div>
           </div>
           <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label"
-                  >Nazwa użytkownika*</label
-                >
-                <input
-                  autofocus
-                  type="text"
-                  class="form-control"
-                  id="exampleFormControlInput1"
-                />
+            <BaseInput
+              v-model="registerFormData.username"
+              type="text"
+              label="Nazwa użytkownika*"
+              class="username-input"
+            />
+            <span
+              class="error-message"
+              v-for="error in v$.username.$errors"
+              :key="error.$uid"
+            >
+              {{ error.$message }}
+            </span>
           </div>
           <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">Hasło*</label>
-            <input
+            <BaseInput
+              v-model="registerFormData.password"
               type="password"
-              class="form-control"
-              id="exampleInputPassword1"
+              label="Hasło*"
+              class="password-input"
             />
+            <span
+              class="error-message"
+              v-for="error in v$.password.$errors"
+              :key="error.$uid"
+            >
+              {{ error.$message }}
+            </span>
           </div>
           <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">Powtórz hasło*</label>
-            <input
+            <BaseInput
+              v-model="registerFormData.confirmPassword"
               type="password"
-              class="form-control"
-              id="exampleInputPassword1"
+              label="Potwierdź hasło*"
+              class="confirmPassword-input"
             />
+            <span
+              class="error-message"
+              v-for="error in v$.confirmPassword.$errors"
+              :key="error.$uid"
+            >
+              {{ error.$message }}
+            </span>
           </div>
-        <div id="requiredFields" class="form-text">* Pola obowiązkowe</div>
-
+          <div id="requiredFields" class="form-text">* Pola obowiązkowe</div>
           <button
             type="submit"
             class="btn fungeye-default-button submitFormButton"
@@ -96,25 +126,76 @@
   <div>
     <Footer></Footer>
   </div>
-  
 </template>
 
 <script>
-import Navbar from "@/components/Navbar.vue";
 import Footer from "@/components/Footer.vue";
+import BaseInput from "@/components/BaseInput.vue";
+import { ref, reactive, computed } from "vue";
+import { useVuelidate } from "@vuelidate/core";
+import { required, email, minLength, sameAs } from "@vuelidate/validators";
 
 export default {
-  name: "LogInView",
+  name: "RegisterView",
   components: {
-    Navbar, Footer
+    Footer,
+    BaseInput,
+  },
+  setup() {
+    const registerFormData = reactive({
+      email: "",
+      firstName: "",
+      lastName: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+    });
+
+    const rules = computed(() => {
+      return {
+        email: {
+          required,
+          email,
+        },
+        firstName: {},
+        lastName: {},
+        username: {
+          required,
+          minLength: minLength(3),
+        },
+        password: {
+          required,
+          minLength: minLength(8),
+        },
+        confirmPassword: {
+          required,
+          sameAsPassword: sameAs(registerFormData.password),
+        },
+      };
+    });
+
+    const v$ = useVuelidate(rules, registerFormData);
+
+    const submitForm = async () => {
+      const result = await v$.value.$validate();
+      if (result) {
+        alert("Form submitted!");
+      } else {
+        alert("Form not submitted!");
+      }
+    };
+
+    return {
+      registerFormData,
+      submitForm,
+      v$,
+    };
   },
 };
 </script>
 
-
-
 <style scoped>
-.container {
+.container-md {
   margin-top: 3em;
   display: flex;
   justify-content: center;
@@ -155,7 +236,7 @@ h1 {
 }
 
 #join-p {
-    font-size: 1.8em;
+  font-size: 1.8em;
 }
 
 p {
@@ -163,9 +244,14 @@ p {
 }
 
 #requiredFields {
-  font-size: 1.2em;
+  font-size: 1.1em;
   color: white;
   padding-bottom: 0.3em;
+}
+
+.error-message {
+  color: var(--red);
+  font-size: 1em;
 }
 
 .form-content {

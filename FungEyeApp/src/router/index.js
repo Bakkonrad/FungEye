@@ -7,6 +7,7 @@ import MyProfileView from '@/views/MyProfileView.vue'
 import PortalView from '@/views/PortalView.vue'
 import RecognizeView from '@/views/RecognizeView.vue'
 import WeatherView from '@/views/WeatherView.vue'
+import MushroomView from '@/views/MushroomView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +51,12 @@ const router = createRouter({
       path: '/weather',
       name: 'weather',
       component: WeatherView
+    },
+    {
+      path: '/mushroom/:id',
+      name: 'mushroom',
+      component: MushroomView,
+      props: true
     }
   ]
 })

@@ -27,15 +27,15 @@ namespace FungEyeApi.Services
         {
             UserEntity? existingUser = null;
 
-            if(username != null && email != null)
+            if (username != null && email != null)
             {
                 existingUser = await db.Users.FirstOrDefaultAsync(u => u.Username == username || u.Email == email);
             }
-            else if(username != null && email == null)
+            else if (username != null && email == null)
             {
                 existingUser = await db.Users.FirstOrDefaultAsync(u => u.Username == username);
             }
-            else if(email != null && username == null)
+            else if (email != null && username == null)
             {
                 existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
             }
@@ -73,6 +73,18 @@ namespace FungEyeApi.Services
             }
         }
 
+        public async Task<bool> RegisterUser(User user)
+        {
+            user.Role = RoleEnum.User;
+            return await Register(user);
+        }
+
+        public async Task<bool> RegisterAdmin(User user)
+        {
+            user.Role = RoleEnum.Admin;
+            return await Register(user);
+        }
+
         public async Task<string> Login(LoginUser requestUser)
         {
             var checkUser = await db.Users.FirstOrDefaultAsync(u => u.Username == requestUser.Username);
@@ -106,7 +118,7 @@ namespace FungEyeApi.Services
         private Task<string> CreateToken(User user)
         {
             string userRole = user.Role == RoleEnum.Admin ? "Admin" : "User";
-           
+
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

@@ -11,32 +11,19 @@ namespace FungEyeApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IBlobStorageService _blobStorageService;
 
 
         public AuthController(IAuthService authService, IBlobStorageService blobStorageService)
         {
             _authService = authService;
-            _blobStorageService = blobStorageService;
         }
 
         [HttpPost("registerUser")]
-        public async Task<IActionResult> RegisterUser([FromForm] string userJson, [FromForm] IFormFile? image = null)
+        public async Task<IActionResult> RegisterUser([FromBody] User user)
         {
             try
             {
-                var user = JsonConvert.DeserializeObject<User>(userJson) ?? throw new Exception("Error during deserializing userJson");
-                
-                if (image == null || image.Length == 0)
-                {
-                    user.ImageUrl = "https://zestyappblob.blob.core.windows.net/zestyappimages/placeholder.png";
-                }
-                else
-                {
-                    var imageUrl = await _blobStorageService.UploadFile(image) ?? throw new Exception("Error during uploding the photo");
-                    user.ImageUrl = imageUrl;
-                }
-                bool result = await _authService.Register(user);
+                bool result = await _authService.RegisterUser(user);
                 if (result)
                 {
                     return Ok("User registered successfully.");
@@ -44,6 +31,27 @@ namespace FungEyeApi.Controllers
                 else
                 {
                     return BadRequest("User registration failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost("registerAdmin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] User user)
+        {
+            try
+            {
+                bool result = await _authService.RegisterAdmin(user);
+                if (result)
+                {
+                    return Ok("Admin registered successfully.");
+                }
+                else
+                {
+                    return BadRequest("Admin registration failed.");
                 }
             }
             catch (Exception ex)

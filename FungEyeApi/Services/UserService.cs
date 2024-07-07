@@ -19,16 +19,16 @@ namespace FungEyeApi.Services
             this.db = db;
         }
 
-        public async Task<bool> RemoveAccount(int userId, string token)
+        public async Task<bool> RemoveAccount(int userId)
         {
             try
             {
                 // SprawdŸ, czy token JWT jest prawid³owy
-                var isValidToken = ValidateJWTToken(token, userId);
-                if (!isValidToken)
-                {
-                    throw new Exception("Unauthorized");
-                }
+                //var isValidToken = ValidateJWTToken(token, userId);
+                //if (!isValidToken)
+                //{
+                //    throw new Exception("Unauthorized");
+                //}
 
                 var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 if (user == null)

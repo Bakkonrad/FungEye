@@ -48,6 +48,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 });
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IBlobStorageService, BlobStorageService>();
 
 var app = builder.Build();
 app.UseCors();

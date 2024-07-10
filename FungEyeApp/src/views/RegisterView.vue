@@ -106,6 +106,21 @@
               {{ error.$message }}
             </span>
           </div>
+          <div class="mb-3">
+            <BaseInput
+              v-model="registerFormData.dateOfBirth"
+              type="date"
+              label="Data urodzenia*"
+              class="date-input"
+            />
+            <span
+              class="error-message"
+              v-for="error in v$.dateOfBirth.$errors"
+              :key="error.$uid"
+            >
+              {{ error.$message }}
+            </span>
+          </div>
           <div id="requiredFields" class="form-text">* Pola obowiązkowe</div>
           <button
             type="submit"
@@ -131,9 +146,18 @@
 <script>
 import Footer from "@/components/Footer.vue";
 import BaseInput from "@/components/BaseInput.vue";
-import { ref, reactive, computed } from "vue";
+import { reactive, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
-import { required, email, minLength, sameAs } from "@vuelidate/validators";
+import {
+  required,
+  email,
+  minLength,
+  sameAs,
+  between,
+  helpers,
+} from "@vuelidate/validators";
+
+import UserService from "@/services/UserService";
 
 export default {
   name: "RegisterView",
@@ -141,53 +165,94 @@ export default {
     Footer,
     BaseInput,
   },
+  methods: {
+    async submitForm() {
+      const result = await this.v$.$validate();
+
+      const exportedData = {
+        email: this.registerFormData.email,
+        firstName: this.registerFormData.firstName,
+        lastName: this.registerFormData.lastName,
+        username: this.registerFormData.username,
+        password: this.registerFormData.password,
+        dateOfBirth: this.registerFormData.dateOfBirth,
+      };
+
+      if (result) {
+        const response = await UserService.register(exportedData);
+        // console.log(exportedData);
+        // const response = true;
+        if (response === true) {
+          alert("Form submitted!");
+        } else {
+          alert("Form not submitted!");
+        }
+      }
+    },
+  },
   setup() {
     const registerFormData = reactive({
-      email: "",
-      firstName: "",
-      lastName: "",
-      username: "",
-      password: "",
-      confirmPassword: "",
+      email: null,
+      firstName: null,
+      lastName: null,
+      username: null,
+      password: null,
+      confirmPassword: null,
+      dateOfBirth: null,
     });
+    
+    const today = new Date().toISOString().split("T")[0];
+
+    function betweenDates(value) {
+      const minDate = new Date("1900-01-01");
+      const maxDate = new Date();
+      const date = new Date(value);
+      return date >= minDate && date <= maxDate;
+    };
 
     const rules = computed(() => {
       return {
         email: {
-          required,
-          email,
+          required: helpers.withMessage("Email jest wymagany", required),
+          email: helpers.withMessage("Nieprawidłowy adres email", email),
         },
         firstName: {},
         lastName: {},
         username: {
-          required,
-          minLength: minLength(3),
+          required: helpers.withMessage("Nazwa użytkownika jest wymagana", required),
+          minLength: helpers.withMessage("Nazwa użytkownika powinna zawierać conajmniej 3 znaki", minLength(3)),
         },
         password: {
-          required,
-          minLength: minLength(8),
+          required: helpers.withMessage("Hasło jest wymagane", required),
+          minLength: helpers.withMessage("Hasło powinno zawierać conajmniej 8 znaków", minLength(8)),
         },
         confirmPassword: {
-          required,
-          sameAsPassword: sameAs(registerFormData.password),
+          required: helpers.withMessage("Potwierdzenie hasła jest wymagane", required),
+          sameAsPassword: helpers.withMessage("Hasła powinny być identyczne", sameAs(registerFormData.password)),
+        },
+        dateOfBirth: {
+          validDate: helpers.withMessage("Nieprawidłowa data", (value) => {
+            return !isNaN(new Date(value).getTime());
+          }),
+          betweenDates: helpers.withMessage(
+            "Data urodzenia musi być pomiędzy 1900-01-01 a " + today,
+            (value) => {
+              // First, check if the date is valid. If not, skip this validation.
+              if (isNaN(new Date(value).getTime())) {
+                return true; // Return true to not trigger this validation message when the date is invalid.
+              }
+              // If the date is valid, proceed with the betweenDates validation.
+              return betweenDates(value);
+            }
+          ),
         },
       };
     });
 
     const v$ = useVuelidate(rules, registerFormData);
 
-    const submitForm = async () => {
-      const result = await v$.value.$validate();
-      if (result) {
-        alert("Form submitted!");
-      } else {
-        alert("Form not submitted!");
-      }
-    };
-
     return {
       registerFormData,
-      submitForm,
       v$,
     };
   },

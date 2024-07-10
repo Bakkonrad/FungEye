@@ -13,7 +13,7 @@ namespace FungEyeApi.Models
         public string? LastName { get; set; }
         public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public DateTime? DateOfBirth { get; set; }
     }
     
     public class LoginUser

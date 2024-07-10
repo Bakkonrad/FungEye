@@ -6,7 +6,7 @@
       <p>Zaloguj się, aby móc w pełni korzystać z możliwości FungEye</p>
       <form>
         <div class="mb-3">
-          <BaseInput autofocus v-model="loginFormData.email" type="text" label="Email" class="email-input"/>
+          <BaseInput autofocus v-model="loginFormData.email" type="text" label="Login lub email" class="email-input"/>
         </div>
         <div class="mb-3">
           <BaseInput v-model="loginFormData.password" type="password" label="Hasło" class="password-input"/>
@@ -16,6 +16,7 @@
         <button
           type="submit"
           class="btn fungeye-default-button submitFormButton"
+          @click.prevent="submitForm"
         >
           Zaloguj się
         </button>
@@ -32,6 +33,8 @@
 import BaseInput from "../components/BaseInput.vue";
 import {ref } from "vue";
 
+import UserService from "@/services/UserService";
+
 export default {
   components: {
     BaseInput,
@@ -41,10 +44,29 @@ export default {
       error: false,
     };
   },
+  methods: {
+    async submitForm() {
+      if (!this.loginFormData.email.includes("@")) {
+        this.loginFormData.username = this.loginFormData.email;
+        this.loginFormData.email = null;
+      }
+      else {
+        this.loginFormData.username = null;
+      }
+      // console.log(this.loginFormData);
+      const response = await UserService.login(this.loginFormData);
+      if (response === true) {
+        this.$router.push("/my-profile");
+      } else {
+        this.error = true;
+      }
+    },
+  },
   setup() {
     const loginFormData = ref({
-      email: "",
-      password: "",
+      username: null,
+      email: null,
+      password: null,
     });
     return {
       loginFormData,

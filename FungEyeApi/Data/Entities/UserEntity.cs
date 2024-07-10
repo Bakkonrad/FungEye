@@ -13,9 +13,9 @@ namespace FungEyeApi.Data.Entities
         public string? LastName { get; set; }
         public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public DateTime? DateOfBirth { get; set; }
 
-        public static UserEntity Create(RoleEnum role, string username, string email, string password, DateTime dateOfBirth, string? firstname, string? lastname, string? imageUrl)
+        public static UserEntity Create(RoleEnum role, string username, string email, string password, DateTime? dateOfBirth, string? firstname, string? lastname, string? imageUrl)
         {
             return new UserEntity
             {

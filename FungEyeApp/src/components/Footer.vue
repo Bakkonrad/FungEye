@@ -48,4 +48,15 @@ ul {
   flex-direction: row;
 }
 
+@media (max-width: 768px) {
+  footer {
+    flex-direction: column;
+    gap: 3em;
+  }
+  ul {
+    flex-direction: column;
+    gap: 0.5em;
+  }
+}
+
 </style>

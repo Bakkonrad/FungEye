@@ -94,8 +94,11 @@ export default {
 .log-in-content {
   position: absolute;
   height: auto;
+  max-height: 670px;
 
-  width: 25vw;
+  width: 60vw;
+  max-width: 500px;
+  min-width: 300px;
 
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(9.5px);

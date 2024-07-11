@@ -1,15 +1,20 @@
 <template>
-  <div class="container-md">
-    <img
-      class="register-bg"
-      src="../assets/images/backgrounds/register-bg.jpg"
-    />
+  <div class="container">
     <div class="content">
-      <div class="join-text">
-        <h1>Dołącz do społeczności!</h1>
-        <p id="join-p">
-          Zarejestruj się, aby móc w pełni korzystać z możliwości FungEye
-        </p>
+      <div class="picture-ad">
+        <div class="img-container">
+          <img
+            class="register-bg"
+            src="../assets/images/backgrounds/register-bg.jpg"
+          />
+          <div class="black-curtain"></div>
+        </div>
+        <div class="join-text">
+          <h1>Dołącz do społeczności!</h1>
+          <p id="join-p">
+            Zarejestruj się, aby móc w pełni korzystać z możliwości FungEye
+          </p>
+        </div>
       </div>
       <div class="form-content">
         <form @submit.prevent="submitForm">
@@ -110,7 +115,7 @@
             <BaseInput
               v-model="registerFormData.dateOfBirth"
               type="date"
-              label="Data urodzenia*"
+              label="Data urodzenia"
               class="date-input"
             />
             <span
@@ -138,9 +143,6 @@
       </div>
     </div>
   </div>
-  <div>
-    <Footer></Footer>
-  </div>
 </template>
 
 <script>
@@ -153,7 +155,6 @@ import {
   email,
   minLength,
   sameAs,
-  between,
   helpers,
 } from "@vuelidate/validators";
 
@@ -200,7 +201,7 @@ export default {
       confirmPassword: null,
       dateOfBirth: null,
     });
-    
+
     const today = new Date().toISOString().split("T")[0];
 
     function betweenDates(value) {
@@ -208,7 +209,7 @@ export default {
       const maxDate = new Date();
       const date = new Date(value);
       return date >= minDate && date <= maxDate;
-    };
+    }
 
     const rules = computed(() => {
       return {
@@ -219,16 +220,31 @@ export default {
         firstName: {},
         lastName: {},
         username: {
-          required: helpers.withMessage("Nazwa użytkownika jest wymagana", required),
-          minLength: helpers.withMessage("Nazwa użytkownika powinna zawierać conajmniej 3 znaki", minLength(3)),
+          required: helpers.withMessage(
+            "Nazwa użytkownika jest wymagana",
+            required
+          ),
+          minLength: helpers.withMessage(
+            "Nazwa użytkownika powinna zawierać conajmniej 3 znaki",
+            minLength(3)
+          ),
         },
         password: {
           required: helpers.withMessage("Hasło jest wymagane", required),
-          minLength: helpers.withMessage("Hasło powinno zawierać conajmniej 8 znaków", minLength(8)),
+          minLength: helpers.withMessage(
+            "Hasło powinno zawierać conajmniej 8 znaków",
+            minLength(8)
+          ),
         },
         confirmPassword: {
-          required: helpers.withMessage("Potwierdzenie hasła jest wymagane", required),
-          sameAsPassword: helpers.withMessage("Hasła powinny być identyczne", sameAs(registerFormData.password)),
+          required: helpers.withMessage(
+            "Potwierdzenie hasła jest wymagane",
+            required
+          ),
+          sameAsPassword: helpers.withMessage(
+            "Hasła powinny być identyczne",
+            sameAs(registerFormData.password)
+          ),
         },
         dateOfBirth: {
           validDate: helpers.withMessage("Nieprawidłowa data", (value) => {
@@ -260,7 +276,7 @@ export default {
 </script>
 
 <style scoped>
-.container-md {
+.container {
   margin-top: 3em;
   display: flex;
   justify-content: center;
@@ -268,21 +284,45 @@ export default {
   position: relative;
 }
 
-.register-bg {
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8em;
   width: 100%;
   height: auto;
-  border-radius: 20px;
 }
 
-.content {
-  position: absolute;
+.picture-ad {
+  position: relative;
+  height: 92vh;
+  min-width: 100px;
+}
+
+.img-container {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  color: white;
-  width: 90%;
-  height: 95%;
+  position: absolute;
+}
+
+.black-curtain,
+.register-bg {
+  width: 35vw;
+  height: 92vh;
+  border-radius: 20px;
+  min-width: 100px;
+}
+
+.black-curtain {
+  background: rgb(0, 0, 0, 0.35);
+  backdrop-filter: blur(1.5px);
+  position: absolute;
+}
+
+.register-bg {
+  object-fit: cover;
+  position: relative;
 }
 
 .join-text {
@@ -292,7 +332,7 @@ export default {
   justify-content: flex-start;
   color: white;
   width: 30vw;
-  padding: 2em 2em 30em 1em;
+  padding: 2em 3em 0 2em;
 }
 
 h1 {
@@ -325,7 +365,7 @@ p {
   width: 30vw;
   height: auto;
 
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(9.5px);
   border-radius: 30px;
 
@@ -351,5 +391,71 @@ p {
 .router-registerLink:hover {
   color: var(--light-green);
   text-decoration: underline;
+}
+
+@media screen and (max-width: 1400px) {
+  .container {
+    margin-left: 3em;
+  }
+  .content {
+    flex-direction: column;
+    gap: 2em;
+  }
+  .picture-ad {
+    height: 62vh;
+  }
+  .black-curtain,
+  .register-bg {
+    width: 85vw;
+    height: 62vh;
+  }
+  .join-text {
+    width: 80vw;
+  }
+  .form-content {
+    width: 85vw;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    margin-left: 0;
+  }
+  .black-curtain,
+  .register-bg {
+    width: 95vw;
+  }
+  .form-content {
+    width: 95vw;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .container {
+    margin-left: 0;
+  }
+  .content {
+    gap: 2em;
+  }
+  .picture-ad {
+    height: 25vh;
+  }
+  .black-curtain,
+  .register-bg {
+    width: 90vw;
+    height: 25vh;
+  }
+  .join-text {
+    width: 80vw;
+  }
+  h1 {
+    font-size: 2.5em;
+  }
+  #join-p {
+    font-size: 1.1em;
+  }
+  .form-content {
+    width: 90vw;
+  }
 }
 </style>

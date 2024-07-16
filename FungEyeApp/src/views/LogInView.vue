@@ -6,13 +6,28 @@
       <p>Zaloguj się, aby móc w pełni korzystać z możliwości FungEye</p>
       <form>
         <div class="mb-3">
-          <BaseInput autofocus v-model="loginFormData.email" type="text" label="Login lub email" class="email-input" :class="{'invalidInput' : error}" />
+          <BaseInput
+            autofocus
+            v-model="loginFormData.email"
+            type="text"
+            label="Login lub email"
+            class="email-input"
+            :class="{ invalidInput: error }"
+          />
         </div>
         <div class="mb-3">
-          <BaseInput v-model="loginFormData.password" type="password" label="Hasło" class="password-input" :class="{'invalidInput' : error}"/>
+          <BaseInput
+            v-model="loginFormData.password"
+            type="password"
+            label="Hasło"
+            class="password-input"
+            :class="{ invalidInput: error }"
+          />
         </div>
         <!-- <div id="forgotPassword" class="form-text">Zapomniałeś/aś hasła?</div> -->
-        <span v-if="error" class="error-message">Email/Login lub hasło są nieprawidłowe.</span>
+        <span v-if="error" class="error-message"
+          >Email/Login lub hasło są nieprawidłowe.</span
+        >
         <button
           type="submit"
           class="btn fungeye-default-button submitFormButton"
@@ -23,7 +38,9 @@
       </form>
       <span id="registerLink">
         <p>Nie masz jeszcze konta?</p>
-        <RouterLink to="/register" class="router-registerLink"><p><b>Zarejestruj się</b></p></RouterLink>
+        <RouterLink to="/register" class="router-registerLink"
+          ><p><b>Zarejestruj się</b></p></RouterLink
+        >
       </span>
     </div>
   </div>
@@ -31,7 +48,9 @@
 
 <script>
 import BaseInput from "../components/BaseInput.vue";
-import {ref } from "vue";
+import { useVuelidate } from "@vuelidate/core";
+import { required } from "@vuelidate/validators";
+import { ref } from "vue";
 
 import UserService from "@/services/UserService";
 
@@ -47,15 +66,20 @@ export default {
   },
   methods: {
     async submitForm() {
+      const result = await this.v$.$validate();
+      if (!result) {
+        this.error = true;
+        return;
+      }
       if (!this.loginFormData.email.includes("@")) {
         this.loginFormData.username = this.loginFormData.email;
         this.loginFormData.email = null;
-      }
-      else {
+      } else {
         this.loginFormData.username = null;
       }
-      // console.log(this.loginFormData);
       const response = await UserService.login(this.loginFormData);
+      // console.log(this.loginFormData);
+      // const response = true;
       if (response === true) {
         this.$router.push("/my-profile");
       } else {
@@ -69,12 +93,20 @@ export default {
       email: null,
       password: null,
     });
+
+    const rules = {
+      email: { required },
+      password: { required },
+    };
+
+    const v$ = useVuelidate(rules, loginFormData);
+
     return {
       loginFormData,
+      v$,
     };
   },
 };
-
 </script>
 
 <style scoped>
@@ -149,5 +181,4 @@ p {
   color: var(--light-green);
   text-decoration: underline;
 }
-
 </style>

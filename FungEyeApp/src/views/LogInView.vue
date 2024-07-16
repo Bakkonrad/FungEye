@@ -6,10 +6,10 @@
       <p>Zaloguj się, aby móc w pełni korzystać z możliwości FungEye</p>
       <form>
         <div class="mb-3">
-          <BaseInput autofocus v-model="loginFormData.email" type="text" label="Login lub email" class="email-input"/>
+          <BaseInput autofocus v-model="loginFormData.email" type="text" label="Login lub email" class="email-input" :class="{'invalidInput' : error}" />
         </div>
         <div class="mb-3">
-          <BaseInput v-model="loginFormData.password" type="password" label="Hasło" class="password-input"/>
+          <BaseInput v-model="loginFormData.password" type="password" label="Hasło" class="password-input" :class="{'invalidInput' : error}"/>
         </div>
         <!-- <div id="forgotPassword" class="form-text">Zapomniałeś/aś hasła?</div> -->
         <span v-if="error" class="error-message">Email/Login lub hasło są nieprawidłowe.</span>
@@ -42,6 +42,7 @@ export default {
   data() {
     return {
       error: false,
+      // error: true,
     };
   },
   methods: {
@@ -123,6 +124,11 @@ p {
 @media (max-width: 768px) {
   .log-in-content {
     width: 80vw;
+  }
+  #registerLink {
+    align-items: center;
+    flex-direction: column;
+    gap: 0;
   }
 }
 

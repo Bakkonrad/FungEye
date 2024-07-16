@@ -24,7 +24,11 @@
               v-model="registerFormData.email"
               type="text"
               label="Email*"
-              class="email-input"
+              :class="{
+                'email-input': !submitted,
+                'validInput': submitted && !v$.email.$invalid,
+                'invalidInput': submitted && v$.email.$invalid,
+              }"
             />
             <span
               class="error-message"
@@ -40,7 +44,11 @@
                 v-model="registerFormData.firstName"
                 type="text"
                 label="Imię"
-                class="firstName-input"
+                :class="{
+                  'firstName-input': !submitted || (registerFormData.firstName === null),
+                  'validInput': submitted && !v$.firstName.$invalid,
+                  'invalidInput': submitted && v$.firstName.$invalid,
+                }"
               />
               <span
                 class="error-message"
@@ -55,7 +63,11 @@
                 v-model="registerFormData.lastName"
                 type="text"
                 label="Nazwisko"
-                class="lastName-input"
+                :class="{
+                  'lastName-input': !submitted,
+                  'validInput': submitted && !v$.lastName.$invalid,
+                  'invalidInput': submitted && v$.lastName.$invalid,
+                }"
               />
               <span
                 class="error-message"
@@ -71,7 +83,11 @@
               v-model="registerFormData.username"
               type="text"
               label="Nazwa użytkownika*"
-              class="username-input"
+              :class="{
+                'username-input': !submitted,
+                'validInput': submitted && !v$.username.$invalid,
+                'invalidInput': submitted && v$.username.$invalid,
+              }"
             />
             <span
               class="error-message"
@@ -85,8 +101,12 @@
             <BaseInput
               v-model="registerFormData.password"
               type="password"
-              label="Hasło*"
-              class="password-input"
+              label="Hasło* (min. 8 znaków)"
+              :class="{
+                'password-input': !submitted,
+                'validInput': submitted && !v$.password.$invalid,
+                'invalidInput': submitted && v$.password.$invalid,
+              }"
             />
             <span
               class="error-message"
@@ -101,7 +121,11 @@
               v-model="registerFormData.confirmPassword"
               type="password"
               label="Potwierdź hasło*"
-              class="confirmPassword-input"
+              :class="{
+                'confirmPassword-input': !submitted,
+                'validInput': submitted && !v$.confirmPassword.$invalid,
+                'invalidInput': submitted && v$.confirmPassword.$invalid,
+              }"
             />
             <span
               class="error-message"
@@ -116,7 +140,11 @@
               v-model="registerFormData.dateOfBirth"
               type="date"
               label="Data urodzenia"
-              class="date-input"
+              :class="{
+                'dateOfBirth-input': !submitted,
+                'validInput': submitted && !v$.dateOfBirth.$invalid,
+                'invalidInput': submitted && v$.dateOfBirth.$invalid,
+              }"
             />
             <span
               class="error-message"
@@ -166,9 +194,17 @@ export default {
     Footer,
     BaseInput,
   },
+  data() {
+    return {
+      error: false,
+      // error: true,
+      submitted: false,
+    };
+  },
   methods: {
     async submitForm() {
       const result = await this.v$.$validate();
+      this.submitted = true;
 
       const exportedData = {
         email: this.registerFormData.email,
@@ -182,11 +218,14 @@ export default {
       if (result) {
         const response = await UserService.register(exportedData);
         // console.log(exportedData);
-        // const response = true;
+        // const response = false;
         if (response === true) {
-          alert("Form submitted!");
+          // alert("Form submitted!");
+          console.log("Form submitted!");
         } else {
-          alert("Form not submitted!");
+          // alert("Form not submitted!");
+          console.log("Form not submitted!");
+          this.error = true;
         }
       }
     },
@@ -214,44 +253,44 @@ export default {
     const rules = computed(() => {
       return {
         email: {
-          required: helpers.withMessage("Email jest wymagany", required),
-          email: helpers.withMessage("Nieprawidłowy adres email", email),
+          required: helpers.withMessage("Email jest wymagany. ", required),
+          email: helpers.withMessage("Nieprawidłowy adres email. ", email),
         },
         firstName: {},
         lastName: {},
         username: {
           required: helpers.withMessage(
-            "Nazwa użytkownika jest wymagana",
+            "Nazwa użytkownika jest wymagana. ",
             required
           ),
           minLength: helpers.withMessage(
-            "Nazwa użytkownika powinna zawierać conajmniej 3 znaki",
+            "Nazwa użytkownika powinna zawierać conajmniej 3 znaki. ",
             minLength(3)
           ),
         },
         password: {
-          required: helpers.withMessage("Hasło jest wymagane", required),
+          required: helpers.withMessage("Hasło jest wymagane. ", required),
           minLength: helpers.withMessage(
-            "Hasło powinno zawierać conajmniej 8 znaków",
+            "Hasło powinno zawierać conajmniej 8 znaków. ",
             minLength(8)
           ),
         },
         confirmPassword: {
           required: helpers.withMessage(
-            "Potwierdzenie hasła jest wymagane",
+            "Potwierdzenie hasła jest wymagane. ",
             required
           ),
           sameAsPassword: helpers.withMessage(
-            "Hasła powinny być identyczne",
+            "Hasła powinny być identyczne. ",
             sameAs(registerFormData.password)
           ),
         },
         dateOfBirth: {
-          validDate: helpers.withMessage("Nieprawidłowa data", (value) => {
+          validDate: helpers.withMessage("Nieprawidłowa data. ", (value) => {
             return !isNaN(new Date(value).getTime());
           }),
           betweenDates: helpers.withMessage(
-            "Data urodzenia musi być pomiędzy 1900-01-01 a " + today,
+            "Data urodzenia musi być pomiędzy 1900-01-01 a " + today + ". ",
             (value) => {
               // First, check if the date is valid. If not, skip this validation.
               if (isNaN(new Date(value).getTime())) {
@@ -348,15 +387,15 @@ p {
   font-size: 1.3em;
 }
 
+input.firstName-input {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(56, 102, 65, 0.2) !important;
+}
+
 #requiredFields {
   font-size: 1.1em;
   color: white;
   padding-bottom: 0.3em;
-}
-
-.error-message {
-  color: var(--red);
-  font-size: 1em;
 }
 
 .form-content {

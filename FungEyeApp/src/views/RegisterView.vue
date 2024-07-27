@@ -375,7 +375,7 @@ export default {
 }
 
 h1 {
-  font-size: 5em;
+  font-size: 4em;
   padding-bottom: 0.2em;
 }
 

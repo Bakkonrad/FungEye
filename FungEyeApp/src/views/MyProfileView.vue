@@ -1,11 +1,16 @@
 <template>
   <div>
-    <div class="container-md">
+    <div v-if="!user" class="not-loggedIn container-md">
+      <h1>Profil użytkownika</h1>
+      <p>Proszę się zalogować, aby zobaczyć swoje dane.</p>
+      <router-link to="/log-in" class="btn fungeye-default-button">Zaloguj się</router-link>
+    </div>
+    <div v-if="user" class="container-md">
       <div id="user-info">
         <div class="left-side">
-          <ProfileImage :imgSrc="imgSrc" width="170" height="170" />
+          <ProfileImage :imgSrc="imgSrc" :width="170" :height="170" />
           <div id="user-text">
-            <p id="login">{{ login }}</p>
+            <p id="username">{{ username }}</p>
             <p id="name_surname">{{ name_surname }}</p>
             <p id="email">{{ email }}</p>
           </div>
@@ -44,7 +49,7 @@
           <div class="hstack gap-3" id="friends-collection">
             <div class="p-2" v-for="friend in friends" :key="friend">
               <div class="friend-content">
-                <ProfileImage :imgSrc="friend.img" width="100" height="100" />
+                <ProfileImage :imgSrc="friend.img" :width="100" :height="100" />
                 <p>{{ friend.name }}</p>
               </div>
             </div>
@@ -57,17 +62,35 @@
 
 <script>
 import ProfileImage from "@/components/ProfileImage.vue";
+import UserService from "@/services/UserService";
 
 export default {
   components: {
     ProfileImage,
   },
+  async created() {
+    const response = await UserService.getUserData();
+
+    if(response) {
+      console.log(response);
+  
+      this.user = response;
+      // this.imgSrc = response.imgSrc;
+      this.username = response.username;
+      this.name_surname = response.firstName + " " + response.lastName;
+      this.email = response.email;
+      // this.mushrooms = response.mushrooms;
+      // this.trophys = response.trophys;
+      // this.friends = response.friends;
+    }
+  },
   data() {
     return {
       imgSrc: "src/assets/images/profile-images/profile-img1.jpeg",
-      login: "Nazwa użytkownika",
-      name_surname: "Imię Nazwisko",
-      email: "Adres e-mail",
+      user: null,
+      username: "",
+      name_surname: "",
+      email: "",
       mushrooms: [
         "src/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg",
         "src/assets/images/mushrooms/db5c95b8-5596-4d91-8dcd-f1a9703e5a97.jpeg",
@@ -111,7 +134,8 @@ export default {
       alert("Edytuj profil");
     },
     logOut() {
-      alert("Wyloguj się");
+      UserService.logout();
+      this.$router.push("/");
     },
   }
 };
@@ -119,7 +143,14 @@ export default {
 </script>
 
 <style scoped>
-.container {
+.not-loggedIn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.container-md {
   margin-top: 2em;
 }
 
@@ -147,7 +178,7 @@ export default {
   flex-direction: column;
 }
 
-#login {
+#username {
   font-size: 1.5em;
   font-weight: 500;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;

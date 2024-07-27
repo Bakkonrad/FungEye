@@ -40,6 +40,7 @@
 
 <script>
 // import ProfileImage from "./ProfileImage.vue";
+import { isLoggedIn, checkAuth } from "@/services/AuthService";
 import Logo from "./Logo.vue";
 import MyProfileButton from "./MyProfileButton.vue";
 
@@ -52,6 +53,12 @@ export default {
   data() {
     return {
       loggedIn: false,
+    }
+  },
+  setup() {
+    checkAuth();
+    return {
+      loggedIn: isLoggedIn,
     }
   },
   methods: {

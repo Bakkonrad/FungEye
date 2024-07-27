@@ -1,5 +1,16 @@
 <template>
-  <div class="container-md">
+  <div v-if="loggedIn" class="logged-in container-md">
+    <h1 id="loggedIn-h1">Jesteś już zalogowany!</h1>
+    <div class="buttons">
+      <router-link to="/my-profile" class="btn fungeye-default-button"
+        >Przejdź do swojego profilu</router-link
+      >
+      <button @click="logOut" class="btn fungeye-red-button">
+        Wyloguj się
+      </button>
+    </div>
+  </div>
+  <div v-if="!loggedIn" class="container-md">
     <img class="log-in-bg" src="../assets/images/backgrounds/log-in-bg.jpeg" />
     <div class="log-in-content">
       <h1>Witaj ponownie!</h1>
@@ -7,7 +18,6 @@
       <form>
         <div class="mb-3">
           <BaseInput
-            autofocus
             v-model="loginFormData.email"
             type="text"
             label="Login lub email"
@@ -51,6 +61,7 @@ import BaseInput from "../components/BaseInput.vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
 import { ref } from "vue";
+import { isLoggedIn, checkAuth } from "@/services/AuthService";
 
 import UserService from "@/services/UserService";
 
@@ -61,6 +72,7 @@ export default {
   data() {
     return {
       error: false,
+      loggedIn: false,
       // error: true,
     };
   },
@@ -81,13 +93,25 @@ export default {
       // console.log(this.loginFormData);
       // const response = true;
       if (response === true) {
+        // console.log(response);
         this.$router.push("/my-profile");
       } else {
         this.error = true;
       }
     },
+    async logOut() {
+      await UserService.logout();
+      this.$router.push("/");
+    },
   },
   setup() {
+    checkAuth();
+    if (isLoggedIn === true) {
+      return {
+        loggedIn: isLoggedIn,
+      };
+    }
+
     const loginFormData = ref({
       username: null,
       email: null,
@@ -102,6 +126,7 @@ export default {
     const v$ = useVuelidate(rules, loginFormData);
 
     return {
+      loggedIn: isLoggedIn,
       loginFormData,
       v$,
     };
@@ -115,6 +140,24 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.logged-in {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+}
+
+#loggedIn-h1 {
+  color: var(--black);
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
 }
 
 .log-in-bg {
@@ -162,6 +205,14 @@ p {
     flex-direction: column;
     gap: 0;
   }
+  .buttons {
+    flex-direction: column;
+    gap: 1em;
+  }
+  .logged-in {
+    width: 80vw;
+    margin-left: 2em;
+  }
 }
 
 #registerLink {
@@ -178,7 +229,7 @@ p {
 }
 
 .router-registerLink:hover {
-  color: var(--light-green);
+  color: var(--light-green) !important;
   text-decoration: underline;
 }
 </style>

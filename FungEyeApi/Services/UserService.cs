@@ -1,6 +1,7 @@
 using FungEyeApi.Data;
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Interfaces;
+using FungEyeApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -19,17 +20,28 @@ namespace FungEyeApi.Services
             this.db = db;
         }
 
+        public async Task<User> GetUserProfile(int userId) // Zwraca dane u¿ytkownika do okna profilu
+        {
+            try
+            {
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user == null)
+                {
+                    throw new Exception("User doesn't exist");
+                }
+
+                return new User(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during removing account :" + ex.Message);
+            }
+        }
+
         public async Task<bool> RemoveAccount(int userId)
         {
             try
             {
-                // SprawdŸ, czy token JWT jest prawid³owy
-                //var isValidToken = ValidateJWTToken(token, userId);
-                //if (!isValidToken)
-                //{
-                //    throw new Exception("Unauthorized");
-                //}
-
                 var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 if (user == null)
                 {
@@ -48,44 +60,47 @@ namespace FungEyeApi.Services
             }
         }
 
-        private int ExtractUserIdFromJWTToken(string token)
-        {
-            int userId = 0;
 
-            if (!string.IsNullOrEmpty(token))
-            {
-                try
-                {
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+        // Walidacja tokenu zosta³a przeniesiona do kontrolera!!!
 
-                    if (jwtToken != null)
-                    {
-                        var claim = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+        //private int ExtractUserIdFromJWTToken(string token)
+        //{
+        //    int userId = 0;
 
-                        if (claim != null && int.TryParse(claim.Value, out userId))
-                        {
-                            return userId;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Error decoding JWT token: {ex.Message}");
-                }
-            }
+        //    if (!string.IsNullOrEmpty(token))
+        //    {
+        //        try
+        //        {
+        //            var tokenHandler = new JwtSecurityTokenHandler();
+        //            var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
 
-            return userId;
-        }
+        //            if (jwtToken != null)
+        //            {
+        //                var claim = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
 
-        private bool ValidateJWTToken(string token, int PassedUserId)
-        {
-            var userIdFromToken = ExtractUserIdFromJWTToken(token);
-            if(userIdFromToken != PassedUserId)
-            {
-                throw new Exception("User id passed in the request and one from JWT token doesn't match");
-            }
-            return true;
-        }
+        //                if (claim != null && int.TryParse(claim.Value, out userId))
+        //                {
+        //                    return userId;
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            throw new Exception($"Error decoding JWT token: {ex.Message}");
+        //        }
+        //    }
+
+        //    return userId;
+        //}
+
+        //private bool ValidateJWTToken(string token, int PassedUserId)
+        //{
+        //    var userIdFromToken = ExtractUserIdFromJWTToken(token);
+        //    if(userIdFromToken != PassedUserId)
+        //    {
+        //        throw new Exception("User id passed in the request and one from JWT token doesn't match");
+        //    }
+        //    return true;
+        //}
     }
 }

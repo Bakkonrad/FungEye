@@ -1,6 +1,5 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
-
 </script>
 
 <script>
@@ -26,9 +25,9 @@ export default {
 <style>
 /* body */
 body {
-  /* zmienne css, przykładowe użycie: color: var(--dark-green); */ 
+  /* zmienne css, przykładowe użycie: color: var(--dark-green); */
   /* --dark-green: #386641; */
-  --dark-green: #355F3D;
+  --dark-green: #355f3d;
   /* --green: #6a994e; */
   --green: #538237;
   --light-green: #a7c957;
@@ -173,6 +172,21 @@ input:focus {
   background: rgba(255, 255, 255, 0.5) !important;
   border-color: var(--dark-green) !important;
   box-shadow: 0 0 0 0.15rem rgba(56, 102, 65, 0.25) !important;
+}
+
+input.invalidInput {
+  border-color: var(--red) !important;
+  box-shadow: 0px 0px 13.1px #bc4749;
+}
+
+input.validInput {
+  border-color: var(--green) !important;
+  box-shadow: 0px 0px 13.1px #6a994e;
+}
+
+.error-message {
+  color: var(--red);
+  font-size: 1em;
 }
 
 .r-link {

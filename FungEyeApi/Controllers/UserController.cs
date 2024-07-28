@@ -51,8 +51,8 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userIdFromToken == null || userIdFromToken != userId.ToString())
+                //var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!ValidateUserId(userId))
                 {
                     return Forbid();
                 }
@@ -73,5 +73,34 @@ namespace FungEyeApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile([FromForm] int userId)
+        {
+            if (!ValidateUserId(userId))
+            {
+                return Forbid();
+            }
+
+            var user = await _userService.GetUserProfile(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+
+        private bool ValidateUserId(int userId)
+        {
+            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdFromToken == null || userIdFromToken != userId.ToString())
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
 }

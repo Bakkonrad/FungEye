@@ -75,7 +75,7 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpGet("profile")]
+        [HttpPost("getProfile")]
         public async Task<IActionResult> GetProfile([FromForm] int userId)
         {
             if (!ValidateUserId(userId))

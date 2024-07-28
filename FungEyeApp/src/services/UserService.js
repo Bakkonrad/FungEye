@@ -3,7 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { isLoggedIn } from './AuthService';
 
 const $http = axios.create({
-    baseURL: "http://localhost:5268/api",
+    baseURL: "http://localhost:5268/",
     headers: {
         "Content-type": "application/json",
         "Authorization": "Bearer " + localStorage.getItem('token')
@@ -12,7 +12,7 @@ const $http = axios.create({
 
 const login = async (user) => {
     try {
-        const response = await $http.post('/Auth/loginUser', user);
+        const response = await $http.post('api/Auth/loginUser', user);
         if (response.status === 200) {
             localStorage.setItem('token', response.data);
             isLoggedIn.value = true;
@@ -36,7 +36,7 @@ const login = async (user) => {
 const register = async (user) => {
     try {
         console.log(user);
-        const response = await $http.post('/Auth/registerUser', user);
+        const response = await $http.post('api/Auth/registerUser', user);
         if (response.status === 200) {
             alert('Rejestracja przebiegła pomyślnie! Teraz możesz się zalogować.');
             return true;
@@ -74,29 +74,33 @@ const setUser = () => {
 }
 
 const getUserData = async () => {
-    if (localStorage.getItem('id') != null) {
-        const response = {
-            id: 0,
-            role: 1,
-            username: "string",
-            email: "string",
-            password: "string",
-            firstName: "string",
-            lastName: "string",
-            imageUrl: "string",
-            createdAt: "2024-07-27T17:41:35.881Z",
-            dateOfBirth: "2024-07-27T17:41:35.881Z"
-        };
-        return response;
+    // if (localStorage.getItem('id') != null) {
+    //     const response = {
+    //         id: 0,
+    //         role: 1,
+    //         username: "string",
+    //         email: "string",
+    //         password: "string",
+    //         firstName: "string",
+    //         lastName: "string",
+    //         imageUrl: "string",
+    //         createdAt: "2024-07-27T17:41:35.881Z",
+    //         dateOfBirth: "2024-07-27T17:41:35.881Z"
+    //     };
+    //     return response;
+    // }
+    try {
+        const response = await $http.post('getProfile', localStorage.getItem('id'));
+        
+        if (response.status === 200) {
+            console.log(response.data);
+            return response.data;
+        }
+        return false;
+    } catch (error) {
+        console.error('Error loading data:', error);
+        return [];
     }
-    // await axios.get('Auth/User/' + localStorage.getItem('id'))
-        // .then(response => {
-
-            // return response;
-        // })
-        // .catch(error => {
-            // console.error('Error loading data:', error);
-        // });
 }
 
 

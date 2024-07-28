@@ -70,9 +70,9 @@ export default {
   },
   async created() {
     const response = await UserService.getUserData();
+    console.log(response);
 
     if(response) {
-      console.log(response);
   
       this.user = response;
       // this.imgSrc = response.imgSrc;

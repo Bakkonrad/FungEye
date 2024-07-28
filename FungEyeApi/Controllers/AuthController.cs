@@ -13,7 +13,7 @@ namespace FungEyeApi.Controllers
         private readonly IAuthService _authService;
 
 
-        public AuthController(IAuthService authService, IBlobStorageService blobStorageService)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
@@ -59,7 +59,7 @@ namespace FungEyeApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
+        
         [HttpPost("loginUser")]
         public async Task<IActionResult> LoginUser([FromBody] LoginUser loginUser)
         {
@@ -73,5 +73,6 @@ namespace FungEyeApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
     }
 }

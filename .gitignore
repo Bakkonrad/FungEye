@@ -86,6 +86,8 @@ fabric.properties
 
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
+images/
+models/
 
 # IPython
 profile_default/

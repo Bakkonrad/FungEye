@@ -30,6 +30,9 @@
           <li class="nav-item">
             <RouterLink to="/atlas" :class="getActiveNavLink('atlas')">Atlas</RouterLink>
           </li>
+          <li class="nav-item">
+            <RouterLink to="/admin" :class="getActiveNavLink('admin')">Admin</RouterLink>
+          </li>
         </ul>
     </div>
     <RouterLink to="/log-in" class="btn fungeye-default-button" id="logInButton" v-if="!loggedIn">Zaloguj / Zarejestruj się</RouterLink>

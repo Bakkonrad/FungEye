@@ -9,9 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource/cormorant-garamond": "^5.0.13",
-    "@fontsource/lobster-two": "^5.0.19",
+    "@vuelidate/core": "^2.0.3",
+    "@vuelidate/validators": "^2.0.4",
+    "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
+    "jwt-decode": "^4.0.0",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },

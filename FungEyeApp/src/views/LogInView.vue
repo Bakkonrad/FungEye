@@ -1,60 +1,163 @@
 <template>
-  <Navbar />
-  <div class="container">
+  <div v-if="loggedIn" class="logged-in container-md">
+    <h1 id="loggedIn-h1">Jesteś już zalogowany!</h1>
+    <div class="buttons">
+      <router-link to="/my-profile" class="btn fungeye-default-button"
+        >Przejdź do swojego profilu</router-link
+      >
+      <button @click="logOut" class="btn fungeye-red-button">
+        Wyloguj się
+      </button>
+    </div>
+  </div>
+  <div v-if="!loggedIn" class="container-md">
     <img class="log-in-bg" src="../assets/images/backgrounds/log-in-bg.jpeg" />
     <div class="log-in-content">
       <h1>Witaj ponownie!</h1>
       <p>Zaloguj się, aby móc w pełni korzystać z możliwości FungEye</p>
       <form>
         <div class="mb-3">
-          <label for="exampleFormControlInput1" class="form-label">Email</label>
-          <input
-            autofocus
-            type="email"
-            class="form-control"
-            id="exampleFormControlInput1"
-            placeholder="name@example.com"
+          <BaseInput
+            v-model="loginFormData.email"
+            type="text"
+            label="Login lub email"
+            class="email-input"
+            :class="{ invalidInput: error }"
           />
         </div>
         <div class="mb-3">
-          <label for="exampleInputPassword1" class="form-label">Hasło</label>
-          <input
+          <BaseInput
+            v-model="loginFormData.password"
             type="password"
-            class="form-control"
-            id="exampleInputPassword1"
+            label="Hasło"
+            class="password-input"
+            :class="{ invalidInput: error }"
           />
         </div>
         <!-- <div id="forgotPassword" class="form-text">Zapomniałeś/aś hasła?</div> -->
+        <span v-if="error" class="error-message"
+          >Email/Login lub hasło są nieprawidłowe.</span
+        >
         <button
           type="submit"
           class="btn fungeye-default-button submitFormButton"
+          @click.prevent="submitForm"
         >
           Zaloguj się
         </button>
       </form>
       <span id="registerLink">
         <p>Nie masz jeszcze konta?</p>
-        <RouterLink to="/register" class="router-registerLink"><p><b>Zarejestruj się</b></p></RouterLink>
+        <RouterLink to="/register" class="router-registerLink"
+          ><p><b>Zarejestruj się</b></p></RouterLink
+        >
       </span>
     </div>
   </div>
 </template>
 
 <script>
-import Navbar from "../components/Navbar.vue";
+import BaseInput from "../components/BaseInput.vue";
+import { useVuelidate } from "@vuelidate/core";
+import { required } from "@vuelidate/validators";
+import { ref } from "vue";
+import { isLoggedIn, checkAuth } from "@/services/AuthService";
+
+import UserService from "@/services/UserService";
+
 export default {
   components: {
-    Navbar,
+    BaseInput,
+  },
+  data() {
+    return {
+      error: false,
+      loggedIn: false,
+      // error: true,
+    };
+  },
+  methods: {
+    async submitForm() {
+      const result = await this.v$.$validate();
+      if (!result) {
+        this.error = true;
+        return;
+      }
+      if (!this.loginFormData.email.includes("@")) {
+        this.loginFormData.username = this.loginFormData.email;
+        this.loginFormData.email = null;
+      } else {
+        this.loginFormData.username = null;
+      }
+      const response = await UserService.login(this.loginFormData);
+      // console.log(this.loginFormData);
+      // const response = true;
+      if (response === true) {
+        // console.log(response);
+        this.$router.push("/my-profile");
+      } else {
+        this.error = true;
+      }
+    },
+    async logOut() {
+      await UserService.logout();
+      this.$router.push("/");
+    },
+  },
+  setup() {
+    checkAuth();
+    if (isLoggedIn === true) {
+      return {
+        loggedIn: isLoggedIn,
+      };
+    }
+
+    const loginFormData = ref({
+      username: null,
+      email: null,
+      password: null,
+    });
+
+    const rules = {
+      email: { required },
+      password: { required },
+    };
+
+    const v$ = useVuelidate(rules, loginFormData);
+
+    return {
+      loggedIn: isLoggedIn,
+      loginFormData,
+      v$,
+    };
   },
 };
 </script>
 
 <style scoped>
-.container {
+.container-md {
   margin-top: 3em;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.logged-in {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+}
+
+#loggedIn-h1 {
+  color: var(--black);
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
 }
 
 .log-in-bg {
@@ -67,8 +170,11 @@ export default {
 .log-in-content {
   position: absolute;
   height: auto;
+  max-height: 670px;
 
-  width: 25vw;
+  width: 60vw;
+  max-width: 500px;
+  min-width: 300px;
 
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(9.5px);
@@ -94,10 +200,19 @@ p {
   .log-in-content {
     width: 80vw;
   }
-}
-
-label {
-  color: white;
+  #registerLink {
+    align-items: center;
+    flex-direction: column;
+    gap: 0;
+  }
+  .buttons {
+    flex-direction: column;
+    gap: 1em;
+  }
+  .logged-in {
+    width: 80vw;
+    margin-left: 2em;
+  }
 }
 
 #registerLink {
@@ -114,8 +229,7 @@ label {
 }
 
 .router-registerLink:hover {
-  color: var(--light-green);
+  color: var(--light-green) !important;
   text-decoration: underline;
 }
-
 </style>

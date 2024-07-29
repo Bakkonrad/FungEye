@@ -3,16 +3,13 @@
 <!-- TODO kolory dodać jako zmienne (nazwy w App) -->
 
 <template>
-  <div>
-    <Navbar />
-  </div>
   <div class="container">
     <section class="header">
       <div class="header-content">
         <!-- <h1>miej oko na grzyby z</h1>
         <h2>FungEye</h2> -->
         <h3>miej oko na grzyby z</h3>
-        <h1>FungEye</h1>
+        <h1 id="fungeye">FungEye</h1>
         <p>
           jakiś tekst zachęcający do naszej super aplikacji<br />
           taki dłuższy trochę<br />
@@ -65,20 +62,9 @@
       </div>
     </section>
   </div>
-  <div>
-    <Footer></Footer>
-  </div>
 </template>
 
 <script>
-import Navbar from "../components/Navbar.vue";
-import Footer from "../components/Footer.vue";
-export default {
-  components: {
-    Navbar,
-    Footer,
-  },
-};
 </script>
 
 <!-- scoped? -->
@@ -91,7 +77,7 @@ export default {
 .header {
   display: flex;
   justify-content: space-between;
-  background: linear-gradient(to top, #386641, #6A994E);
+  background: linear-gradient(to top, var(--dark-green), var(--green));
   border-radius: 20px;
   color: white;
   max-width: 1520px; /* Maksymalna szerokość */
@@ -116,8 +102,12 @@ export default {
   margin: 0;
 }
 
+#fungeye {
+  font-family: 'Avenir Next', sans-serif;
+}
+
 .header p1 {
-  
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin-top: 20px;
 }
 
@@ -157,6 +147,8 @@ export default {
 }
 
 .main p1 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 200;
   font-size: 30px;
   margin-bottom: 30px;
 }
@@ -187,21 +179,21 @@ export default {
 .left-card {
   width: 22%; /* Ustawienie szerokości left-card i right-card na 25% */
   height: 600px;
-  background: linear-gradient(to left, #386641, #6A994E);
+  background: linear-gradient(to left, var(--dark-green), var(--green));
   margin-left: 150px;
 }
 
 .right-card {
   width: 22%; /* Ustawienie szerokości left-card i right-card na 25% */
   height: 600px;
-  background: linear-gradient(to left, #386641, #6A994E);
+  background: linear-gradient(to left,var(--dark-green), var(--green));
   margin-right: 150px;
 }
 
 .middle-card {
   width: 28%;
   height: 700px; /* Zwiększona wysokość środkowej karty */
-  background: linear-gradient(to right, #386641, #6A994E);
+  background: linear-gradient(to right, var(--dark-green), var(--green));
   margin-top: -50px;
 }
 

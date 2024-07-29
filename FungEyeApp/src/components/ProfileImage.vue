@@ -12,7 +12,21 @@
 <script>
 export default {
   name: "ProfileImage",
-  props: ['imgSrc', 'width', 'height']
+  props: {
+    imgSrc: {
+      type: String,
+      required: true,
+      default: "https://picsum.photos/200",
+    },
+    width: {
+      type: Number,
+      default: 50,
+    },
+    height: {
+      type: Number,
+      default: 50,
+    },
+  }
 };
 </script>
 

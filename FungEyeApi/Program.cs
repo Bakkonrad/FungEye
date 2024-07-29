@@ -35,10 +35,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:Token").Value)),
         ValidateIssuer = false,
         ValidateAudience = false
     };
+
+    //options.TokenValidationParameters = new TokenValidationParameters
+    //{
+    //    ValidateIssuer = true,
+    //    ValidateAudience = true,
+    //    ValidateLifetime = true,
+    //    ValidateIssuerSigningKey = true,
+    //    ValidIssuer = "your_issuer",
+    //    ValidAudience = "your_audience",
+    //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key"))
+    //};
 });
 
 builder.Services.AddDbContext<DataContext>(options =>
@@ -48,6 +60,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 });
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IBlobStorageService, BlobStorageService>();
 
 var app = builder.Build();
 app.UseCors();

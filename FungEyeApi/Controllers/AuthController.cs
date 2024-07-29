@@ -2,6 +2,7 @@
 using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace FungEyeApi.Controllers
 {
@@ -10,6 +11,7 @@ namespace FungEyeApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+
 
         public AuthController(IAuthService authService)
         {
@@ -21,7 +23,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                bool result = await _authService.Register(user);
+                bool result = await _authService.RegisterUser(user);
                 if (result)
                 {
                     return Ok("User registered successfully.");
@@ -37,6 +39,27 @@ namespace FungEyeApi.Controllers
             }
         }
 
+        [HttpPost("registerAdmin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] User user)
+        {
+            try
+            {
+                bool result = await _authService.RegisterAdmin(user);
+                if (result)
+                {
+                    return Ok("Admin registered successfully.");
+                }
+                else
+                {
+                    return BadRequest("Admin registration failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+        
         [HttpPost("loginUser")]
         public async Task<IActionResult> LoginUser([FromBody] LoginUser loginUser)
         {
@@ -50,5 +73,6 @@ namespace FungEyeApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
     }
 }

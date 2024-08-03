@@ -7,14 +7,12 @@
     </div>
     <div v-if="user" class="container-md">
       <div id="user-info">
-        <div class="left-side">
-          <ProfileImage :imgSrc="imgSrc" :width="170" :height="170" />
-          <div id="user-text">
-            <p id="username">{{ username }}</p>
-            <p id="name_surname">{{ name_surname }}</p>
-            <p id="email">{{ email }}</p>
-          </div>
-        </div>
+        <UserProfileInfo
+          :imgSrc="imgSrc"
+          :username="username"
+          :name_surname="name_surname"
+          :email="email"
+        />
         <div class="buttons">
           <button @click="editProfile" type="button" class="btn fungeye-default-button">
             Edytuj profil
@@ -24,38 +22,11 @@
           </button>
         </div>
       </div>
-      <div class="collection">
-        <h3>Moja kolekcja &rarr;</h3>
-        <div class="hstack gap-3" id="mushroom-collection">
-          <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
-            <img class="mushroom" :src="mushroom" alt="Mushroom" />
-          </div>
-        </div>
-      </div>
-      <div class="bottom-collections">
-        <div class="collection">
-          <h3>Trofea &rarr;</h3>
-          <div class="hstack gap-3" id="trophy-collection">
-            <div class="p-2" v-for="trophy in trophys" :key="trophy">
-              <div class="trophy-content">
-                <img class="mushroom" :src="trophy.img" alt="Trophy" />
-                <p>{{ trophy.name }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="collection">
-          <h3>Znajomi &rarr;</h3>
-          <div class="hstack gap-3" id="friends-collection">
-            <div class="p-2" v-for="friend in friends" :key="friend">
-              <div class="friend-content">
-                <ProfileImage :imgSrc="friend.img" :width="100" :height="100" />
-                <p>{{ friend.name }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <UserProfileCollections
+        :mushrooms="mushrooms"
+        :trophys="trophys"
+        :friends="friends"
+      />
     </div>
   </div>
 </template>
@@ -63,10 +34,14 @@
 <script>
 import ProfileImage from "@/components/ProfileImage.vue";
 import UserService from "@/services/UserService";
+import UserProfileCollections from "@/components/UserProfileCollections.vue";
+import UserProfileInfo from "@/components/UserProfileInfo.vue";
 
 export default {
   components: {
     ProfileImage,
+    UserProfileCollections,
+    UserProfileInfo,
   },
   async created() {
     const response = await UserService.getUserData();
@@ -143,6 +118,7 @@ export default {
 </script>
 
 <style scoped>
+
 .not-loggedIn {
   display: flex;
   flex-direction: column;
@@ -173,42 +149,24 @@ export default {
   justify-content: space-between;
 }
 
-#user-text {
-  display: flex;
-  flex-direction: column;
+@media screen and (max-width: 768px) {
+  .container-md {
+    margin-top: 1em;
+    justify-content: center;
+    padding: 0;
+    width: 80vw;
+  }
+  #user-info {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+  }
+  .buttons {
+    flex-direction: column;
+    gap: 1em;
+  }
+  
 }
 
-#username {
-  font-size: 1.5em;
-  font-weight: 500;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
-.collection {
-  margin-top: 3em;
-}
-
-.bottom-collections {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-#mushroom-collection {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.mushroom {
-  width: auto;
-  height: 100px;
-  border-radius: 15px;
-}
-
-.trophy-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
 </style>

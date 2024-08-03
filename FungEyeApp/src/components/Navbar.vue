@@ -31,9 +31,9 @@
             <RouterLink to="/atlas" :class="getActiveNavLink('atlas')">Atlas</RouterLink>
           </li>
         </ul>
-    </div>
-    <RouterLink to="/log-in" class="btn fungeye-default-button" id="logInButton" v-if="!loggedIn">Zaloguj / Zarejestruj się</RouterLink>
-    <RouterLink to="/my-profile" id="myProfileButton" v-else><MyProfileButton /></RouterLink>
+        <RouterLink to="/log-in" class="btn fungeye-default-button" id="logInButton" v-if="!loggedIn">Zaloguj / Zarejestruj się</RouterLink>
+        <RouterLink to="/my-profile" id="myProfileButton" v-else><MyProfileButton /></RouterLink>
+      </div>
     </div>
   </nav>
 </template>
@@ -114,6 +114,20 @@ export default {
 
 #myProfileButton {
   text-decoration: none;
+}
+
+@media screen and (max-width: 992px) {
+  .navbar-nav {
+    flex-direction: column;
+    justify-content: center;
+    align-items: baseline;
+    gap: 1em;
+  }
+
+  .nav-link {
+    font-size: 1.2em;
+  }
+  
 }
 
 </style>

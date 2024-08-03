@@ -21,7 +21,7 @@ export default {
   },
   data() {
     return {
-        imgSrc: 'src/assets/images/profile-images/profile-img1.jpeg'
+        imgSrc: "https://picsum.photos/200/300"
     };
   },
 };

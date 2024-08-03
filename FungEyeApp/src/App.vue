@@ -190,7 +190,16 @@ input.validInput {
 }
 
 .r-link {
-  color: var(--dark-green);
+  color: var(--dark-green) !important;
+}
+
+.r-link:hover {
+  color: var(--green) !important;
+}
+
+.r-link:active {
+  color: var(--dark-green) !important;
+  font-weight: 500;
 }
 
 .form-label {

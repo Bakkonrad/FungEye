@@ -9,6 +9,7 @@ import RecognizeView from '@/views/RecognizeView.vue'
 import WeatherView from '@/views/WeatherView.vue'
 import MushroomView from '@/views/MushroomView.vue'
 import AdminView from '@/views/AdminView.vue'
+import UserPostsView from '@/views/UserPostsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,6 +64,12 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: AdminView
+    },
+    {
+      path: '/user-posts/:email',
+      name: 'UserPosts',
+      component: UserPostsView,
+      props: true
     }
   ]
 })

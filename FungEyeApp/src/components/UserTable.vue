@@ -17,9 +17,10 @@
           <div class="table-cell">{{ user.FirstName }}</div>
           <div class="table-cell">{{ user.LastName }}</div>
           <div class="table-cell">
+            <button class="btn btn-info btn-sm rounded-button" @click="viewPosts(user.Email)">Posty</button>
             <button class="btn btn-success btn-sm rounded-button" @click="$emit('edit-user', user)">Edytuj</button>
-            <button class="btn btn-warning btn-sm rounded-button">Banuj</button>
-            <button class="btn btn-danger btn-sm rounded-button">Usuń</button>
+            <button class="btn btn-warning btn-sm rounded-button" @click="$emit('ban-user', user.Email)">Banuj</button>
+            <button class="btn btn-danger btn-sm rounded-button" @click="deleteUser(user.Email)">Usuń</button>
           </div>
         </div>
       </div>
@@ -29,7 +30,17 @@
 
 <script>
 export default {
-  props: ['users']
+  props: ['users'],
+  methods: {
+    viewPosts(email) {
+      this.$router.push({ name: 'UserPosts', params: { email: email } });
+    },
+    deleteUser(email) {
+      if (confirm(`Czy na pewno chcesz usunąć użytkownika o emailu ${email}?`)) {
+        this.$emit('delete-user', email);
+      }
+    }
+  }
 };
 </script>
 
@@ -40,17 +51,17 @@ export default {
 }
 
 .custom-table {
-  background-color: rgba(106, 153, 78, 0.3); /* Półprzezroczyste tło */
+  background-color: rgba(106, 153, 78, 0.3);
   border-radius: 12px;
   overflow: hidden;
 }
 
 .table-header, .table-body {
-  background-color: rgba(255, 255, 255, 0.8); /* Półprzezroczyste tło */
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .table-header {
-  background-color: rgba(106, 153, 78, 0.7); /* Półprzezroczyste tło nagłówka */
+  background-color: rgba(106, 153, 78, 0.7);
 }
 
 .table-row {
@@ -61,12 +72,12 @@ export default {
 
 .table-cell {
   flex: 1;
-  padding: 10px;
+  padding: 4px;
 }
 
 .btn-sm.rounded-button {
-  border-radius: 20px; /* Bardziej zaokrąglone przyciski */
-  margin-right: 15px; /* Większe odstępy między przyciskami */
-  padding: 5px 10px; /* Większe przyciski */
+  border-radius: 20px;
+  margin-right: 15px;
+  padding: 5px 10px;
 }
 </style>

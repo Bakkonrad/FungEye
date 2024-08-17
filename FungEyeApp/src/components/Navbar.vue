@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary fungeye-navbar">
     <div class="container-fluid">
-      <RouterLink  to="/" class="navbar-brand"><Logo /></RouterLink>
+      <RouterLink to="/" class="navbar-brand"><Logo /></RouterLink>
       <button
         class="navbar-toggler"
         type="button"
@@ -16,26 +16,49 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <RouterLink to="/" :class="getActiveNavLink('home')" aria-current="page">Strona główna</RouterLink>
+            <RouterLink
+              to="/"
+              :class="getActiveNavLink('home')"
+              aria-current="page"
+              >Strona główna</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink to="/recognize" :class="getActiveNavLink('recognize')">Rozpoznawanie grzybów</RouterLink>
+            <RouterLink to="/recognize" :class="getActiveNavLink('recognize')"
+              >Rozpoznawanie grzybów</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink to="/portal" :class="getActiveNavLink('portal')">Portal</RouterLink>
+            <RouterLink to="/portal" :class="getActiveNavLink('portal')"
+              >Portal</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink to="/weather" :class="getActiveNavLink('weather')">Pogoda</RouterLink>
+            <RouterLink to="/weather" :class="getActiveNavLink('weather')"
+              >Pogoda</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink to="/atlas" :class="getActiveNavLink('atlas')">Atlas</RouterLink>
+            <RouterLink to="/atlas" :class="getActiveNavLink('atlas')"
+              >Atlas</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink to="/admin" :class="getActiveNavLink('admin')">Admin</RouterLink>
+            <RouterLink to="/admin" :class="getActiveNavLink('admin')"
+              >Admin</RouterLink
+            >
           </li>
         </ul>
-        <RouterLink to="/log-in" class="btn fungeye-default-button" id="logInButton" v-if="!loggedIn">Zaloguj / Zarejestruj się</RouterLink>
-        <RouterLink to="/my-profile" id="myProfileButton" v-else><MyProfileButton /></RouterLink>
+        <RouterLink
+          to="/log-in"
+          class="btn fungeye-default-button"
+          id="logInButton"
+          v-if="!loggedIn"
+          >Zaloguj / Zarejestruj się</RouterLink
+        >
+        <RouterLink to="/my-profile" id="myProfileButton" v-else
+          ><MyProfileButton
+        /></RouterLink>
       </div>
     </div>
   </nav>
@@ -56,13 +79,13 @@ export default {
   data() {
     return {
       loggedIn: false,
-    }
+    };
   },
   setup() {
     checkAuth();
     return {
       loggedIn: isLoggedIn,
-    }
+    };
   },
   methods: {
     getActiveNavLink(viewName) {
@@ -71,8 +94,8 @@ export default {
         classString += " active";
       }
       return classString;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -83,13 +106,14 @@ export default {
 
 #navbarNav {
   justify-content: center;
+  gap: 10em;
 }
 
 .navbar-nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2em;
 }
 
 .nav-link {
@@ -112,7 +136,7 @@ export default {
 }
 
 #logInButton {
-    height: 50px;
+  height: 50px;
 }
 
 #myProfileButton {
@@ -130,7 +154,5 @@ export default {
   .nav-link {
     font-size: 1.2em;
   }
-  
 }
-
 </style>

@@ -27,10 +27,10 @@ export default {
       selectedUser: null,
       searchQuery: '',
       users: [
-        { Username: 'MPudzianowski', Email: 'mpudzianowski@gmail.com', FirstName: 'Mariusz', LastName: 'Pudzianowski' },
-        { Username: 'RLewandowski', Email: 'rlewandowski@gmail.com', FirstName: 'Robert', LastName: 'Lewandowski' },
-        { Username: 'AMałysz', Email: 'amalysz@gmail.com', FirstName: 'Adam', LastName: 'Małysz' },
-        { Username: 'ATest', Email: 'atest@gmail.com', FirstName: 'Adam', LastName: 'Test' },
+        { username: 'MPudzianowski', email: 'mpudzianowski@gmail.com', firstName: 'Mariusz', lastName: 'Pudzianowski' },
+        { username: 'RLewandowski', email: 'rlewandowski@gmail.com', firstName: 'Robert', lastName: 'Lewandowski' },
+        { username: 'AMałysz', email: 'amalysz@gmail.com', firstName: 'Adam', lastName: 'Małysz' },
+        { username: 'ATest', email: 'atest@gmail.com', firstName: 'Adam', lastName: 'Test' },
         
       ],
       loadedUsers: [],
@@ -60,10 +60,10 @@ export default {
     },
     filteredUsers() {
       return this.loadedUsers.filter(user => 
-        user.Username.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        user.Email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        user.FirstName.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        user.LastName.toLowerCase().includes(this.searchQuery.toLowerCase())
+        user.username.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        user.firstName.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
     },
     startEditing(user) {
@@ -74,7 +74,7 @@ export default {
       this.isEditing = false;
     },
     saveUser(updatedUser) {
-      const index = this.users.findIndex(user => user.Email === updatedUser.Email);
+      const index = this.users.findIndex(user => user.email === updatedUser.email);
       if (index !== -1) {
         this.users.splice(index, 1, updatedUser);
         this.loadedUsers = this.users.slice(0, this.currentPage * this.usersPerPage);
@@ -95,7 +95,7 @@ export default {
       this.banUser(email, bannedUntil);
     },
     banUser(email, bannedUntil) {
-      const user = this.users.find(user => user.Email === email);
+      const user = this.users.find(user => user.email === email);
       if (user) {
         user.BannedUntil = bannedUntil;
         alert(`Użytkownik ${email} zbanowany do ${bannedUntil}`);
@@ -106,8 +106,8 @@ export default {
     deleteUser(email) {
       const confirmed = confirm(`Czy na pewno chcesz usunąć użytkownika ${email}?`);
       if (confirmed) {
-        this.users = this.users.filter(user => user.Email !== email);
-        this.loadedUsers = this.loadedUsers.filter(user => user.Email !== email);
+        this.users = this.users.filter(user => user.email !== email);
+        this.loadedUsers = this.loadedUsers.filter(user => user.email !== email);
         alert(`Użytkownik ${email} został usunięty.`);
       }
     }

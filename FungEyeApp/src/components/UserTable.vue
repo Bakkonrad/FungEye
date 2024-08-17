@@ -11,16 +11,16 @@
         </div>
       </div>
       <div class="table-body">
-        <div class="table-row" v-for="user in users" :key="user.Email">
-          <div class="table-cell">{{ user.Username }}</div>
-          <div class="table-cell">{{ user.Email }}</div>
-          <div class="table-cell">{{ user.FirstName }}</div>
-          <div class="table-cell">{{ user.LastName }}</div>
+        <div class="table-row" v-for="user in users" :key="user.email">
+          <div class="table-cell">{{ user.username }}</div>
+          <div class="table-cell">{{ user.email }}</div>
+          <div class="table-cell">{{ user.firstName }}</div>
+          <div class="table-cell">{{ user.lastName }}</div>
           <div class="table-cell">
-            <button class="btn btn-info btn-sm rounded-button" @click="viewPosts(user.Email)">Posty</button>
+            <button class="btn btn-info btn-sm rounded-button" @click="viewPosts(user.email)">Posty</button>
             <button class="btn btn-success btn-sm rounded-button" @click="$emit('edit-user', user)">Edytuj</button>
-            <button class="btn btn-warning btn-sm rounded-button" @click="$emit('ban-user', user.Email)">Banuj</button>
-            <button class="btn btn-danger btn-sm rounded-button" @click="deleteUser(user.Email)">Usuń</button>
+            <button class="btn btn-warning btn-sm rounded-button" @click="$emit('ban-user', user.email)">Banuj</button>
+            <button class="btn btn-danger btn-sm rounded-button" @click="deleteUser(user.email)">Usuń</button>
           </div>
         </div>
       </div>

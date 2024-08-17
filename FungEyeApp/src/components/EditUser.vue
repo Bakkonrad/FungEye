@@ -3,19 +3,19 @@
       <div class="edit-form">
         <div class="form-group">
           <label for="username">Nazwa Użytkownika</label>
-          <input id="username" v-model="user.Username" type="text" class="form-control" />
+          <input id="username" v-model="user.username" type="text" class="form-control" />
         </div>
         <div class="form-group">
           <label for="email">Email</label>
-          <input id="email" v-model="user.Email" type="text" class="form-control" disabled />
+          <input id="email" v-model="user.email" type="text" class="form-control" disabled />
         </div>
         <div class="form-group">
           <label for="firstName">Imię</label>
-          <input id="firstName" v-model="user.FirstName" type="text" class="form-control" />
+          <input id="firstName" v-model="user.firstName" type="text" class="form-control" />
         </div>
         <div class="form-group">
           <label for="lastName">Nazwisko</label>
-          <input id="lastName" v-model="user.LastName" type="text" class="form-control" />
+          <input id="lastName" v-model="user.lastName" type="text" class="form-control" />
         </div>
         <div class="button-group">
           <button class="btn btn-success rounded-button save-button" @click="save">Zapisz</button>

@@ -5,7 +5,7 @@
       <p>Proszę się zalogować, aby zobaczyć swoje dane.</p>
       <router-link to="/log-in" class="btn fungeye-default-button">Zaloguj się</router-link>
     </div>
-    <div v-if="user" class="container-md">
+    <div v-if="user && !isEditing" class="container-md">
       <div id="user-info">
         <UserProfileInfo
           :imgSrc="imgSrc"
@@ -14,7 +14,7 @@
           :email="email"
         />
         <div class="buttons">
-          <button @click="editProfile" type="button" class="btn fungeye-default-button">
+          <button @click="startEditing" type="button" class="btn fungeye-default-button">
             Edytuj profil
           </button>
           <button @click="logOut" type="button" class="btn fungeye-red-button">
@@ -28,6 +28,7 @@
         :friends="friends"
       />
     </div>
+    <EditUser v-if="isEditing" :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
   </div>
 </template>
 
@@ -36,12 +37,14 @@ import ProfileImage from "@/components/ProfileImage.vue";
 import UserService from "@/services/UserService";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
+import EditUser from "@/components/EditUser.vue";
 
 export default {
   components: {
     ProfileImage,
     UserProfileCollections,
     UserProfileInfo,
+    EditUser,
   },
   async created() {
     const response = await UserService.getUserData();
@@ -102,15 +105,23 @@ export default {
           img: "src/assets/images/profile-images/profile-img4.jpeg",
         },
       ],
+      isEditing: false,
     };
   },
   methods: {
-    editProfile() {
-      alert("Edytuj profil");
-    },
     logOut() {
       UserService.logout();
       this.$router.push("/");
+    },
+    startEditing(user) {
+      this.isEditing = true;
+    },
+    cancelEditing() {
+      this.isEditing = false;
+    },
+    saveUser(updatedUser) {
+      
+      this.isEditing = false;
     },
   }
 };

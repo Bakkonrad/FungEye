@@ -8,6 +8,8 @@ import PortalView from '@/views/PortalView.vue'
 import RecognizeView from '@/views/RecognizeView.vue'
 import WeatherView from '@/views/WeatherView.vue'
 import MushroomView from '@/views/MushroomView.vue'
+import AdminView from '@/views/AdminView.vue'
+import UserPostsView from '@/views/UserPostsView.vue'
 import UserProfile from '@/views/UserProfileView.vue'
 
 const router = createRouter({
@@ -57,6 +59,17 @@ const router = createRouter({
       path: '/mushroom/:id',
       name: 'mushroom',
       component: MushroomView,
+      props: true
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView
+    },
+    {
+      path: '/user-posts/:email',
+      name: 'UserPosts',
+      component: UserPostsView,
       props: true
     },
     {

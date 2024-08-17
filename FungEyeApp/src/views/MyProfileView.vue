@@ -3,7 +3,9 @@
     <div v-if="!user" class="not-loggedIn container-md">
       <h1>Profil użytkownika</h1>
       <p>Proszę się zalogować, aby zobaczyć swoje dane.</p>
-      <router-link to="/log-in" class="btn fungeye-default-button">Zaloguj się</router-link>
+      <router-link to="/log-in" class="btn fungeye-default-button"
+        >Zaloguj się</router-link
+      >
     </div>
     <div v-if="user && !isEditing" class="container-md">
       <div id="user-info">
@@ -14,7 +16,11 @@
           :email="email"
         />
         <div class="buttons">
-          <button @click="startEditing" type="button" class="btn fungeye-default-button">
+          <button
+            @click="startEditing"
+            type="button"
+            class="btn fungeye-default-button"
+          >
             Edytuj profil
           </button>
           <button @click="logOut" type="button" class="btn fungeye-red-button">
@@ -28,7 +34,27 @@
         :friends="friends"
       />
     </div>
-    <EditUser v-if="isEditing" :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
+    <div class="edit-user" v-if="isEditing">
+      <button
+        @click="cancelEditing"
+        type="button"
+        class="btn fungeye-default-button"
+      >
+        Powrót do mojego profilu
+      </button>
+      <EditUser
+        :user="user"
+        @cancel-edit="cancelEditing"
+        @save-user="saveUser"
+      />
+      <button
+        @click="deleteAccount"
+        type="button"
+        class="btn fungeye-red-button"
+      >
+        Usuń konto
+      </button>
+    </div>
   </div>
 </template>
 
@@ -50,8 +76,7 @@ export default {
     const response = await UserService.getUserData();
     console.log(response);
 
-    if(response) {
-  
+    if (response) {
       this.user = response;
       // this.imgSrc = response.imgSrc;
       this.username = response.username;
@@ -113,23 +138,27 @@ export default {
       UserService.logout();
       this.$router.push("/");
     },
-    startEditing(user) {
+    startEditing() {
       this.isEditing = true;
     },
     cancelEditing() {
       this.isEditing = false;
     },
-    saveUser(updatedUser) {
-      
+    saveUser() {
+      alert("Zapisano zmiany");
       this.isEditing = false;
     },
-  }
+    deleteAccount() {
+      // UserService.deleteAccount();
+      alert("Konto usunięte");
+      UserService.logout();
+      this.$router.push("/");
+    },
+  },
 };
-
 </script>
 
 <style scoped>
-
 .not-loggedIn {
   display: flex;
   flex-direction: column;
@@ -177,7 +206,12 @@ export default {
     flex-direction: column;
     gap: 1em;
   }
-  
 }
 
+.edit-user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1em;
+}
 </style>

@@ -2,6 +2,7 @@ using FungEyeApi.Data;
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
+using FungEyeApi.Migrations;
 using FungEyeApi.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
@@ -127,6 +128,67 @@ namespace FungEyeApi.Services
             {
                 throw new Exception("Error during retrieving users: " + ex.Message);
             }
+        }
+
+        public async Task<bool> AddFriend(int userId, int friendId)
+        {
+            try
+            {
+                var friendship = new FriendshipEntity
+                {
+                    UserId = userId,
+                    FriendId = friendId
+                };
+
+                db.Friendships.Add(friendship);
+                await db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during adding friendship: " + ex.Message);
+            }
+        }
+
+        public async Task<List<User>> GetFriends(int userId)
+        {
+            try
+            {
+                var friends = await db.Friendships
+                            .Where(f => f.UserId == userId)
+                            .Select(f => f.Friend)
+                            .ToListAsync();
+
+                return friends.Select(u => new User(u)).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during retrieving friendships: " + ex.Message);
+            }
+
+        }
+
+        public async Task<bool> DeleteFriend(int userId, int friendId)
+        {
+            try
+            {
+                var friendship = await db.Friendships
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friendId);
+
+                if (friendship != null)
+                {
+                    db.Friendships.Remove(friendship);
+                    await db.SaveChangesAsync();
+                    return true;
+                }
+
+                return false; // Jeœli relacja nie istnieje
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during deleting friendship: " + ex.Message);
+            }
+
         }
 
 

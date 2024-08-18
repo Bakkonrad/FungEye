@@ -35,6 +35,7 @@ body {
   --dark-beige: #e0d7b5;
   --red: #bc4749;
   --dark-red: #712b2c;
+  --warning: #eebc3c;
   --black: #333333;
   background-color: var(--beige) !important;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -119,7 +120,8 @@ ul {
 
 .fungeye-default-button:focus,
 .fungeye-default-button:active,
-.fungeye-default-button:active:focus {
+.fungeye-default-button:active:focus,
+.fungeye-default-button.active {
   background: var(--dark-green);
   color: white;
 }

@@ -1,28 +1,27 @@
-
 <template>
   <div class="container">
-    <section class="header">
-      <!-- <div class="header-image">
-        <img src="../assets/images/backgrounds/pexels-fabianwiktor-3466363.jpg" alt="Mushrooms in forest" />
-      </div> -->
-      <div class="header-content">
-        <h3>Miej oko na grzyby z</h3>
-        <h1 id="fungeye">FungEye</h1>
-        <p>
-          Odkryj fascynujący świat grzybów dzięki naszej innowacyjnej aplikacji FungEye! Co możesz z nią zrobić?
-          <ul>
-            <li><b>Przeglądaj grzyby:</b> Eksploruj bogatą bazę danych grzybów i poznawaj nowe gatunki.</li>
-            <li><b>Obserwuj pogodę:</b> Sprawdzaj prognozy pogody, aby zaplanować idealny wypad na grzybobranie.</li>
-            <li><b>Połącz się z grzybiarzami:</b> Dołącz do społeczności grzybiarzy, dziel się swoimi odkryciami i konkuruj z przyjaciółmi.</li>
-            <li><b>Zdobywaj trofea:</b> Zbieraj osiągnięcia i chwal się swoimi sukcesami.</li>
-            <li><b>Gatunki grzybów:</b> Korzystaj z zaawansowanego systemu rozpoznawania grzybów, który pomoże Ci zidentyfikować znalezione okazy.</li>
-          </ul>
-
-        </p>
+      <section class="header">
+        <!-- <div class="header-image">
+          <img src="../assets/images/backgrounds/pexels-fabianwiktor-3466363.jpg" alt="Mushrooms in forest" />
+        </div> -->
+        <div class="header-content">
+          <h3>Miej oko na grzyby z</h3>
+          <h1 id="fungeye">FungEye</h1>
+          <p>
+            Odkryj fascynujący świat grzybów dzięki naszej innowacyjnej aplikacji FungEye! Co możesz z nią zrobić?
+            <ul>
+              <li><b>Przeglądaj grzyby:</b> Eksploruj bogatą bazę danych grzybów i poznawaj nowe gatunki.</li>
+              <li><b>Obserwuj pogodę:</b> Sprawdzaj prognozy pogody, aby zaplanować idealny wypad na grzybobranie.</li>
+              <li><b>Połącz się z grzybiarzami:</b> Dołącz do społeczności grzybiarzy, dziel się swoimi odkryciami i konkuruj z przyjaciółmi.</li>
+              <li><b>Zdobywaj trofea:</b> Zbieraj osiągnięcia i chwal się swoimi sukcesami.</li>
+              <li><b>Gatunki grzybów:</b> Korzystaj z zaawansowanego systemu rozpoznawania grzybów, który pomoże Ci zidentyfikować znalezione okazy.</li>
+            </ul>
+            
+          </p>
           <p>Dołącz do nas i zacznij swoją przygodę z grzybobraniem na nowo – z FungEye!</p>
           <router-link to="/recognize" class="btn fungeye-default-button" >Rozpoznaj grzyby</router-link>
-      </div>
-    </section>
+        </div>
+      </section>
     <section class="main">
       <h2>Dołącz do grona grzybiarzy</h2>
       <p1>Dziel się swoimi zdobyczami z innymi miłośnikami zbierania grzybów.</p1>
@@ -77,10 +76,10 @@
   background-size: cover;
   background-position: center;
   color: white;
-  width: 99.5vw; /* Pełna szerokość ekranu */
+  width: 99vw; /* Pełna szerokość ekranu */
   padding: 5em;
   margin: 0;
-  overflow: hidden;
+  /* overflow: hidden; */
   top: 0;
   left: 50%;
   transform: translateX(-50%);

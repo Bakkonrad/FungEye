@@ -43,22 +43,24 @@
               >Atlas</RouterLink
             >
           </li>
-          <li class="nav-item">
+          <li v-if="isAdmin" class="nav-item">
             <RouterLink to="/admin" :class="getActiveNavLink('admin')"
               >Admin</RouterLink
             >
           </li>
+          <li>
+            <RouterLink
+              to="/log-in"
+              class="btn fungeye-default-button"
+              id="logInButton"
+              v-if="!loggedIn"
+              >Zaloguj / Zarejestruj się</RouterLink
+            >
+            <RouterLink to="/my-profile" id="myProfileButton" v-else
+              ><MyProfileButton
+            /></RouterLink>
+          </li>
         </ul>
-        <RouterLink
-          to="/log-in"
-          class="btn fungeye-default-button"
-          id="logInButton"
-          v-if="!loggedIn"
-          >Zaloguj / Zarejestruj się</RouterLink
-        >
-        <RouterLink to="/my-profile" id="myProfileButton" v-else
-          ><MyProfileButton
-        /></RouterLink>
       </div>
     </div>
   </nav>
@@ -66,7 +68,12 @@
 
 <script>
 // import ProfileImage from "./ProfileImage.vue";
-import { isLoggedIn, checkAuth } from "@/services/AuthService";
+import {
+  isLoggedIn,
+  checkAuth,
+  checkAdmin,
+  isAdmin,
+} from "@/services/AuthService";
 import Logo from "./Logo.vue";
 import MyProfileButton from "./MyProfileButton.vue";
 
@@ -79,12 +86,15 @@ export default {
   data() {
     return {
       loggedIn: false,
+      isAdmin: false,
     };
   },
   setup() {
     checkAuth();
+    checkAdmin();
     return {
       loggedIn: isLoggedIn,
+      isAdmin: isAdmin,
     };
   },
   methods: {

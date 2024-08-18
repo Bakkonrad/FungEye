@@ -1,46 +1,72 @@
 <template>
-  <div class="table-container">
-    <div class="custom-table">
-      <div class="table-header">
-        <div class="table-row">
-          <div class="table-cell">Nazwa Użytkownika</div>
-          <div class="table-cell">Email</div>
-          <div class="table-cell">Imię</div>
-          <div class="table-cell">Nazwisko</div>
-          <div class="table-cell">Akcja</div>
-        </div>
-      </div>
-      <div class="table-body">
-        <div class="table-row" v-for="user in users" :key="user.email">
-          <div class="table-cell">{{ user.username }}</div>
-          <div class="table-cell">{{ user.email }}</div>
-          <div class="table-cell">{{ user.firstName }}</div>
-          <div class="table-cell">{{ user.lastName }}</div>
-          <div class="table-cell">
-            <button class="btn btn-info btn-sm rounded-button" @click="viewPosts(user.email)">Posty</button>
-            <button class="btn btn-success btn-sm rounded-button" @click="$emit('edit-user', user)">Edytuj</button>
-            <button class="btn btn-warning btn-sm rounded-button" @click="$emit('ban-user', user.email)">Banuj</button>
-            <button class="btn btn-danger btn-sm rounded-button" @click="deleteUser(user.email)">Usuń</button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="table-container table-responsive">
+    <table class="table custom-table table-striped">
+      <thead class="table-header">
+        <tr class="table-row">
+          <th scope="col" class="table-cell">Nazwa Użytkownika</th>
+          <th scope="col" class="table-cell">Email</th>
+          <th scope="col" class="table-cell">Imię</th>
+          <th scope="col" class="table-cell">Nazwisko</th>
+          <th scope="col" class="table-cell">Akcja</th>
+        </tr>
+      </thead>
+      <tbody class="table-body">
+        <tr class="table-row" v-for="user in users" :key="user.email">
+          <td class="table-cell">{{ user.username }}</td>
+          <td class="table-cell">{{ user.email }}</td>
+          <td class="table-cell">{{ user.firstName }}</td>
+          <td class="table-cell">{{ user.lastName }}</td>
+          <td class="table-cell buttons">
+            <button
+              class="btn fungeye-default-button"
+              id="btn-viewPosts"
+              @click="viewPosts(user.email)"
+            >
+              Wyświetl posty
+            </button>
+            <button
+              class="btn fungeye-default-button"
+              id="btn-editUser"
+              @click="$emit('edit-user', user)"
+            >
+              Edytuj
+            </button>
+            <button
+              class="btn fungeye-default-button"
+              id="btn-banUser"
+              @click="$emit('ban-user', user.email)"
+            >
+              Banuj
+            </button>
+            <button
+              class="btn fungeye-red-button"
+              id="btn-deleteUser"
+              @click="deleteUser(user.email)"
+            >
+              Usuń
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['users'],
+  props: ["users"],
   methods: {
     viewPosts(email) {
-      this.$router.push({ name: 'UserPosts', params: { email: email } });
+      this.$router.push({ name: "UserPosts", params: { email: email } });
     },
     deleteUser(email) {
-      if (confirm(`Czy na pewno chcesz usunąć użytkownika o emailu ${email}?`)) {
-        this.$emit('delete-user', email);
+      if (
+        confirm(`Czy na pewno chcesz usunąć użytkownika o emailu ${email}?`)
+      ) {
+        this.$emit("delete-user", email);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -48,36 +74,57 @@ export default {
 .table-container {
   margin: 20px auto;
   max-width: 80%;
-}
-
-.custom-table {
-  background-color: rgba(106, 153, 78, 0.3);
   border-radius: 12px;
-  overflow: hidden;
 }
 
-.table-header, .table-body {
-  background-color: rgba(255, 255, 255, 0.8);
+/* table */
+.table-striped {
+  color: var(--black) !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: var(--beige) !important;
 }
 
-.table-header {
-  background-color: rgba(106, 153, 78, 0.7);
+/* table header */
+.table-striped > thead > tr > th {
+  font-weight: 500;
+  background-color: rgba(83, 130, 55, 0.7);
 }
 
-.table-row {
+/* table body */
+.table-striped > tbody > tr > td {
+  background-color: var(--beige);
+}
+
+.table-striped > tbody > tr {
+  border: 1px solid var(--beige);
+}
+
+.buttons {
   display: flex;
-  justify-content: space-between;
-  padding: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
-.table-cell {
-  flex: 1;
-  padding: 4px;
+.fungeye-default-button,
+.fungeye-red-button {
+  height: 30px;
+  padding: 0 15px;
+  font-size: 1em;
 }
 
-.btn-sm.rounded-button {
-  border-radius: 20px;
-  margin-right: 15px;
-  padding: 5px 10px;
+#btn-viewPosts {
+  background-color: var(--light-green);
+  color: var(--black);
+  height: auto;
+}
+
+#btn-editUser {
+  background-color: var(--green);
+}
+
+#btn-banUser {
+  background-color: var(--warning);
+  color: var(--black);
 }
 </style>

@@ -5,20 +5,24 @@ namespace FungEyeApi.Services
 {
     public class BlobStorageService : IBlobStorageService
     {
-        private readonly string? _connectionString;
-        private readonly string _containerName = "zestyappimages";
+        private readonly BlobServiceClient _blobServiceClient;
+        private readonly string _containerName = "users";
 
-        public BlobStorageService(IConfiguration config)
+        //public BlobStorageService(IConfiguration config)
+        //{
+        //    _connectionString = config.GetConnectionString("AzureBlobStorageConnectionLocal");
+        //}
+
+        public BlobStorageService(BlobServiceClient blobServiceClient)
         {
-            _connectionString = config.GetConnectionString("AzureBlobStorageConnection");
+            _blobServiceClient = blobServiceClient;
         }
 
         public async Task<string> UploadFile(IFormFile file)
         {
             try
             {
-                var blobServiceClient = new BlobServiceClient(_connectionString);
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(_containerName);
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
 
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
                 var blobClient = blobContainerClient.GetBlobClient(fileName);
@@ -46,7 +50,7 @@ namespace FungEyeApi.Services
                 {
                     return true;
                 }
-                var blobServiceClient = new BlobServiceClient(_connectionString);
+                var blobServiceClient = new BlobServiceClient("AzureBlobStorageConnectionLocal");
                 var blobContainerClient = blobServiceClient.GetBlobContainerClient(_containerName);
 
                 var fileName = Path.GetFileName(fileUrl);

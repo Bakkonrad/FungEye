@@ -1,9 +1,12 @@
 using FungEyeApi.Data;
 using FungEyeApi.Data.Entities;
+using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -27,7 +30,7 @@ namespace FungEyeApi.Services
                 var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 if (user == null)
                 {
-                    throw new Exception("User doesn't exist");
+                    return null;
                 }
 
                 return new User(user);
@@ -57,6 +60,72 @@ namespace FungEyeApi.Services
             catch(Exception ex) 
             {
                 throw new Exception("Error during removing account :" + ex.Message);
+            }
+        }
+
+        public async Task<bool> UpdateUser(User user)
+        {
+            var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == user.Id) ?? throw new Exception("User not found in the database");
+
+            userEntity.Username = user.Username;
+            userEntity.Email = user.Email;
+            userEntity.FirstName = user.FirstName;
+            userEntity.LastName = user.LastName;
+            userEntity.ImageUrl = user.ImageUrl;
+            userEntity.CreatedAt = user.CreatedAt;
+            userEntity.ModifiedAt = DateTime.Now;
+            userEntity.DateOfBirth = user.DateOfBirth;
+
+            db.SaveChanges();
+            return true;
+
+        }
+
+        public async Task<bool> UpdateUserImage(int userId, string imageUrl)
+        {
+            var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
+            userEntity.ImageUrl = imageUrl;
+
+            db.SaveChanges();
+            return true;
+        }
+
+        public async Task<bool> IsAdmin(int userId)
+        {
+            var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
+            if((RoleEnum)userEntity.Role != RoleEnum.Admin)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<List<User>> GetUsers(int? page = null, string? search = null)
+        {
+            try
+            {
+                var query = db.Users.AsQueryable();
+
+                if (!String.IsNullOrWhiteSpace(search))
+                {
+                    query = query.Where(u => u.Username.Contains(search.ToString()) || u.Email.Contains(search.ToString()) || u.FirstName.Contains(search.ToString()));
+                }
+
+                if (page != null)
+                {
+                    int pageSize = 100;
+                    int pageNumber = page.Value;
+                    query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+                }
+
+                var users = await query.ToListAsync();
+
+                return users.Select(u => new User(u)).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during retrieving users: " + ex.Message);
             }
         }
 

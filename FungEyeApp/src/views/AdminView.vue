@@ -30,16 +30,16 @@
     </div>
     <UserTable
       v-if="!isEditing"
-      :users="filteredUsers"
+      :users="users"
       @edit-user="startEditing"
       @ban-user="banUserPrompt"
       @delete-user="deleteUser"
     />
     <UserEdit
-      v-else
-      :user="selectedUser"
-      @cancel-edit="cancelEditing"
-      @save-user="saveUser"
+    v-else
+    :user="selectedUser"
+    @cancel-edit="cancelEditing"
+    @save-user="saveUser"
     />
   </div>
 </template>
@@ -47,6 +47,7 @@
 <script>
 import UserTable from "@/components/UserTable.vue";
 import UserEdit from "@/components/EditUser.vue";
+import AdminService from "@/services/AdminService";
 
 export default {
   components: {
@@ -58,61 +59,56 @@ export default {
       isEditing: false,
       selectedUser: null,
       searchQuery: "",
-      users: [
-        {
-          username: "MPudzianowski",
-          email: "mpudzianowski@gmail.com",
-          firstName: "Mariusz",
-          lastName: "Pudzianowski",
-        },
-        {
-          username: "RLewandowski",
-          email: "rlewandowski@gmail.com",
-          firstName: "Robert",
-          lastName: "Lewandowski",
-        },
-        {
-          username: "AMałysz",
-          email: "amalysz@gmail.com",
-          firstName: "Adam",
-          lastName: "Małysz",
-        },
-        {
-          username: "ATest",
-          email: "atest@gmail.com",
-          firstName: "Adam",
-          lastName: "Test",
-        },
-      ],
+      users: [],
       loadedUsers: [],
       filteredUsers: [],
       usersPerPage: 2,
       currentPage: 1,
+      isLoading: false,
     };
   },
   mounted() {
-    this.loadUsers();
+    this.fetchUsers(this.currentPage);
     window.addEventListener("scroll", this.handleScroll);
   },
   beforeDestroy() {
     window.removeEventListener("scroll", this.handleScroll);
   },
   methods: {
-    loadUsers() {
-      const start = (this.currentPage - 1) * this.usersPerPage;
-      const end = start + this.usersPerPage;
-      const newUsers = this.users.slice(start, end);
-      this.loadedUsers = [...this.loadedUsers, ...newUsers];
-      this.currentPage++;
-      this.filteredUsers = this.loadedUsers;
+    // async loadUsers() {
+    //   const response = await AdminService.getAllUsers();
+    //   this.users = response;
+    //   const start = (this.currentPage - 1) * this.usersPerPage;
+    //   const end = start + this.usersPerPage;
+    //   const newUsers = this.users.slice(start, end);
+    //   this.users = [...this.users.slice(0, start), ...newUsers];
+    //   this.currentPage++;
+    // },
+    // handleScroll() {
+    //   if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+    //     this.loadUsers();
+    //   }
+    // },
+    async fetchUsers(page) {
+      this.isLoading = true;
+      const response = await AdminService.getAllUsers(page, this.usersPerPage);
+      const newUsers = response || [];
+      this.users = [...this.users, ...newUsers];
+      this.isLoading = false;
     },
     handleScroll() {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        this.loadUsers();
+        this.currentPage++;
+        this.fetchUsers(this.currentPage);
       }
+      // const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
+      // if (bottom && !this.isLoading) {
+      //   this.currentPage++;
+      //   this.fetchUsers(this.currentPage);
+      // }
     },
     filterUsers() {
-      this.filteredUsers = this.filteredUsers.filter(
+      this.users = this.users.filter(
         (user) =>
           user.username
             .toLowerCase()
@@ -137,10 +133,7 @@ export default {
       );
       if (index !== -1) {
         this.users.splice(index, 1, updatedUser);
-        this.loadedUsers = this.users.slice(
-          0,
-          this.currentPage * this.usersPerPage
-        );
+        this.users = this.users.slice(0, this.currentPage * this.usersPerPage);
       }
       this.isEditing = false;
     },
@@ -175,9 +168,7 @@ export default {
       );
       if (confirmed) {
         this.users = this.users.filter((user) => user.email !== email);
-        this.loadedUsers = this.loadedUsers.filter(
-          (user) => user.email !== email
-        );
+        this.users = this.users.filter((user) => user.email !== email);
         alert(`Użytkownik ${email} został usunięty.`);
       }
     },
@@ -212,6 +203,13 @@ export default {
 .category-btn {
   height: 35px;
   padding: 5px 40px !important;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #333;
 }
 
 .form-control {

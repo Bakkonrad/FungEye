@@ -30,7 +30,7 @@ namespace FungEyeApi.Services
                 var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 if (user == null)
                 {
-                    throw new Exception("User doesn't exist");
+                    return null;
                 }
 
                 return new User(user);

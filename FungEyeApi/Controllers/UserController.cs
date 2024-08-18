@@ -2,10 +2,13 @@
 using FungEyeApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Security.Claims;
 
 namespace FungEyeApi.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -45,27 +48,33 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPost("uploadPhoto")]
-        public async Task<IActionResult> UploadPhoto([FromForm] int userId, [FromForm] IFormFile? image = null)
+        //[Authorize]
+        [Consumes("multipart/form-data")]
+        [HttpPost("UpdateUserImage/{userId}")]
+        public async Task<IActionResult> UpdateUserImage(int userId, [FromForm] IFormFile? image = null)
         {
             try
             {
-                //var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!ValidateUserId(userId))
+                //if (!ValidateUserId(userId))
+                //{
+                //    return Forbid();
+                //}
+
+                if(image == null || image.Length == 0)
                 {
-                    return Forbid();
+                    return BadRequest("No file selected.");
                 }
 
-                //bool result = await _blobStorageService.UploadFile(userId, image);
-                bool result = true;
+                string imageUrl = await _blobStorageService.UploadFile(image);
+                bool result = await _userService.UpdateUserImage(userId, imageUrl);
+                
                 if (result)
                 {
-                    return Ok("Account deleted successfully.");
+                    return Ok("Photo added successfully.");
                 }
                 else
                 {
-                    return BadRequest("Account deletion failed.");
+                    return BadRequest("Photo added failed.");
                 }
             }
             catch (Exception ex)
@@ -91,6 +100,66 @@ namespace FungEyeApi.Controllers
 
             return Ok(user);
         }
+
+        [HttpPut("{id}")]
+        [Consumes("multipart/form-data")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUser(int userId, [FromForm] string userJson, [FromForm] IFormFile? image = null)
+        {
+            try
+            {
+                var user = JsonConvert.DeserializeObject<User>(userJson);
+                
+                if (!ValidateUserId(userId))
+                {
+                    return Forbid();
+                }
+                
+                if (image != null || image.Length > 0)
+                {
+                    await _blobStorageService.DeleteFile(user.ImageUrl);
+                    var newImageUrl = await _blobStorageService.UploadFile(image);
+                    user.ImageUrl = newImageUrl;
+                }
+                user.Id = userId;
+
+                var updatedRecipe = _userService.UpdateUser(user);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+            }
+
+        }
+
+        [Authorize]
+        [Consumes("multipart/form-data")]
+        [HttpPost("getUsers")]
+        public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null, [FromForm] string? search = null)
+        {
+            if (!ValidateUserId(userId))
+            {
+                return Forbid();
+            }
+
+            var admin = await _userService.IsAdmin(userId);
+
+            if (admin == false)
+            {
+                return Forbid();
+            }
+
+            var user = await _userService.GetUsers(page, search);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+
+
 
         private bool ValidateUserId(int userId)
         {

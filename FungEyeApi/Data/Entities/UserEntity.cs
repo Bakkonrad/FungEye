@@ -1,9 +1,21 @@
 ﻿using FungEyeApi.Enums;
+using FungEyeApi.Models;
 
 namespace FungEyeApi.Data.Entities
 {
     public class UserEntity
     {
+        //public UserEntity(string username, string email, string? firstName, string? lastName, string? imageUrl, DateTime createdAt, DateTime modifiedAt, DateTime? dateOfBirth)
+        //{
+        //    Username = username;
+        //    Email = email;
+        //    FirstName = firstName;
+        //    LastName = lastName;
+        //    ImageUrl = imageUrl;
+        //    ModifiedAt = modifiedAt;
+        //    DateOfBirth = dateOfBirth;
+        //}
+
         public int Id { get; set; }
         public required int Role { get; set; }
         public required string Username { get; set; }
@@ -13,6 +25,7 @@ namespace FungEyeApi.Data.Entities
         public string? LastName { get; set; }
         public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? ModifiedAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
 
         public static UserEntity Create(RoleEnum role, string username, string email, string password, DateTime? dateOfBirth, string? firstname, string? lastname, string? imageUrl)

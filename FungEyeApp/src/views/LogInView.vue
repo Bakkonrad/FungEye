@@ -89,13 +89,15 @@ export default {
       } else {
         this.loginFormData.username = null;
       }
-      const response = await UserService.login(this.loginFormData);
-      // console.log(this.loginFormData);
-      // const response = true;
-      if (response === true) {
-        // console.log(response);
+      try {
+        const token = await UserService.login(this.loginFormData);
+        if (!token) {
+          this.error = true;
+          return;
+        }
         this.$router.push("/my-profile");
-      } else {
+      }
+      catch (error) {
         this.error = true;
       }
     },

@@ -1,14 +1,26 @@
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
-import { isLoggedIn } from './AuthService';
+import { isLoggedIn, isAdmin, checkAdmin } from './AuthService';
 
 const $http = axios.create({
     baseURL: "http://localhost:5268/",
     headers: {
-        "Content-type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem('token')
+        "Content-type": "application/json"
     }
 });
+
+$http.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 const login = async (user) => {
     try {
@@ -16,9 +28,10 @@ const login = async (user) => {
         if (response.status === 200) {
             localStorage.setItem('token', response.data);
             isLoggedIn.value = true;
-            console.log(isLoggedIn.value);
+            // console.log(isLoggedIn.value);
             console.log(response.data);
             setUser();
+            $http.defaults.headers.common['Authorization'] = `Bearer ${response.data}`;
             alert('Zalogowano!');
             return true;
         }
@@ -50,10 +63,12 @@ const register = async (user) => {
 
 const logout = async () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // localStorage.removeItem('user');
     localStorage.removeItem('id');
     localStorage.removeItem('username');
+    localStorage.removeItem('role');
     isLoggedIn.value = false;
+    isAdmin.value = false;
     alert('Wylogowano!');
     return true;
 }
@@ -65,10 +80,13 @@ const setUser = () => {
         // console.log(decodedToken);
         var userId = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
         var username = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+        var role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
         localStorage.setItem('id', userId);
         localStorage.setItem('username', username);
-        localStorage.setItem('role', decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
-        console.log(localStorage.getItem('id') + ' ' + localStorage.getItem('role'));
+        localStorage.setItem('role', role);
+        checkAdmin();
+        // console.log(localStorage.getItem('token'));
+        // console.log(localStorage.getItem('id') + ' ' + localStorage.getItem('role'));
         // console.log(localStorage.getItem('user') + ' ' + localStorage.getItem('username'));
     }
     else
@@ -92,11 +110,21 @@ const getUserData = async () => {
     //     return response;
     // }
     try {
-        const response = await $http.post('getProfile', localStorage.getItem('id'));
-        
+        const userId = localStorage.getItem('id');
+        const response = await $http.post(`api/User/getProfile/${userId}`);
+
         if (response.status === 200) {
-            console.log(response.data);
+            // console.log(response.data);
             return response.data;
+        }
+        else if (response.status === 404) {
+            alert('Nie znaleziono użytkownika');
+            return false;
+        }
+        else if (response.status === 401) {
+            alert('Session expired');
+            this.$router.push("/log-in");
+            return false;
         }
         return false;
     } catch (error) {

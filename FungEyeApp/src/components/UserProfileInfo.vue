@@ -3,7 +3,7 @@
       <ProfileImage :imgSrc="imgSrc" :width="170" :height="170" />
       <div id="user-text">
         <p id="username">{{ username }}</p>
-        <p id="name_surname">{{ name_surname }}</p>
+        <p v-if="name_surname" id="name_surname">{{ name_surname }}</p>
         <p id="email">{{ email }}</p>
       </div>
     </div>

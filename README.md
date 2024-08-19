@@ -1,14 +1,19 @@
 # FungEye
 Aplikacja dla Grzybiarzy :-))
 
+## Help
+
+```
+make help
+```
+
 ## Starting project
 
 ```
-docker compose up --build -d
+make start
 ```
-
 ## Stopping project
 
 ```
-docker compose down
+make stop
 ```

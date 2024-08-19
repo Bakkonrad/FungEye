@@ -5,10 +5,23 @@ import { isLoggedIn } from './AuthService';
 const $http = axios.create({
     baseURL: "http://localhost:5268/",
     headers: {
-        "Content-type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem('token')
+        "Content-type": "application/json"
     }
 });
+
+$http.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 
 const getAllUsers = async (page, search) => {
     try {
@@ -28,10 +41,6 @@ const getAllUsers = async (page, search) => {
         });
         if (response.status === 200) {
             return response;
-        }
-        else {
-            alert("Error loading data");
-            return [];
         }
         // if (page === 1) {
         //     return [{
@@ -237,6 +246,10 @@ const getAllUsers = async (page, search) => {
         //         }];
         // }
     } catch (error) {
+        if (error.response.status === 403) {
+            console.log('Forbidden');
+            return [];
+        }
         console.error('Error loading data:', error);
         return [];
     }

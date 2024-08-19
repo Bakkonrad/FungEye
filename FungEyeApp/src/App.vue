@@ -31,8 +31,8 @@ body {
   /* --green: #6a994e; */
   --green: #538237;
   --light-green: #a7c957;
-  --beige: #f2e8cf;
-  --dark-beige: #e0d7b5;
+  --beige: #f1ebdd;
+  --dark-beige: #dfd1a0;
   --red: #bc4749;
   --dark-red: #712b2c;
   --warning: #eebc3c;
@@ -57,7 +57,7 @@ h2 {
 
 h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 500;
+  font-weight: 300;
   font-size: 1.5em;
 }
 

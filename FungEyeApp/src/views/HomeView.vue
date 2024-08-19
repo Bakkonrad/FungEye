@@ -24,7 +24,7 @@
       </section>
     <section class="main">
       <h2>Dołącz do grona grzybiarzy</h2>
-      <p1>Dziel się swoimi zdobyczami z innymi miłośnikami zbierania grzybów.</p1>
+      <h3>Dziel się swoimi zdobyczami z innymi miłośnikami zbierania grzybów.</h3>
       <div class="cards">
         <div class="card left-card">
           <img src="../assets/images/backgrounds/pexels-fabianwiktor-3466363.jpg" alt="Mushroom 1" class="first-image" />
@@ -116,7 +116,7 @@
   font-family: 'Avenir Next', sans-serif;
 }
 
-.header p1 {
+.header h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin-top: 20px;
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-panel" @scroll="handleScroll">
+  <div v-if="isAdmin == true" class="admin-panel" @scroll="handleScroll">
     <h1>Panel administratora</h1>
     <div class="buttons my-3">
       <button
@@ -36,11 +36,23 @@
       @delete-user="deleteUser"
     />
     <UserEdit
-    v-else
-    :user="selectedUser"
-    @cancel-edit="cancelEditing"
-    @save-user="saveUser"
+      v-else
+      :user="selectedUser"
+      @cancel-edit="cancelEditing"
+      @save-user="saveUser"
     />
+  </div>
+  <div
+    v-else
+    style="
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+    "
+  >
+    <h1>Brak dostępu!</h1>
+    <p>Aby zobaczyć tę stronę, należy zalogować się jako administrator</p>
   </div>
 </template>
 
@@ -48,6 +60,7 @@
 import UserTable from "@/components/UserTable.vue";
 import UserEdit from "@/components/EditUser.vue";
 import AdminService from "@/services/AdminService";
+import { checkAdmin, isAdmin } from "@/services/AuthService";
 
 export default {
   components: {
@@ -60,15 +73,27 @@ export default {
       selectedUser: null,
       searchQuery: "",
       users: [],
-      loadedUsers: [],
       filteredUsers: [],
       usersPerPage: 2,
       currentPage: 1,
       isLoading: false,
+      isAdmin: false,
     };
   },
-  mounted() {
-    this.fetchUsers(this.currentPage);
+  setup() {
+    checkAdmin();
+    return {
+      isAdmin: isAdmin,
+    };
+  },
+  async mounted() {
+    if (localStorage.getItem("token") && this.isAdmin == true) {
+      console.log(localStorage.getItem("role"));
+      this.fetchUsers(this.currentPage);
+    } else {
+      console.log(localStorage.getItem("role"));
+      console.log("No token or no admin rights");
+    }
     window.addEventListener("scroll", this.handleScroll);
   },
   beforeDestroy() {
@@ -90,10 +115,14 @@ export default {
     //   }
     // },
     async fetchUsers(page) {
-      this.isLoading = true;
-      const response = await AdminService.getAllUsers(page);
-      const newUsers = response.data;
-      this.users = [...this.users, ...newUsers];
+      try {
+        this.isLoading = true;
+        const response = await AdminService.getAllUsers(page);
+        const newUsers = response.data;
+        this.users = [...this.users, ...newUsers];
+      } catch (error) {
+        console.error(error);
+      }
       this.isLoading = false;
     },
     handleScroll() {

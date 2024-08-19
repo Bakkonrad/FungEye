@@ -91,8 +91,8 @@ export default {
     // },
     async fetchUsers(page) {
       this.isLoading = true;
-      const response = await AdminService.getAllUsers(page, this.usersPerPage);
-      const newUsers = response || [];
+      const response = await AdminService.getAllUsers(page);
+      const newUsers = response.data;
       this.users = [...this.users, ...newUsers];
       this.isLoading = false;
     },

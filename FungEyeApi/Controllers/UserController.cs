@@ -162,24 +162,24 @@ namespace FungEyeApi.Controllers
             return Ok(user);
         }
 
-        [Authorize]
-        [Consumes("multipart/form-data")]
-        [HttpPost("getUsers")]
-        public async Task<IActionResult> AddFriendship([FromForm] int userId, [FromForm] int friendId)
-        {
-            if (!ValidateUserId(userId))
-            {
-                return Forbid();
-            }
+        //[Authorize]
+        //[Consumes("multipart/form-data")]
+        //[HttpPost("getUsers")]
+        //public async Task<IActionResult> AddFriendship([FromForm] int userId, [FromForm] int friendId)
+        //{
+        //    if (!ValidateUserId(userId))
+        //    {
+        //        return Forbid();
+        //    }
 
-            var user = await _userService.GetUsers(page, search);
-            if (user == null)
-            {
-                return NotFound();
-            }
+        //    var user = await _userService.GetUsers();
+        //    if (user == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return Ok(user);
-        }
+        //    return Ok(user);
+        //}
 
 
 

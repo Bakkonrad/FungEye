@@ -98,21 +98,8 @@ namespace FungEyeApi.Services
                 throw new Exception("Username or password is incorrect");
             }
 
-            string token = await CreateToken(MapToDTO(checkUser));
+            string token = await CreateToken(new User(checkUser));
             return token;
-        }
-
-
-
-        private static User MapToDTO(UserEntity entity)
-        {
-            return new User
-            {
-                Id = entity.Id,
-                Username = entity.Username,
-                Email = entity.Email,
-                Password = entity.Password
-            };
         }
 
         private Task<string> CreateToken(User user)

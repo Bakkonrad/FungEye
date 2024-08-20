@@ -28,6 +28,9 @@ namespace FungEyeApi.Data.Entities
         public DateTime? ModifiedAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
 
+        public ICollection<FriendshipEntity> Friendships { get; set; }
+        public ICollection<FriendshipEntity> FriendsWith { get; set; }
+
         public static UserEntity Create(RoleEnum role, string username, string email, string password, DateTime? dateOfBirth, string? firstname, string? lastname, string? imageUrl)
         {
             return new UserEntity

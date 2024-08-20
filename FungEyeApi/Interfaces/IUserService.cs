@@ -9,6 +9,6 @@ namespace FungEyeApi.Interfaces
         Task<User> GetUserProfile(int userId);
         Task<bool> UpdateUserImage(int userId, string imageUrl);
         Task<bool> IsAdmin(int userId);
-        Task<List<User>> GetUsers(int? page , string? search);
+        Task<List<User>> GetUsers(int? page = null, string? search = null);
     }
 }

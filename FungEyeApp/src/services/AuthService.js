@@ -12,7 +12,7 @@ export function checkAuth() {
 }
 
 export function checkAdmin() {
-    if (localStorage.getItem("role") == "User") { // ! change to Admin
+    if (localStorage.getItem("role") == "Admin") { 
         isAdmin.value = true;
     } else {
         isAdmin.value = false;

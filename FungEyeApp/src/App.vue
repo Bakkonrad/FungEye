@@ -42,6 +42,12 @@ body {
   color: var(--black);
 }
 
+h1, h2, h3, .r-link, button, nav, label, img {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
 /* fonts */
 h1 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;

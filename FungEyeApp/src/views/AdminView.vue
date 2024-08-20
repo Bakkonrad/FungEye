@@ -100,20 +100,6 @@ export default {
     window.removeEventListener("scroll", this.handleScroll);
   },
   methods: {
-    // async loadUsers() {
-    //   const response = await AdminService.getAllUsers();
-    //   this.users = response;
-    //   const start = (this.currentPage - 1) * this.usersPerPage;
-    //   const end = start + this.usersPerPage;
-    //   const newUsers = this.users.slice(start, end);
-    //   this.users = [...this.users.slice(0, start), ...newUsers];
-    //   this.currentPage++;
-    // },
-    // handleScroll() {
-    //   if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-    //     this.loadUsers();
-    //   }
-    // },
     async fetchUsers(page) {
       try {
         this.isLoading = true;
@@ -130,24 +116,17 @@ export default {
         this.currentPage++;
         this.fetchUsers(this.currentPage);
       }
-      // const bottom = event.target.scrollHeight - event.target.scrollTop === event.target.clientHeight;
-      // if (bottom && !this.isLoading) {
-      //   this.currentPage++;
-      //   this.fetchUsers(this.currentPage);
-      // }
     },
-    filterUsers() {
-      this.users = this.users.filter(
-        (user) =>
-          user.username
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          user.firstName
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          user.lastName.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+    async filterUsers() {
+      try {
+        this.isLoading = true;
+        const filteredUsers = await AdminService.getAllUsers(0, this.searchQuery);
+        this.users = filteredUsers.data;
+      }
+      catch (error) {
+        console.error(error);
+      }
+      this.isLoading = false;
     },
     startEditing(user) {
       this.selectedUser = { ...user };

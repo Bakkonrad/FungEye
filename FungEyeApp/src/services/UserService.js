@@ -105,6 +105,44 @@ const getUserData = async () => {
     }
 }
 
+const deleteAccount = async (userId) => {
+    try {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            alert("No token found. Please log in.");
+            return false;
+        }
+
+        // Send only userId in the body
+        const response = await $http.post(`/api/User/removeAccount/${userId}`);
+
+        console.log('Response:', response);
+
+        if (response.status === 200) {
+            alert('Usunięto konto');
+            return true;
+        } else if (response.status === 404) {
+            alert('Nie znaleziono użytkownika');
+            return false;
+        } else if (response.status === 401) {
+            alert('Session expired');
+            this.$router.push("/log-in");
+            return false;
+        }
+
+        return false;
+    } catch (error) {
+        console.error('Error deleting account:', error);
+
+        if (error.response && error.response.status === 400) {
+            console.log('Bad request. Please check the data sent to the server.');
+        }
+
+        return false;
+    }
+}
+
 const handleApiError = (error) => {
     if (error.response) {
         switch (error.response.status) {
@@ -134,7 +172,8 @@ export default {
     login,
     register,
     logout,
-    getUserData
+    getUserData,
+    deleteAccount
 };
 
 

@@ -185,11 +185,24 @@ export default {
       alert("Zapisano zmiany");
       this.isEditing = false;
     },
-    deleteAccount() {
-      // UserService.deleteAccount();
-      alert("Konto usunięte");
-      UserService.logout();
-      this.$router.push("/");
+    async deleteAccount() {
+      // const confirmDelete = confirm(
+      //   "Czy na pewno chcesz usunąć swoje konto?"
+      // );
+      // if (!confirmDelete) {
+      //   return;
+      // }
+      try {
+        const response = await UserService.deleteAccount(parseInt(localStorage.getItem('id')));
+        if (response == true) {
+          console.log("Account deleted: ", response);
+          UserService.logout();
+          this.$router.push("/");
+        }
+      }
+      catch (error) {
+        console.error("Error deleting account: ", error);
+      }
     },
   },
 };

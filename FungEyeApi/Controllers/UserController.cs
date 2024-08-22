@@ -21,16 +21,19 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("removeAccount")]
-        public async Task<IActionResult> RemoveAccount([FromBody] int userId, string token)
+        [HttpPost("removeAccount/{userId}")]
+        public async Task<IActionResult> RemoveAccount(int userId)
         {
             try
             {
-                var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userIdFromToken == null || userIdFromToken != userId.ToString())
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (!ValidateUserId(userId) && admin == false)
                 {
                     return Forbid();
                 }
+
 
                 bool result = await _userService.RemoveAccount(userId);
                 if (result)
@@ -60,14 +63,14 @@ namespace FungEyeApi.Controllers
                 //    return Forbid();
                 //}
 
-                if(image == null || image.Length == 0)
+                if (image == null || image.Length == 0)
                 {
                     return BadRequest("No file selected.");
                 }
 
                 string imageUrl = await _blobStorageService.UploadFile(image);
                 bool result = await _userService.UpdateUserImage(userId, imageUrl);
-                
+
                 if (result)
                 {
                     return Ok("Photo added successfully.");
@@ -107,23 +110,25 @@ namespace FungEyeApi.Controllers
         [HttpPut("{id}")]
         [Consumes("multipart/form-data")]
         [Authorize]
-        public async Task<IActionResult> UpdateUser(int userId, [FromForm] string userJson, [FromForm] IFormFile? image = null)
+        public async Task<IActionResult> UpdateUser(int userId, [FromForm] string userJson,
+            [FromForm] IFormFile? image = null)
         {
             try
             {
                 var user = JsonConvert.DeserializeObject<User>(userJson);
-                
+
                 if (!ValidateUserId(userId))
                 {
                     return Forbid();
                 }
-                
+
                 if (image != null || image.Length > 0)
                 {
                     await _blobStorageService.DeleteFile(user.ImageUrl);
                     var newImageUrl = await _blobStorageService.UploadFile(image);
                     user.ImageUrl = newImageUrl;
                 }
+
                 user.Id = userId;
 
                 var updatedRecipe = _userService.UpdateUser(user);
@@ -133,13 +138,13 @@ namespace FungEyeApi.Controllers
             {
                 return BadRequest(ex.InnerException?.Message ?? ex.Message);
             }
-
         }
 
         [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("getUsers")]
-        public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null, [FromForm] string? search = null)
+        public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null,
+            [FromForm] string? search = null)
         {
             if (!ValidateUserId(userId))
             {
@@ -182,7 +187,6 @@ namespace FungEyeApi.Controllers
         //}
 
 
-
         private bool ValidateUserId(int userId)
         {
             var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -190,8 +194,8 @@ namespace FungEyeApi.Controllers
             {
                 return false;
             }
+
             return true;
         }
-
     }
 }

@@ -33,16 +33,12 @@ const login = async (user) => {
             setUser();
             $http.defaults.headers.common['Authorization'] = `Bearer ${response.data}`;
             alert('Zalogowano!');
-            return true;
+            return { success: true };
         }
-        else
-            // opis błędu - metoda handleApiError i wyświetlenie użytkownikowi
-
-            return false;
+        return { success: false, message: 'Nieznany błąd' };
     } catch (error) {
-
-        console.error('Error loading data:', error);
-        return [];
+        const errorMessage = handleApiError(error);
+        return { success: false, message: errorMessage };
     }
 };
 
@@ -54,10 +50,10 @@ const register = async (user) => {
             alert('Rejestracja przebiegła pomyślnie! Teraz możesz się zalogować.');
             return true;
         }
-        return false;
+        return {message: 'Nieznany błąd'};
     } catch (error) {
-        console.error('Error loading data:', error);
-        return [];
+        const errorMessage = handleApiError(error);
+        return {message: errorMessage};
     }
 }
 
@@ -94,46 +90,45 @@ const setUser = () => {
 }
 
 const getUserData = async () => {
-    // if (localStorage.getItem('id') != null) {
-    //     const response = {
-    //         id: 0,
-    //         role: 1,
-    //         username: "string",
-    //         email: "string",
-    //         password: "string",
-    //         firstName: "string",
-    //         lastName: "string",
-    //         imageUrl: "string",
-    //         createdAt: "2024-07-27T17:41:35.881Z",
-    //         dateOfBirth: "2024-07-27T17:41:35.881Z"
-    //     };
-    //     return response;
-    // }
     try {
         const userId = localStorage.getItem('id');
         const response = await $http.post(`api/User/getProfile/${userId}`);
 
         if (response.status === 200) {
-            // console.log(response.data);
-            return response.data;
-        }
-        else if (response.status === 404) {
-            alert('Nie znaleziono użytkownika');
-            return false;
-        }
-        else if (response.status === 401) {
-            alert('Session expired');
-            this.$router.push("/log-in");
-            return false;
-        }
-        return false;
+            return {success: true, data: response.data};
+        } 
+        return {success: false, message: 'Nieznany błąd'};
     } catch (error) {
-        console.error('Error loading data:', error);
-        return [];
+        const errorMessage = handleApiError(error);
+        console.error('Error loading data:', errorMessage);
+        return {success: false, message: errorMessage};
     }
 }
 
-
+const handleApiError = (error) => {
+    if (error.response) {
+        switch (error.response.status) {
+            case 400:
+                return 'Błąd: Nieprawidłowe dane.';
+            case 401:
+                return 'Błąd: Nieautoryzowany dostęp.';
+            case 403:
+                return 'Błąd: Brak dostępu.';
+            case 404:
+                return 'Błąd: Nie znaleziono zasobu.';
+            case 500:
+                return 'Błąd: Wewnętrzny błąd serwera.';
+            default:
+                return `Błąd: ${error.response.statusText}`;
+        }
+    } else if (error.request) {
+        // Request was made but no response received
+        return 'Błąd: Brak odpowiedzi z serwera.';
+    } else {
+        // Something happened in setting up the request
+        return `Błąd: ${error.message}`;
+    }
+};
 
 export default {
     login,

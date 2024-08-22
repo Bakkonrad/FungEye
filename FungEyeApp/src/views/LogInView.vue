@@ -10,7 +10,7 @@
       </button>
     </div>
   </div>
-  <div v-if="!loggedIn" class="container-md">
+  <div v-else class="container-md">
     <img class="log-in-bg" src="../assets/images/backgrounds/log-in-bg.jpeg" />
     <div class="log-in-content">
       <h1>Witaj ponownie!</h1>
@@ -36,7 +36,7 @@
         </div>
         <!-- <div id="forgotPassword" class="form-text">Zapomniałeś/aś hasła?</div> -->
         <span v-if="error" class="error-message"
-          >Email/Login lub hasło są nieprawidłowe.</span
+          >{{ errorMessage }}</span
         >
         <button
           type="submit"
@@ -72,6 +72,7 @@ export default {
   data() {
     return {
       error: false,
+      errorMessage: "",
       loggedIn: false,
       // error: true,
     };
@@ -90,14 +91,16 @@ export default {
         this.loginFormData.username = null;
       }
       try {
-        const token = await UserService.login(this.loginFormData);
-        if (!token) {
+        const result = await UserService.login(this.loginFormData);
+        if (!result.success) {
           this.error = true;
+          this.errorMessage = result.message;
           return;
         }
         this.$router.push("/my-profile");
       }
       catch (error) {
+        this.errorMessage = result.message;
         this.error = true;
       }
     },

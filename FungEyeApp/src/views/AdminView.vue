@@ -10,38 +10,55 @@
       </button>
       <button class="btn fungeye-default-button category-btn">Grzyby</button>
     </div>
-    <div class="input-group mb-3" id="searchUsers">
-      <input
-        type="text"
-        v-model="searchQuery"
-        placeholder="Szukaj użytkownika"
-        class="form-control"
-        id="searchUsers-input"
-        aria-describedby="button-addon2"
-      />
-      <button
-        @click="filterUsers"
-        class="btn fungeye-default-button"
-        type="button"
-        id="button-addon2"
-      >
-        Szukaj
-      </button>
+    <div v-if="isLoading || error">
+      <div v-if="isLoading" class="loading-spinner">Ładowanie...</div>
+      <div v-if="error" class="error-loading-data">
+        {{ errorMessage }}
+      </div>
     </div>
-    <UserTable
-      v-if="!isEditing"
-      :users="users"
-      @edit-user="startEditing"
-      @ban-user="banUserPrompt"
-      @delete-user="deleteUser"
-    />
-    <UserEdit
-      v-else
-      :user="selectedUser"
-      @cancel-edit="cancelEditing"
-      @save-user="saveUser"
-    />
+    <!-- search bar and table -->
+    <div v-else>
+      <div class="input-group mb-3" id="searchUsers">
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Szukaj użytkownika"
+          class="form-control"
+          id="searchUsers-input"
+          aria-describedby="button-addon2"
+        />
+        <button
+          @click="filterUsers"
+          class="btn fungeye-default-button"
+          type="button"
+          id="button-addon2"
+        >
+          Szukaj
+        </button>
+      </div>
+      <div v-if="noUsersFound">
+        <p class="no-users">
+          Nie znaleziono użytkowników spełniających kryteria wyszukiwania.
+        </p>
+      </div>
+      <div v-else>
+        <UserTable
+          v-if="!isEditing"
+          :users="users"
+          @edit-user="startEditing"
+          @ban-user="banUserPrompt"
+          @delete-user="deleteUser"
+        />
+        <UserEdit
+          v-else
+          :user="selectedUser"
+          @cancel-edit="cancelEditing"
+          @save-user="saveUser"
+        />
+      </div>
+    </div>
   </div>
+  <!-- is not admin -->
   <div
     v-else
     style="
@@ -78,6 +95,9 @@ export default {
       currentPage: 1,
       isLoading: false,
       isAdmin: false,
+      error: false,
+      errorMessage: "",
+      noUsersFound: false,
     };
   },
   setup() {
@@ -104,12 +124,26 @@ export default {
       try {
         this.isLoading = true;
         const response = await AdminService.getAllUsers(page);
+        if (!response.success) {
+          this.error = true;
+          this.errorMessage = response.message;
+          return;
+        }
+        if (response.data.length === 0) {
+          console.log("No users found");
+          this.noUsersFound = true;
+          return;
+        }
+        console.log(response.data);
+        console.log(response.data.length);
         const newUsers = response.data;
         this.users = [...this.users, ...newUsers];
       } catch (error) {
-        console.error(error);
+        this.error = true;
+        this.errorMessage = response.message;
+      } finally {
+        this.isLoading = false;
       }
-      this.isLoading = false;
     },
     handleScroll() {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
@@ -120,13 +154,22 @@ export default {
     async filterUsers() {
       try {
         this.isLoading = true;
-        const filteredUsers = await AdminService.getAllUsers(0, this.searchQuery);
+        const filteredUsers = await AdminService.getAllUsers(
+          0,
+          this.searchQuery
+        );
+        if (filteredUsers.data.length === 0) {
+          console.log("No users found");
+          this.noUsersFound = true;
+        } else {
+          this.noUsersFound = false;
+        }
         this.users = filteredUsers.data;
-      }
-      catch (error) {
+      } catch (error) {
         console.error(error);
+      } finally {
+        this.isLoading = false;
       }
-      this.isLoading = false;
     },
     startEditing(user) {
       this.selectedUser = { ...user };
@@ -224,5 +267,17 @@ export default {
   color: var(--black) !important;
   width: 50%;
   margin: 0 auto;
+}
+
+.no-users {
+  text-align: center;
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+@media screen and (max-width: 768px) {
+  #searchUsers {
+    width: 80%;
+  }
 }
 </style>

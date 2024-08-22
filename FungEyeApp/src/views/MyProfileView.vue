@@ -1,45 +1,52 @@
 <template>
   <div>
-    <div v-if="user === 'not-found'" class="not-loggedIn container-md">
-      <h1>Profil użytkownika</h1>
-      <p>Proszę się zalogować, aby zobaczyć swoje dane.</p>
-      <router-link to="/log-in" class="btn fungeye-default-button"
-        >Zaloguj się</router-link
-      >
-    </div>
-    <div v-if="user && isLoading" class="container-md">
-      <h1>Profil użytkownika</h1>
-      <p>Ładowanie danych...</p>
-    </div>
     <div
-      v-if="user && !isEditing && !isLoading"
-      class="container-md"
+      v-if="errorLoadingData || isLoading"
+      class="error-div container-md"
     >
-      <div id="user-info">
-        <UserProfileInfo
-          :imgSrc="imgSrc"
-          :username="username"
-          :name_surname="name_surname"
-          :email="email"
-        />
-        <div class="buttons">
-          <button
-            @click="startEditing"
-            type="button"
-            class="btn fungeye-default-button"
-          >
-            Edytuj profil
-          </button>
-          <button @click="logOut" type="button" class="btn fungeye-red-button">
-            Wyloguj się
-          </button>
-        </div>
+      <h1>Profil użytkownika</h1>
+      <div v-if="errorLoadingData" class="error-div">
+        <p class="error-loading-data">{{ errorMessage }}</p>
+        <router-link to="/log-in" class="btn fungeye-red-button" @click="logOut"
+          >Zaloguj się ponownie</router-link
+        >
       </div>
-      <UserProfileCollections
-        :mushrooms="mushrooms"
-        :trophys="trophys"
-        :friends="friends"
-      />
+      <div v-if="isLoading" class="container-md">
+        <p>Ładowanie danych...</p>
+      </div>
+    </div>
+    <div v-else>
+      <div v-if="!isEditing" class="container-md">
+        <div id="user-info">
+          <UserProfileInfo
+            :imgSrc="imgSrc"
+            :username="username"
+            :name_surname="name_surname"
+            :email="email"
+          />
+          <div class="buttons">
+            <button
+              @click="startEditing"
+              type="button"
+              class="btn fungeye-default-button"
+            >
+              Edytuj profil
+            </button>
+            <button
+              @click="logOut"
+              type="button"
+              class="btn fungeye-red-button"
+            >
+              Wyloguj się
+            </button>
+          </div>
+        </div>
+        <UserProfileCollections
+          :mushrooms="mushrooms"
+          :trophys="trophys"
+          :friends="friends"
+        />
+      </div>
     </div>
     <div class="edit-user" v-if="isEditing">
       <button
@@ -82,8 +89,7 @@ export default {
   mounted() {
     if (localStorage.getItem("token")) {
       this.fetchUser();
-    }
-    else {
+    } else {
       this.$router.push("/log-in");
     }
   },
@@ -130,6 +136,8 @@ export default {
           img: "src/assets/images/profile-images/profile-img4.jpeg",
         },
       ],
+      errorLoadingData: false,
+      errorMessage: "",
       isEditing: false,
       isLoading: true,
     };
@@ -139,23 +147,25 @@ export default {
       try {
         this.isLoading = true;
         const userData = await UserService.getUserData();
-        if (userData) {
-          this.user = userData;
-          this.username = userData.username;
-          if (userData.firstName && userData.lastName) {
-            this.name_surname = userData.firstName + " " + userData.lastName;
+        if (!userData.success) {
+          this.errorLoadingData = true;
+          this.errorMessage = userData.message;
+          return;
+        } else {
+          this.user = userData.data;
+          this.username = userData.data.username;
+          if (userData.data.firstName && userData.data.lastName) {
+            this.name_surname = userData.data.firstName + " " + userData.data.lastName;
           }
-          this.email = userData.email;
+          this.email = userData.data.email;
           // this.imgSrc = response.imgSrc;
           // this.mushrooms = response.mushrooms;
           // this.trophys = response.trophys;
           // this.friends = response.friends;
         }
       } catch (error) {
-        if (error.response && error.response.status === 401) {
-          console.error("User not found");
-        }
-        console.error("Error fetching user data: ", error);
+        this.errorLoadingData = true;
+        this.errorMessage = userData.message;
         this.$router.push("/log-in");
       } finally {
         this.isLoading = false;
@@ -186,7 +196,7 @@ export default {
 </script>
 
 <style scoped>
-.not-loggedIn {
+.error-div {
   display: flex;
   flex-direction: column;
   align-items: center;

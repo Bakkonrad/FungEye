@@ -197,6 +197,14 @@ input.validInput {
   font-size: 1em;
 }
 
+.error-loading-data {
+  color: var(--red);
+  text-align: center;
+  font-size: x-large;
+  font-weight: 600;
+  margin-top: 30px;
+}
+
 .r-link {
   color: var(--dark-green) !important;
 }

@@ -22,12 +22,14 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [HttpPost("removeAccount")]
-        public async Task<IActionResult> RemoveAccount([FromBody] int userId, string token)
+        public async Task<IActionResult> RemoveAccount([FromBody] int userId)
         {
             try
             {
-                var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (userIdFromToken == null || userIdFromToken != userId.ToString())
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (!ValidateUserId(userId) && admin == false)
                 {
                     return Forbid();
                 }
@@ -55,15 +57,17 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                //if (!ValidateUserId(userId))
-                //{
-                //    return Forbid();
-                //}
+                if (!ValidateUserId(userId))
+                {
+                    return Forbid();
+                }
 
                 if(image == null || image.Length == 0)
                 {
                     return BadRequest("No file selected.");
                 }
+
+                string oldImageUrl = await _userService.GetUserImage(userId); //DODAC USUWANIE STAREGO ZDJECIA
 
                 string imageUrl = await _blobStorageService.UploadFile(image);
                 bool result = await _userService.UpdateUserImage(userId, imageUrl);
@@ -104,13 +108,17 @@ namespace FungEyeApi.Controllers
             return Ok(user);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("updateUser/{userId}")]
         [Consumes("multipart/form-data")]
         [Authorize]
         public async Task<IActionResult> UpdateUser(int userId, [FromForm] string userJson, [FromForm] IFormFile? image = null)
         {
             try
             {
+                //NIE KAZAĆ PRZEKAZYWAĆ USERA W OBIEKCIE JSON TYLKO POBIERAĆ IMAGE URL Z BAZY I NA TEJ PODSTAWIE ZMIENIAC ZDJECIE
+
+
+
                 var user = JsonConvert.DeserializeObject<User>(userJson);
                 
                 if (!ValidateUserId(userId))

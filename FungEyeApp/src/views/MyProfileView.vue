@@ -1,15 +1,10 @@
 <template>
   <div>
-    <div
-      v-if="errorLoadingData || isLoading"
-      class="error-div container-md"
-    >
+    <div v-if="errorLoadingData || isLoading" class="error-div container-md">
       <h1>Profil użytkownika</h1>
       <div v-if="errorLoadingData" class="error-div">
         <p class="error-loading-data">{{ errorMessage }}</p>
-        <router-link to="/log-in" class="btn fungeye-red-button" @click="logOut"
-          >Zaloguj się ponownie</router-link
-        >
+        <router-link to="/log-in" class="btn fungeye-red-button" @click="logOut">Zaloguj się ponownie</router-link>
       </div>
       <div v-if="isLoading" class="container-md">
         <p>Ładowanie danych...</p>
@@ -18,54 +13,27 @@
     <div v-else>
       <div v-if="!isEditing" class="container-md">
         <div id="user-info">
-          <UserProfileInfo
-            :imgSrc="imgSrc"
-            :username="username"
-            :name_surname="name_surname"
-            :email="email"
-          />
+          <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :email="email" />
           <div class="buttons">
-            <button
-              @click="startEditing"
-              type="button"
-              class="btn fungeye-default-button"
-            >
+            <button @click="startEditing" type="button" class="btn fungeye-default-button">
               Edytuj profil
             </button>
-            <button
-              @click="logOut"
-              type="button"
-              class="btn fungeye-red-button"
-            >
+            <button @click="logOut" type="button" class="btn fungeye-red-button">
               Wyloguj się
             </button>
           </div>
         </div>
-        <UserProfileCollections
-          :mushrooms="mushrooms"
-          :trophys="trophys"
-          :friends="friends"
-        />
+        <UserProfileCollections :mushrooms="mushrooms" :trophys="trophys" :friends="friends" />
       </div>
     </div>
     <div class="edit-user" v-if="isEditing">
-      <button
-        @click="cancelEditing"
-        type="button"
-        class="btn fungeye-default-button"
-      >
+      <button @click="cancelEditing" type="button" class="btn fungeye-default-button">
         Powrót do mojego profilu
       </button>
-      <EditUser
-        :user="user"
-        @cancel-edit="cancelEditing"
-        @save-user="saveUser"
-      />
-      <button
-        @click="deleteAccount"
-        type="button"
-        class="btn fungeye-red-button"
-      >
+      <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
+      <!-- <EditUser :user="user" @cancel-edit="cancelEditing" /> -->
+
+      <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
         Usuń konto
       </button>
     </div>
@@ -78,6 +46,8 @@ import UserService from "@/services/UserService";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
+import { onMounted, ref } from "vue";
+import { profileImage, setProfileImage } from "@/services/AuthService";
 
 export default {
   components: {
@@ -86,20 +56,14 @@ export default {
     UserProfileInfo,
     EditUser,
   },
-  mounted() {
-    if (localStorage.getItem("token")) {
-      this.fetchUser();
-    } else {
-      this.$router.push("/log-in");
-    }
-  },
   data() {
     return {
-      imgSrc: "src/assets/images/profile-images/profile-img1.jpeg",
-      user: null,
-      username: "",
-      name_surname: "",
-      email: "",
+      // imgSrc: "",
+      // imgFile: null,
+      // user: null,
+      // username: "",
+      // name_surname: "",
+      // email: "",
       mushrooms: [
         "src/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg",
         "src/assets/images/mushrooms/db5c95b8-5596-4d91-8dcd-f1a9703e5a97.jpeg",
@@ -136,62 +100,128 @@ export default {
           img: "src/assets/images/profile-images/profile-img4.jpeg",
         },
       ],
-      errorLoadingData: false,
-      errorMessage: "",
-      isEditing: false,
-      isLoading: true,
+      // errorLoadingData: false,
+      // errorMessage: "",
+      // isEditing: false,
+      // isLoading: true,
     };
   },
   methods: {
-    async fetchUser() {
+    logOut() {
+      UserService.logout();
+      this.$router.push("/log-in"); 
+    },
+  },
+  setup() {
+    const imgSrc = ref('');
+    const imgFile = ref(null);
+    const isEditing = ref(false);
+    const isLoading = ref(false);
+    const errorLoadingData = ref(false);
+    const errorMessage = ref('');
+    const user = ref(null);
+    const username = ref('');
+    const name_surname = ref('');
+    const email = ref('');
+
+    const fetchUser = async () => {
       try {
-        this.isLoading = true;
+        isLoading.value = true;
         const userData = await UserService.getUserData();
         if (!userData.success) {
-          this.errorLoadingData = true;
-          this.errorMessage = userData.message;
+          errorLoadingData.value = true;
+          errorMessage.value = userData.message;
           return;
         } else {
-          this.user = userData.data;
-          this.username = userData.data.username;
-          if (userData.data.firstName && userData.data.lastName) {
-            this.name_surname = userData.data.firstName + " " + userData.data.lastName;
+          if (userData.data.imageUrl) {
+            imgSrc.value = userData.data.imageUrl;
+            setProfileImage(userData.data.imageUrl);
           }
-          this.email = userData.data.email;
-          // this.imgSrc = response.imgSrc;
+          else { // placeholder image
+            imgSrc.value = "src/assets/images/profile-images/profile-img1.jpeg";
+          }
+          user.value = userData.data;
+          console.log(userData.data);
+          username.value = userData.data.username;
+          if (userData.data.firstName && userData.data.lastName) {
+            name_surname.value = userData.data.firstName + " " + userData.data.lastName;
+          }
+          email.value = userData.data.email;
           // this.mushrooms = response.mushrooms;
           // this.trophys = response.trophys;
           // this.friends = response.friends;
         }
       } catch (error) {
-        this.errorLoadingData = true;
-        this.errorMessage = userData.message;
+        errorLoadingData.value = true;
+        errorMessage.value = userData.message;
         this.$router.push("/log-in");
       } finally {
-        this.isLoading = false;
+        isLoading.value = false;
       }
-    },
-    logOut() {
-      UserService.logout();
-      this.$router.push("/");
-    },
-    startEditing() {
-      this.isEditing = true;
-    },
-    cancelEditing() {
-      this.isEditing = false;
-    },
-    saveUser() {
-      alert("Zapisano zmiany");
-      this.isEditing = false;
-    },
-    async deleteAccount() {
-      // const confirmDelete = confirm(
-      //   "Czy na pewno chcesz usunąć swoje konto?"
-      // );
-      // if (!confirmDelete) {
-      //   return;
-      // }
+    };
+
+    const startEditing = () => {
+      isEditing.value = true;
+    };
+    const cancelEditing = () => {
+      imgSrc.value = profileImage.value;
+      isEditing.value = false;
+    };
+    // const saveUser = async (user) => {
+    //   return new Promise(async (resolve, reject) => {
+    //     try {
+
+    //       // const response = await UserService.updateImage(user.imgFile);
+    //       const response = {success: false, message: "Error updating user"};
+    //       console.log("response: ", response);
+    //       if (response.success) {
+    //         // console.log("Image updated: ", response);
+    //         resolve(response);
+    //       }
+    //       else {
+    //         console.error("Error updating image: ", response.message);
+    //         reject(response);
+    //       }
+    //     }
+    //     catch (error) {
+    //       console.error("Error updating user: ", error);
+    //       reject({success: false, message: error.message || "Error updating user"});
+    //     }
+    //     finally {
+    //       fetchUser();
+    //     }
+    //   });
+    //   // try {
+    //   //   // only image update
+    //   //   const response = await UserService.updateImage(user.imgFile);
+    //   //   if (response.success) {
+    //   //     console.log("Image updated: ", response);
+    //   //   }
+    //   //   else {
+    //   //     console.error("Error updating image: ", response.message);
+    //   //   }
+    //   //   isEditing.value = false;
+    //   // }
+    //   // catch (error) {
+    //   //   console.error("Error updating user: ", error);
+    //   // }
+    //   // finally {
+    //   //   await fetchUser();
+    //   // }
+    // };
+    const saveUser = async () => {
+      console.log("saveUser");
+      cancelEditing();
+      fetchUser();
+    };
+
+    const deleteAccount = async () => {
+      const confirmDelete = confirm(
+        "Czy na pewno chcesz usunąć swoje konto?"
+      );
+      if (!confirmDelete) {
+        return;
+      }
       try {
         const response = await UserService.deleteAccount(parseInt(localStorage.getItem('id')));
         if (response == true) {
@@ -203,7 +233,29 @@ export default {
       catch (error) {
         console.error("Error deleting account: ", error);
       }
-    },
+    };
+
+    onMounted(() => {
+      fetchUser();
+    });
+
+    return {
+      imgSrc,
+      imgFile,
+      user,
+      username,
+      name_surname,
+      email,
+      errorLoadingData,
+      errorMessage,
+      isEditing,
+      isLoading,
+      fetchUser,
+      startEditing,
+      cancelEditing,
+      saveUser,
+      deleteAccount,
+    };
   },
 };
 </script>
@@ -246,12 +298,14 @@ export default {
     padding: 0;
     width: 80vw;
   }
+
   #user-info {
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 1em;
   }
+
   .buttons {
     flex-direction: column;
     gap: 1em;
@@ -263,5 +317,13 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 1em;
+}
+
+.fileInput {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  cursor: pointer;
 }
 </style>

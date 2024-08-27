@@ -2,6 +2,7 @@ import { ref } from 'vue';
 
 export const isLoggedIn = ref(false);
 export const isAdmin = ref(false);
+export const profileImage = ref('');
 
 export function checkAuth() {
     if (localStorage.getItem("token")) {
@@ -17,4 +18,8 @@ export function checkAdmin() {
     } else {
         isAdmin.value = false;
     }
+}
+
+export function setProfileImage(img) {
+    profileImage.value = img;
 }

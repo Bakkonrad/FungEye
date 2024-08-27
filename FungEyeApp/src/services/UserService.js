@@ -30,6 +30,7 @@ const login = async (user) => {
             isLoggedIn.value = true;
             // console.log(isLoggedIn.value);
             console.log(response.data);
+            localStorage.setItem('profileImg', response.data.imageUrl);
             setUser();
             $http.defaults.headers.common['Authorization'] = `Bearer ${response.data}`;
             alert('Zalogowano!');
@@ -63,6 +64,7 @@ const logout = async () => {
     localStorage.removeItem('id');
     localStorage.removeItem('username');
     localStorage.removeItem('role');
+    localStorage.removeItem('profileImg');
     isLoggedIn.value = false;
     isAdmin.value = false;
     alert('Wylogowano!');
@@ -143,6 +145,36 @@ const deleteAccount = async (userId) => {
     }
 }
 
+const updateImage = async (image) => {
+    try {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('id');
+
+        if (!token) {
+            alert("No token found. Please log in.");
+            return false;
+        }
+
+        const formData = new FormData();
+        formData.append('image', image);
+
+        // Send userId and image in the body
+        const response = await $http.post(`/api/User/UpdateUserImage/${userId}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        if (response.status === 200) {
+            return {success: true, data: response.data};
+        }
+        return {success: false, message: 'Nieznany błąd'};
+    } catch (error) {
+        const errorMessage = handleApiError(error);
+        console.error('Error updating image:', errorMessage);
+        return {success: false, message: errorMessage};
+    }
+}
+
 const handleApiError = (error) => {
     if (error.response) {
         switch (error.response.status) {
@@ -173,6 +205,7 @@ export default {
     register,
     logout,
     getUserData,
+    updateImage,
     deleteAccount
 };
 

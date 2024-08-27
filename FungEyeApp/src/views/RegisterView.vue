@@ -204,6 +204,10 @@ export default {
     };
   },
   methods: {
+    // randomNumber generator from 1 to 99
+    randomNumber() {
+      return Math.floor(Math.random() * 99) + 1;
+    },
     async submitForm() {
       const result = await this.v$.$validate();
       this.submitted = true;
@@ -212,6 +216,7 @@ export default {
         email: this.registerFormData.email,
         firstName: this.registerFormData.firstName,
         lastName: this.registerFormData.lastName,
+        imageUrl: "https://avatar.iran.liara.run/public/" + this.randomNumber(),
         username: this.registerFormData.username,
         password: this.registerFormData.password,
         dateOfBirth: this.registerFormData.dateOfBirth,
@@ -222,6 +227,7 @@ export default {
           const response = await UserService.register(exportedData);
           if (response === true) {
             console.log("Form submitted!");
+            this.$router.push("/log-in");
           } else {
             console.log("Form not submitted!");
             this.error = true;

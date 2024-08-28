@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
-import { isLoggedIn, isAdmin, checkAdmin } from './AuthService';
+import { isLoggedIn, isAdmin, checkAdmin, setProfileImage, profileImage } from './AuthService';
 
 const $http = axios.create({
     baseURL: "http://localhost:5268/",
@@ -30,7 +30,6 @@ const login = async (user) => {
             isLoggedIn.value = true;
             // console.log(isLoggedIn.value);
             console.log(response.data);
-            localStorage.setItem('profileImg', response.data.imageUrl);
             setUser();
             $http.defaults.headers.common['Authorization'] = `Bearer ${response.data}`;
             alert('Zalogowano!');
@@ -58,7 +57,7 @@ const register = async (user) => {
     }
 }
 
-const logout = async () => {
+const logout = () => {
     localStorage.removeItem('token');
     // localStorage.removeItem('user');
     localStorage.removeItem('id');

@@ -46,7 +46,7 @@ import UserService from "@/services/UserService";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
-import { onMounted, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { profileImage, setProfileImage } from "@/services/AuthService";
 
 export default {
@@ -113,7 +113,7 @@ export default {
     },
   },
   setup() {
-    const imgSrc = ref('');
+    const imgSrc = reactive(profileImage);
     const imgFile = ref(null);
     const isEditing = ref(false);
     const isLoading = ref(false);
@@ -135,10 +135,11 @@ export default {
         } else {
           if (userData.data.imageUrl) {
             imgSrc.value = userData.data.imageUrl;
+            localStorage.setItem("profileImg", userData.data.imageUrl);
             setProfileImage(userData.data.imageUrl);
           }
           else { // placeholder image
-            imgSrc.value = "src/assets/images/profile-images/profile-img1.jpeg";
+            imgSrc.value = "https://avatar.iran.liara.run/public";
           }
           user.value = userData.data;
           console.log(userData.data);
@@ -210,7 +211,6 @@ export default {
     //   // }
     // };
     const saveUser = async () => {
-      console.log("saveUser");
       cancelEditing();
       fetchUser();
     };

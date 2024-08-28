@@ -18,7 +18,7 @@ export default {
   },
   data() {
     return {
-      imgSrc: null,
+      imgSrc: profileImage,
     };
   },
   setup() {

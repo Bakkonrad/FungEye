@@ -2,7 +2,7 @@ import { ref } from 'vue';
 
 export const isLoggedIn = ref(false);
 export const isAdmin = ref(false);
-export const profileImage = ref('');
+export const profileImage = ref(localStorage.getItem("profileImg"));
 
 export function checkAuth() {
     if (localStorage.getItem("token")) {

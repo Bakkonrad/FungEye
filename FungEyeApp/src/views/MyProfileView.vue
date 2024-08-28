@@ -9,8 +9,9 @@
         <router-link v-else to="/log-in" class="btn fungeye-red-button" @click="logOut">Zaloguj się
           ponownie</router-link>
       </div>
-      <div v-if="isLoading" class="container-md">
-        <p>Ładowanie danych...</p>
+      <div v-if="isLoading" class="container-md data-loading">
+        <h3 class="data-loading">Trwa ładowanie danych. Proszę czekać</h3>
+        <LoadingSpinner></LoadingSpinner>
       </div>
     </div>
     <div v-else>
@@ -97,6 +98,7 @@ import EditUser from "@/components/EditUser.vue";
 import BaseInput from "@/components/BaseInput.vue";
 import { onMounted, reactive, ref } from "vue";
 import { isLoggedIn, profileImage, setProfileImage } from "@/services/AuthService";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 export default {
   components: {
@@ -105,6 +107,7 @@ export default {
     UserProfileInfo,
     BaseInput,
     EditUser,
+    LoadingSpinner,
   },
   data() {
     return {
@@ -278,6 +281,14 @@ export default {
 
 .container-md {
   margin-top: 2em;
+}
+
+.data-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #333;
 }
 
 .left-side {

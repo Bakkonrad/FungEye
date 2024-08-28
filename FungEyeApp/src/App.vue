@@ -42,10 +42,20 @@ body {
   color: var(--black);
 }
 
-h1, h2, h3, .r-link, button, nav, label, img {
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+h1,
+h2,
+h3,
+.r-link,
+button,
+nav,
+label,
+img {
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
 }
 
 /* fonts */
@@ -152,6 +162,10 @@ ul {
 .fungeye-red-button:active:focus {
   background: var(--dark-red);
   color: white;
+}
+
+.button-icon {
+  margin-right: 5px;
 }
 
 /* forms */

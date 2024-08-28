@@ -134,18 +134,18 @@ export default {
   font-style: normal;
   font-size: 1.3em;
   line-height: 29px;
-
   color: var(--black);
   cursor: pointer;
-  transition: 0.05s;
+  transition: 0.1s;
+}
+
+.nav-link:hover {
+  font-weight: 500;
 }
 
 .nav-link.active {
-  color: var(--dark-green) !important;
-  font-weight: 400;
-  background-color: var(--dark-beige);
-  border-radius: 15px;
-  /* text-decoration: underline; */
+  font-weight: 500;
+  border-bottom: 2px solid var(--black);
 }
 
 #logInButton {

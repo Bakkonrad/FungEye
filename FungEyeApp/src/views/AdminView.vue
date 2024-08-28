@@ -2,72 +2,50 @@
   <div v-if="isAdmin == true" class="admin-panel" @scroll="handleScroll">
     <h1>Panel administratora</h1>
     <div class="buttons my-3">
-      <button
-        class="btn fungeye-default-button category-btn active"
-        @click="showUserTable"
-      >
+      <button class="btn category-btn" :class="getActiveTable('users')" @click="showUsers">
         Użytkownicy
       </button>
-      <button class="btn fungeye-default-button category-btn">Grzyby</button>
+      <button class="btn category-btn disabled" :class="getActiveTable('mushrooms')"
+        @click="showMushrooms">Grzyby</button>
     </div>
-    <div v-if="isLoading || error">
-      <div v-if="isLoading" class="loading-spinner">Ładowanie...</div>
-      <div v-if="error" class="error-loading-data">
-        {{ errorMessage }}
-      </div>
+    <div v-if="error" class="error-loading-data">
+      {{ errorMessage }}
     </div>
-    <!-- search bar and table -->
+    <!-- search bar and table for users -->
     <div v-else>
-      <div class="input-group mb-3" id="searchUsers">
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Szukaj użytkownika"
-          class="form-control"
-          id="searchUsers-input"
-          aria-describedby="button-addon2"
-        />
-        <button
-          @click="filterUsers"
-          class="btn fungeye-default-button"
-          type="button"
-          id="button-addon2"
-        >
-          Szukaj
-        </button>
+      <div v-if="activeTable === 'users'">
+        <div v-if="!isEditing">
+          <div class="input-group mb-3" id="searchUsers">
+            <input type="text" v-model="searchQuery" placeholder="Szukaj użytkowników..." class="form-control" id="searchUsers-input"
+            aria-describedby="button-addon2" />
+            <button @click="filterUsers" class="btn fungeye-default-button" type="button" id="button-addon2">
+              <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="search-icon" />
+            </button>
+          </div>
+          <UserTable :users="users" @edit-user="startEditing" @ban-user="banUserPrompt" @delete-user="deleteUser" />
+          <LoadingSpinner v-if="isLoading"></LoadingSpinner>
+          <div v-if="noUsersFound">
+            <p class="no-users">
+              {{ noUsersMessage }}
+            </p>
+          </div>
+        </div>
+        <UserEdit v-else :user="selectedUser" @cancel-edit="cancelEditing" @save-user="saveUser" />
       </div>
-      <div v-if="noUsersFound">
-        <p class="no-users">
-          Nie znaleziono użytkowników spełniających kryteria wyszukiwania.
-        </p>
-      </div>
+      <!-- search bar and table for mushrooms -->
       <div v-else>
-        <UserTable
-          v-if="!isEditing"
-          :users="users"
-          @edit-user="startEditing"
-          @ban-user="banUserPrompt"
-          @delete-user="deleteUser"
-        />
-        <UserEdit
-          v-else
-          :user="selectedUser"
-          @cancel-edit="cancelEditing"
-          @save-user="saveUser"
-        />
+        <h2>Grzyby</h2>
+        <p>not implemented</p>
       </div>
     </div>
   </div>
   <!-- is not admin -->
-  <div
-    v-else
-    style="
+  <div v-else style="
       display: flex;
       justify-content: center;
       flex-direction: column;
       align-items: center;
-    "
-  >
+    ">
     <h1>Brak dostępu!</h1>
     <p>Aby zobaczyć tę stronę, należy zalogować się jako administrator</p>
   </div>
@@ -78,11 +56,13 @@ import UserTable from "@/components/UserTable.vue";
 import UserEdit from "@/components/EditUser.vue";
 import AdminService from "@/services/AdminService";
 import { checkAdmin, isAdmin } from "@/services/AuthService";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 export default {
   components: {
     UserTable,
     UserEdit,
+    LoadingSpinner,
   },
   data() {
     return {
@@ -98,6 +78,8 @@ export default {
       error: false,
       errorMessage: "",
       noUsersFound: false,
+      noUsersMessage: "",
+      activeTable: "users",
     };
   },
   setup() {
@@ -129,9 +111,14 @@ export default {
           this.errorMessage = response.message;
           return;
         }
-        if (response.data.length === 0) {
-          console.log("No users found");
+        if (response.data.length === 0 && this.users.length === 0) {
           this.noUsersFound = true;
+          this.noUsersMessage = "Nie znaleziono użytkowników spełniających kryteria.";
+          return;
+        }
+        else if (response.data.length === 0) {
+          this.noUsersFound = true;
+          this.noUsersMessage = "To już wszystkie wyniki.";
           return;
         }
         console.log(response.data);
@@ -146,7 +133,7 @@ export default {
       }
     },
     handleScroll() {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+      if (!this.isEditing && (window.innerHeight + window.scrollY >= document.body.offsetHeight)) {
         this.currentPage++;
         this.fetchUsers(this.currentPage);
       }
@@ -223,6 +210,21 @@ export default {
         alert(`Użytkownik ${email} został usunięty.`);
       }
     },
+    getActiveTable(table) {
+      this.isEditing = false;
+      this.selectedUser = null;
+      let classString = "category-btn";
+      if (this.activeTable === table) {
+        classString += " active";
+      }
+      return classString;
+    },
+    showUsers() {
+      this.activeTable = "users";
+    },
+    showMushrooms() {
+      this.activeTable = "mushrooms";
+    },
   },
 };
 </script>
@@ -231,13 +233,21 @@ export default {
 .admin-panel {
   text-align: center;
   color: var(--black) !important;
-  height: 100vh;
+  height: auto;
   overflow-y: auto;
 }
 
 #searchUsers {
   width: 30%;
   margin: 0 auto;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  padding: 5px;
+  min-width: 50px;
+  text-align: center;
 }
 
 #searchUsers-input {
@@ -246,21 +256,40 @@ export default {
 
 .buttons {
   display: flex;
-  justify-content: center;
-  gap: 1em;
+  justify-content: space-between;
+  width: 23%;
+  margin: 0 auto;
   margin-bottom: 30px;
 }
 
 .category-btn {
+  font-size: 1.2em;
+  font-weight: 300;
+  color: var(--black);
+  text-decoration: none;
   height: 35px;
-  padding: 5px 40px !important;
+  padding: 5px 30px !important;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--black);
+  cursor: pointer;
 }
 
-.loading-spinner {
-  text-align: center;
-  padding: 20px;
-  font-size: 16px;
-  color: #333;
+.category-btn:focus,
+.category-btn.active,
+.category-btn:active {
+  font-weight: 500;
+  border-bottom: 2px solid var(--black);
+}
+
+.category-btn:hover {
+  font-weight: 500;
+}
+
+.category-btn.disabled {
+  color: #ccc;
+  border-bottom: 1px solid #ccc;
+  cursor: not-allowed;
 }
 
 .form-control {

@@ -117,30 +117,14 @@ const deleteAccount = async (userId) => {
 
         // Send only userId in the body
         const response = await $http.post(`/api/User/removeAccount/${userId}`);
-
-        console.log('Response:', response);
-
         if (response.status === 200) {
-            alert('Usunięto konto');
-            return true;
-        } else if (response.status === 404) {
-            alert('Nie znaleziono użytkownika');
-            return false;
-        } else if (response.status === 401) {
-            alert('Session expired');
-            this.$router.push("/log-in");
-            return false;
+            return {success: true}
         }
-
-        return false;
+        return {success: false, message: 'Nieznany błąd'};
     } catch (error) {
-        console.error('Error deleting account:', error);
-
-        if (error.response && error.response.status === 400) {
-            console.log('Bad request. Please check the data sent to the server.');
-        }
-
-        return false;
+        const errorMessage = handleApiError(error);
+        console.error('Error deleting account:', errorMessage);
+        return {success: false, message: errorMessage};
     }
 }
 

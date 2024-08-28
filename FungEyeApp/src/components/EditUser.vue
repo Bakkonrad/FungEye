@@ -1,6 +1,7 @@
 <template>
   <div class="edit-container">
     <div class="edit-form">
+      <h3>Edycja profilu</h3>
       <form @submit.prevent="submitForm" class="form-group">
         <div class="mb-3 file-input-container">
           <input style="display: none;" type="file" accept="image/*" @change="onFileChange" ref="fileInput"></input>
@@ -96,6 +97,7 @@
       </form>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -284,6 +286,11 @@ export default {
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 500px;
+}
+
+h3 {
+  margin-bottom: 1em;
+  color: white;
 }
 
 .form-group {

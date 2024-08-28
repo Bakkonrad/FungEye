@@ -1,10 +1,13 @@
 <template>
   <div>
     <div v-if="errorLoadingData || isLoading" class="error-div container-md">
-      <h1>Profil użytkownika</h1>
+      <h2>Profil użytkownika</h2>
       <div v-if="errorLoadingData" class="error-div">
         <p class="error-loading-data">{{ errorMessage }}</p>
-        <router-link to="/log-in" class="btn fungeye-red-button" @click="logOut">Zaloguj się ponownie</router-link>
+        <router-link v-if="!isLoggedIn" to="/log-in" class="btn fungeye-red-button" @click="logOut">Przejdź do
+          logowania</router-link>
+        <router-link v-else to="/log-in" class="btn fungeye-red-button" @click="logOut">Zaloguj się
+          ponownie</router-link>
       </div>
       <div v-if="isLoading" class="container-md">
         <p>Ładowanie danych...</p>
@@ -16,7 +19,7 @@
           <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :email="email" />
           <div class="buttons">
             <button @click="startEditing" type="button" class="btn fungeye-default-button">
-              Edytuj profil
+              Ustawienia
             </button>
             <button @click="logOut" type="button" class="btn fungeye-red-button">
               Wyloguj się
@@ -26,16 +29,61 @@
         <UserProfileCollections :mushrooms="mushrooms" :trophys="trophys" :friends="friends" />
       </div>
     </div>
-    <div class="edit-user" v-if="isEditing">
-      <button @click="cancelEditing" type="button" class="btn fungeye-default-button">
-        Powrót do mojego profilu
-      </button>
-      <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
-      <!-- <EditUser :user="user" @cancel-edit="cancelEditing" /> -->
-
-      <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
-        Usuń konto
-      </button>
+    <div class="settings container-md" v-if="isEditing">
+      <div class="main-header">
+        <h2>Ustawienia</h2>
+        <button @click="cancelEditing" type="button" class="btn fungeye-default-button">
+          Powrót do mojego profilu
+        </button>
+      </div>
+      <div class="settings-content">
+        <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
+        <div class="settings-content-right">
+          <!-- <div class="edit-container">
+            <div class="edit-form">
+              <h3>Zmiana hasła konta</h3>
+              <div class="mb-3">
+                <BaseInput v-model="registerFormData.password" type="password" label="Hasło (min. 8 znaków)" :class="{
+                  'password-input': !submitted,
+                  validInput: submitted && !v$.password.$invalid,
+                  invalidInput: submitted && v$.password.$invalid,
+                  }" />
+                  <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
+                    {{ error.$message }}
+                  </span>
+                </div>
+                <div class="mb-3">
+                  <BaseInput v-model="registerFormData.confirmPassword" type="password" label="Potwierdź hasło" :class="{
+                    'confirmPassword-input': !submitted,
+                    validInput: submitted && !v$.confirmPassword.$invalid,
+                    invalidInput: submitted && v$.confirmPassword.$invalid,
+                    }" />
+                    <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
+                      {{ error.$message }}
+                    </span>
+                  </div>
+                  <div class="mb-3">
+                    <BaseInput v-model="registerFormData.dateOfBirth" type="date" label="Data urodzenia" :class="{
+                      'dateOfBirth-input': !submitted,
+                      validInput: submitted && !v$.dateOfBirth.$invalid,
+                      invalidInput: submitted && v$.dateOfBirth.$invalid,
+                      }" />
+                      <span class="error-message" v-for="error in v$.dateOfBirth.$errors" :key="error.$uid">
+                        {{ error.$message }}
+                      </span>
+              </div>
+            </div> 
+          </div> -->
+          <div class="edit-container">
+            <div class="edit-form">
+              <h3>Usuwanie konta</h3>
+              <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
+                Usuń konto
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -46,14 +94,16 @@ import UserService from "@/services/UserService";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
+import BaseInput from "@/components/BaseInput.vue";
 import { onMounted, reactive, ref } from "vue";
-import { profileImage, setProfileImage } from "@/services/AuthService";
+import { isLoggedIn, profileImage, setProfileImage } from "@/services/AuthService";
 
 export default {
   components: {
     ProfileImage,
     UserProfileCollections,
     UserProfileInfo,
+    BaseInput,
     EditUser,
   },
   data() {
@@ -109,7 +159,28 @@ export default {
   methods: {
     logOut() {
       UserService.logout();
-      this.$router.push("/log-in"); 
+      this.$router.push("/log-in");
+    },
+    async deleteAccount() {
+      const confirmDelete = confirm(
+        "Czy na pewno chcesz usunąć swoje konto?"
+      );
+      if (!confirmDelete) {
+        return;
+      }
+      try {
+        const response = await UserService.deleteAccount(parseInt(localStorage.getItem('id')));
+        if (response.success) {
+          console.log("Account deleted");
+          this.logOut();
+        }
+        else {
+          console.error("Error deleting account: ", response.message);
+        }
+      }
+      catch (error) {
+        console.error("Error deleting account: ", error);
+      }
     },
   },
   setup() {
@@ -168,71 +239,9 @@ export default {
       imgSrc.value = profileImage.value;
       isEditing.value = false;
     };
-    // const saveUser = async (user) => {
-    //   return new Promise(async (resolve, reject) => {
-    //     try {
-
-    //       // const response = await UserService.updateImage(user.imgFile);
-    //       const response = {success: false, message: "Error updating user"};
-    //       console.log("response: ", response);
-    //       if (response.success) {
-    //         // console.log("Image updated: ", response);
-    //         resolve(response);
-    //       }
-    //       else {
-    //         console.error("Error updating image: ", response.message);
-    //         reject(response);
-    //       }
-    //     }
-    //     catch (error) {
-    //       console.error("Error updating user: ", error);
-    //       reject({success: false, message: error.message || "Error updating user"});
-    //     }
-    //     finally {
-    //       fetchUser();
-    //     }
-    //   });
-    //   // try {
-    //   //   // only image update
-    //   //   const response = await UserService.updateImage(user.imgFile);
-    //   //   if (response.success) {
-    //   //     console.log("Image updated: ", response);
-    //   //   }
-    //   //   else {
-    //   //     console.error("Error updating image: ", response.message);
-    //   //   }
-    //   //   isEditing.value = false;
-    //   // }
-    //   // catch (error) {
-    //   //   console.error("Error updating user: ", error);
-    //   // }
-    //   // finally {
-    //   //   await fetchUser();
-    //   // }
-    // };
     const saveUser = async () => {
       cancelEditing();
       fetchUser();
-    };
-
-    const deleteAccount = async () => {
-      const confirmDelete = confirm(
-        "Czy na pewno chcesz usunąć swoje konto?"
-      );
-      if (!confirmDelete) {
-        return;
-      }
-      try {
-        const response = await UserService.deleteAccount(parseInt(localStorage.getItem('id')));
-        if (response == true) {
-          console.log("Account deleted: ", response);
-          UserService.logout();
-          this.$router.push("/");
-        }
-      }
-      catch (error) {
-        console.error("Error deleting account: ", error);
-      }
     };
 
     onMounted(() => {
@@ -254,7 +263,6 @@ export default {
       startEditing,
       cancelEditing,
       saveUser,
-      deleteAccount,
     };
   },
 };
@@ -312,10 +320,33 @@ export default {
   }
 }
 
-.edit-user {
+.settings {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1em;
+}
+
+.main-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  margin-bottom: 1em;
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+.settings-content-right {
+  display: flex;
+  flex-direction: column;
   gap: 1em;
 }
 
@@ -325,5 +356,24 @@ export default {
   align-items: center;
   gap: 1em;
   cursor: pointer;
+}
+
+h3 {
+  margin-bottom: 1em;
+  color: white;
+}
+
+.edit-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-form {
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
 }
 </style>

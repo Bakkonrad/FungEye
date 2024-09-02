@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg bg-body-tertiary fungeye-navbar">
     <div class="container-fluid">
-      <RouterLink  to="/" class="navbar-brand"><Logo /></RouterLink>
+      <RouterLink to="/" class="navbar-brand"><Logo /></RouterLink>
       <button
         class="navbar-toggler"
         type="button"
@@ -16,31 +16,64 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <RouterLink to="/" :class="getActiveNavLink('home')" aria-current="page">Strona główna</RouterLink>
+            <RouterLink
+              to="/"
+              :class="getActiveNavLink('home')"
+              aria-current="page"
+              >Strona główna</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink to="/recognize" :class="getActiveNavLink('recognize')">Rozpoznawanie grzybów</RouterLink>
+            <RouterLink to="/recognize" :class="getActiveNavLink('recognize')"
+              >Rozpoznawanie grzybów</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink to="/portal" :class="getActiveNavLink('portal')">Portal</RouterLink>
+            <RouterLink to="/portal" :class="getActiveNavLink('portal')"
+              >Portal</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink to="/weather" :class="getActiveNavLink('weather')">Pogoda</RouterLink>
+            <RouterLink to="/weather" :class="getActiveNavLink('weather')"
+              >Pogoda</RouterLink
+            >
           </li>
           <li class="nav-item">
-            <RouterLink to="/atlas" :class="getActiveNavLink('atlas')">Atlas</RouterLink>
+            <RouterLink to="/atlas" :class="getActiveNavLink('atlas')"
+              >Atlas</RouterLink
+            >
+          </li>
+          <li v-if="isAdmin" class="nav-item">
+            <RouterLink to="/admin" :class="getActiveNavLink('admin')"
+              >Admin</RouterLink
+            >
+          </li>
+          <li>
+            <RouterLink
+              to="/log-in"
+              class="btn fungeye-default-button"
+              id="logInButton"
+              v-if="!loggedIn"
+              >Zaloguj / Zarejestruj się</RouterLink
+            >
+            <RouterLink to="/my-profile" id="myProfileButton" v-else
+              ><MyProfileButton
+            /></RouterLink>
           </li>
         </ul>
-    </div>
-    <RouterLink to="/log-in" class="btn fungeye-default-button" id="logInButton" v-if="!loggedIn">Zaloguj / Zarejestruj się</RouterLink>
-    <RouterLink to="/my-profile" id="myProfileButton" v-else><MyProfileButton /></RouterLink>
+      </div>
     </div>
   </nav>
 </template>
 
 <script>
 // import ProfileImage from "./ProfileImage.vue";
-import { isLoggedIn, checkAuth } from "@/services/AuthService";
+import {
+  isLoggedIn,
+  checkAuth,
+  checkAdmin,
+  isAdmin,
+} from "@/services/AuthService";
 import Logo from "./Logo.vue";
 import MyProfileButton from "./MyProfileButton.vue";
 
@@ -53,13 +86,16 @@ export default {
   data() {
     return {
       loggedIn: false,
-    }
+      isAdmin: false,
+    };
   },
   setup() {
     checkAuth();
+    checkAdmin();
     return {
       loggedIn: isLoggedIn,
-    }
+      isAdmin: isAdmin,
+    };
   },
   methods: {
     getActiveNavLink(viewName) {
@@ -68,25 +104,29 @@ export default {
         classString += " active";
       }
       return classString;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
 .fungeye-navbar {
   background-color: var(--beige) !important;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
 }
 
 #navbarNav {
   justify-content: center;
+  gap: 10em;
 }
 
 .navbar-nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2em;
 }
 
 .nav-link {
@@ -94,26 +134,38 @@ export default {
   font-style: normal;
   font-size: 1.3em;
   line-height: 29px;
-
   color: var(--black);
   cursor: pointer;
-  transition: 0.05s;
+  transition: 0.1s;
+}
+
+.nav-link:hover {
+  font-weight: 500;
 }
 
 .nav-link.active {
-  color: var(--dark-green) !important;
-  font-weight: 400;
-  background-color: var(--dark-beige);
-  border-radius: 15px;
-  /* text-decoration: underline; */
+  font-weight: 500;
+  border-bottom: 2px solid var(--black);
 }
 
 #logInButton {
-    height: 50px;
+  height: 50px;
 }
 
 #myProfileButton {
   text-decoration: none;
 }
 
+@media screen and (max-width: 992px) {
+  .navbar-nav {
+    flex-direction: column;
+    justify-content: center;
+    align-items: baseline;
+    gap: 1em;
+  }
+
+  .nav-link {
+    font-size: 1.2em;
+  }
+}
 </style>

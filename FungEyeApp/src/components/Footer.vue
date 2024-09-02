@@ -5,25 +5,15 @@
     >
       <p class="col-md-4 mb-0 text-body-secondary">© 2024 FungEye</p>
 
-      <ul class="navbar-nav col-md-6 justify-content-end">
-        <li class="nav-item">
-          <RouterLink to="/" class="nav-link">Strona główna</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink to="/recognize" class="nav-link"
-            >Rozpoznawanie grzybów</RouterLink
-          >
-        </li>
-        <li class="nav-item">
-          <RouterLink to="/portal" class="nav-link">Portal</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink to="/weather" class="nav-link">Pogoda</RouterLink>
-        </li>
-        <li class="nav-item">
-          <RouterLink to="/atlas" class="nav-link">Atlas</RouterLink>
-        </li>
-      </ul>
+      <p class="col-md-6 warning">
+        <b>Uwaga!</b>
+        <br /> Wyniki rozpoznawania grzybów uzyskane za pomocą aplikacji FungEye
+        mogą nie być w 100% dokładne. Zawsze zalecamy potwierdzenie
+        identyfikacji grzybów u eksperta przed ich spożyciem. Twórcy aplikacji
+        FungEye nie biorą odpowiedzialności za jakiekolwiek zatrucia czy inne
+        szkody wynikające z niewłaściwego rozpoznania grzybów za pomocą
+        aplikacji.
+      </p>
     </footer>
   </div>
 </template>
@@ -44,8 +34,13 @@ export default {
   margin: 0 auto;
 }
 
-ul {
-  flex-direction: row;
+footer {
+  align-items: flex-start !important;
+  gap: 2em;
+}
+
+.warning {
+  font-size: medium;
 }
 
 @media (max-width: 768px) {
@@ -53,10 +48,5 @@ ul {
     flex-direction: column;
     gap: 3em;
   }
-  ul {
-    flex-direction: column;
-    gap: 0.5em;
-  }
 }
-
 </style>

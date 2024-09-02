@@ -31,14 +31,31 @@ body {
   /* --green: #6a994e; */
   --green: #538237;
   --light-green: #a7c957;
-  --beige: #f2e8cf;
-  --dark-beige: #e0d7b5;
+  --beige: #f1ebdd;
+  --dark-beige: #dfd1a0;
   --red: #bc4749;
   --dark-red: #712b2c;
+  --warning: #eebc3c;
   --black: #333333;
   background-color: var(--beige) !important;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: var(--black);
+}
+
+h1,
+h2,
+h3,
+.r-link,
+button,
+nav,
+label,
+img {
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
 }
 
 /* fonts */
@@ -56,7 +73,7 @@ h2 {
 
 h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 500;
+  font-weight: 300;
   font-size: 1.5em;
 }
 
@@ -119,7 +136,8 @@ ul {
 
 .fungeye-default-button:focus,
 .fungeye-default-button:active,
-.fungeye-default-button:active:focus {
+.fungeye-default-button:active:focus,
+.fungeye-default-button.active {
   background: var(--dark-green);
   color: white;
 }
@@ -144,6 +162,10 @@ ul {
 .fungeye-red-button:active:focus {
   background: var(--dark-red);
   color: white;
+}
+
+.button-icon {
+  margin-right: 5px;
 }
 
 /* forms */
@@ -189,8 +211,25 @@ input.validInput {
   font-size: 1em;
 }
 
+.error-loading-data {
+  color: var(--red);
+  text-align: center;
+  font-size: x-large;
+  font-weight: 600;
+  margin-top: 30px;
+}
+
 .r-link {
-  color: var(--dark-green);
+  color: var(--dark-green) !important;
+}
+
+.r-link:hover {
+  color: var(--green) !important;
+}
+
+.r-link:active {
+  color: var(--dark-green) !important;
+  font-weight: 500;
 }
 
 .form-label {

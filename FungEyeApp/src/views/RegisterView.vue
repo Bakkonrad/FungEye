@@ -26,8 +26,8 @@
               label="Email*"
               :class="{
                 'email-input': !submitted,
-                'validInput': submitted && !v$.email.$invalid,
-                'invalidInput': submitted && v$.email.$invalid,
+                validInput: submitted && !v$.email.$invalid,
+                invalidInput: submitted && v$.email.$invalid,
               }"
             />
             <span
@@ -45,9 +45,10 @@
                 type="text"
                 label="Imię"
                 :class="{
-                  'firstName-input': !submitted || (registerFormData.firstName === null),
-                  'validInput': submitted && !v$.firstName.$invalid,
-                  'invalidInput': submitted && v$.firstName.$invalid,
+                  'firstName-input':
+                    !submitted || registerFormData.firstName === null,
+                  validInput: submitted && !v$.firstName.$invalid,
+                  invalidInput: submitted && v$.firstName.$invalid,
                 }"
               />
               <span
@@ -65,8 +66,8 @@
                 label="Nazwisko"
                 :class="{
                   'lastName-input': !submitted,
-                  'validInput': submitted && !v$.lastName.$invalid,
-                  'invalidInput': submitted && v$.lastName.$invalid,
+                  validInput: submitted && !v$.lastName.$invalid,
+                  invalidInput: submitted && v$.lastName.$invalid,
                 }"
               />
               <span
@@ -85,8 +86,8 @@
               label="Nazwa użytkownika*"
               :class="{
                 'username-input': !submitted,
-                'validInput': submitted && !v$.username.$invalid,
-                'invalidInput': submitted && v$.username.$invalid,
+                validInput: submitted && !v$.username.$invalid,
+                invalidInput: submitted && v$.username.$invalid,
               }"
             />
             <span
@@ -104,8 +105,8 @@
               label="Hasło* (min. 8 znaków)"
               :class="{
                 'password-input': !submitted,
-                'validInput': submitted && !v$.password.$invalid,
-                'invalidInput': submitted && v$.password.$invalid,
+                validInput: submitted && !v$.password.$invalid,
+                invalidInput: submitted && v$.password.$invalid,
               }"
             />
             <span
@@ -123,8 +124,8 @@
               label="Potwierdź hasło*"
               :class="{
                 'confirmPassword-input': !submitted,
-                'validInput': submitted && !v$.confirmPassword.$invalid,
-                'invalidInput': submitted && v$.confirmPassword.$invalid,
+                validInput: submitted && !v$.confirmPassword.$invalid,
+                invalidInput: submitted && v$.confirmPassword.$invalid,
               }"
             />
             <span
@@ -142,8 +143,8 @@
               label="Data urodzenia"
               :class="{
                 'dateOfBirth-input': !submitted,
-                'validInput': submitted && !v$.dateOfBirth.$invalid,
-                'invalidInput': submitted && v$.dateOfBirth.$invalid,
+                validInput: submitted && !v$.dateOfBirth.$invalid,
+                invalidInput: submitted && v$.dateOfBirth.$invalid,
               }"
             />
             <span
@@ -155,6 +156,7 @@
             </span>
           </div>
           <div id="requiredFields" class="form-text">* Pola obowiązkowe</div>
+          <span class="error-message" v-if="error">{{ apiErrorMessage }}</span>
           <button
             type="submit"
             class="btn fungeye-default-button submitFormButton"
@@ -197,11 +199,15 @@ export default {
   data() {
     return {
       error: false,
-      // error: true,
+      apiErrorMessage: "",
       submitted: false,
     };
   },
   methods: {
+    // randomNumber generator from 1 to 99
+    randomNumber() {
+      return Math.floor(Math.random() * 99) + 1;
+    },
     async submitForm() {
       const result = await this.v$.$validate();
       this.submitted = true;
@@ -210,22 +216,27 @@ export default {
         email: this.registerFormData.email,
         firstName: this.registerFormData.firstName,
         lastName: this.registerFormData.lastName,
+        imageUrl: "https://avatar.iran.liara.run/public/" + this.randomNumber(),
         username: this.registerFormData.username,
         password: this.registerFormData.password,
         dateOfBirth: this.registerFormData.dateOfBirth,
       };
 
       if (result) {
-        const response = await UserService.register(exportedData);
-        // console.log(exportedData);
-        // const response = false;
-        if (response === true) {
-          // alert("Form submitted!");
-          console.log("Form submitted!");
-        } else {
-          // alert("Form not submitted!");
-          console.log("Form not submitted!");
+        try {
+          const response = await UserService.register(exportedData);
+          if (response === true) {
+            console.log("Form submitted!");
+            this.$router.push("/log-in");
+          } else {
+            console.log("Form not submitted!");
+            this.error = true;
+            this.apiErrorMessage = response.message;
+          }
+        } catch (error) {
+          console.error("Error submitting form: ", error);
           this.error = true;
+          this.apiErrorMessage = response.message;
         }
       }
     },

@@ -27,7 +27,9 @@
               <br />
             </span>
           </div>
-          <h3 v-if="images.length > 0" class="chosen-files-header">Wybrane zdjęcia:</h3>
+          <h3 v-if="images.length > 0" class="chosen-files-header">
+            Wybrane zdjęcia:
+          </h3>
           <div class="container">
             <div class="image" v-for="(image, index) in images" :key="index">
               <span class="delete" @click="deleteImage(index)">&times;</span>
@@ -46,33 +48,29 @@
           </button>
         </div>
       </div>
-      <RouterLink :to="'/mushroom/' + id" class="btn fungeye-default-button">Strona grzyba</RouterLink>
-      <div v-if="showResult" class="result">
-        <h2>Wynik</h2>
-        <div class="card">
-          <div class="result-image">
-            <img :src="images[0]" alt="">
-          </div>
-          <div class="result-info">
-            <h3>Nazwa</h3>
-            <p>Grzyb</p>
-            <h3>Opis</h3>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-              pulvinar, nunc nec ultricies.
-            </p>
-          </div>
-        </div>
-      </div>
+      <RecognizeResult v-if="showResult" :image="images[0].url"> </RecognizeResult>
     </div>
   </div>
 </template>
 
 <script>
+import RecognizeResult from "@/components/RecognizeResult.vue";
 export default {
+  components: {
+    RecognizeResult,
+  },
   data() {
     return {
-      images: [],
+      images: [
+        {
+          name: "image1.jpg",
+          url: "https://picsum.photos/600/1800",
+        },
+        {
+          name: "image2.jpg",
+          url: "https://via.placeholder.com/150",
+        },
+      ],
       isDragging: false,
       showResult: false,
       id: 2,
@@ -120,7 +118,7 @@ export default {
       console.log(this.images);
     },
     onUpload() {
-        this.showResult = true;
+      this.showResult = true;
       console.log("Upload image");
     },
   },
@@ -128,6 +126,20 @@ export default {
 </script>
 
 <style scoped>
+.container-md {
+  display: flex;
+  justify-content: center;
+  gap: 2em;
+}
+
+.photo-upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 50%;
+}
+
 .card {
   background: radial-gradient(
       135.63% 132.41% at 149.88% 23.51%,
@@ -135,7 +147,8 @@ export default {
       var(--dark-green) 100%
     )
     /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
-
+  width: 100%;
+  height: 400px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
@@ -145,11 +158,16 @@ export default {
 }
 
 .drag-area {
+  display: flex;
   border: 2px dashed #ccc;
   border-radius: 10px;
   padding: 20px;
   text-align: center;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: 0.4s;
+  height: 300px;
 }
 
 .drag-area header {
@@ -229,9 +247,11 @@ export default {
 }
 
 .recognize-button {
-  display: flex;
-  justify-content: flex-end;
   margin-top: 20px;
+  width: 100%;
 }
 
+.recognize-button button {
+  width: 100% !important;
+}
 </style>

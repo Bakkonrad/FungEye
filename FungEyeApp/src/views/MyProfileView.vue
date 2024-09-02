@@ -1,57 +1,86 @@
 <template>
   <div>
-    <div v-if="!user" class="not-loggedIn container-md">
-      <h1>Profil użytkownika</h1>
-      <p>Proszę się zalogować, aby zobaczyć swoje dane.</p>
-      <router-link to="/log-in" class="btn fungeye-default-button">Zaloguj się</router-link>
+    <div v-if="errorLoadingData || isLoading" class="error-div container-md">
+      <h2>Profil użytkownika</h2>
+      <div v-if="errorLoadingData" class="error-div">
+        <p class="error-loading-data">{{ errorMessage }}</p>
+        <router-link v-if="!isLoggedIn" to="/log-in" class="btn fungeye-red-button" @click="logOut">Przejdź do
+          logowania</router-link>
+        <router-link v-else to="/log-in" class="btn fungeye-red-button" @click="logOut">Zaloguj się
+          ponownie</router-link>
+      </div>
+      <div v-if="isLoading" class="container-md data-loading">
+        <h3 class="data-loading">Trwa ładowanie danych. Proszę czekać</h3>
+        <LoadingSpinner></LoadingSpinner>
+      </div>
     </div>
-    <div v-if="user" class="container-md">
-      <div id="user-info">
-        <div class="left-side">
-          <ProfileImage :imgSrc="imgSrc" :width="170" :height="170" />
-          <div id="user-text">
-            <p id="username">{{ username }}</p>
-            <p id="name_surname">{{ name_surname }}</p>
-            <p id="email">{{ email }}</p>
+    <div v-else>
+      <div v-if="!isEditing" class="container-md">
+        <div id="user-info">
+          <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :email="email" />
+          <div class="buttons">
+            <button @click="startEditing" type="button" class="btn fungeye-default-button">
+              Ustawienia
+            </button>
+            <button @click="logOut" type="button" class="btn fungeye-red-button">
+              Wyloguj się
+            </button>
           </div>
         </div>
-        <div class="buttons">
-          <button @click="editProfile" type="button" class="btn fungeye-default-button">
-            Edytuj profil
-          </button>
-          <button @click="logOut" type="button" class="btn fungeye-red-button">
-            Wyloguj się
-          </button>
-        </div>
+        <UserProfileCollections :mushrooms="mushrooms" :trophys="trophys" :friends="friends" />
       </div>
-      <div class="collection">
-        <h3>Moja kolekcja &rarr;</h3>
-        <div class="hstack gap-3" id="mushroom-collection">
-          <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
-            <img class="mushroom" :src="mushroom" alt="Mushroom" />
-          </div>
-        </div>
+    </div>
+    <div class="settings container-md" v-if="isEditing">
+      <div class="main-header">
+        <h2>Ustawienia</h2>
+        <button @click="cancelEditing" type="button" class="btn fungeye-default-button">
+          Powrót do mojego profilu
+        </button>
       </div>
-      <div class="bottom-collections">
-        <div class="collection">
-          <h3>Trofea &rarr;</h3>
-          <div class="hstack gap-3" id="trophy-collection">
-            <div class="p-2" v-for="trophy in trophys" :key="trophy">
-              <div class="trophy-content">
-                <img class="mushroom" :src="trophy.img" alt="Trophy" />
-                <p>{{ trophy.name }}</p>
+      <div class="settings-content">
+        <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
+        <div class="settings-content-right">
+          <!-- <div class="edit-container">
+            <div class="edit-form">
+              <h3>Zmiana hasła konta</h3>
+              <div class="mb-3">
+                <BaseInput v-model="registerFormData.password" type="password" label="Hasło (min. 8 znaków)" :class="{
+                  'password-input': !submitted,
+                  validInput: submitted && !v$.password.$invalid,
+                  invalidInput: submitted && v$.password.$invalid,
+                  }" />
+                  <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
+                    {{ error.$message }}
+                  </span>
+                </div>
+                <div class="mb-3">
+                  <BaseInput v-model="registerFormData.confirmPassword" type="password" label="Potwierdź hasło" :class="{
+                    'confirmPassword-input': !submitted,
+                    validInput: submitted && !v$.confirmPassword.$invalid,
+                    invalidInput: submitted && v$.confirmPassword.$invalid,
+                    }" />
+                    <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
+                      {{ error.$message }}
+                    </span>
+                  </div>
+                  <div class="mb-3">
+                    <BaseInput v-model="registerFormData.dateOfBirth" type="date" label="Data urodzenia" :class="{
+                      'dateOfBirth-input': !submitted,
+                      validInput: submitted && !v$.dateOfBirth.$invalid,
+                      invalidInput: submitted && v$.dateOfBirth.$invalid,
+                      }" />
+                      <span class="error-message" v-for="error in v$.dateOfBirth.$errors" :key="error.$uid">
+                        {{ error.$message }}
+                      </span>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="collection">
-          <h3>Znajomi &rarr;</h3>
-          <div class="hstack gap-3" id="friends-collection">
-            <div class="p-2" v-for="friend in friends" :key="friend">
-              <div class="friend-content">
-                <ProfileImage :imgSrc="friend.img" :width="100" :height="100" />
-                <p>{{ friend.name }}</p>
-              </div>
+            </div> 
+          </div> -->
+          <div class="edit-container">
+            <div class="edit-form">
+              <h3>Usuwanie konta</h3>
+              <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
+                Usuń konto
+              </button>
             </div>
           </div>
         </div>
@@ -63,34 +92,31 @@
 <script>
 import ProfileImage from "@/components/ProfileImage.vue";
 import UserService from "@/services/UserService";
+import UserProfileCollections from "@/components/UserProfileCollections.vue";
+import UserProfileInfo from "@/components/UserProfileInfo.vue";
+import EditUser from "@/components/EditUser.vue";
+import BaseInput from "@/components/BaseInput.vue";
+import { onMounted, reactive, ref } from "vue";
+import { isLoggedIn, profileImage, setProfileImage } from "@/services/AuthService";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 export default {
   components: {
     ProfileImage,
-  },
-  async created() {
-    const response = await UserService.getUserData();
-    console.log(response);
-
-    if(response) {
-  
-      this.user = response;
-      // this.imgSrc = response.imgSrc;
-      this.username = response.username;
-      this.name_surname = response.firstName + " " + response.lastName;
-      this.email = response.email;
-      // this.mushrooms = response.mushrooms;
-      // this.trophys = response.trophys;
-      // this.friends = response.friends;
-    }
+    UserProfileCollections,
+    UserProfileInfo,
+    BaseInput,
+    EditUser,
+    LoadingSpinner,
   },
   data() {
     return {
-      imgSrc: "src/assets/images/profile-images/profile-img1.jpeg",
-      user: null,
-      username: "",
-      name_surname: "",
-      email: "",
+      // imgSrc: "",
+      // imgFile: null,
+      // user: null,
+      // username: "",
+      // name_surname: "",
+      // email: "",
       mushrooms: [
         "src/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg",
         "src/assets/images/mushrooms/db5c95b8-5596-4d91-8dcd-f1a9703e5a97.jpeg",
@@ -127,23 +153,126 @@ export default {
           img: "src/assets/images/profile-images/profile-img4.jpeg",
         },
       ],
+      // errorLoadingData: false,
+      // errorMessage: "",
+      // isEditing: false,
+      // isLoading: true,
     };
   },
   methods: {
-    editProfile() {
-      alert("Edytuj profil");
-    },
     logOut() {
       UserService.logout();
-      this.$router.push("/");
+      this.$router.push("/log-in");
     },
-  }
-};
+    async deleteAccount() {
+      const confirmDelete = confirm(
+        "Czy na pewno chcesz usunąć swoje konto?"
+      );
+      if (!confirmDelete) {
+        return;
+      }
+      try {
+        const response = await UserService.deleteAccount(parseInt(localStorage.getItem('id')));
+        if (response.success) {
+          console.log("Account deleted");
+          this.logOut();
+        }
+        else {
+          console.error("Error deleting account: ", response.message);
+        }
+      }
+      catch (error) {
+        console.error("Error deleting account: ", error);
+      }
+    },
+  },
+  setup() {
+    const imgSrc = reactive(profileImage);
+    const imgFile = ref(null);
+    const isEditing = ref(false);
+    const isLoading = ref(false);
+    const errorLoadingData = ref(false);
+    const errorMessage = ref('');
+    const user = ref(null);
+    const username = ref('');
+    const name_surname = ref('');
+    const email = ref('');
 
+    const fetchUser = async () => {
+      try {
+        isLoading.value = true;
+        const userData = await UserService.getUserData();
+        if (!userData.success) {
+          errorLoadingData.value = true;
+          errorMessage.value = userData.message;
+          return;
+        } else {
+          if (userData.data.imageUrl) {
+            imgSrc.value = userData.data.imageUrl;
+            localStorage.setItem("profileImg", userData.data.imageUrl);
+            setProfileImage(userData.data.imageUrl);
+          }
+          else { // placeholder image
+            imgSrc.value = "https://avatar.iran.liara.run/public";
+          }
+          user.value = userData.data;
+          console.log(userData.data);
+          username.value = userData.data.username;
+          if (userData.data.firstName && userData.data.lastName) {
+            name_surname.value = userData.data.firstName + " " + userData.data.lastName;
+          }
+          email.value = userData.data.email;
+          // this.mushrooms = response.mushrooms;
+          // this.trophys = response.trophys;
+          // this.friends = response.friends;
+        }
+      } catch (error) {
+        errorLoadingData.value = true;
+        errorMessage.value = userData.message;
+        this.$router.push("/log-in");
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    const startEditing = () => {
+      isEditing.value = true;
+    };
+    const cancelEditing = () => {
+      imgSrc.value = profileImage.value;
+      isEditing.value = false;
+    };
+    const saveUser = async () => {
+      cancelEditing();
+      fetchUser();
+    };
+
+    onMounted(() => {
+      fetchUser();
+    });
+
+    return {
+      imgSrc,
+      imgFile,
+      user,
+      username,
+      name_surname,
+      email,
+      errorLoadingData,
+      errorMessage,
+      isEditing,
+      isLoading,
+      fetchUser,
+      startEditing,
+      cancelEditing,
+      saveUser,
+    };
+  },
+};
 </script>
 
 <style scoped>
-.not-loggedIn {
+.error-div {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -152,6 +281,14 @@ export default {
 
 .container-md {
   margin-top: 2em;
+}
+
+.data-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #333;
 }
 
 .left-side {
@@ -173,42 +310,81 @@ export default {
   justify-content: space-between;
 }
 
-#user-text {
-  display: flex;
-  flex-direction: column;
+@media screen and (max-width: 768px) {
+  .container-md {
+    margin-top: 1em;
+    justify-content: center;
+    padding: 0;
+    width: 80vw;
+  }
+
+  #user-info {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 1em;
+  }
 }
 
-#username {
-  font-size: 1.5em;
-  font-weight: 500;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
-.collection {
-  margin-top: 3em;
-}
-
-.bottom-collections {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-#mushroom-collection {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.mushroom {
-  width: auto;
-  height: 100px;
-  border-radius: 15px;
-}
-
-.trophy-content {
+.settings {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1em;
+}
+
+.main-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  margin-bottom: 1em;
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+.settings-content-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.fileInput {
+  display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 1em;
+  cursor: pointer;
+}
+
+h3 {
+  margin-bottom: 1em;
+  color: white;
+}
+
+.edit-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-form {
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 500px;
 }
 </style>

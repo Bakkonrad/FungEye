@@ -1,17 +1,14 @@
 <template>
   <div class="profile-button">
     <button type="button" class="btn fungeye-default-button">
-      <ProfileImage
-        :imgSrc="imgSrc"
-        :width="50"
-        :height="50"
-      />
+      <ProfileImage :imgSrc="imgSrc" :width="50" :height="50" />
       Mój profil
     </button>
   </div>
 </template>
 
 <script>
+import { profileImage } from "@/services/AuthService";
 import ProfileImage from "./ProfileImage.vue";
 
 export default {
@@ -21,7 +18,12 @@ export default {
   },
   data() {
     return {
-        imgSrc: 'src/assets/images/profile-images/profile-img1.jpeg'
+      imgSrc: profileImage,
+    };
+  },
+  setup() {
+    return {
+      imgSrc: profileImage,
     };
   },
 };

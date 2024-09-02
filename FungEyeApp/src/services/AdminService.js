@@ -23,6 +23,7 @@ $http.interceptors.request.use(
 const getAllUsers = async (page, search) => {
     try {
         const userId = parseInt(localStorage.getItem("id"));
+        console.log("get users: ", page, search);
         const formData = new FormData();
         formData.append('userId', userId);
         if (page) {

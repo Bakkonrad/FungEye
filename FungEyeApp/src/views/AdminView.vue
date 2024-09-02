@@ -15,9 +15,10 @@
     <div v-else>
       <div v-if="activeTable === 'users'">
         <div v-if="!isEditing">
+          <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton" @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
           <div class="input-group mb-3" id="searchUsers">
-            <input type="text" v-model="searchQuery" placeholder="Szukaj użytkowników..." class="form-control" id="searchUsers-input"
-            aria-describedby="button-addon2" />
+            <input type="text" v-model="searchQuery" placeholder="Szukaj użytkowników..." class="form-control"
+              id="searchUsers-input" aria-describedby="button-addon2" />
             <button @click="filterUsers" class="btn fungeye-default-button" type="button" id="button-addon2">
               <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="search-icon" />
             </button>
@@ -89,6 +90,7 @@ export default {
     };
   },
   async mounted() {
+    const goToTheTopButton = this.$refs.goToTheTopButton;
     if (localStorage.getItem("token") && this.isAdmin == true) {
       console.log(localStorage.getItem("role"));
       this.fetchUsers(this.currentPage);
@@ -102,10 +104,10 @@ export default {
     window.removeEventListener("scroll", this.handleScroll);
   },
   methods: {
-    async fetchUsers(page) {
+    async fetchUsers() {
       try {
         this.isLoading = true;
-        const response = await AdminService.getAllUsers(page);
+        const response = await AdminService.getAllUsers(this.currentPage, this.searchQuery);
         if (!response.success) {
           this.error = true;
           this.errorMessage = response.message;
@@ -121,6 +123,7 @@ export default {
           this.noUsersMessage = "To już wszystkie wyniki.";
           return;
         }
+        this.noUsersFound = false;
         console.log(response.data);
         console.log(response.data.length);
         const newUsers = response.data;
@@ -134,29 +137,26 @@ export default {
     },
     handleScroll() {
       if (!this.isEditing && (window.innerHeight + window.scrollY >= document.body.offsetHeight)) {
-        this.currentPage++;
-        this.fetchUsers(this.currentPage);
+        if (!this.noUsersFound) {
+          this.currentPage++;
+          this.fetchUsers();
+        }
+      }
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        goToTheTopButton.style.display = "block";
+      } else {
+        goToTheTopButton.style.display = "none";
       }
     },
-    async filterUsers() {
-      try {
-        this.isLoading = true;
-        const filteredUsers = await AdminService.getAllUsers(
-          0,
-          this.searchQuery
-        );
-        if (filteredUsers.data.length === 0) {
-          console.log("No users found");
-          this.noUsersFound = true;
-        } else {
-          this.noUsersFound = false;
-        }
-        this.users = filteredUsers.data;
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.isLoading = false;
-      }
+    // When the user clicks on the button, scroll to the top of the document
+    goToTheTop() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    },
+    filterUsers() {
+      this.users = [];
+      this.currentPage = 1;
+      this.fetchUsers();
     },
     startEditing(user) {
       this.selectedUser = { ...user };
@@ -296,6 +296,20 @@ export default {
   color: var(--black) !important;
   width: 50%;
   margin: 0 auto;
+}
+
+#goToTheTopButton {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  border: none;
+  outline: none;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  height: auto;
 }
 
 .no-users {

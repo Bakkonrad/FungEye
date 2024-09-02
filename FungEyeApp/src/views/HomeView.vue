@@ -41,7 +41,7 @@
           </div>
         </div>
         <div class="card right-card">
-          <img src="../assets/images/backgrounds/mushroom3" alt="Mushroom 3" />
+          <img src="../assets/images/backgrounds/mushroom3.jpg" alt="Mushroom 3" />
           <div class="card-body">
             <h3 class="card-title">MarekLas</h3>
             <p class="card-text">“FungEye znacząco ułatwiło moje wypady na grzyby. Aplikacja jest prosta w obsłudze, a funkcja rozpoznawania gatunków jest niezastąpiona. Dzięki niej czuję się pewniej w lesie. Zdecydowanie polecam wszystkim grzybiarzom, zarówno początkującym, jak i zaawansowanym!”</p>

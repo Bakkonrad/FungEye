@@ -3,6 +3,7 @@ using System;
 using FungEyeApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,29 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FungEyeApi.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240805180222_UserModifiedAt")]
+    partial class UserModifiedAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.18");
-
-            modelBuilder.Entity("FungEyeApi.Data.Entities.FriendshipEntity", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("FriendId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("UserId", "FriendId");
-
-                    b.HasIndex("FriendId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Friendships", (string)null);
-                });
 
             modelBuilder.Entity("FungEyeApi.Data.Entities.UserEntity", b =>
                 {
@@ -83,32 +69,6 @@ namespace FungEyeApi.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("FungEyeApi.Data.Entities.FriendshipEntity", b =>
-                {
-                    b.HasOne("FungEyeApi.Data.Entities.UserEntity", "Friend")
-                        .WithMany("FriendsWith")
-                        .HasForeignKey("FriendId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("FungEyeApi.Data.Entities.UserEntity", "User")
-                        .WithMany("Friendships")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Friend");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FungEyeApi.Data.Entities.UserEntity", b =>
-                {
-                    b.Navigation("FriendsWith");
-
-                    b.Navigation("Friendships");
                 });
 #pragma warning restore 612, 618
         }

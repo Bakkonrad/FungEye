@@ -16,6 +16,7 @@ namespace FungEyeApi.Models
             LastName = user.LastName;
             ImageUrl = user.ImageUrl;
             CreatedAt = user.CreatedAt;
+            ModifiedAt = user.ModifiedAt;
             DateOfBirth = user.DateOfBirth;
         }
         public int Id { get; set; }
@@ -27,6 +28,7 @@ namespace FungEyeApi.Models
         public string? LastName { get; set; }
         public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? ModifiedAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
     }
     

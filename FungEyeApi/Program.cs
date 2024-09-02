@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,17 +41,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateIssuer = false,
         ValidateAudience = false
     };
-
-    //options.TokenValidationParameters = new TokenValidationParameters
-    //{
-    //    ValidateIssuer = true,
-    //    ValidateAudience = true,
-    //    ValidateLifetime = true,
-    //    ValidateIssuerSigningKey = true,
-    //    ValidIssuer = "your_issuer",
-    //    ValidAudience = "your_audience",
-    //    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key"))
-    //};
 });
 
 builder.Services.AddDbContext<DataContext>(options =>
@@ -58,9 +48,14 @@ builder.Services.AddDbContext<DataContext>(options =>
     //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.UseSqlite("Data Source=mydatabase.db");
 });
-builder.Services.AddTransient<IAuthService, AuthService>();
-builder.Services.AddTransient<IUserService, UserService>();
-builder.Services.AddTransient<IBlobStorageService, BlobStorageService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnectionString:blob"]!, preferMsi: true);
+    clientBuilder.AddQueueServiceClient(builder.Configuration["StorageConnectionString:queue"]!, preferMsi: true);
+});
 
 var app = builder.Build();
 app.UseCors();

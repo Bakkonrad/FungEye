@@ -51,7 +51,7 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        //[Authorize]
+        [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("UpdateUserImage/{userId}")]
         public async Task<IActionResult> UpdateUserImage(int userId, [FromForm] IFormFile? image = null)
@@ -109,10 +109,10 @@ namespace FungEyeApi.Controllers
             return Ok(user);
         }
 
-        [HttpPut("updateUser/{userId}")]
+        [HttpPut("updateUser")]
         [Consumes("multipart/form-data")]
         [Authorize]
-        public async Task<IActionResult> UpdateUser(int userId, [FromForm] string userJson,
+        public async Task<IActionResult> UpdateUser([FromForm] User user,
             [FromForm] IFormFile? image = null)
         {
             try
@@ -120,22 +120,20 @@ namespace FungEyeApi.Controllers
                 //NIE KAZAĆ PRZEKAZYWAĆ USERA W OBIEKCIE JSON TYLKO POBIERAĆ IMAGE URL Z BAZY I NA TEJ PODSTAWIE ZMIENIAC ZDJECIE
 
 
-
-                var user = JsonConvert.DeserializeObject<User>(userJson);
-
-                if (!ValidateUserId(userId))
+                if (!ValidateUserId(user.Id))
                 {
                     return Forbid();
                 }
 
-                if (image != null || image.Length > 0)
+                if (image != null)
                 {
-                    await _blobStorageService.DeleteFile(user.ImageUrl);
-                    var newImageUrl = await _blobStorageService.UploadFile(image);
-                    user.ImageUrl = newImageUrl;
+                    if(image.Length > 0)
+                    {
+                        await _blobStorageService.DeleteFile(user.ImageUrl);
+                        var newImageUrl = await _blobStorageService.UploadFile(image);
+                        user.ImageUrl = newImageUrl;
+                    }
                 }
-
-                user.Id = userId;
 
                 var updateUser = _userService.UpdateUser(user);
                 return Ok();

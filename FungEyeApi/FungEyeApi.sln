@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FungEyeApi", "FungEyeApi.csproj", "{18EA4CF8-EBF9-423E-943F-EEF241656150}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FungEyeApi", "FungEyeApi\FungEyeApi.csproj", "{18EA4CF8-EBF9-423E-943F-EEF241656150}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseSeeder", "DatabaseSeeder\DatabaseSeeder.csproj", "{A4956825-5220-4A85-9726-205A38F8A528}"
+	ProjectSection(ProjectDependencies) = postProject
+		{18EA4CF8-EBF9-423E-943F-EEF241656150} = {18EA4CF8-EBF9-423E-943F-EEF241656150}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{18EA4CF8-EBF9-423E-943F-EEF241656150}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18EA4CF8-EBF9-423E-943F-EEF241656150}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18EA4CF8-EBF9-423E-943F-EEF241656150}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4956825-5220-4A85-9726-205A38F8A528}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4956825-5220-4A85-9726-205A38F8A528}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4956825-5220-4A85-9726-205A38F8A528}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4956825-5220-4A85-9726-205A38F8A528}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

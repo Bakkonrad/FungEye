@@ -1,8 +1,9 @@
-﻿using Azure.Core;
-using FungEyeApi.Interfaces;
+﻿using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
+using FungEyeApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace FungEyeApi.Controllers
 {
@@ -11,11 +12,13 @@ namespace FungEyeApi.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUserService _userService;
 
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUserService userService)
         {
             _authService = authService;
+            _userService = userService;
         }
 
         [HttpPost("registerUser")]
@@ -39,11 +42,20 @@ namespace FungEyeApi.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("registerAdmin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] User user)
         {
             try
             {
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (!admin)
+                {
+                    return BadRequest("Only admins can register other admins.");
+                }
+
                 bool result = await _authService.RegisterAdmin(user);
                 if (result)
                 {

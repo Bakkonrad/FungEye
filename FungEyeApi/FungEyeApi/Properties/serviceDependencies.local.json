@@ -7,6 +7,12 @@
       "secretStore": "LocalSecretsFile",
       "type": "storage.emulator",
       "connectionId": "StorageConnectionString"
+    },
+    "sqlite1": {
+      "secretStore": null,
+      "type": "sqlite.local",
+      "connectionId": "ConnectionStrings:\"mydatabase\"",
+      "dynamicId": null
     }
   }
 }

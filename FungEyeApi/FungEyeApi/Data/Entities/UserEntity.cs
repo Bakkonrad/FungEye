@@ -5,17 +5,6 @@ namespace FungEyeApi.Data.Entities
 {
     public class UserEntity
     {
-        //public UserEntity(string username, string email, string? firstName, string? lastName, string? imageUrl, DateTime createdAt, DateTime modifiedAt, DateTime? dateOfBirth)
-        //{
-        //    Username = username;
-        //    Email = email;
-        //    FirstName = firstName;
-        //    LastName = lastName;
-        //    ImageUrl = imageUrl;
-        //    ModifiedAt = modifiedAt;
-        //    DateOfBirth = dateOfBirth;
-        //}
-
         public int Id { get; set; }
         public required int Role { get; set; }
         public required string Username { get; set; }

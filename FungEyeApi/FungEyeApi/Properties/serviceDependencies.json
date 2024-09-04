@@ -6,6 +6,11 @@
     "storage1": {
       "type": "storage",
       "connectionId": "StorageConnectionString"
+    },
+    "sqlite1": {
+      "type": "sqlite",
+      "connectionId": "ConnectionStrings:\"mydatabase\"",
+      "dynamicId": null
     }
   }
 }

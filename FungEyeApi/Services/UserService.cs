@@ -5,6 +5,7 @@ using FungEyeApi.Interfaces;
 using FungEyeApi.Migrations;
 using FungEyeApi.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System.Data;
@@ -113,12 +114,9 @@ namespace FungEyeApi.Services
                     query = query.Where(u => u.Username.Contains(search.ToString()) || u.Email.Contains(search.ToString()) || u.FirstName.Contains(search.ToString()));
                 }
 
-                if (page != null)
-                {
-                    int pageSize = 100;
-                    int pageNumber = page.Value;
-                    query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
-                }
+                int pageSize = 100;
+                int pageNumber = page != null ? page.Value : 1;
+                query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
                 var users = await query.ToListAsync();
 

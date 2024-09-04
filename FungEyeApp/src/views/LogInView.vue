@@ -2,55 +2,37 @@
   <div v-if="loggedIn" class="logged-in container-md">
     <h1 id="loggedIn-h1">Jesteś już zalogowany!</h1>
     <div class="buttons">
-      <router-link to="/my-profile" class="btn fungeye-default-button"
-        >Przejdź do swojego profilu</router-link
-      >
+      <router-link to="/my-profile" class="btn fungeye-default-button">Przejdź do swojego profilu</router-link>
       <button @click="logOut" class="btn fungeye-red-button">
         Wyloguj się
       </button>
     </div>
   </div>
   <div v-else class="container-md">
-    <img class="log-in-bg" src="../assets/images/backgrounds/log-in-bg.jpeg" />
+    <img class="log-in-bg" src="../assets/images/backgrounds/LOGIN-form-background.jpg" />
     <div class="log-in-content">
       <h1>Witaj ponownie!</h1>
       <p>Zaloguj się, aby móc w pełni korzystać z możliwości FungEye</p>
       <form>
         <div class="mb-3">
-          <BaseInput
-            v-model="loginFormData.email"
-            type="text"
-            label="Login lub email"
-            class="email-input"
-            :class="{ invalidInput: error }"
-          />
+          <BaseInput v-model="loginFormData.email" type="text" label="Login lub email" class="email-input"
+            :class="{ invalidInput: error }" />
         </div>
         <div class="mb-3">
-          <BaseInput
-            v-model="loginFormData.password"
-            type="password"
-            label="Hasło"
-            class="password-input"
-            :class="{ invalidInput: error }"
-          />
+          <BaseInput v-model="loginFormData.password" type="password" label="Hasło" class="password-input"
+            :class="{ invalidInput: error }" />
         </div>
         <!-- <div id="forgotPassword" class="form-text">Zapomniałeś/aś hasła?</div> -->
-        <span v-if="error" class="error-message"
-          >{{ errorMessage }}</span
-        >
-        <button
-          type="submit"
-          class="btn fungeye-default-button submitFormButton"
-          @click.prevent="submitForm"
-        >
+        <span v-if="error" class="error-message">{{ errorMessage }}</span>
+        <button type="submit" class="btn fungeye-default-button submitFormButton" @click.prevent="submitForm">
           Zaloguj się
         </button>
       </form>
       <span id="registerLink">
         <p>Nie masz jeszcze konta?</p>
-        <RouterLink to="/register" class="router-registerLink"
-          ><p><b>Zarejestruj się</b></p></RouterLink
-        >
+        <RouterLink to="/register" class="router-registerLink">
+          <p><b>Zarejestruj się</b></p>
+        </RouterLink>
       </span>
     </div>
   </div>
@@ -95,6 +77,7 @@ export default {
         if (!result.success) {
           this.error = true;
           this.errorMessage = result.message;
+          this.loginFormData.password = null;
           return;
         }
         this.$router.push("/my-profile");
@@ -105,7 +88,7 @@ export default {
       }
     },
     async logOut() {
-      await UserService.logout();
+      UserService.logout();
       this.$router.push("/");
     },
   },
@@ -205,15 +188,18 @@ p {
   .log-in-content {
     width: 80vw;
   }
+
   #registerLink {
     align-items: center;
     flex-direction: column;
     gap: 0;
   }
+
   .buttons {
     flex-direction: column;
     gap: 1em;
   }
+
   .logged-in {
     width: 80vw;
     margin-left: 2em;

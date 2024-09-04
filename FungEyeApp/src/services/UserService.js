@@ -32,7 +32,7 @@ const login = async (user) => {
             console.log(response.data);
             setUser();
             $http.defaults.headers.common['Authorization'] = `Bearer ${response.data}`;
-            alert('Zalogowano!');
+            // alert('Zalogowano!');
             return { success: true };
         }
         return { success: false, message: 'Nieznany błąd' };
@@ -66,7 +66,7 @@ const logout = () => {
     localStorage.removeItem('profileImg');
     isLoggedIn.value = false;
     isAdmin.value = false;
-    alert('Wylogowano!');
+    // alert('Wylogowano!');
     return true;
 }
 

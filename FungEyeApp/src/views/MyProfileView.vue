@@ -79,6 +79,7 @@
             <div class="edit-form">
               <h3>Usuwanie konta</h3>
               <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
+                <font-awesome-icon icon="fa-solid fa-trash" class="button-icon"/>
                 Usuń konto
               </button>
             </div>

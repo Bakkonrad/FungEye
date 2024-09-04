@@ -5,7 +5,7 @@
         <div class="img-container">
           <img
             class="register-bg"
-            src="../assets/images/backgrounds/register-bg.jpg"
+            src="../assets/images/backgrounds/REGISTER-form-background.jpg"
           />
           <div class="black-curtain"></div>
         </div>

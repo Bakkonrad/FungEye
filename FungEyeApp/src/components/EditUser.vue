@@ -11,7 +11,10 @@
               :height="100" />
           </div>
           <button v-if="fileChanged" class="btn fungeye-red-button revert" @click="revertImage()">&#10554; Przywróć
-            zdjęcie</button>
+            poprzednie zdjęcie</button>
+          <button v-else class="btn fungeye-red-button revert" @click="deleteImage()">
+            <font-awesome-icon icon="fa-solid fa-trash" class="button-icon" />
+            Usuń zdjęcie</button>
         </div>
         <div class="mb-3">
           <BaseInput v-model="registerFormData.email" type="text" label="Email" :class="{
@@ -86,7 +89,6 @@
             {{ error.$message }}
           </span>
         </div> -->
-        <div id="requiredFields" class="form-text">* Pola obowiązkowe</div>
         <span class="error-message" v-if="error">{{ apiErrorMessage }}</span>
         <div class="button-group">
           <button type="submit" class="btn fungeye-default-button" @click="save">
@@ -103,11 +105,10 @@
 <script>
 import BaseInput from './BaseInput.vue';
 import { useVuelidate } from '@vuelidate/core';
-import { required, email, minLength, sameAs, helpers } from '@vuelidate/validators';
+import { email, minLength, sameAs, helpers } from '@vuelidate/validators';
 import { ref, reactive, computed, onMounted } from 'vue';
 import UserService from '@/services/UserService';
 import ProfileImage from './ProfileImage.vue';
-import { profileImage } from '@/services/AuthService';
 
 export default {
   props: {
@@ -160,6 +161,11 @@ export default {
         }
       }
     },
+    async urlToFile(url, filename) {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new File([blob], filename, { type: blob.type });
+    },
 
     onFileChange(event) {
       const file = event.target.files[0];
@@ -175,6 +181,14 @@ export default {
       this.tempImgSrc = null;
       this.registerFormData.imgFile = null;
     },
+    deleteImage() {
+      this.fileChanged = true;
+      console.log("deleting image");
+      this.tempImgSrc = 'https://avatar.iran.liara.run/public/50';
+      this.urlToFile('https://avatar.iran.liara.run/public/50', 'default.jpg').then((file) => {
+        this.registerFormData.imgFile = file;
+      });
+    }
   },
   setup(props) {
     const registerFormData = reactive({
@@ -343,6 +357,10 @@ h3 {
   height: 35px;
   padding: 0 9px 0 9px;
   font-size: 1em;
+}
+
+.error-message {
+  margin-bottom: 1em;
 }
 
 .button-group {

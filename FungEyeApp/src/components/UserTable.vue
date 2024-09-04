@@ -17,7 +17,7 @@
       <tbody class="table-body">
         <tr class="table-row" v-for="user in users" :key="user.email">
           <td class="table-cell">
-            <img v-if="user.imageUrl" :src="user.imageUrl" alt="profile picture" class="profile-picture" />
+            <img v-if="user.imageUrl && user.imageUrl !== 'string'" :src="user.imageUrl" alt="profile picture" class="profile-picture" />
             <img v-else src="https://avatar.iran.liara.run/public/76" alt="profile picture" class="profile-picture" />
           </td>
           <td class="table-cell">{{ user.username }}</td>

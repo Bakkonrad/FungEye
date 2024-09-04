@@ -66,13 +66,13 @@ export default {
         {
           id: 1,
           name: 'Borowik szlachetny',
-          image: 'src/assets/images/mushrooms/eba289a2-92f4-4466-adee-ce7336956ec1.jpeg',
+          image: 'src/assets/images/mushrooms/ATLAS-borowik.jpg',
           attributes: ['iglaste', 'liściaste', 'jadalny']
         },
         {
           id: 2,
           name: 'Muchomor czerwony',
-          image: 'src/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg',
+          image: 'src/assets/images/mushrooms/ATLAS-muchomor.jpg',
           attributes: ['iglaste', 'liściaste', 'trujący', 'niejadalny']
         },
         // Testowe grzybki

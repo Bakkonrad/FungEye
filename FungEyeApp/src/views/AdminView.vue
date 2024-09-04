@@ -1,18 +1,18 @@
 <template>
   <div v-if="isAdmin == true" class="admin-panel" @scroll="handleScroll">
     <h1>Panel administratora</h1>
-    <div class="buttons my-3">
-      <button class="btn category-btn" :class="getActiveTable('users')" @click="showUsers">
-        Użytkownicy
-      </button>
-      <button class="btn category-btn disabled" :class="getActiveTable('mushrooms')"
-        @click="showMushrooms">Grzyby</button>
-    </div>
     <div v-if="error" class="error-loading-data">
       {{ errorMessage }}
     </div>
     <!-- search bar and table for users -->
     <div v-else>
+      <div class="buttons my-3">
+        <button class="btn category-btn" :class="getActiveTable('users')" @click="showUsers">
+          Użytkownicy
+        </button>
+        <button class="btn category-btn disabled" :class="getActiveTable('mushrooms')"
+          @click="showMushrooms">Grzyby</button>
+      </div>
       <div v-if="activeTable === 'users'">
         <div v-if="!isEditing">
           <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton" @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
@@ -31,7 +31,7 @@
             </p>
           </div>
         </div>
-        <UserEdit v-else :user="selectedUser" @cancel-edit="cancelEditing" @save-user="saveUser" />
+        <UserEdit v-if="isEditing" :user="selectedUser" @cancel-edit="cancelEditing" @save-user="saveUser" />
       </div>
       <!-- search bar and table for mushrooms -->
       <div v-else>
@@ -90,7 +90,7 @@ export default {
     };
   },
   async mounted() {
-    const goToTheTopButton = this.$refs.goToTheTopButton;
+    // const goToTheTopButton = this.$refs.goToTheTopButton;
     if (localStorage.getItem("token") && this.isAdmin == true) {
       console.log(localStorage.getItem("role"));
       this.fetchUsers(this.currentPage);
@@ -211,8 +211,6 @@ export default {
       }
     },
     getActiveTable(table) {
-      this.isEditing = false;
-      this.selectedUser = null;
       let classString = "category-btn";
       if (this.activeTable === table) {
         classString += " active";
@@ -220,9 +218,13 @@ export default {
       return classString;
     },
     showUsers() {
+      this.isEditing = false;
+      this.selectedUser = null;
       this.activeTable = "users";
     },
     showMushrooms() {
+      this.isEditing = false;
+      this.selectedUser = null;
       this.activeTable = "mushrooms";
     },
   },

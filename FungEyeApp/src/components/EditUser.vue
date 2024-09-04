@@ -177,7 +177,6 @@ export default {
     },
   },
   setup(props) {
-
     const registerFormData = reactive({
       email: null,
       firstName: null,

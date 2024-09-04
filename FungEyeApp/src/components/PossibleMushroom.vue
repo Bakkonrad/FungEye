@@ -2,7 +2,7 @@
     <RouterLink :to="'/mushroom/' + id" class="possible-mushroom">
         <p class="probability">{{ probability }}%</p>
       <img
-        src="../assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg"
+        src="../assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg"
         alt=""
         class="album-photo"
       />

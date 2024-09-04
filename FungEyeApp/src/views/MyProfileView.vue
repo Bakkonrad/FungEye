@@ -118,12 +118,12 @@ export default {
       // name_surname: "",
       // email: "",
       mushrooms: [
-        "src/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg",
-        "src/assets/images/mushrooms/db5c95b8-5596-4d91-8dcd-f1a9703e5a97.jpeg",
-        "src/assets/images/mushrooms/a8eb8c5b-aaed-46e3-8798-a563d52ad54b.jpeg",
-        "src/assets/images/mushrooms/8f54bebd-3afe-4c7c-93db-c1fd4ecc22fd.jpeg",
-        "src/assets/images/mushrooms/bd692b45-3db3-4541-aaff-c40a12e08c12.jpeg",
-        "src/assets/images/mushrooms/e4a1283f-27a2-467e-bd4a-d6ffc2ea0a5f.jpeg",
+        "src/assets/images/mushrooms/ATLAS-borowik.jpg",
+        "src/assets/images/mushrooms/ATLAS-muchomor.jpg",
+        "src/assets/images/mushrooms/ATLAS-kurka.jpg", 
+        "src/assets/images/mushrooms/ATLAS-podgrzybek.jpg",
+        "src/assets/images/mushrooms/ATLAS-borowik.jpg",
+        "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
       ],
       trophys: [
         {
@@ -207,13 +207,16 @@ export default {
           errorMessage.value = userData.message;
           return;
         } else {
-          if (userData.data.imageUrl) {
+          if (userData.data.imageUrl && userData.data.imageUrl !== "string") {
             imgSrc.value = userData.data.imageUrl;
             localStorage.setItem("profileImg", userData.data.imageUrl);
             setProfileImage(userData.data.imageUrl);
           }
           else { // placeholder image
-            imgSrc.value = "https://avatar.iran.liara.run/public";
+            const placeholderImg = "https://avatar.iran.liara.run/public";
+            imgSrc.value = placeholderImg;
+            localStorage.setItem("profileImg", placeholderImg);
+            setProfileImage(placeholderImg);
           }
           user.value = userData.data;
           console.log(userData.data);

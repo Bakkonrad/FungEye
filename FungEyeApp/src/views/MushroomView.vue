@@ -96,15 +96,15 @@ export default {
       myPhotos: [
         {
           id: 1,
-          url: "@/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg",
+          url: "@/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
         },
         {
           id: 2,
-          url: "@/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg",
+          url: "@/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
         },
         {
           id: 3,
-          url: "@/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg",
+          url: "@/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
         },
       ],
       userPhotos: [],
@@ -136,15 +136,15 @@ export default {
         this.userPhotos = [
           {
             id: 1,
-            url: "src/assets/images/mushrooms/eba289a2-92f4-4466-adee-ce7336956ec1.jpeg",
+            url: "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
           },
           {
             id: 2,
-            url: "src/assets/images/mushrooms/eba289a2-92f4-4466-adee-ce7336956ec1.jpeg",
+            url: "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
           },
           {
             id: 3,
-            url: "src/assets/images/mushrooms/eba289a2-92f4-4466-adee-ce7336956ec1.jpeg",
+            url: "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
           },
         ];
       } catch (error) {
@@ -300,7 +300,7 @@ export default {
 .placeholder {
   width: 100px;
   height: 100px;
-  background-image: url("@/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg");
+  background-image: url("@/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg");
   background-size: cover;
   background-position: center;
   display: inline-block;

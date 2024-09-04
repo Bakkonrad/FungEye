@@ -68,7 +68,7 @@ namespace FungEyeApi.Controllers
                     return BadRequest("No file selected.");
                 }
 
-                string oldImageUrl = await _userService.GetUserImage(userId); //DODAC USUWANIE STAREGO ZDJECIA
+                // string oldImageUrl = await _userService.GetUserImage(userId); //DODAC USUWANIE STAREGO ZDJECIA
 
                 string imageUrl = await _blobStorageService.UploadFile(image);
                 bool result = await _userService.UpdateUserImage(userId, imageUrl);

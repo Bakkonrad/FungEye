@@ -34,7 +34,6 @@
       </div>
       <UserProfileCollections
         :mushrooms="mushrooms"
-        :trophys="trophys"
         :friends="friends"
       />
     </div>
@@ -69,20 +68,6 @@ export default {
         "https://picsum.photos/200/300",
         "https://picsum.photos/200/300",
       ],
-      trophys: [
-        {
-          name: "trofeum 1",
-          img: "https://picsum.photos/200/300",
-        },
-        {
-          name: "trofeum 2",
-          img: "https://picsum.photos/200/300",
-        },
-        {
-          name: "trofeum 3",
-          img: "https://picsum.photos/200/300",
-        },
-      ],
       friends: [
         {
           name: "Przyjaciel 1",
@@ -107,7 +92,6 @@ export default {
       this.name_surname = response.firstName + " " + response.lastName;
       this.email = response.email;
       this.mushrooms = response.mushrooms;
-      this.trophys = response.trophys;
       this.friends = response.friends;
     }
   },
@@ -120,7 +104,6 @@ export default {
       name_surname: "",
       email: "",
       mushrooms: [],
-      trophys: [],
       friends: [],
     };
   },

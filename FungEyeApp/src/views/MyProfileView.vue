@@ -27,7 +27,7 @@
             </button>
           </div>
         </div>
-        <UserProfileCollections :mushrooms="mushrooms" :trophys="trophys" :friends="friends" />
+        <UserProfileCollections :mushrooms="mushrooms" :friends="friends" />
       </div>
     </div>
     <div class="settings container-md" v-if="isEditing">
@@ -79,7 +79,7 @@
             <div class="edit-form">
               <h3>Usuwanie konta</h3>
               <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
-                <font-awesome-icon icon="fa-solid fa-trash" class="button-icon"/>
+                <font-awesome-icon icon="fa-solid fa-trash" class=""/>
                 Usuń konto
               </button>
             </div>
@@ -125,20 +125,6 @@ export default {
         "src/assets/images/mushrooms/ATLAS-podgrzybek.jpg",
         "src/assets/images/mushrooms/ATLAS-borowik.jpg",
         "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
-      ],
-      trophys: [
-        {
-          name: "trofeum 1",
-          img: "src/assets/images/trophys/2e0d2c9d-fc61-4346-afbc-6d55199d78cc.jpeg",
-        },
-        {
-          name: "trofeum 2",
-          img: "src/assets/images/trophys/7d5dbeac-5c83-4109-b3e7-ddf6f5777fcb.jpeg",
-        },
-        {
-          name: "trofeum 3",
-          img: "src/assets/images/trophys/71192d4e-9873-4951-a053-11954e2b6e06.jpeg",
-        },
       ],
       friends: [
         {
@@ -227,7 +213,6 @@ export default {
           }
           email.value = userData.data.email;
           // this.mushrooms = response.mushrooms;
-          // this.trophys = response.trophys;
           // this.friends = response.friends;
         }
       } catch (error) {

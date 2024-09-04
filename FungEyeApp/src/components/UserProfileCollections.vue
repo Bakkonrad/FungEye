@@ -1,22 +1,11 @@
 <template>
   <div id="collections">
-    <div class="collection upper-collection">
-      <h3>Zebrane grzyby &rarr;</h3>
-      <div class="hstack gap-3" id="mushroom-collection">
-        <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
-          <img class="mushroom" :src="mushroom" alt="Mushroom" />
-        </div>
-      </div>
-    </div>
     <div class="bottom-collections">
       <div class="collection">
-        <h3>Trofea &rarr;</h3>
-        <div class="hstack gap-3" id="trophy-collection">
-          <div class="p-2" v-for="trophy in trophys" :key="trophy">
-            <div class="trophy-content">
-              <img class="mushroom" :src="trophy.img" alt="Trophy" />
-              <p>{{ trophy.name }}</p>
-            </div>
+        <h3>Zebrane grzyby &rarr;</h3>
+        <div class="hstack gap-3" id="mushroom-collection">
+          <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
+            <img class="mushroom" :src="mushroom" alt="Mushroom" />
           </div>
         </div>
       </div>

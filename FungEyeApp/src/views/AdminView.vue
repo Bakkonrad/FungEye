@@ -81,6 +81,7 @@ export default {
       noUsersFound: false,
       noUsersMessage: "",
       activeTable: "users",
+      goToTheTopButton: null,
     };
   },
   setup() {
@@ -90,7 +91,7 @@ export default {
     };
   },
   async mounted() {
-    // const goToTheTopButton = this.$refs.goToTheTopButton;
+    this.goToTheTopButton = this.$refs.goToTheTopButton;
     if (localStorage.getItem("token") && this.isAdmin == true) {
       console.log(localStorage.getItem("role"));
       this.fetchUsers(this.currentPage);
@@ -136,6 +137,9 @@ export default {
       }
     },
     handleScroll() {
+      if (this.goToTheTopButton === null) {
+        return;
+      }
       if (!this.isEditing && (window.innerHeight + window.scrollY >= document.body.offsetHeight)) {
         if (!this.noUsersFound) {
           this.currentPage++;
@@ -143,9 +147,9 @@ export default {
         }
       }
       if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-        goToTheTopButton.style.display = "block";
+        this.goToTheTopButton.style.display = "block";
       } else {
-        goToTheTopButton.style.display = "none";
+        this.goToTheTopButton.style.display = "none";
       }
     },
     // When the user clicks on the button, scroll to the top of the document

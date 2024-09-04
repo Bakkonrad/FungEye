@@ -2,17 +2,9 @@ using FungEyeApi.Data;
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
-using FungEyeApi.Migrations;
 using FungEyeApi.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.JsonWebTokens;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
 
 namespace FungEyeApi.Services
 {
@@ -188,48 +180,5 @@ namespace FungEyeApi.Services
             }
 
         }
-
-
-        // Walidacja tokenu zosta³a przeniesiona do kontrolera!!!
-
-        //private int ExtractUserIdFromJWTToken(string token)
-        //{
-        //    int userId = 0;
-
-        //    if (!string.IsNullOrEmpty(token))
-        //    {
-        //        try
-        //        {
-        //            var tokenHandler = new JwtSecurityTokenHandler();
-        //            var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-
-        //            if (jwtToken != null)
-        //            {
-        //                var claim = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-
-        //                if (claim != null && int.TryParse(claim.Value, out userId))
-        //                {
-        //                    return userId;
-        //                }
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            throw new Exception($"Error decoding JWT token: {ex.Message}");
-        //        }
-        //    }
-
-        //    return userId;
-        //}
-
-        //private bool ValidateJWTToken(string token, int PassedUserId)
-        //{
-        //    var userIdFromToken = ExtractUserIdFromJWTToken(token);
-        //    if(userIdFromToken != PassedUserId)
-        //    {
-        //        throw new Exception("User id passed in the request and one from JWT token doesn't match");
-        //    }
-        //    return true;
-        //}
     }
 }

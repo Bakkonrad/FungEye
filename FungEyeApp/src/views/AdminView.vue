@@ -170,13 +170,15 @@ export default {
       this.isEditing = false;
     },
     saveUser(updatedUser) {
-      const index = this.users.findIndex(
-        (user) => user.email === updatedUser.email
-      );
-      if (index !== -1) {
-        this.users.splice(index, 1, updatedUser);
-        this.users = this.users.slice(0, this.currentPage * this.usersPerPage);
-      }
+      // const index = this.users.findIndex(
+      //   (user) => user.email === updatedUser.email
+      // );
+      // if (index !== -1) {
+      //   this.users.splice(index, 1, updatedUser);
+      //   this.users = this.users.slice(0, this.currentPage * this.usersPerPage);
+      // }
+      console.log("User updated");
+      console.log(updatedUser); 
       this.isEditing = false;
     },
     banUserPrompt(email) {

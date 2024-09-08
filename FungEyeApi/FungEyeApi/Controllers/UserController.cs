@@ -63,6 +63,13 @@ namespace FungEyeApi.Controllers
                     return Forbid();
                 }
 
+                var admin = await _userService.IsAdmin(userId);
+
+                if (admin == false)
+                {
+                    return Forbid();
+                }
+
                 if (image == null || image.Length == 0)
                 {
                     return BadRequest("No file selected.");
@@ -121,6 +128,13 @@ namespace FungEyeApi.Controllers
                 var userJson = JsonConvert.DeserializeObject<User>(user);
 
                 if (!ValidateUserId(userJson.Id))
+                {
+                    return Forbid();
+                }
+
+                var admin = await _userService.IsAdmin(userJson.Id);
+
+                if (admin == false)
                 {
                     return Forbid();
                 }

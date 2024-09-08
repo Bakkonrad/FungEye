@@ -20,9 +20,11 @@
           <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :email="email" />
           <div class="buttons">
             <button @click="startEditing" type="button" class="btn fungeye-default-button">
+              <font-awesome-icon icon="fa-solid fa-gear" class="button-icon"/>
               Ustawienia
             </button>
             <button @click="logOut" type="button" class="btn fungeye-red-button">
+              <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="button-icon"/>
               Wyloguj się
             </button>
           </div>
@@ -34,6 +36,7 @@
       <div class="main-header">
         <h2>Ustawienia</h2>
         <button @click="cancelEditing" type="button" class="btn fungeye-default-button">
+          <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon"/>
           Powrót do mojego profilu
         </button>
       </div>

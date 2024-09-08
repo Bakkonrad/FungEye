@@ -112,30 +112,33 @@ namespace FungEyeApi.Controllers
         [HttpPut("updateUser")]
         [Consumes("multipart/form-data")]
         [Authorize]
-        public async Task<IActionResult> UpdateUser([FromForm] User user,
+        public async Task<IActionResult> UpdateUser([FromForm] string user,
             [FromForm] IFormFile? image = null)
         {
             try
             {
                 //NIE KAZAĆ PRZEKAZYWAĆ USERA W OBIEKCIE JSON TYLKO POBIERAĆ IMAGE URL Z BAZY I NA TEJ PODSTAWIE ZMIENIAC ZDJECIE
+                var userJson = JsonConvert.DeserializeObject<User>(user);
 
-
-                if (!ValidateUserId(user.Id))
+                if (!ValidateUserId(userJson.Id))
                 {
                     return Forbid();
                 }
 
                 if (image != null)
                 {
-                    if(image.Length > 0)
+                    if (image.Length > 0)
                     {
-                        await _blobStorageService.DeleteFile(user.ImageUrl);
-                        var newImageUrl = await _blobStorageService.UploadFile(image);
-                        user.ImageUrl = newImageUrl;
+                        if (!IsPlaceholder(userJson.ImageUrl))
+                        {
+                            await _blobStorageService.DeleteFile(userJson.ImageUrl);
+                            var newImageUrl = await _blobStorageService.UploadFile(image);
+                            userJson.ImageUrl = newImageUrl;
+                        }
                     }
                 }
 
-                var updateUser = _userService.UpdateUser(user);
+                var updateUser = _userService.UpdateUser(userJson);
                 return Ok();
             }
             catch (Exception ex)
@@ -200,6 +203,11 @@ namespace FungEyeApi.Controllers
             }
 
             return true;
+        }
+
+        private static bool IsPlaceholder(string? imageurl = null)
+        {
+            return false;
         }
     }
 }

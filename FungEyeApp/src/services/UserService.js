@@ -50,10 +50,10 @@ const register = async (user) => {
             alert('Rejestracja przebiegła pomyślnie! Teraz możesz się zalogować.');
             return true;
         }
-        return {message: 'Nieznany błąd'};
+        return { message: 'Nieznany błąd' };
     } catch (error) {
         const errorMessage = handleApiError(error);
-        return {message: errorMessage};
+        return { message: errorMessage };
     }
 }
 
@@ -96,13 +96,13 @@ const getUserData = async () => {
         const response = await $http.post(`api/User/getProfile/${userId}`);
 
         if (response.status === 200) {
-            return {success: true, data: response.data};
-        } 
-        return {success: false, message: 'Nieznany błąd'};
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: 'Nieznany błąd' };
     } catch (error) {
         const errorMessage = handleApiError(error);
         console.error('Error loading data:', errorMessage);
-        return {success: false, message: errorMessage};
+        return { success: false, message: errorMessage };
     }
 }
 
@@ -118,13 +118,50 @@ const deleteAccount = async (userId) => {
         // Send only userId in the body
         const response = await $http.post(`/api/User/removeAccount/${userId}`);
         if (response.status === 200) {
-            return {success: true}
+            return { success: true }
         }
-        return {success: false, message: 'Nieznany błąd'};
+        return { success: false, message: 'Nieznany błąd' };
     } catch (error) {
         const errorMessage = handleApiError(error);
         console.error('Error deleting account:', errorMessage);
-        return {success: false, message: errorMessage};
+        return { success: false, message: errorMessage };
+    }
+}
+
+const updateUser = async (user, image) => {
+    try {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            alert("No token found. Please log in.");
+            return false;
+        }
+
+        console.log("user: ", user);
+
+        const formData = new FormData();
+        formData.append('user', JSON.stringify(user));
+        if (image) {
+            formData.append('image', image);
+        }
+
+        console.log("formData: ", formData.getAll('image'));
+
+        // Send userId and user in the body
+        const response = await $http.put('/api/User/updateUser', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = handleApiError(error);
+        console.error('Error updating user:', errorMessage);
+        return { success: false, message: errorMessage };
     }
 }
 
@@ -148,13 +185,13 @@ const updateImage = async (image) => {
             }
         });
         if (response.status === 200) {
-            return {success: true, data: response.data};
+            return { success: true, data: response.data };
         }
-        return {success: false, message: 'Nieznany błąd'};
+        return { success: false, message: 'Nieznany błąd' };
     } catch (error) {
         const errorMessage = handleApiError(error);
         console.error('Error updating image:', errorMessage);
-        return {success: false, message: errorMessage};
+        return { success: false, message: errorMessage };
     }
 }
 
@@ -189,6 +226,7 @@ export default {
     logout,
     getUserData,
     updateImage,
+    updateUser,
     deleteAccount
 };
 

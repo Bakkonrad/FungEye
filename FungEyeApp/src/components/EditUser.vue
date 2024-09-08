@@ -135,20 +135,26 @@ export default {
       this.submitted = true;
 
       const exportedData = {
+        id: this.registerFormData.id,
+        role: this.registerFormData.role,
         email: this.registerFormData.email,
         firstName: this.registerFormData.firstName,
         lastName: this.registerFormData.lastName,
         username: this.registerFormData.username,
-        imgFile: this.registerFormData.imgFile,
-        password: this.registerFormData.password,
+        imageUrl: this.registerFormData.imgSrc,
+        createdAt: this.registerFormData.createdAt,
         dateOfBirth: this.registerFormData.dateOfBirth,
       };
+      console.log(exportedData.imageUrl);
+      const imageFile = this.registerFormData.imgFile;
 
       console.log(exportedData);
 
       if (result) {
+        console.log("saving user");
         try {
-          const response = await UserService.updateImage(exportedData.imgFile);
+          // const response = await UserService.updateImage(exportedData.imgFile);
+          const response = await UserService.updateUser(exportedData, imageFile);
           if (response.success) {
             this.$emit('save-user', response.data);
           } else {
@@ -159,6 +165,11 @@ export default {
           this.error = true;
           this.apiErrorMessage = "Wystąpił błąd podczas zapisywania danych. Spróbuj ponownie.";
         }
+      }
+      else {
+        this.error = true;
+        this.apiErrorMessage = this.v$.$errors;
+        // this.apiErrorMessage = "Niepoprawnie wypełnione pola formularza.";
       }
     },
     async urlToFile(url, filename) {
@@ -192,6 +203,8 @@ export default {
   },
   setup(props) {
     const registerFormData = reactive({
+      id: props.user.id,
+      role: props.user.role,
       email: null,
       firstName: null,
       lastName: null,
@@ -200,6 +213,7 @@ export default {
       imgFile: null,
       password: null,
       confirmPassword: null,
+      createdAt: props.user.createdAt,
       dateOfBirth: null,
     });
 
@@ -255,23 +269,7 @@ export default {
             "Hasła powinny być identyczne. ",
             sameAs(registerFormData.password)
           ),
-        },
-        dateOfBirth: {
-          validDate: helpers.withMessage("Nieprawidłowa data. ", (value) => {
-            return !isNaN(new Date(value).getTime());
-          }),
-          betweenDates: helpers.withMessage(
-            "Data urodzenia musi być pomiędzy 1900-01-01 a " + today + ". ",
-            (value) => {
-              // First, check if the date is valid. If not, skip this validation.
-              if (isNaN(new Date(value).getTime())) {
-                return true; // Return true to not trigger this validation message when the date is invalid.
-              }
-              // If the date is valid, proceed with the betweenDates validation.
-              return betweenDates(value);
-            }
-          ),
-        },
+        }
       };
     });
 

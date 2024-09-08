@@ -34,7 +34,6 @@ namespace FungEyeApi.Controllers
                     return Forbid();
                 }
 
-
                 bool result = await _userService.RemoveAccount(userId);
                 if (result)
                 {
@@ -58,14 +57,10 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if (!ValidateUserId(userId))
-                {
-                    return Forbid();
-                }
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var admin = await _userService.IsAdmin(userIdFromToken);
 
-                var admin = await _userService.IsAdmin(userId);
-
-                if (admin == false)
+                if (!ValidateUserId(userId) && admin == false)
                 {
                     return Forbid();
                 }
@@ -74,11 +69,12 @@ namespace FungEyeApi.Controllers
                 {
                     return BadRequest("No file selected.");
                 }
+                
+                var oldUrl = await _userService.GetUserImage(userId);
+                await _blobStorageService.DeleteFile(oldUrl);
+                var newImageUrl = await _blobStorageService.UploadFile(image);
 
-                // string oldImageUrl = await _userService.GetUserImage(userId); //DODAC USUWANIE STAREGO ZDJECIA
-
-                string imageUrl = await _blobStorageService.UploadFile(image);
-                bool result = await _userService.UpdateUserImage(userId, imageUrl);
+                bool result = await _userService.UpdateUserImage(userId, newImageUrl);
 
                 if (result)
                 {
@@ -124,17 +120,12 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                //NIE KAZAĆ PRZEKAZYWAĆ USERA W OBIEKCIE JSON TYLKO POBIERAĆ IMAGE URL Z BAZY I NA TEJ PODSTAWIE ZMIENIAC ZDJECIE
                 var userJson = JsonConvert.DeserializeObject<User>(user);
 
-                if (!ValidateUserId(userJson.Id))
-                {
-                    return Forbid();
-                }
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var admin = await _userService.IsAdmin(userIdFromToken);
 
-                var admin = await _userService.IsAdmin(userJson.Id);
-
-                if (admin == false)
+                if (!ValidateUserId(userJson.Id) && admin == false)
                 {
                     return Forbid();
                 }

@@ -180,5 +180,11 @@ namespace FungEyeApi.Services
             }
 
         }
+
+        public async Task<string> GetUserImage(int userId)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
+            return user.ImageUrl;
+        }
     }
 }

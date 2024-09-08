@@ -1,11 +1,14 @@
 ﻿using Azure.Storage.Blobs;
+using FungEyeApi.Data;
 using FungEyeApi.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace FungEyeApi.Services
 {
     public class BlobStorageService : IBlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
+        private readonly DataContext db;
         private readonly string _containerName = "users";
 
         //public BlobStorageService(IConfiguration config)
@@ -13,9 +16,10 @@ namespace FungEyeApi.Services
         //    _connectionString = config.GetConnectionString("AzureBlobStorageConnectionLocal");
         //}
 
-        public BlobStorageService(BlobServiceClient blobServiceClient)
+        public BlobStorageService(BlobServiceClient blobServiceClient, DataContext db)
         {
             _blobServiceClient = blobServiceClient;
+            this.db = db;
         }
 
         public async Task<string> UploadFile(IFormFile file)

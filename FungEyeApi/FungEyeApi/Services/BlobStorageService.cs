@@ -50,14 +50,14 @@ namespace FungEyeApi.Services
                 {
                     return true;
                 }
-                var blobServiceClient = new BlobServiceClient("AzureBlobStorageConnectionLocal");
-                var blobContainerClient = blobServiceClient.GetBlobContainerClient(_containerName);
 
+                var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
                 var fileName = Path.GetFileName(fileUrl);
-                var blobClient = blobContainerClient.GetBlobClient(fileName);
 
-                await blobClient.DeleteIfExistsAsync();
-                return true;
+                // Pobieranie klienta dla konkretnego bloba (pliku)
+                var blobClient = blobContainerClient.GetBlobClient(fileName);
+                var response = await blobClient.DeleteIfExistsAsync();
+                return response.Value;
             }
             catch (System.Exception)
             {

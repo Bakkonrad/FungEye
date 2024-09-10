@@ -24,13 +24,13 @@ $http.interceptors.request.use(
 
 const login = async (user) => {
     try {
-        console.log(user);
+        // console.log(user);
         const response = await $http.post('api/Auth/loginUser', user);
         if (response.status === 200) {
             localStorage.setItem('token', response.data);
             isLoggedIn.value = true;
             // console.log(isLoggedIn.value);
-            console.log(response.data);
+            // console.log(response.data);
             setUser();
             $http.defaults.headers.common['Authorization'] = `Bearer ${response.data}`;
             // alert('Zalogowano!');
@@ -45,7 +45,7 @@ const login = async (user) => {
 
 const register = async (user) => {
     try {
-        console.log(user);
+        // console.log(user);
         const response = await $http.post('api/Auth/registerUser', user);
         if (response.status === 200) {
             alert('Rejestracja przebiegła pomyślnie! Teraz możesz się zalogować.');
@@ -107,6 +107,33 @@ const getUserData = async () => {
     }
 }
 
+const getAllUsers = async (page, search) => {
+    try {
+        const userId = parseInt(localStorage.getItem("id"));
+        // console.log("get users: ", page, search);
+        const formData = new FormData();
+        formData.append('userId', userId);
+        if (page) {
+            formData.append('page', page);
+        }
+        if (search) {
+            formData.append('search', search);
+        }
+        const response = await $http.post('api/User/getUsers', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = handleApiError(error);
+        return { success: false, message: errorMessage };
+    }
+}
+
 const deleteAccount = async (userId) => {
     try {
         const isTokenValid = await validateToken();
@@ -133,7 +160,9 @@ const updateUser = async (user, image) => {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
 
-        console.log("user: ", user);
+        const token = localStorage.getItem('token');
+
+        // console.log("user: ", user);
 
         const formData = new FormData();
         formData.append('user', JSON.stringify(user));
@@ -141,7 +170,7 @@ const updateUser = async (user, image) => {
             formData.append('image', image);
         }
 
-        console.log("formData: ", formData.getAll('image'));
+        // console.log("formData: ", formData.getAll('image'));
 
         const response = await $http.put('/api/User/updateUser', formData, {
             headers: {
@@ -226,7 +255,7 @@ const validateToken = async () => {
             logout();
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        console.log('Token is valid');
+        // console.log('Token is valid');
         return { success: true };
     } catch (error) {
         console.error('Error validating token:', error);
@@ -239,6 +268,7 @@ export default {
     register,
     logout,
     getUserData,
+    getAllUsers,
     updateImage,
     updateUser,
     deleteAccount

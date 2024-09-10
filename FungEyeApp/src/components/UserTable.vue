@@ -4,7 +4,7 @@
       <thead class="table-header">
         <tr class="table-row">
           <th scope="col" class="table-cell"></th>
-          <th scope="col" class="table-cell">Nazwa Użytkownika</th>
+          <th scope="col" class="table-cell">Login</th>
           <th scope="col" class="table-cell">Email</th>
           <th scope="col" class="table-cell">Imię</th>
           <th scope="col" class="table-cell">Nazwisko</th>
@@ -15,10 +15,10 @@
         </tr>
       </thead>
       <tbody class="table-body">
-        <tr class="table-row" v-for="user in users" :key="user.email">
+        <tr class="table-row" v-for="user in users" :key="user.id">
           <td class="table-cell">
-            <img v-if="user.imageUrl && user.imageUrl !== 'string'" :src="user.imageUrl" alt="profile picture" class="profile-picture" />
-            <img v-else src="https://avatar.iran.liara.run/public/76" alt="profile picture" class="profile-picture" />
+            <!-- <img :src="user.imageUrl" alt="profile picture" class="profile-picture" /> -->
+            <ProfileImage :imgSrc="user.imageUrl" :width="25" :height="25" :showBorder="false" />
           </td>
           <td class="table-cell">{{ user.username }}</td>
           <td class="table-cell">{{ user.email }}</td>
@@ -35,12 +35,12 @@
             </button>
           </td>
           <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-banUser" @click="$emit('ban-user', user.email)">
+            <button class="btn fungeye-default-button" id="btn-banUser" @click="$emit('ban-user', user)">
               <font-awesome-icon icon="fa-solid fa-ban"></font-awesome-icon>
             </button>
           </td>
           <td class="table-cell">
-            <button class="btn fungeye-red-button" id="btn-deleteUser" @click="deleteUser(user.email)">
+            <button class="btn fungeye-red-button" id="btn-deleteUser" @click="$emit('delete-user', user)">
               <font-awesome-icon icon="fa-solid fa-trash" />
             </button>
           </td>
@@ -51,18 +51,16 @@
 </template>
 
 <script>
+import ProfileImage from './ProfileImage.vue';
+
 export default {
   props: ["users"],
+  components: {
+    ProfileImage,
+  },
   methods: {
     viewPosts(email) {
       this.$router.push({ name: "UserPosts", params: { email: email } });
-    },
-    deleteUser(email) {
-      if (
-        confirm(`Czy na pewno chcesz usunąć użytkownika o emailu ${email}?`)
-      ) {
-        this.$emit("delete-user", email);
-      }
     },
   }
 };

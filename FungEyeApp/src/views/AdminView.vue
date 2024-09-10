@@ -19,7 +19,7 @@
           <div class="input-group mb-3" id="searchUsers">
             <input type="text" v-model="searchQuery" placeholder="Szukaj użytkowników..." class="form-control"
               id="searchUsers-input" aria-describedby="button-addon2" />
-            <button @click="filterUsers" class="btn fungeye-default-button" type="button" id="button-addon2">
+            <button @click="cleanUsers" class="btn fungeye-default-button" type="button" id="button-addon2">
               <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="search-icon" />
             </button>
           </div>
@@ -55,7 +55,7 @@
 <script>
 import UserTable from "@/components/UserTable.vue";
 import UserEdit from "@/components/EditUser.vue";
-import AdminService from "@/services/AdminService";
+import UserService from "@/services/UserService";
 import { checkAdmin, isAdmin } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
@@ -93,10 +93,10 @@ export default {
   async mounted() {
     this.goToTheTopButton = this.$refs.goToTheTopButton;
     if (localStorage.getItem("token") && this.isAdmin == true) {
-      console.log(localStorage.getItem("role"));
+      // console.log(localStorage.getItem("role"));
       this.fetchUsers(this.currentPage);
     } else {
-      console.log(localStorage.getItem("role"));
+      // console.log(localStorage.getItem("role"));
       console.log("No token or no admin rights");
     }
     window.addEventListener("scroll", this.handleScroll);
@@ -108,7 +108,7 @@ export default {
     async fetchUsers() {
       try {
         this.isLoading = true;
-        const response = await AdminService.getAllUsers(this.currentPage, this.searchQuery);
+        const response = await UserService.getAllUsers(this.currentPage, this.searchQuery);
         if (!response.success) {
           this.error = true;
           this.errorMessage = response.message;
@@ -125,8 +125,8 @@ export default {
           return;
         }
         this.noUsersFound = false;
-        console.log(response.data);
-        console.log(response.data.length);
+        // console.log(response.data);
+        // console.log(response.data.length);
         const newUsers = response.data;
         this.users = [...this.users, ...newUsers];
       } catch (error) {
@@ -157,31 +157,33 @@ export default {
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
     },
-    filterUsers() {
+    cleanUsers() {
       this.users = [];
       this.currentPage = 1;
       this.fetchUsers();
     },
     startEditing(user) {
+      if (user.id == localStorage.getItem("id")) {
+        alert("Aby edytować swoje dane, przejdź do swojego profilu.");
+        this.isEditing = false;
+        return;
+      }
       this.selectedUser = { ...user };
       this.isEditing = true;
     },
     cancelEditing() {
       this.isEditing = false;
     },
-    saveUser(updatedUser) {
-      // const index = this.users.findIndex(
-      //   (user) => user.email === updatedUser.email
-      // );
-      // if (index !== -1) {
-      //   this.users.splice(index, 1, updatedUser);
-      //   this.users = this.users.slice(0, this.currentPage * this.usersPerPage);
-      // }
-      console.log("User updated");
-      console.log(updatedUser); 
+    saveUser() {
+      // console.log("User updated");
+      this.cleanUsers();
       this.isEditing = false;
     },
-    banUserPrompt(email) {
+    banUserPrompt(user) {
+      if (user.id == localStorage.getItem("id")) {
+        alert("Nie możesz zbanować samego siebie.");
+        return;
+      }
       const duration = prompt(
         "Podaj czas bana w sekundach (30s do 2592000s):",
         30
@@ -195,25 +197,29 @@ export default {
       const now = new Date();
       const bannedUntil = new Date(now.getTime() + durationInSeconds * 1000);
 
-      this.banUser(email, bannedUntil);
+      this.banUser(user.id, bannedUntil);
     },
-    banUser(email, bannedUntil) {
-      const user = this.users.find((user) => user.email === email);
-      if (user) {
-        user.BannedUntil = bannedUntil;
-        alert(`Użytkownik ${email} zbanowany do ${bannedUntil}`);
-      } else {
-        alert("Nie znaleziono użytkownika");
+    banUser(user, bannedUntil) {
+      console.log("not implemented");
+      // const user = this.users.find((user) => user.userId === userId);
+      // if (user) {
+      //   user.BannedUntil = bannedUntil;
+      //   alert(`Użytkownik ${userId} zbanowany do ${bannedUntil}`);
+      // } else {
+      //   alert("Nie znaleziono użytkownika");
+      // }
+    },
+    async deleteUser(user) {
+      if (user.id == localStorage.getItem("id")) {
+        alert("Aby usunąć swoje konto, przejdź do swojego profilu.");
+        return;
       }
-    },
-    deleteUser(email) {
       const confirmed = confirm(
-        `Czy na pewno chcesz usunąć użytkownika ${email}?`
+        `Czy na pewno chcesz usunąć użytkownika ${user.username}?`
       );
       if (confirmed) {
-        this.users = this.users.filter((user) => user.email !== email);
-        this.users = this.users.filter((user) => user.email !== email);
-        alert(`Użytkownik ${email} został usunięty.`);
+        await UserService.deleteAccount(user.id);
+        this.cleanUsers();
       }
     },
     getActiveTable(table) {

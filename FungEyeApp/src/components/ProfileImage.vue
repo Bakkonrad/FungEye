@@ -1,10 +1,10 @@
 <template>
-  <div class="profile-img-container" :style="{ width: `${width}px`, height: `${height}px` }">
+  <div class="profile-img-container" :class="showBorderClass()" :style="{ width: `${width}px`, height: `${height}px` }">
     <img
       class="profile-img"
-      :src="imgSrc"
+      :src="getProfileImage()"
       alt="Profile Image"
-      
+      :key="imgSrc"
     />
   </div>
 </template>
@@ -13,10 +13,12 @@
 export default {
   name: "ProfileImage",
   props: {
+    isPlaceholder: {
+      type: Boolean
+    },
     imgSrc: {
       type: String,
       required: true,
-      default: "https://picsum.photos/200",
     },
     width: {
       type: Number,
@@ -26,7 +28,37 @@ export default {
       type: Number,
       default: 50,
     },
-  }
+    showBorder: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  data(){
+    return {
+      placeholderPath: "src/assets/images/profile-images/placeholder.png"
+    }
+  },
+  mounted() {
+    this.showBorderClass();
+  },
+  methods: {
+    getProfileImage() {
+      if (this.isPlaceholder) {
+        return this.placeholderPath;
+      }
+      else {
+        if (this.imgSrc === "placeholder" || this.imgSrc === this.placeholderPath) {
+          return this.placeholderPath;
+        }
+        return this.imgSrc;
+      }
+    },
+    showBorderClass() {
+      if (this.showBorder == true) {
+        return "profile-image-stroke";
+      }
+    },
+  },
 };
 </script>
 
@@ -35,9 +67,10 @@ export default {
   width: 4em;
   height: 4em;
   border-radius: 50%;
-  /* profile-image-stroke */
+}
+
+.profile-image-stroke {
   border: 2px solid var(--green);
-  /* profile-image-shadow */
   filter: drop-shadow(0px 4px 4px rgba(56, 102, 65, 0.2));
 }
 

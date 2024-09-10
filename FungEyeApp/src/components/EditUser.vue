@@ -7,12 +7,12 @@
           <input style="display: none;" type="file" accept="image/*" @change="onFileChange" ref="fileInput"></input>
           <div class="fileInput" @click="$refs.fileInput.click()">
             <span class="edit-pencil">&#9998;</span>
-            <ProfileImage class="image" :imgSrc="fileChanged ? tempImgSrc : registerFormData.imgSrc" :width="100"
+            <ProfileImage class="image" :isPlaceholder="isPlaceholder" :imgSrc="fileChanged ? tempImgSrc : registerFormData.imgSrc" :width="100"
               :height="100" />
           </div>
           <button v-if="fileChanged" class="btn fungeye-red-button revert" @click="revertImage()">&#10554; Przywróć
             poprzednie zdjęcie</button>
-          <button v-else class="btn fungeye-red-button revert" @click="deleteImage()">
+          <button v-if="!fileChanged && isPlaceholderImage() == false" class="btn fungeye-red-button revert" @click="deleteImage()">
             <font-awesome-icon icon="fa-solid fa-trash" class="button-icon" />
             Usuń zdjęcie</button>
         </div>
@@ -127,6 +127,8 @@ export default {
       apiErrorMessage: "",
       submitted: false,
       fileChanged: false,
+      placeholderImage: '../src/assets/images/profile-images/placeholder.png',
+      isPlaceholder: false,
     };
   },
   methods: {
@@ -145,13 +147,17 @@ export default {
         createdAt: this.registerFormData.createdAt,
         dateOfBirth: this.registerFormData.dateOfBirth,
       };
-      console.log(exportedData.imageUrl);
+      // console.log(exportedData.imageUrl);
       const imageFile = this.registerFormData.imgFile;
 
-      console.log(exportedData);
+      if (this.isPlaceholder === true) {
+        exportedData.imageUrl = "placeholder";
+      }
+
+      // console.log(exportedData);
 
       if (result) {
-        console.log("saving user");
+        // console.log("saving user");
         try {
           // const response = await UserService.updateImage(exportedData.imgFile);
           const response = await UserService.updateUser(exportedData, imageFile);
@@ -172,13 +178,9 @@ export default {
         // this.apiErrorMessage = "Niepoprawnie wypełnione pola formularza.";
       }
     },
-    async urlToFile(url, filename) {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      return new File([blob], filename, { type: blob.type });
-    },
 
     onFileChange(event) {
+      this.isPlaceholder = false;
       const file = event.target.files[0];
       if (!file) return;
       event.target.value = "";
@@ -186,7 +188,6 @@ export default {
       this.tempImgSrc = URL.createObjectURL(file);
       this.registerFormData.imgFile = file;
     },
-
     revertImage() {
       this.fileChanged = false;
       this.tempImgSrc = null;
@@ -194,12 +195,20 @@ export default {
     },
     deleteImage() {
       this.fileChanged = true;
-      console.log("deleting image");
-      this.tempImgSrc = 'https://avatar.iran.liara.run/public/50';
-      this.urlToFile('https://avatar.iran.liara.run/public/50', 'default.jpg').then((file) => {
-        this.registerFormData.imgFile = file;
-      });
-    }
+      // console.log("deleting image");
+      this.tempImgSrc = this.placeholderImage;
+      this.isPlaceholder = true;
+    },
+    isPlaceholderImage() {
+      if (this.registerFormData.imgSrc === "placeholder" || this.registerFormData.imgSrc === this.placeholderImage) {
+        this.isPlaceholder = true;
+        return true;
+      }
+      else {
+        this.isPlaceholder = false;
+        return false;
+      }
+    },
   },
   setup(props) {
     const registerFormData = reactive({

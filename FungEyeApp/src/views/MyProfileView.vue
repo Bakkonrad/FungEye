@@ -82,7 +82,7 @@
             <div class="edit-form">
               <h3>Usuwanie konta</h3>
               <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
-                <font-awesome-icon icon="fa-solid fa-trash" class=""/>
+                <font-awesome-icon icon="fa-solid fa-trash" class="button-icon"/>
                 Usuń konto
               </button>
             </div>
@@ -164,7 +164,7 @@ export default {
       try {
         const response = await UserService.deleteAccount(parseInt(localStorage.getItem('id')));
         if (response.success) {
-          console.log("Account deleted");
+          // console.log("Account deleted");
           this.logOut();
         }
         else {
@@ -197,19 +197,19 @@ export default {
           errorMessage.value = userData.message;
           return;
         } else {
-          if (userData.data.imageUrl && userData.data.imageUrl !== "string") {
+          if (userData.data.imageUrl && userData.data.imageUrl !== "string" && userData.data.imageUrl !== "placeholder") {
             imgSrc.value = userData.data.imageUrl;
             localStorage.setItem("profileImg", userData.data.imageUrl);
             setProfileImage(userData.data.imageUrl);
           }
           else { // placeholder image
-            const placeholderImg = "https://avatar.iran.liara.run/public";
+            const placeholderImg = "src/assets/images/profile-images/placeholder.png";
             imgSrc.value = placeholderImg;
             localStorage.setItem("profileImg", placeholderImg);
             setProfileImage(placeholderImg);
           }
           user.value = userData.data;
-          console.log(userData.data);
+          // console.log(userData.data);
           username.value = userData.data.username;
           if (userData.data.firstName && userData.data.lastName) {
             name_surname.value = userData.data.firstName + " " + userData.data.lastName;

@@ -16,11 +16,11 @@
       <form>
         <div class="mb-3">
           <BaseInput v-model="loginFormData.email" type="text" label="Login lub email" class="email-input"
-            :class="{ invalidInput: error }" />
+            :class="{ invalidInput: error }" @focus="resetValidation" />
         </div>
         <div class="mb-3">
           <BaseInput v-model="loginFormData.password" type="password" label="Hasło" class="password-input"
-            :class="{ invalidInput: error }" />
+            @focus="resetValidation" :class="{ invalidInput: error }" />
         </div>
         <!-- <div id="forgotPassword" class="form-text">Zapomniałeś/aś hasła?</div> -->
         <span v-if="error" class="error-message">{{ errorMessage }}</span>
@@ -53,6 +53,11 @@ export default {
   },
   data() {
     return {
+      loginFormData: {
+        username: null,
+        email: null,
+        password: null,
+      },
       error: false,
       errorMessage: "",
       loggedIn: false,
@@ -78,9 +83,11 @@ export default {
           this.error = true;
           this.errorMessage = result.message;
           this.loginFormData.password = null;
+          this.loginFormData.email = null;
           return;
         }
         this.$router.push("/my-profile");
+        this.resetValidation();
       }
       catch (error) {
         this.errorMessage = result.message;
@@ -90,6 +97,10 @@ export default {
     async logOut() {
       UserService.logout();
       this.$router.push("/");
+    },
+    resetValidation() {
+      this.error = false;
+      this.errorMessage = "";
     },
   },
   setup() {

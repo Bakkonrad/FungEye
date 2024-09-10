@@ -24,6 +24,7 @@ $http.interceptors.request.use(
 
 const login = async (user) => {
     try {
+        console.log(user);
         const response = await $http.post('api/Auth/loginUser', user);
         if (response.status === 200) {
             localStorage.setItem('token', response.data);
@@ -66,7 +67,6 @@ const logout = () => {
     localStorage.removeItem('profileImg');
     isLoggedIn.value = false;
     isAdmin.value = false;
-    // alert('Wylogowano!');
     return true;
 }
 
@@ -82,9 +82,6 @@ const setUser = () => {
         localStorage.setItem('username', username);
         localStorage.setItem('role', role);
         checkAdmin();
-        // console.log(localStorage.getItem('token'));
-        // console.log(localStorage.getItem('id') + ' ' + localStorage.getItem('role'));
-        // console.log(localStorage.getItem('user') + ' ' + localStorage.getItem('username'));
     }
     else
         console.log('token not found');
@@ -92,6 +89,10 @@ const setUser = () => {
 
 const getUserData = async () => {
     try {
+        const isTokenValid = await validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
+        }
         const userId = localStorage.getItem('id');
         const response = await $http.post(`api/User/getProfile/${userId}`);
 
@@ -108,14 +109,11 @@ const getUserData = async () => {
 
 const deleteAccount = async (userId) => {
     try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            alert("No token found. Please log in.");
-            return false;
+        const isTokenValid = await validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
 
-        // Send only userId in the body
         const response = await $http.post(`/api/User/removeAccount/${userId}`);
         if (response.status === 200) {
             return { success: true }
@@ -130,11 +128,9 @@ const deleteAccount = async (userId) => {
 
 const updateUser = async (user, image) => {
     try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            alert("No token found. Please log in.");
-            return false;
+        const isTokenValid = await validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
 
         console.log("user: ", user);
@@ -147,7 +143,6 @@ const updateUser = async (user, image) => {
 
         console.log("formData: ", formData.getAll('image'));
 
-        // Send userId and user in the body
         const response = await $http.put('/api/User/updateUser', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -167,18 +162,16 @@ const updateUser = async (user, image) => {
 
 const updateImage = async (image) => {
     try {
-        const token = localStorage.getItem('token');
-        const userId = localStorage.getItem('id');
-
-        if (!token) {
-            alert("No token found. Please log in.");
-            return false;
+        const isTokenValid = await validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
+
+        const userId = localStorage.getItem('id');
 
         const formData = new FormData();
         formData.append('image', image);
 
-        // Send userId and image in the body
         const response = await $http.post(`/api/User/UpdateUserImage/${userId}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -219,6 +212,27 @@ const handleApiError = (error) => {
         return `Błąd: ${error.message}`;
     }
 };
+
+const validateToken = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            return { success: false, message: 'Brak tokenu.' };
+        }
+        const decodedToken = jwtDecode(token);
+        const expirationTime = decodedToken.exp * 1000;
+        const currentTime = Date.now();
+        if (currentTime >= expirationTime) {
+            logout();
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
+        }
+        console.log('Token is valid');
+        return { success: true };
+    } catch (error) {
+        console.error('Error validating token:', error);
+        return { success: false, message: 'Błąd weryfikacji tokenu.' };
+    }
+}
 
 export default {
     login,

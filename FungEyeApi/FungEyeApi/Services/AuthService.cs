@@ -87,7 +87,7 @@ namespace FungEyeApi.Services
 
         public async Task<string> Login(LoginUser requestUser)
         {
-            var checkUser = await db.Users.FirstOrDefaultAsync(u => u.Username == requestUser.Username);
+            var checkUser = await db.Users.FirstOrDefaultAsync(u => u.Username == requestUser.Username || u.Email == requestUser.Email);
             if (checkUser == null)
             {
                 throw new Exception("Username or password is incorrect");

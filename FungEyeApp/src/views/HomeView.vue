@@ -34,14 +34,14 @@
           </div>
         </div>
         <div class="card middle-card">
-          <img  src="../assets/images/backgrounds/basket-with-mushrooms-knife-standing-forest-glade.jpg" alt="Mushroom 2" />
+          <img  src="../assets/images/backgrounds/matthew-smith-Rfflri94rs8-unsplash.jpg" alt="Mushroom 2" />
           <div class="card-body">
             <h3 class="card-title">janina_0234</h3>
             <p class="card-text">“FungEye to must-have dla każdego miłośnika grzybobrania! Aplikacja ułatwia zbieranie grzybów dzięki szczegółowej bazie danych i niezawodnemu systemowi rozpoznawania gatunków. Podoba mi się, że mogę przeglądać zdjęcia i opisy grzybów, a także śledzić swoje osiągnięcia. Dodatkowo, możliwość kontaktu z innymi grzybiarzami i wspólne rywalizowanie dodaje smaczku każdej wyprawie.”</p>
           </div>
         </div>
         <div class="card right-card">
-          <img src="../assets/images/backgrounds/mushrooms-grown-after-rain-middle-forest.jpg" alt="Mushroom 3" />
+          <img src="../assets/images/backgrounds/matthew-smith-Rfflri94rs8-unsplash.jpg" alt="Mushroom 3" />
           <div class="card-body">
             <h3 class="card-title">MarekLas</h3>
             <p class="card-text">“FungEye znacząco ułatwiło moje wypady na grzyby. Aplikacja jest prosta w obsłudze, a funkcja rozpoznawania gatunków jest niezastąpiona. Dzięki niej czuję się pewniej w lesie. Zdecydowanie polecam wszystkim grzybiarzom, zarówno początkującym, jak i zaawansowanym!”</p>

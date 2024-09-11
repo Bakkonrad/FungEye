@@ -90,12 +90,12 @@ namespace FungEyeApi.Services
             var checkUser = await db.Users.FirstOrDefaultAsync(u => u.Username == requestUser.Username || u.Email == requestUser.Email);
             if (checkUser == null)
             {
-                throw new Exception("Username or password is incorrect");
+                throw new UnauthorizedAccessException("Username or password is incorrect");
             }
 
             if (!BCrypt.Net.BCrypt.Verify(requestUser.Password, checkUser.Password))
             {
-                throw new Exception("Username or password is incorrect");
+                throw new UnauthorizedAccessException("Username or password is incorrect");
             }
 
             string token = await CreateToken(new User(checkUser));

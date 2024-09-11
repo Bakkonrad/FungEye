@@ -12,12 +12,14 @@ namespace FungEyeApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IAuthService _authService;
         private readonly IBlobStorageService _blobStorageService;
 
-        public UserController(IUserService userService, IBlobStorageService blobStorageService)
+        public UserController(IUserService userService, IBlobStorageService blobStorageService, IAuthService authService)
         {
             _userService = userService;
             _blobStorageService = blobStorageService;
+            _authService = authService;
         }
 
         [Authorize]
@@ -121,6 +123,11 @@ namespace FungEyeApi.Controllers
             try
             {
                 var userJson = JsonConvert.DeserializeObject<User>(user);
+
+                if (await _authService.IsUsernameOrEmailUsed(userJson.Username, userJson.Email))
+                {
+                    return BadRequest("Username or email already in use.");
+                }
 
                 var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 var admin = await _userService.IsAdmin(userIdFromToken);

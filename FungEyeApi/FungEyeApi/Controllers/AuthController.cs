@@ -26,6 +26,11 @@ namespace FungEyeApi.Controllers
         {
             try
             {
+                if(await _authService.IsUsernameOrEmailUsed(user.Username, user.Email))
+                {
+                    return BadRequest("Username or email already in use.");
+                }
+
                 bool result = await _authService.RegisterUser(user);
                 if (result)
                 {
@@ -48,6 +53,10 @@ namespace FungEyeApi.Controllers
         {
             try
             {
+                if (await _authService.IsUsernameOrEmailUsed(user.Username, user.Email))
+                {
+                    return BadRequest("Username or email already in use.");
+                }
                 var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
@@ -66,10 +75,15 @@ namespace FungEyeApi.Controllers
                     return BadRequest("Admin registration failed.");
                 }
             }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
+            
         }
         
         [HttpPost("loginUser")]

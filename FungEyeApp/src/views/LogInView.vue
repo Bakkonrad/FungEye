@@ -45,7 +45,7 @@ import { required } from "@vuelidate/validators";
 import { ref } from "vue";
 import { isLoggedIn, checkAuth } from "@/services/AuthService";
 
-import UserService from "@/services/UserService";
+import AuthService from "@/services/AuthService";
 
 export default {
   components: {
@@ -78,7 +78,7 @@ export default {
         this.loginFormData.username = null;
       }
       try {
-        const result = await UserService.login(this.loginFormData);
+        const result = await AuthService.login(this.loginFormData);
         if (!result.success) {
           this.error = true;
           this.errorMessage = result.message;
@@ -95,7 +95,7 @@ export default {
       }
     },
     async logOut() {
-      UserService.logout();
+      AuthService.logout();
       this.$router.push("/");
     },
     resetValidation() {

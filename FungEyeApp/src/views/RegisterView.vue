@@ -188,7 +188,7 @@ import {
   helpers,
 } from "@vuelidate/validators";
 
-import UserService from "@/services/UserService";
+import AuthService from "@/services/AuthService";
 
 export default {
   name: "RegisterView",
@@ -224,7 +224,7 @@ export default {
 
       if (result) {
         try {
-          const response = await UserService.register(exportedData);
+          const response = await AuthService.register(exportedData);
           if (response === true) {
             console.log("Form submitted!");
             this.$router.push("/log-in");

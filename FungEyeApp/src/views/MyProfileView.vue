@@ -61,6 +61,7 @@
 <script>
 import ProfileImage from "@/components/ProfileImage.vue";
 import UserService from "@/services/UserService";
+import AuthService from "@/services/AuthService";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
@@ -116,7 +117,7 @@ export default {
   },
   methods: {
     logOut() {
-      UserService.logout();
+      AuthService.logout();
       this.$router.push("/log-in");
     },
     async deleteAccount() {

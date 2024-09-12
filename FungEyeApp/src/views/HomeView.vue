@@ -141,7 +141,7 @@
 }
 
 .header ul {
-  font-size: 20px;
+  font-size: 1.3em;
   padding-left: 20px;
 }
 
@@ -152,7 +152,7 @@
 }
 
 .main h2 {
-  font-size: 50px;
+  font-size: 2.5em;
   margin-bottom: 10px;
 }
 
@@ -236,7 +236,6 @@
 }
 
 @media screen and (max-width: 1200px) {
-
   .cards {
     flex-direction: column;
     gap: 3em;
@@ -246,6 +245,46 @@
   .middle-card,
   .right-card {
     width: 80%;
+    height: auto;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .header {
+    padding: 1em;
+  }
+
+  .header-content {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  h2 {
+    font-size: 2em !important;
+  }
+
+  h3 {
+    font-size: 1.3em;
+  }
+
+  p,
+  .header ul {
+    font-size: 1em;
+  }
+
+  .cards {
+    flex-direction: column;
+    gap: 1em;
+    margin: 20px 0 20px 0;
+  }
+
+  .left-card,
+  .middle-card,
+  .right-card {
+    width: 95%;
     height: auto;
   }
 }

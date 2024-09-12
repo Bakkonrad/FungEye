@@ -49,7 +49,8 @@ h3,
 button,
 nav,
 label,
-img {
+img,
+input {
   -webkit-user-select: none;
   /* Safari */
   -ms-user-select: none;
@@ -250,5 +251,42 @@ input.validInput {
 .r-view {
   margin-top: 2em;
   min-height: calc(100vh - 70px);
+}
+
+/* mushroom attributes */
+.attribute {
+  background-color: var(--green);
+  padding: 1px 25px;
+  color: white;
+  border-radius: 15px;
+  font-weight: 300;
+}
+
+/* iglaste */
+.attribute.coniferous {
+  background-color: var(--dark-green);
+}
+
+/* liściaste */
+.attribute.deciduous {
+  background-color: var(--light-green);
+  color: var(--black);
+}
+
+/* jadalny */
+.attribute.edible {
+  background-color: var(--green);
+}
+
+/* niejadalny */
+.attribute.inedible {
+  background-color: var(--beige);
+  border: 1px solid var(--dark-red);
+  color: var(--dark-red);
+}
+
+/* trujący */
+.attribute.poisonous {
+  background-color: var(--red);
 }
 </style>

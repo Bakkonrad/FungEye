@@ -2,7 +2,9 @@
   <div class="profile-button">
     <button type="button" class="btn fungeye-default-button">
       <ProfileImage :imgSrc="imgSrc" :width="50" :height="50" />
-      Mój profil
+      <span class="profile-button-text">
+        Mój profil
+      </span>
     </button>
   </div>
 </template>
@@ -40,5 +42,27 @@ export default {
 
 .profile-button {
   justify-content: flex-end;
+}
+
+@media screen and (max-width: 1400px) {
+  .fungeye-default-button {
+    background-color: var(--beige) !important;
+    gap: 0;
+  }
+  .profile-button-text {
+    display: none;
+  }
+  
+}
+
+@media screen and (max-width: 991px) {
+  .fungeye-default-button {
+    background-color: var(--green) !important;  
+    gap: 0.3em;
+  }
+  .profile-button-text {
+    display: flex;
+  }
+
 }
 </style>

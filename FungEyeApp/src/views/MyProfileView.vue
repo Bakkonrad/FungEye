@@ -20,11 +20,11 @@
           <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :email="email" />
           <div class="buttons">
             <button @click="startEditing" type="button" class="btn fungeye-default-button">
-              <font-awesome-icon icon="fa-solid fa-gear" class="button-icon"/>
+              <font-awesome-icon icon="fa-solid fa-gear" class="button-icon" />
               Ustawienia
             </button>
             <button @click="logOut" type="button" class="btn fungeye-red-button">
-              <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="button-icon"/>
+              <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="button-icon" />
               Wyloguj się
             </button>
           </div>
@@ -36,53 +36,18 @@
       <div class="main-header">
         <h2>Ustawienia</h2>
         <button @click="cancelEditing" type="button" class="btn fungeye-default-button">
-          <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon"/>
+          <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
           Powrót do mojego profilu
         </button>
       </div>
       <div class="settings-content">
         <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
         <div class="settings-content-right">
-          <!-- <div class="edit-container">
-            <div class="edit-form">
-              <h3>Zmiana hasła konta</h3>
-              <div class="mb-3">
-                <BaseInput v-model="registerFormData.password" type="password" label="Hasło (min. 8 znaków)" :class="{
-                  'password-input': !submitted,
-                  validInput: submitted && !v$.password.$invalid,
-                  invalidInput: submitted && v$.password.$invalid,
-                  }" />
-                  <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
-                    {{ error.$message }}
-                  </span>
-                </div>
-                <div class="mb-3">
-                  <BaseInput v-model="registerFormData.confirmPassword" type="password" label="Potwierdź hasło" :class="{
-                    'confirmPassword-input': !submitted,
-                    validInput: submitted && !v$.confirmPassword.$invalid,
-                    invalidInput: submitted && v$.confirmPassword.$invalid,
-                    }" />
-                    <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
-                      {{ error.$message }}
-                    </span>
-                  </div>
-                  <div class="mb-3">
-                    <BaseInput v-model="registerFormData.dateOfBirth" type="date" label="Data urodzenia" :class="{
-                      'dateOfBirth-input': !submitted,
-                      validInput: submitted && !v$.dateOfBirth.$invalid,
-                      invalidInput: submitted && v$.dateOfBirth.$invalid,
-                      }" />
-                      <span class="error-message" v-for="error in v$.dateOfBirth.$errors" :key="error.$uid">
-                        {{ error.$message }}
-                      </span>
-              </div>
-            </div> 
-          </div> -->
           <div class="edit-container">
             <div class="edit-form">
               <h3>Usuwanie konta</h3>
               <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
-                <font-awesome-icon icon="fa-solid fa-trash" class="button-icon"/>
+                <font-awesome-icon icon="fa-solid fa-trash" class="button-icon" />
                 Usuń konto
               </button>
             </div>
@@ -124,7 +89,7 @@ export default {
       mushrooms: [
         "src/assets/images/mushrooms/ATLAS-borowik.jpg",
         "src/assets/images/mushrooms/ATLAS-muchomor.jpg",
-        "src/assets/images/mushrooms/ATLAS-kurka.jpg", 
+        "src/assets/images/mushrooms/ATLAS-kurka.jpg",
         "src/assets/images/mushrooms/ATLAS-podgrzybek.jpg",
         "src/assets/images/mushrooms/ATLAS-borowik.jpg",
         "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
@@ -302,26 +267,6 @@ export default {
   justify-content: space-between;
 }
 
-@media screen and (max-width: 768px) {
-  .container-md {
-    margin-top: 1em;
-    justify-content: center;
-    padding: 0;
-    width: 80vw;
-  }
-
-  #user-info {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1em;
-  }
-
-  .buttons {
-    flex-direction: column;
-    gap: 1em;
-  }
-}
 
 .settings {
   display: flex;
@@ -378,5 +323,50 @@ h3 {
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 500px;
+}
+
+@media screen and (max-width: 1200px) {
+  .settings-content {
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 1em;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .container-md {
+    margin-top: 1em;
+    justify-content: center;
+    padding: 0;
+    width: 80vw;
+  }
+
+  #user-info {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .main-header {
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  h3 {
+    font-size: 1.5em;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .edit-form {
+    width: 90vw;
+  }
 }
 </style>

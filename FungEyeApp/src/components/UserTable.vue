@@ -158,4 +158,28 @@ thead tr:last-child th:last-child {
   background-color: var(--warning);
   color: var(--black);
 }
+
+@media screen and (max-width: 992px) {
+  .table-container {
+    margin: 20px 20px;
+    max-width: 95%;
+  }
+
+  .table-hover>tbody>tr>td {
+    padding: 10px;
+  }
+
+  .fungeye-default-button,
+  .fungeye-red-button {
+    height: 25px;
+    padding: 0 10px;
+    font-size: 0.8em;
+  }
+
+  .profile-picture {
+    width: 20px;
+    height: 20px;
+  }
+  
+}
 </style>

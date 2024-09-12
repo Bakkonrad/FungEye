@@ -35,4 +35,12 @@ export default {
   font-weight: 500;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+@media screen and (max-width: 400px) {
+  .left-side {
+    display: flex;
+    flex-direction: column !important;
+    align-items: center;
+  }
+}
 </style>

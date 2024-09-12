@@ -1,51 +1,30 @@
 <template>
   <div class="atlas-view">
-    <input 
-      type="text" 
-      v-model="searchQuery" 
-      @input="resetActiveLetter"
-      placeholder="Szukaj" 
-      class="search-bar"
-    />
+    <h1>Atlas grzybów</h1>
+    <SearchBar @search="handleSearch" />
     <div class="alphabet-filter">
-      <span 
-        v-for="letter in alphabet" 
-        :key="letter" 
-        @click="filterByLetter(letter)"
-        :class="{'active-letter': activeLetter === letter}"
-      >
+      <span v-for="letter in alphabet" :key="letter" @click="filterByLetter(letter)"
+        :class="{ 'active-letter': activeLetter === letter }">
         {{ letter }}
       </span>
     </div>
-    
+
     <div class="attribute-filter">
-      <span 
-        v-for="attribute in availableAttributes" 
-        :key="attribute" 
-        @click="toggleAttributeFilter(attribute)"
-        :class="['attribute', attributeClass(attribute), {'active-attribute': isActiveAttribute(attribute)}]"
-      >
+      <span v-for="attribute in availableAttributes" :key="attribute" @click="toggleAttributeFilter(attribute)"
+        :class="['attribute', attributeClass(attribute), { 'active-attribute': isActiveAttribute(attribute) }]">
         {{ attribute }}
       </span>
     </div>
-    
+
     <div class="mushroom-list">
-      <div 
-        v-for="mushroom in filteredMushrooms" 
-        :key="mushroom.id" 
-        class="mushroom-card"
-        @click="openMushroomView(mushroom)"
-      >
+      <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card"
+        @click="openMushroomView(mushroom)">
         <img :src="mushroom.image" alt="Mushroom Image" class="mushroom-image" />
         <div class="mushroom-info">
           <h3>{{ mushroom.name }}</h3>
           <div class="attributes">
-            <span 
-              v-for="attr in mushroom.attributes" 
-              :key="attr" 
-              @click.stop="toggleAttributeFilter(attr)" 
-              :class="['attribute', attributeClass(attr), {'active-attribute': isActiveAttribute(attr)}]"
-            >
+            <span v-for="attr in mushroom.attributes" :key="attr" @click.stop="toggleAttributeFilter(attr)"
+              :class="['attribute', attributeClass(attr), { 'active-attribute': isActiveAttribute(attr) }]">
               {{ attr }}
             </span>
           </div>
@@ -56,7 +35,12 @@
 </template>
 
 <script>
+import SearchBar from '@/components/SearchBar.vue';
+
 export default {
+  components: {
+    SearchBar
+  },
   data() {
     return {
       searchQuery: '',
@@ -90,7 +74,7 @@ export default {
       }
 
       if (this.searchQuery) {
-        filtered = filtered.filter(mushroom => 
+        filtered = filtered.filter(mushroom =>
           mushroom.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
@@ -105,6 +89,9 @@ export default {
     }
   },
   methods: {
+    handleSearch(query) {
+      this.searchQuery = query;
+    },
     filterByLetter(letter) {
       if (this.activeLetter === letter) {
         this.activeLetter = null;
@@ -145,23 +132,21 @@ export default {
 
 <style scoped>
 .atlas-view {
-  padding: 20px;
+  padding: 0 20px;
 }
 
-.search-bar {
-  width: 40%;
-  padding: 10px;
-  margin: 0 auto;
-  display: block;
-  font-size: 18px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  color: black !important;
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .alphabet-filter {
   margin: 20px 0;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .alphabet-filter span {
@@ -180,15 +165,20 @@ export default {
 .attribute-filter {
   margin: 20px 0;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
 }
+
 /* css dla filtrów atrybutów */
 .attribute-filter span {
   margin: 0 7px;
   cursor: pointer;
   font-size: 17px;
-  padding: 5px 15px;
+  padding: 1px 10px;
   border-radius: 15px;
-  background-color: #f0f0f0;
+  /* background-color: #f0f0f0; */
   transition: font-weight 0.3s, background-color 0.3s;
   user-select: none;
 }
@@ -206,54 +196,15 @@ export default {
   user-select: none;
 }
 
-/* kolory dla atrybutów w kartach grzybów */
-.attribute.coniferous {
-  background-color: var(--dark-green);
-  color: white;
-}
-
-.attribute.deciduous {
-  background-color: var(--light-green);
-  color: var(--black);
-}
-
-.attribute.edible {
-  background-color: var(--green);
-  color: white;
-}
-
-.attribute.inedible {
-  background-color: var(--beige);
-  border: 1px solid var(--dark-red);
-  color: var(--dark-red);
-}
-
-.attribute.poisonous {
-  background-color: var(--red);
-  color: white;
-}
-
 /* pogrubienie dla aktywnych atrybutów */
 .active-attribute.coniferous,
-.attribute-filter span.coniferous.active-attribute {
-  font-weight: bold;
-}
-
+.attribute-filter span.coniferous.active-attribute,
 .active-attribute.deciduous,
-.attribute-filter span.deciduous.active-attribute {
-  font-weight: bold;
-}
-
+.attribute-filter span.deciduous.active-attribute,
 .active-attribute.edible,
-.attribute-filter span.edible.active-attribute {
-  font-weight: bold;
-}
-
+.attribute-filter span.edible.active-attribute,
 .active-attribute.inedible,
-.attribute-filter span.inedible.active-attribute {
-  font-weight: bold;
-}
-
+.attribute-filter span.inedible.active-attribute,
 .active-attribute.poisonous,
 .attribute-filter span.poisonous.active-attribute {
   font-weight: bold;
@@ -267,20 +218,22 @@ export default {
 
 .mushroom-card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  background-color: #fdf4e6;
+  background-color: var(--beige);
   padding: 10px;
   margin: 10px 0;
   width: 70%;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: box-shadow 0.3s;
   user-select: none;
 }
 
 .mushroom-card:hover {
-  background-color: #f0f0f0;
+  /* background-color: #f0f0f0; */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 .mushroom-image {
@@ -315,8 +268,17 @@ export default {
   cursor: pointer;
 }
 
-.attributes span:hover ~ .mushroom-card {
+.attributes span:hover~.mushroom-card {
   pointer-events: none;
   background-color: #f0f0f0;
+}
+
+@media screen and (max-width: 768px) {
+  .mushroom-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+    width: 95%;
+  }
 }
 </style>

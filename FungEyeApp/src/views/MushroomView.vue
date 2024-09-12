@@ -228,42 +228,6 @@ export default {
   gap: 10px;
 }
 
-.attribute {
-  background-color: var(--green);
-  padding: 1px 25px;
-  color: white;
-  border-radius: 15px;
-  font-weight: 300;
-}
-
-/* iglaste */
-.attribute.coniferous {
-  background-color: var(--dark-green);
-}
-
-/* liściaste */
-.attribute.deciduous {
-  background-color: var(--light-green);
-  color: var(--black);
-}
-
-/* jadalny */
-.attribute.edible {
-  background-color: var(--green);
-}
-
-/* niejadalny */
-.attribute.inedible {
-  background-color: var(--beige);
-  border: 1px solid var(--dark-red);
-  color: var(--dark-red);
-}
-
-/* trujący */
-.attribute.poisonous {
-  background-color: var(--red);
-}
-
 .mushroom-view-description {
   grid-column: 1 / 3;
 }

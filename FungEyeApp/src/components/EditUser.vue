@@ -375,4 +375,11 @@ h3 {
   justify-content: space-between;
   align-items: center;
 }
+
+@media screen and (max-width: 500px) {
+  .edit-form {
+    width: 90vw;
+  }
+  
+}
 </style>

@@ -16,13 +16,7 @@
       <div v-if="activeTable === 'users'">
         <div v-if="!isEditing">
           <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton" @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
-          <div class="input-group mb-3" id="searchUsers">
-            <input type="text" v-model="searchQuery" placeholder="Szukaj użytkowników..." class="form-control"
-              id="searchUsers-input" aria-describedby="button-addon2" />
-            <button @click="cleanUsers" class="btn fungeye-default-button" type="button" id="button-addon2">
-              <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="search-icon" />
-            </button>
-          </div>
+          <SearchBar @search="handleSearch" />
           <UserTable :users="users" @edit-user="startEditing" @ban-user="banUserPrompt" @delete-user="deleteUser" />
           <LoadingSpinner v-if="isLoading"></LoadingSpinner>
           <div v-if="noUsersFound">
@@ -58,12 +52,14 @@ import UserEdit from "@/components/EditUser.vue";
 import UserService from "@/services/UserService";
 import { checkAdmin, isAdmin } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import SearchBar from "@/components/SearchBar.vue";
 
 export default {
   components: {
     UserTable,
     UserEdit,
     LoadingSpinner,
+    SearchBar,
   },
   data() {
     return {
@@ -162,6 +158,10 @@ export default {
       this.currentPage = 1;
       this.fetchUsers();
     },
+    handleSearch(query) {
+      this.searchQuery = query;
+      this.cleanUsers();
+    },
     startEditing(user) {
       if (user.id == localStorage.getItem("id")) {
         alert("Aby edytować swoje dane, przejdź do swojego profilu.");
@@ -251,23 +251,6 @@ export default {
   overflow-y: auto;
 }
 
-#searchUsers {
-  width: 30%;
-  margin: 0 auto;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  padding: 5px;
-  min-width: 50px;
-  text-align: center;
-}
-
-#searchUsers-input {
-  border-radius: 35px 0 0 35px !important;
-}
-
 .buttons {
   display: flex;
   justify-content: space-between;
@@ -332,9 +315,41 @@ export default {
   margin-top: 20px;
 }
 
+@media screen and (max-width: 1400px) {
+  .buttons {
+    width: 30%;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .buttons {
+    width: 40%;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .buttons {
+    width: 50%;
+  }
+}
+
 @media screen and (max-width: 768px) {
-  #searchUsers {
+  .buttons {
     width: 80%;
   }
 }
+
+@media screen and (max-width: 576px) {
+  h1 {
+    font-size: 2em;
+  }
+  .buttons {
+    width: 90%;
+  }
+  .category-btn {
+    font-size: 1em;
+    padding: 5px 20px !important;
+  }
+}
+
 </style>

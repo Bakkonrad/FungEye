@@ -120,7 +120,7 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<bool> AddFriend(int userId, int friendId)
+        public async Task<bool> AddFollow(int userId, int friendId)
         {
             try
             {
@@ -185,6 +185,30 @@ namespace FungEyeApi.Services
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
             return user.ImageUrl;
+        }
+
+        public async Task<bool> IsUsernameOrEmailUsed(string? username, string? email)
+        {
+            UserEntity? existingUser = null;
+
+            if (username != null && email != null)
+            {
+                existingUser = await db.Users.FirstOrDefaultAsync(u => u.Username == username || u.Email == email);
+            }
+            else if (username != null && email == null)
+            {
+                existingUser = await db.Users.FirstOrDefaultAsync(u => u.Username == username);
+            }
+            else if (email != null && username == null)
+            {
+                existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            }
+            else
+            {
+                throw new Exception("Username or email is required");
+            }
+
+            return existingUser != null ? true : false;
         }
     }
 }

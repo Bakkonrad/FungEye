@@ -175,7 +175,7 @@ export default {
   height: 50px;
 }
 
-#myProfileButton {
+#myProfileButton, #logInButton {
   text-decoration: none;
 }
 

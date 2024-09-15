@@ -22,14 +22,16 @@
           <BaseInput v-model="loginFormData.password" type="password" label="Hasło" class="password-input"
             @focus="resetValidation" :class="{ invalidInput: error }" />
         </div>
-        <!-- <div id="forgotPassword" class="form-text">Zapomniałeś/aś hasła?</div> -->
         <span v-if="error" class="error-message">{{ errorMessage }}</span>
         <button type="submit" class="btn fungeye-default-button submitFormButton" @click.prevent="submitForm">
           Zaloguj się
         </button>
       </form>
+      <RouterLink to="/forgot-password" id="forgotPassword" class="btn fungeye-secondary-button submitFormButton">Nie
+        pamiętasz hasła?
+      </RouterLink>
       <span id="registerLink">
-        <p>Nie masz jeszcze konta?</p>
+        <p id="noAccount">Nie masz jeszcze konta?</p>
         <RouterLink to="/register" class="router-registerLink">
           <p><b>Zarejestruj się</b></p>
         </RouterLink>
@@ -182,7 +184,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 2em 2em 3em 2em;
+  padding: 2em 2em 2em 2em;
 }
 
 h1 {
@@ -195,15 +197,31 @@ p {
   font-size: 1.3em;
 }
 
+.submitFormButton {
+  margin-top: 1.5em;
+}
+
 @media (max-width: 768px) {
+  h1 {
+    font-size: 2.5em;
+  }
+
   .log-in-content {
     width: 80vw;
+  }
+
+  #noAccount {
+    margin: 0 !important;
   }
 
   #registerLink {
     align-items: center;
     flex-direction: column;
-    gap: 0;
+    gap: 0 !important;
+  }
+
+  .router-registerLink {
+    margin-top: 0;
   }
 
   .buttons {
@@ -217,21 +235,70 @@ p {
   }
 }
 
+@media screen and (max-width: 465px) {
+  .log-in-bg {
+    width: 97vw;
+  }
+
+  .log-in-content {
+    width: 90vw;
+    padding: 2em 0.5em 2em 0.5em;
+  }
+  
+  .log-in-content p {
+    font-size: 1.1em;
+  }
+
+  #noAccount {
+    margin: 0 !important;
+  }
+
+  #registerLink {
+    margin-top: 1.5em !important;
+    gap: 0 !important;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .log-in-content {
+    padding: 2em 0.5em 2em 0.5em;
+  }
+
+  h1 {
+    font-size: 2.5em;
+  }
+
+  p {
+    font-size: 1.1em;
+  }
+  
+}
+
+#forgotPassword {
+  margin-top: 1em;
+  justify-content: center;
+  text-decoration: none;
+}
+
 #registerLink {
   color: white;
   display: flex;
   justify-content: center;
   gap: 0.5em;
-  margin-top: 2em;
+  margin-top: 3em;
 }
 
 .router-registerLink {
-  color: white;
   text-decoration: none;
+  margin: 0 !important;
 }
 
-.router-registerLink:hover {
-  color: var(--light-green) !important;
+.router-registerLink p {
+  color: white;
+  transition: text-decoration 0.5s;
+}
+
+.router-registerLink:hover p {
   text-decoration: underline;
 }
 </style>

@@ -434,12 +434,15 @@ input.firstName-input {
 }
 
 .router-registerLink {
-  color: white;
   text-decoration: none;
 }
 
-.router-registerLink:hover {
-  color: var(--light-green);
+.router-registerLink p {
+  color: white;
+  transition: text-decoration 0.5s;
+}
+
+.router-registerLink:hover p{
   text-decoration: underline;
 }
 

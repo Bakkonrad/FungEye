@@ -109,7 +109,8 @@ ul {
 
 /* buttons */
 .fungeye-default-button,
-.fungeye-red-button {
+.fungeye-red-button,
+.fungeye-secondary-button {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -128,6 +129,7 @@ ul {
   font-weight: 300;
   font-size: 1.2em;
   height: 50px;
+  text-decoration: none;
 }
 
 .fungeye-default-button:hover {
@@ -163,6 +165,25 @@ ul {
 .fungeye-red-button:active:focus {
   background: var(--dark-red);
   color: white;
+}
+
+.fungeye-secondary-button {
+  /* transparent background */
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+}
+
+.fungeye-secondary-button:hover {
+  background: #f1ebddb5;
+  color: var(--black) !important;
+}
+
+.fungeye-secondary-button:focus,
+.fungeye-secondary-button:active,
+.fungeye-secondary-button:active:focus {
+  background: var(--beige);
+  color: var(--black) !important;
 }
 
 .button-icon {
@@ -235,12 +256,6 @@ input.validInput {
 
 .form-label {
   color: white;
-}
-
-#forgotPassword {
-  color: white;
-  display: flex;
-  justify-content: flex-end;
 }
 
 .submitFormButton {

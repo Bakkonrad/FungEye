@@ -11,6 +11,7 @@ import MushroomView from '@/views/MushroomView.vue'
 import AdminView from '@/views/AdminView.vue'
 import UserPostsView from '@/views/UserPostsView.vue'
 import UserProfile from '@/views/UserProfileView.vue'
+import ForgotPassword from '@/views/ForgotPasswordView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -77,6 +78,11 @@ const router = createRouter({
       name: 'userProfile',
       component: UserProfile,
       props: true
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgotPassword',
+      component: ForgotPassword
     }
   ]
 })

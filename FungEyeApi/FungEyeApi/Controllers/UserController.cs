@@ -171,40 +171,48 @@ namespace FungEyeApi.Controllers
                 return Forbid();
             }
 
-            var admin = await _userService.IsAdmin(userId);
+            try
+            {
+                var admin = await _userService.IsAdmin(userId);
 
-            if (admin == false)
+                if (admin == false)
+                {
+                    return Forbid();
+                }
+
+                var user = await _userService.GetUsers(page, search);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("addFollow/{userId}/{followId}")]
+        public async Task<IActionResult> AddFollow(int userId, int followId)
+        {
+            if (!ValidateUserId(userId))
             {
                 return Forbid();
             }
 
-            var user = await _userService.GetUsers(page, search);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var result = await _userService.AddFollow(userId, followId);
+                return Ok(result);
             }
-
-            return Ok(user);
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
-
-        //[Authorize]
-        //[Consumes("multipart/form-data")]
-        //[HttpPost("getUsers")]
-        //public async Task<IActionResult> AddFriendship([FromForm] int userId, [FromForm] int friendId)
-        //{
-        //    if (!ValidateUserId(userId))
-        //    {
-        //        return Forbid();
-        //    }
-
-        //    var user = await _userService.GetUsers();
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return Ok(user);
-        //}
 
 
         private bool ValidateUserId(int userId)

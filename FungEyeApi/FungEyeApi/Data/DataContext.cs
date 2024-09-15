@@ -17,7 +17,7 @@ namespace FungEyeApi.Data
             base.OnModelCreating(builder);
 
             ConfigureUser(builder.Entity<UserEntity>());
-            ConfigureFriendship(builder.Entity<FriendshipEntity>());
+            ConfigureFollow(builder.Entity<FollowEntity>());
         }
 
         private void ConfigureUser(EntityTypeBuilder<UserEntity> builder)
@@ -31,28 +31,22 @@ namespace FungEyeApi.Data
             builder.HasIndex(u => u.Email).IsUnique();
 
             // Nawigacyjne właściwości do relacji wiele-do-wielu
-            builder.HasMany(u => u.Friendships)
+            builder.HasMany(u => u.Follows)
                    .WithOne(f => f.User)
                    .HasForeignKey(f => f.UserId)
                    .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasMany(u => u.FriendsWith)
-                   .WithOne(f => f.Friend)
-                   .HasForeignKey(f => f.FriendId)
-                   .OnDelete(DeleteBehavior.Restrict);
         }
 
-        private void ConfigureFriendship(EntityTypeBuilder<FriendshipEntity> builder)
+        private void ConfigureFollow(EntityTypeBuilder<FollowEntity> builder)
         {
-            builder.ToTable("Friendships");
-            builder.HasKey(f => new { f.UserId, f.FriendId });
-
+            builder.ToTable("Follows");
+            builder.HasKey(f => new { f.UserId, f.FollowedUserId });
             builder.HasIndex(f => f.UserId);
-            builder.HasIndex(f => f.FriendId);
+            builder.HasIndex(f => f.FollowedUserId);
         }
 
         public DbSet<UserEntity> Users { get; set; }
-        public DbSet<FriendshipEntity> Friendships { get; set; }
+        public DbSet<FollowEntity> Follows { get; set; }
 
     }
 }

@@ -193,7 +193,7 @@ namespace FungEyeApi.Services
             return user.ImageUrl;
         }
 
-        public async Task<bool> BanUser(int userId, BanOptionEnum banOption)
+        public async Task<DateTime?> BanUser(int userId, BanOptionEnum banOption)
         {
             try
             {
@@ -221,7 +221,7 @@ namespace FungEyeApi.Services
 
                 await db.SaveChangesAsync();
 
-                return true;
+                return userEntity.BanExpirationDate;
             }
             catch (Exception ex)
             {

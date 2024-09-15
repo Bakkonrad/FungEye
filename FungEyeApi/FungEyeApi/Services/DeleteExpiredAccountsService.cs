@@ -17,7 +17,7 @@ namespace FungEyeApi.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 // Wykonaj logikę co 24 godziny (lub inny interwał czasowy)
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
 
                 // Wywołaj metodę czyszczącą konta
                 await DeleteExpiredAccountsAsync();
@@ -31,7 +31,7 @@ namespace FungEyeApi.Services
                 var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
 
                 var expiredUsers = await dbContext.Users
-                    .Where(u => u.DateDeleted != null && u.DateDeleted <= DateTime.Now.AddMinutes(-1))
+                    .Where(u => u.DateDeleted != null && u.DateDeleted <= DateTime.Now.AddDays(-30))
                     .ToListAsync();
 
                 if (expiredUsers.Any())

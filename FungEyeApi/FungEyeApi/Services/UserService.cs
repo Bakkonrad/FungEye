@@ -120,54 +120,57 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<bool> AddFollow(int userId, int friendId)
+        public async Task<bool> AddFollow(int userId, int followId)
         {
             try
             {
-                var friendship = new FriendshipEntity
+                //sprawdzenie czy follow miêdzy u¿ytkownikami ju¿ istnieje
+                var existingFollow = await db.Follows.FirstOrDefaultAsync(u => u.UserId == userId) ?? throw new Exception("User not found in the database");
+
+                var follow = new FollowEntity
                 {
                     UserId = userId,
-                    FriendId = friendId
+                    FollowedUserId = followId
                 };
 
-                db.Friendships.Add(friendship);
+                db.Follows.Add(follow);
                 await db.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception("Error during adding friendship: " + ex.Message);
+                throw new Exception("Error during adding follow: " + ex.Message);
             }
         }
 
-        public async Task<List<User>> GetFriends(int userId)
+        public async Task<List<User>> GetFollows(int userId)
         {
             try
             {
-                var friends = await db.Friendships
+                var friends = await db.Follows
                             .Where(f => f.UserId == userId)
-                            .Select(f => f.Friend)
+                            .Select(f => f.FollowedUser)
                             .ToListAsync();
 
                 return friends.Select(u => new User(u)).ToList();
             }
             catch (Exception ex)
             {
-                throw new Exception("Error during retrieving friendships: " + ex.Message);
+                throw new Exception("Error during retrieving follows: " + ex.Message);
             }
 
         }
 
-        public async Task<bool> DeleteFriend(int userId, int friendId)
+        public async Task<bool> DeleteFollow(int userId, int followId)
         {
             try
             {
-                var friendship = await db.Friendships
-                .FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friendId);
+                var follow = await db.Follows
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedUserId == followId);
 
-                if (friendship != null)
+                if (follow != null)
                 {
-                    db.Friendships.Remove(friendship);
+                    db.Follows.Remove(follow);
                     await db.SaveChangesAsync();
                     return true;
                 }
@@ -176,7 +179,7 @@ namespace FungEyeApi.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Error during deleting friendship: " + ex.Message);
+                throw new Exception("Error during deleting follow: " + ex.Message);
             }
 
         }

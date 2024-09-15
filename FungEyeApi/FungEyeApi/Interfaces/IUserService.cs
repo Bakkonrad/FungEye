@@ -13,5 +13,8 @@ namespace FungEyeApi.Interfaces
         Task<bool> BanUser(int userId, BanOptionEnum banOption);
         Task<List<User>> GetUsers(int? page = null, string? search = null);
         Task<string> GetUserImage(int userId);
+        Task<bool> AddFollow(int userId, int followId);
+        Task<List<User>> GetFollows(int userId);
+        Task<bool> DeleteFollow(int userId, int followId);
     }
 }

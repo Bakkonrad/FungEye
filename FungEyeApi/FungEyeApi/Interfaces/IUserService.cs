@@ -10,7 +10,7 @@ namespace FungEyeApi.Interfaces
         Task<User> GetUserProfile(int userId);
         Task<bool> UpdateUserImage(int userId, string imageUrl);
         Task<bool> IsAdmin(int userId);
-        Task<bool> BanUser(int userId, BanOptionEnum banOption);
+        Task<DateTime?> BanUser(int userId, BanOptionEnum banOption);
         Task<List<User>> GetUsers(int? page = null, string? search = null);
         Task<string> GetUserImage(int userId);
         Task<bool> AddFollow(int userId, int followId);

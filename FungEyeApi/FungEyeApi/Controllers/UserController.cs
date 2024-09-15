@@ -246,10 +246,10 @@ namespace FungEyeApi.Controllers
                     return Forbid();
                 }
 
-                bool result = await _userService.BanUser(userId, (BanOptionEnum)banOption);
-                if (result)
+                var result = await _userService.BanUser(userId, (BanOptionEnum)banOption);
+                if (result != null)
                 {
-                    return Ok("User banned successfully.");
+                    return Ok(result);
                 }
                 else
                 {

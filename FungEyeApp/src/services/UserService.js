@@ -154,6 +154,7 @@ const updateUser = async (user, image) => {
 
 const banUser = async (userId, ban) => {
     try {
+        console.log("ban: ", userId, ban);
         const isTokenValid = await ApiService.validateToken();
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
@@ -162,7 +163,7 @@ const banUser = async (userId, ban) => {
         const response = await $http.post(`/api/User/banUser/${userId}/${banInt}`);
         // const response = { status: 200 };
         if (response.status === 200) {
-            return { success: true }
+            return { success: true, message: 'Użytkownik zbanowany', data: response.data };
         }
         return { success: false, message: 'Nieznany błąd' };
     } catch (error) {

@@ -8,6 +8,7 @@
           <th scope="col" class="table-cell">Email</th>
           <th scope="col" class="table-cell">Imię</th>
           <th scope="col" class="table-cell">Nazwisko</th>
+          <th scope="col" class="table-cell">Zbanowany do dnia</th>
           <th scope="col" class="table-cell">Posty</th>
           <th scope="col" class="table-cell">Edytuj</th>
           <th scope="col" class="table-cell">Banuj</th>
@@ -24,6 +25,7 @@
           <td class="table-cell">{{ user.email }}</td>
           <td class="table-cell">{{ user.firstName }}</td>
           <td class="table-cell">{{ user.lastName }}</td>
+          <td class="table-cell">{{ formatDate(user.banExpirationDate) }}</td>
           <td class="table-cell">
             <button class="btn fungeye-default-button" id="btn-viewPosts" @click="viewPosts(user.email)">
               <font-awesome-icon icon="fa-solid fa-list"></font-awesome-icon>
@@ -61,6 +63,15 @@ export default {
   methods: {
     viewPosts(email) {
       this.$router.push({ name: "UserPosts", params: { email: email } });
+    },
+    formatDate(date) {
+      if (date === null || date > new Date()) {
+        return "";
+      }
+      if (new Date(date).getFullYear() > 2100) {
+        return "Na zawsze";
+      }
+      return new Date(date).toLocaleString();
     },
   }
 };

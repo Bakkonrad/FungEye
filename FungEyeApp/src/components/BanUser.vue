@@ -1,25 +1,36 @@
 <template>
-
-    <div class="banUser-container container-md">
-        <h2>Banowanie użytkownika {{ user.username }}</h2>
-        <p>Wybierz okres czasu, na który chcesz zbanować użytkownika:</p>
-
-        <div class="button-group bans">
-            <button type="radio" class="btn fungeye-default-button ban-button" v-for="(ban, key) in bans" :key="ban" @click="chooseBan(key)">{{ ban }}</button>
+    <div class="container">
+        <div v-if="banSuccessful || user.banExpirationDate" class="ban-successful">
+            <h2>Użytkownik {{ user.username }} został zbanowany!</h2>
+            <p>Użytkownik <b>{{ user.username }}</b> jest zbanowany do <b>{{ formatDate(user.banExpirationDate)
+                    }}</b></p>
+            <button class="btn fungeye-default-button" @click="$emit('cancel-ban')">Powrót do tabeli
+                użytkowników</button>
         </div>
+        <div class="banUser-container container-md">
+            <h2>Banowanie użytkownika {{ user.username }}</h2>
+            <p>Wybierz okres czasu, na który chcesz zbanować użytkownika:</p>
 
-        <span class="error-message" v-if="error">{{ apiErrorMessage }}</span>
-        <div class="button-group actions">
-            <button type="submit" class="btn fungeye-default-button" @click="save">
-                Zapisz zmiany
-            </button>
-            <button class="btn fungeye-red-button" @click="$emit('cancel-ban')">Anuluj</button>
+            <div class="button-group bans">
+                <button type="radio" class="btn fungeye-default-button ban-button" v-for="(ban, key) in bans" :key="ban"
+                    @click="chooseBan(key)">{{ ban }}</button>
+            </div>
+
+            <span class="error-message" v-if="error">{{ apiErrorMessage }}</span>
+            <div class="button-group actions">
+                <button type="submit" class="btn fungeye-default-button" @click="save">
+                    Zapisz zmiany
+                </button>
+                <button class="btn fungeye-red-button" @click="$emit('cancel-ban')">Anuluj</button>
+            </div>
         </div>
     </div>
 
 </template>
 
 <script>
+import UserService from "@/services/UserService";
+
 export default {
     name: "BanUser",
     props: {
@@ -36,24 +47,65 @@ export default {
             chosenBan: null,
             error: false,
             apiErrorMessage: "",
+            banSuccessful: false,
         };
     },
     methods: {
-        save() {
-            console.log("chosenTime", this.chosenBan);
-            console.log("User banned");
-            this.$emit("ban-user", this.user, this.chosenBan);
+        chooseBan(key) {
+            this.chosenBan = key;
+            console.log(`Chosen ban period key: ${key}`);
         },
-        chooseBan(ban) {
-            this.chosenBan = ban;
-            console.log("chosenBan", this.chosenBan);
+        async save() {
+            try {
+                if (!this.chosenBan) {
+                    this.error = true;
+                    this.apiErrorMessage = 'Wybierz okres czasu, na który chcesz zbanować użytkownika';
+                    return;
+                }
+                const response = await UserService.banUser(this.user.id, this.chosenBan);
+                if (response.success === false) {
+                    console.log(response.message);
+                    return;
+                }
+                this.user.banExpirationDate = response.data;
+                this.banSuccessful = true;
+            } catch (error) {
+                this.error = true;
+                this.apiErrorMessage = error.message || 'Wystąpił błąd';
+            }
+        },
+        formatDate(date) {
+            if (date === null) {
+                return;
+            }
+            return new Date(date).toLocaleString();
         },
     },
 };
 </script>
 
 <style scoped>
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}
+
 .banUser-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: var(--beige);
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.ban-successful {
     display: flex;
     flex-direction: column;
     align-items: center;

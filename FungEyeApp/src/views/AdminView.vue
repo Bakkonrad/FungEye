@@ -129,6 +129,7 @@ export default {
         // console.log(response.data.length);
         const newUsers = response.data;
         this.users = [...this.users, ...newUsers];
+        console.log(this.users[0]);
       } catch (error) {
         this.error = true;
         this.errorMessage = response.message;
@@ -197,7 +198,7 @@ export default {
       console.log("chosenTime", ban);
       try {
         const response = UserService.banUser(user.id, ban);
-        if (!response.success) {
+        if (response.success === false) {
           console.log(response.message);
           return;
         }
@@ -207,7 +208,6 @@ export default {
         console.log(error);
       }
       this.cleanUsers();
-      this.isBanning = false;
     },
     cancelBanning() {
       this.isBanning = false;

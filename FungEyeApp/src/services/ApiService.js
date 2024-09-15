@@ -3,6 +3,7 @@ import AuthService from './AuthService';
 
 const handleApiError = (error) => {
     if (error.response) {
+        console.log('Error response:', error.response);
         switch (error.response.status) {
             case 400:
                 return 'Błąd: Nieprawidłowe dane.';
@@ -12,6 +13,8 @@ const handleApiError = (error) => {
                 return 'Błąd: Brak dostępu.';
             case 404:
                 return 'Błąd: Nie znaleziono zasobu.';
+            case 409:
+                return 'Błąd: Użytkownik zbanowany do dnia ' + error.response.data;
             case 500:
                 return 'Błąd: Wewnętrzny błąd serwera.';
             default:

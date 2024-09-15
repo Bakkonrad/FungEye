@@ -28,7 +28,7 @@
           <li class="nav-item">
             <RouterLink to="/atlas" :class="getActiveNavLink('atlas')">Atlas</RouterLink>
           </li>
-          <li v-if="isAdmin" class="nav-item">
+          <li v-if="isAdmin === true" class="nav-item">
             <RouterLink to="/admin" :class="getActiveNavLink('admin')">Admin</RouterLink>
           </li>
         </ul>
@@ -175,7 +175,8 @@ export default {
   height: 50px;
 }
 
-#myProfileButton, #logInButton {
+#myProfileButton,
+#logInButton {
   text-decoration: none;
 }
 

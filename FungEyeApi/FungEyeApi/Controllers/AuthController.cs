@@ -96,11 +96,11 @@ namespace FungEyeApi.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized(ex.Message);
+                return StatusCode(400, ex.Message);
             }
             catch (AccessViolationException ex)
             {
-                return Forbid(ex.Message);
+                return StatusCode(409, ex.Message);
             }
             catch (Exception ex)
             {

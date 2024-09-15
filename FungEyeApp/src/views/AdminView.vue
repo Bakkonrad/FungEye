@@ -14,10 +14,10 @@
           @click="showMushrooms">Grzyby</button>
       </div>
       <div v-if="activeTable === 'users'">
-        <div v-if="!isEditing">
+        <div v-if="!isEditing && !isBanning">
           <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton" @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
           <SearchBar @search="handleSearch" />
-          <UserTable :users="users" @edit-user="startEditing" @ban-user="banUserPrompt" @delete-user="deleteUser" />
+          <UserTable :users="users" @edit-user="startEditing" @ban-user="startBanning" @delete-user="deleteUser" />
           <LoadingSpinner v-if="isLoading"></LoadingSpinner>
           <div v-if="noUsersFound">
             <p class="no-users">
@@ -26,6 +26,7 @@
           </div>
         </div>
         <UserEdit v-if="isEditing" :user="selectedUser" @cancel-edit="cancelEditing" @save-user="saveUser" />
+        <UserBan v-if="isBanning" :user="selectedUser" @cancel-ban="cancelBanning" @ban-user="banUser" />
       </div>
       <!-- search bar and table for mushrooms -->
       <div v-else>
@@ -53,6 +54,7 @@ import UserService from "@/services/UserService";
 import { checkAdmin, isAdmin } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import SearchBar from "@/components/SearchBar.vue";
+import UserBan from "@/components/BanUser.vue";
 
 export default {
   components: {
@@ -60,10 +62,12 @@ export default {
     UserEdit,
     LoadingSpinner,
     SearchBar,
+    UserBan,
   },
   data() {
     return {
       isEditing: false,
+      isBanning: false,
       selectedUser: null,
       searchQuery: "",
       users: [],
@@ -179,35 +183,34 @@ export default {
       this.cleanUsers();
       this.isEditing = false;
     },
-    banUserPrompt(user) {
+    startBanning(user) {
       if (user.id == localStorage.getItem("id")) {
         alert("Nie możesz zbanować samego siebie.");
+        this.isBanning = false;
         return;
       }
-      const duration = prompt(
-        "Podaj czas bana w sekundach (30s do 2592000s):",
-        30
-      );
-      if (!duration || isNaN(duration) || duration < 30 || duration > 2592000) {
-        alert("Nieprawidłowy czas");
-        return;
-      }
-
-      const durationInSeconds = parseInt(duration);
-      const now = new Date();
-      const bannedUntil = new Date(now.getTime() + durationInSeconds * 1000);
-
-      this.banUser(user.id, bannedUntil);
+      this.selectedUser = { ...user };
+      this.isBanning = true;
     },
-    banUser(user, bannedUntil) {
-      console.log("not implemented");
-      // const user = this.users.find((user) => user.userId === userId);
-      // if (user) {
-      //   user.BannedUntil = bannedUntil;
-      //   alert(`Użytkownik ${userId} zbanowany do ${bannedUntil}`);
-      // } else {
-      //   alert("Nie znaleziono użytkownika");
-      // }
+    banUser(user, ban) {
+      console.log(user);
+      console.log("chosenTime", ban);
+      try {
+        const response = UserService.banUser(user.id, ban);
+        if (!response.success) {
+          console.log(response.message);
+          return;
+        }
+        console.log("User banned");
+      }
+      catch (error) {
+        console.log(error);
+      }
+      this.cleanUsers();
+      this.isBanning = false;
+    },
+    cancelBanning() {
+      this.isBanning = false;
     },
     async deleteUser(user) {
       if (user.id == localStorage.getItem("id")) {

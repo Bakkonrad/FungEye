@@ -1,5 +1,6 @@
 import axios from 'axios';
 import ApiService from './ApiService';
+import { parse } from '@fortawesome/fontawesome-svg-core';
 
 const $http = axios.create({
     baseURL: "http://localhost:5268/",
@@ -151,12 +152,33 @@ const updateUser = async (user, image) => {
 //     }
 // }
 
+const banUser = async (userId, ban) => {
+    try {
+        const isTokenValid = await ApiService.validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
+        }
+        const banInt = parseInt(ban);
+        const response = await $http.post(`/api/User/banUser/${userId}/${banInt}`);
+        // const response = { status: 200 };
+        if (response.status === 200) {
+            return { success: true }
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error banning user:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
 export default {
     getUserData,
     getAllUsers,
     // updateImage,
     updateUser,
-    deleteAccount
+    deleteAccount,
+    banUser
 };
 
 

@@ -16,6 +16,7 @@ namespace FungEyeApi.Data.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
+        public DateTime? BanExpirationDate { get; set; }
 
         public ICollection<FriendshipEntity> Friendships { get; set; }
         public ICollection<FriendshipEntity> FriendsWith { get; set; }

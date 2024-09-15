@@ -1,4 +1,5 @@
-﻿using FungEyeApi.Interfaces;
+﻿using FungEyeApi.Enums;
+using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -220,6 +221,37 @@ namespace FungEyeApi.Controllers
         private static bool IsPlaceholder(string? imageurl = null)
         {
             return false;
+        }
+
+
+        [Authorize]
+        [HttpPost("banUser/{userId}/{banOption}")]
+        public async Task<IActionResult> BanUser(int userId, short banOption)
+        {
+            try
+            {
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (admin == false)
+                {
+                    return Forbid();
+                }
+
+                bool result = await _userService.BanUser(userId, (BanOptionEnum)banOption);
+                if (result)
+                {
+                    return Ok("User banned successfully.");
+                }
+                else
+                {
+                    return BadRequest("User banning failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
     }
 }

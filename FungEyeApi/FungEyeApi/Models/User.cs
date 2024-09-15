@@ -20,7 +20,7 @@ namespace FungEyeApi.Models
             ModifiedAt = user.ModifiedAt;
             DateOfBirth = user.DateOfBirth;
             BanExpirationDate = user.BanExpirationDate;
-            Follows = user.Follows.Select(u => new User(u.FollowedUser)).ToList();
+            Follows = user.Follows != null ? user.Follows.Select(u => new User(u.FollowedUser)).ToList() : null;
         }
 
         [JsonProperty("id")]
@@ -58,7 +58,7 @@ namespace FungEyeApi.Models
 
         [JsonProperty("banExpirationDate")]
         public DateTime? BanExpirationDate { get; set; }
-        public List<User> Follows { get; set; }
+        public List<User>? Follows { get; set; }
     }
     
     public class LoginUser

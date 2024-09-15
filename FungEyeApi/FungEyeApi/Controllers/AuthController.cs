@@ -94,6 +94,14 @@ namespace FungEyeApi.Controllers
                 var token = await _authService.Login(loginUser);
                 return token != null ? Ok(token) : BadRequest("User login failed");
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (AccessViolationException ex)
+            {
+                return Forbid(ex.Message);
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);

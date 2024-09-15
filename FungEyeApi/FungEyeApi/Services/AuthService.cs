@@ -98,6 +98,11 @@ namespace FungEyeApi.Services
                 throw new UnauthorizedAccessException("Username or password is incorrect");
             }
 
+            if (checkUser.BanExpirationDate != null && checkUser.BanExpirationDate > DateTime.Now)
+            {
+                throw new AccessViolationException($"User is banned until {checkUser.BanExpirationDate}");
+            }
+
             string token = await CreateToken(new User(checkUser));
             return token;
         }

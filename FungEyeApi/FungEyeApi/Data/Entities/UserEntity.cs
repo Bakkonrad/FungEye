@@ -17,7 +17,7 @@ namespace FungEyeApi.Data.Entities
         public DateTime? ModifiedAt { get; set; }
         public DateTime? DateOfBirth { get; set; }
         public DateTime? BanExpirationDate { get; set; }
-        public ICollection<FollowEntity> Follows { get; set; }
+        public ICollection<FollowEntity>? Follows { get; set; }
 
         public static UserEntity Create(RoleEnum role, string username, string email, string password, DateTime? dateOfBirth, string? firstname, string? lastname, string? imageUrl)
         {

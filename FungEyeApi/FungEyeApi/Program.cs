@@ -63,7 +63,7 @@ app.UseCors();
 
 
 app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

@@ -103,13 +103,13 @@ namespace FungEyeApi.Services
 
                 if (checkUser.BanExpirationDate != null && checkUser.BanExpirationDate > DateTime.Now)
                 {
-                    throw new AccessViolationException($"User is banned until {checkUser.BanExpirationDate}");
+                    throw new AccessViolationException(checkUser.BanExpirationDate.ToString());
                 }
 
                 string token = await CreateToken(new User(checkUser));
                 return token;
             }
-            catch
+            catch(Exception ex)
             {
                 throw;
             }

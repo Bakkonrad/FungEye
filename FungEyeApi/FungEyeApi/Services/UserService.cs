@@ -21,13 +21,13 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (user == null)
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (userEntity == null)
                 {
                     return null;
                 }
 
-                return new User(user);
+                return new User(userEntity);
             }
             catch (Exception ex)
             {
@@ -39,14 +39,14 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (user == null)
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (userEntity == null)
                 {
                     throw new Exception("User doesn't exist");
                 }
 
                 // Logika usuwania konta
-                db.Users.Remove(user);
+                db.Users.Remove(userEntity);
                 await db.SaveChangesAsync();
 
                 return true;
@@ -70,7 +70,7 @@ namespace FungEyeApi.Services
             userEntity.ModifiedAt = DateTime.Now;
             userEntity.DateOfBirth = user.DateOfBirth;
 
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return true;
 
         }
@@ -187,6 +187,41 @@ namespace FungEyeApi.Services
             return user.ImageUrl;
         }
 
+        public async Task<bool> BanUser(int userId, BanOptionEnum banOption)
+        {
+            try
+            {
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (userEntity == null)
+                {
+                    throw new Exception("User doesn't exist");
+                }
+
+                switch(banOption)
+                {
+                    case BanOptionEnum.Week:
+                        userEntity.BanExpirationDate = DateTime.Now.AddDays(7);
+                        break;
+                    case BanOptionEnum.Month:
+                        userEntity.BanExpirationDate = DateTime.Now.AddMonths(1);
+                        break;
+                    case BanOptionEnum.Year:
+                        userEntity.BanExpirationDate = DateTime.Now.AddYears(1);
+                        break;
+                    case BanOptionEnum.Permanent:
+                        userEntity.BanExpirationDate = DateTime.Now.AddYears(100);
+                        break;
+                }
+
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during banning user:" + ex.Message);
+            }
+        }
         public async Task<bool> IsUsernameOrEmailUsed(string? username, string? email)
         {
             UserEntity? existingUser = null;

@@ -11,10 +11,12 @@ namespace FungEyeApi.Services
     public class UserService : IUserService
     {
         private readonly DataContext db;
+        private readonly BlobStorageService _blobStorageService;
 
-        public UserService(DataContext db)
+        public UserService(DataContext db, BlobStorageService blobStorageService)
         {
             this.db = db;
+            _blobStorageService = blobStorageService;
         }
 
         public async Task<User> GetUserProfile(int userId) // Zwraca dane u¿ytkownika do okna profilu
@@ -250,6 +252,56 @@ namespace FungEyeApi.Services
             }
 
             return existingUser != null ? true : false;
+        }
+
+        public async Task<bool> RetrieveAccount(int userId)
+        {
+            try
+            {
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (userEntity == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                userEntity.DateDeleted = null;
+                await db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> DeleteAvatar(int userId)
+        {
+            try
+            {
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (userEntity == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                var result = await _blobStorageService.DeleteFile(userEntity.ImageUrl);
+
+                if(result)
+                {
+                    userEntity.ImageUrl = null;
+                    await db.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Error during deleting avatar");
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }

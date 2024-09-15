@@ -54,6 +54,40 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
+        [HttpPost("retrieveAccount/{userId}")]
+        public async Task<IActionResult> RetrieveAccount(int userId)
+        {
+            try
+            {
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (admin == false)
+                {
+                    return Forbid();
+                }
+
+                bool result = await _userService.RetrieveAccount(userId);
+                if (result)
+                {
+                    return Ok("Account retrieved successfully.");
+                }
+                else
+                {
+                    return BadRequest("Account retrieve failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                if(ex.Message.Equals("User not found"))
+                {
+                    return NotFound(ex.Message);
+                }
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("UpdateUserImage/{userId}")]
         public async Task<IActionResult> UpdateUserImage(int userId, [FromForm] IFormFile? image = null)
@@ -150,6 +184,14 @@ namespace FungEyeApi.Controllers
                         }
                     }
                 }
+                
+                if(userJson.ImageUrl.Equals("changeToPlaceholder"))
+                {
+                    await _blobStorageService.DeleteFile(userJson.ImageUrl);
+                    userJson.ImageUrl = "placeholder";
+                }
+
+
 
                 var updateUser = _userService.UpdateUser(userJson);
                 return Ok();

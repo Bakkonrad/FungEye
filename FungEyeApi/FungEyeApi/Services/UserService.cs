@@ -45,9 +45,12 @@ namespace FungEyeApi.Services
                     throw new Exception("User doesn't exist");
                 }
 
-                // Logika usuwania konta
-                db.Users.Remove(userEntity);
+                userEntity.DateDeleted = DateTime.Now;
                 await db.SaveChangesAsync();
+
+                // Logika usuwania konta
+                //db.Users.Remove(userEntity);
+                //await db.SaveChangesAsync();
 
                 return true;
             }

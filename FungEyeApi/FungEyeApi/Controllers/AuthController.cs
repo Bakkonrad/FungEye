@@ -26,7 +26,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if(await _authService.IsUsernameOrEmailUsed(user.Username, user.Email))
+                if (await _authService.IsUsernameOrEmailUsed(user.Username, user.Email))
                 {
                     return BadRequest("Username or email already in use.");
                 }
@@ -75,7 +75,7 @@ namespace FungEyeApi.Controllers
                     return BadRequest("Admin registration failed.");
                 }
             }
-            catch(UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(ex.Message);
             }
@@ -83,9 +83,9 @@ namespace FungEyeApi.Controllers
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
-            
+
         }
-        
+
         [HttpPost("loginUser")]
         public async Task<IActionResult> LoginUser([FromBody] LoginUser loginUser)
         {
@@ -101,6 +101,25 @@ namespace FungEyeApi.Controllers
             catch (AccessViolationException ex)
             {
                 return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                if(ex.Message.Equals("Account is deleted"))
+                {
+                    return StatusCode(410, ex.Message);
+                }
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost("loginUser/{userId}")]
+        public async Task<IActionResult> ChangePassword(int userId, [FromBody] string newPassword)
+        {
+            try
+            {
+                var result = await _authService.ChangePassword(userId, newPassword);
+                return Ok(result);
             }
             catch (Exception ex)
             {

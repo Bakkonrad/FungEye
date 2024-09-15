@@ -50,7 +50,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                if (fileUrl == "https://zestyappblob.blob.core.windows.net/zestyappimages/placeholder.png")
+                if (fileUrl == "placeholder")
                 {
                     return true;
                 }

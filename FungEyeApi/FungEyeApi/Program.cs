@@ -48,6 +48,7 @@ builder.Services.AddDbContext<DataContext>(options =>
     //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     options.UseSqlite(@"Data Source=../mydatabase.db");
 });
+builder.Services.AddHostedService<DeleteExpiredAccountsService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();

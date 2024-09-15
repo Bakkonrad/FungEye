@@ -106,6 +106,11 @@ namespace FungEyeApi.Services
                     throw new AccessViolationException(checkUser.BanExpirationDate.ToString());
                 }
 
+                if(checkUser.DateDeleted != null)
+                {
+                    throw new Exception("Account is deleted");
+                }
+
                 string token = await CreateToken(new User(checkUser));
                 return token;
             }
@@ -141,6 +146,27 @@ namespace FungEyeApi.Services
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
             return Task.FromResult(jwt);
+        }
+
+        public async Task<bool> ChangePassword(int userId, string newPassword)
+        {
+            try
+            {
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+                if(userEntity == null)
+                {
+                    throw new Exception("User not found in the database");
+                }
+
+                userEntity.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+                await db.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
         }
     }
 }

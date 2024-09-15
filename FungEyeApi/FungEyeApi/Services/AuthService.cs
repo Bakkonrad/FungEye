@@ -5,6 +5,7 @@ using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -87,24 +88,32 @@ namespace FungEyeApi.Services
 
         public async Task<string> Login(LoginUser requestUser)
         {
-            var checkUser = await db.Users.FirstOrDefaultAsync(u => u.Username == requestUser.Username || u.Email == requestUser.Email);
-            if (checkUser == null)
+            try
             {
-                throw new UnauthorizedAccessException("Username or password is incorrect");
-            }
+                var checkUser = await db.Users.FirstOrDefaultAsync(u => u.Username == requestUser.Username || u.Email == requestUser.Email);
+                if (checkUser == null)
+                {
+                    throw new UnauthorizedAccessException("Username or password is incorrect");
+                }
 
-            if (!BCrypt.Net.BCrypt.Verify(requestUser.Password, checkUser.Password))
+                if (!BCrypt.Net.BCrypt.Verify(requestUser.Password, checkUser.Password))
+                {
+                    throw new UnauthorizedAccessException("Username or password is incorrect");
+                }
+
+                if (checkUser.BanExpirationDate != null && checkUser.BanExpirationDate > DateTime.Now)
+                {
+                    throw new AccessViolationException($"User is banned until {checkUser.BanExpirationDate}");
+                }
+
+                string token = await CreateToken(new User(checkUser));
+                return token;
+            }
+            catch
             {
-                throw new UnauthorizedAccessException("Username or password is incorrect");
+                throw;
             }
-
-            if (checkUser.BanExpirationDate != null && checkUser.BanExpirationDate > DateTime.Now)
-            {
-                throw new AccessViolationException($"User is banned until {checkUser.BanExpirationDate}");
-            }
-
-            string token = await CreateToken(new User(checkUser));
-            return token;
+            
         }
 
         private Task<string> CreateToken(User user)

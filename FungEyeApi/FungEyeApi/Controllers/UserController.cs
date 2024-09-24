@@ -136,14 +136,6 @@ namespace FungEyeApi.Controllers
         [HttpPost("getProfile/{userId}")]
         public async Task<IActionResult> GetProfile(int userId)
         {
-            var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var admin = await _userService.IsAdmin(userIdFromToken);
-
-            if (!ValidateUserId(userId) && admin == false)
-            {
-                return Forbid();
-            }
-
             var user = await _userService.GetUserProfile(userId);
             if (user == null)
             {

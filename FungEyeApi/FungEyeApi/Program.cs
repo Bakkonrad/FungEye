@@ -49,9 +49,9 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlite(@"Data Source=../mydatabase.db");
 });
 builder.Services.AddHostedService<DeleteExpiredAccountsService>();
+builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 builder.Services.AddAzureClients(clientBuilder =>
 {
     clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnectionString:blob"]!, preferMsi: true);

@@ -90,6 +90,11 @@ ul {
   font-weight: 300;
 }
 
+.page-title {
+  text-align: center;
+  margin-top: 20px;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }

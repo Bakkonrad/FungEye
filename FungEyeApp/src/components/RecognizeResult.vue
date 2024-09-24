@@ -1,18 +1,8 @@
 <template>
   <div class="result" :style="{ backgroundImage: 'url(' + image + ')' }">
-    <PossibleMushroom
-      :image="image"
-      mushroomName="Grzybek"
-      mushroomLatin="Jakiś"
-      :probability="50"
-    >
+    <PossibleMushroom :image="image" mushroomName="Grzybek" mushroomLatin="Jakiś" :probability="50">
     </PossibleMushroom>
-    <PossibleMushroom
-      :image="image"
-      mushroomName="Grzybek"
-      mushroomLatin="Jakiś"
-      :probability="34"
-    >
+    <PossibleMushroom :image="image" mushroomName="Grzybek" mushroomLatin="Jakiś" :probability="34">
     </PossibleMushroom>
   </div>
 </template>
@@ -53,8 +43,8 @@ export default {
   justify-content: flex-end;
   position: relative;
   height: auto;
-    max-width: 100em;
-    max-height: 150em;
+  max-width: 100em;
+  max-height: 150em;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -64,4 +54,11 @@ export default {
   gap: 1em;
 }
 
+@media screen and (max-width: 768px) {
+  .result {
+
+    height: 25em;
+  }
+
+}
 </style>

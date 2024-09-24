@@ -1,30 +1,46 @@
 <template>
-  <div>
-    <div class="container-md">
+  <div class="container-md">
+    <h1 class="page-title">Rozpoznawanie grzybów</h1>
+    <div class="directions">
+      <h2>Instrukcja</h2>
+      <div class="directions-text">
+        <p>
+          1. Aby rozpocząć proces rozpoznawania grzybów, wybierz zdjęcie grzyba z dysku lub zrób zdjęcie za pomocą
+          kamery.
+        </p>
+        <p>
+          <b>Uwaga!</b> Do jednej analizy należy wybrać zdjęcia tylko jednego grzyba. Inaczej wyniki mogą być
+          nieprawidłowe.
+        </p>
+        <p>
+          2. Po wybraniu zdjęcia, kliknij przycisk "Rozpoznaj". Po chwili dostaniesz 3 prawdopodobne wyniki rozpoznania.
+        </p>
+        <p>
+          <b>Uwaga!</b> Wyniki mogą być niedokładne. W celu uzyskania pewniejszych wyników, skonsultuj się z ekspertem.
+        </p>
+        <p>
+          3. Jeśli chcesz dowiedzieć się więcej o danym gatunku grzyba, kliknij na nazwę gatunku w wynikach rozpoznania.
+        </p>
+      </div>
+    </div>
+    <div class="container-md content">
       <div class="photo-upload">
         <div class="card">
-          <input
-            style="display: none"
-            type="file"
-            accept="image/*"
-            @change="onFileChange"
-            ref="fileInput"
-            multiple
-          />
-          <div
-            class="drag-area"
-            @click="$refs.fileInput.click()"
-            @dragover.prevent="onDragOver"
-            @dragleave.prevent="onDragLeave"
-            @drop.prevent="onDrop"
-          >
-            <span v-if="!isDragging">
-              <header>Przeciągnij zdjęcie tutaj</header>
-              <span class="select">lub kliknij, aby wybrać plik</span>
+          <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" multiple />
+          <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
+            @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
+            <span class="mobile-photo-upload">
+              <span class="select">Kliknij aby zrobić lub dodać zdjęcie</span>
             </span>
-            <span v-else>
-              <header>Upuść zdjęcie tutaj</header>
-              <br />
+            <span class="desktop-photo-upload">
+              <span v-if="!isDragging">
+                <header>Przeciągnij zdjęcie tutaj</header>
+                <span class="select">lub kliknij, aby wybrać plik</span>
+              </span>
+              <span v-else>
+                <header>Upuść zdjęcie tutaj</header>
+                <br />
+              </span>
             </span>
           </div>
           <h3 v-if="images.length > 0" class="chosen-files-header">
@@ -37,42 +53,45 @@
             </div>
           </div>
         </div>
+        <div class="error">
+          <span v-if="imagesUploaded === false" class="error-message">Nie wybrano zdjęcia</span>
+        </div>
         <div class="recognize-button">
-          <button
-            @click="onUpload"
-            type="button"
-            class="btn fungeye-default-button"
-            id="upload-button"
-          >
+          <button @click="recognize" type="button" class="btn fungeye-default-button" id="upload-button">
             Rozpoznaj
           </button>
         </div>
       </div>
-      <RecognizeResult v-if="showResult" :image="images[0].url"> </RecognizeResult>
+      <LoadingSpinner v-if="isLoading"></LoadingSpinner>
+      <RecognizeResult v-if="showResult && images.length > 0" :image="images[0].url"> </RecognizeResult>
     </div>
   </div>
 </template>
 
 <script>
 import RecognizeResult from "@/components/RecognizeResult.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+
 export default {
   components: {
     RecognizeResult,
+    LoadingSpinner,
   },
   data() {
     return {
       images: [
-        {
-          name: "image1.jpg",
-          url: "https://picsum.photos/600/1800",
-        },
-        {
-          name: "image2.jpg",
-          url: "https://via.placeholder.com/150",
-        },
+        // {
+        //   name: "image1.jpg",
+        //   url: "https://picsum.photos/600/1800",
+        // },
+        // {
+        //   name: "image2.jpg",
+        //   url: "https://via.placeholder.com/150",
+        // },
       ],
       isDragging: false,
       showResult: false,
+      imagesUploaded: null,
       id: 2,
     };
   },
@@ -88,10 +107,14 @@ export default {
           });
         }
       }
+      this.imagesUploaded = true;
       console.log(this.images);
     },
     deleteImage(index) {
       this.images.splice(index, 1);
+      if (this.images.length === 0) {
+        this.showResult = false;
+      }
     },
     onDragOver(event) {
       event.preventDefault();
@@ -117,19 +140,32 @@ export default {
       }
       console.log(this.images);
     },
-    onUpload() {
+    recognize() {
+      if (this.images.length === 0) {
+        this.imagesUploaded = false;
+        return;
+      }
+      this.isLoading = true;
       this.showResult = true;
-      console.log("Upload image");
+      this.isLoading = false;
     },
   },
 };
 </script>
 
 <style scoped>
-.container-md {
+.content {
   display: flex;
   justify-content: center;
   gap: 2em;
+}
+
+.directions {
+  margin-top: 20px;
+  /* make it in the center */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .photo-upload {
@@ -137,16 +173,15 @@ export default {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 50%;
+  width: 60%;
 }
 
 .card {
-  background: radial-gradient(
-      135.63% 132.41% at 149.88% 23.51%,
+  background: radial-gradient(135.63% 132.41% at 149.88% 23.51%,
       var(--green) 50%,
-      var(--dark-green) 100%
-    )
-    /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */;
+      var(--dark-green) 100%)
+    /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */
+  ;
   width: 100%;
   height: 400px;
   border-radius: 10px;
@@ -155,6 +190,10 @@ export default {
   margin-top: 20px;
   color: white;
   overflow: hidden;
+}
+
+.mobile-photo-upload {
+  display: none;
 }
 
 .drag-area {
@@ -253,5 +292,39 @@ export default {
 
 .recognize-button button {
   width: 100% !important;
+}
+
+@media screen and (max-width: 1400px) {
+  .photo-upload {
+    width: 70%;
+  }
+}
+
+@media screen and (max-width: 992px) {
+
+  .photo-upload {
+    width: 90%;
+  }
+
+}
+
+@media screen and (max-width: 768px) {
+  .container-md {
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .photo-upload {
+    width: 100%;
+  }
+
+  .mobile-photo-upload {
+    display: block;
+  }
+
+  .desktop-photo-upload {
+    display: none;
+  }
+
 }
 </style>

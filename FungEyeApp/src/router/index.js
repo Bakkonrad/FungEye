@@ -29,7 +29,8 @@ const router = createRouter({
     {
       path: '/register',
       name: 'register',
-      component: RegisterView
+      component: RegisterView,
+      props: { admin: false }
     },
     {
       path: '/atlas',
@@ -83,6 +84,12 @@ const router = createRouter({
       path: '/forgot-password',
       name: 'forgotPassword',
       component: ForgotPassword
+    },
+    { 
+      path: '/register/admin',
+      name: 'registerAdmin',
+      component: RegisterView,
+      props: { admin: true }
     }
   ]
 })

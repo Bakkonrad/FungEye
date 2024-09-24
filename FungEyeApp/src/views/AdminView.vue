@@ -15,8 +15,14 @@
       </div>
       <div v-if="activeTable === 'users'">
         <div v-if="!isEditing && !isBanning">
-          <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton" @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
-          <SearchBar @search="handleSearch" />
+          <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton"
+            @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
+          <div class="admin-actions">
+            <button class="btn fungeye-default-button" @click="addmin">
+              <font-awesome-icon icon="fa-solid fa-plus" class="button-icon"/>
+              Zarejestruj nowego admina</button>
+            <SearchBar @search="handleSearch" />
+          </div>
           <UserTable :users="users" @edit-user="startEditing" @ban-user="startBanning" @delete-user="deleteUser" />
           <LoadingSpinner v-if="isLoading"></LoadingSpinner>
           <div v-if="noUsersFound">
@@ -129,7 +135,6 @@ export default {
         // console.log(response.data.length);
         const newUsers = response.data;
         this.users = [...this.users, ...newUsers];
-        console.log(this.users[0]);
       } catch (error) {
         this.error = true;
         this.errorMessage = response.message;
@@ -162,6 +167,9 @@ export default {
       this.users = [];
       this.currentPage = 1;
       this.fetchUsers();
+    },
+    addmin() {
+      this.$router.push("/register/admin");
     },
     handleSearch(query) {
       this.searchQuery = query;
@@ -211,6 +219,7 @@ export default {
     },
     cancelBanning() {
       this.isBanning = false;
+      this.cleanUsers();
     },
     async deleteUser(user) {
       if (user.id == localStorage.getItem("id")) {
@@ -312,6 +321,15 @@ export default {
   height: auto;
 }
 
+.admin-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 .no-users {
   text-align: center;
   font-weight: 600;
@@ -346,13 +364,14 @@ export default {
   h1 {
     font-size: 2em;
   }
+
   .buttons {
     width: 90%;
   }
+
   .category-btn {
     font-size: 1em;
     padding: 5px 20px !important;
   }
 }
-
 </style>

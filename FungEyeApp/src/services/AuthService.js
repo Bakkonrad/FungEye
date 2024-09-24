@@ -44,12 +44,18 @@ const login = async (user) => {
     }
 };
 
-const register = async (user) => {
+const register = async (admin, user) => {
     try {
-        // console.log(user);
-        const response = await $http.post('api/Auth/registerUser', user);
+        console.log(admin);
+        // const response = await $http.post('api/Auth/registerUser', user);
+        const response = await $http.post(admin ? 'api/Auth/registerAdmin' : 'api/Auth/registerUser', user);
+        
         if (response.status === 200) {
-            alert('Rejestracja przebiegła pomyślnie! Teraz możesz się zalogować.');
+            if (admin) {
+                alert('Rejestracja administratora przebiegła pomyślnie!');
+            } else {
+                alert('Rejestracja przebiegła pomyślnie! Teraz możesz się zalogować.');
+            }
             return true;
         }
         return { message: 'Nieznany błąd' };

@@ -75,7 +75,6 @@ const deleteAccount = async (userId) => {
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-
         const response = await $http.post(`/api/User/removeAccount/${userId}`);
         if (response.status === 200) {
             return { success: true }
@@ -163,6 +162,7 @@ const banUser = async (userId, ban) => {
         const response = await $http.post(`/api/User/banUser/${userId}/${banInt}`);
         // const response = { status: 200 };
         if (response.status === 200) {
+            alert('Użytkownik zbanowany!');
             return { success: true, message: 'Użytkownik zbanowany', data: response.data };
         }
         return { success: false, message: 'Nieznany błąd' };

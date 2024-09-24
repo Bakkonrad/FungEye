@@ -9,11 +9,14 @@
           />
           <div class="black-curtain"></div>
         </div>
-        <div class="join-text">
+        <div v-if="!admin" class="join-text">
           <h1>Dołącz do społeczności!</h1>
           <p id="join-p">
             Zarejestruj się, aby móc w pełni korzystać z możliwości FungEye
           </p>
+        </div>
+        <div v-else class="join-text">
+          <h1>Zarejestruj nowego administratora</h1>
         </div>
       </div>
       <div class="form-content">
@@ -158,13 +161,21 @@
           <div id="requiredFields" class="form-text">* Pola obowiązkowe</div>
           <span class="error-message" v-if="error">{{ apiErrorMessage }}</span>
           <button
+            v-if="!admin"
             type="submit"
             class="btn fungeye-default-button submitFormButton"
           >
             Zarejestruj się
           </button>
+          <button
+            v-else
+            type="submit"
+            class="btn fungeye-default-button submitFormButton"
+          >
+            Zarejestruj 
+          </button>
         </form>
-        <span id="registerLink">
+        <span v-if="!admin" id="registerLink">
           <p>Masz już konto?</p>
           <RouterLink to="/log-in" class="router-registerLink"
             ><p><b>Zaloguj się</b></p></RouterLink
@@ -196,6 +207,9 @@ export default {
     Footer,
     BaseInput,
   },
+  props: {
+    admin: Boolean,
+  },
   data() {
     return {
       error: false,
@@ -224,10 +238,15 @@ export default {
 
       if (result) {
         try {
-          const response = await AuthService.register(exportedData);
+          const response = await AuthService.register(this.admin, exportedData);
           if (response === true) {
             console.log("Form submitted!");
-            this.$router.push("/log-in");
+            if (this.admin) {
+              this.$router.push("/admin");
+            } else {
+              this.$router.push("/log-in");
+            }
+            // this.$router.push("/log-in");
           } else {
             console.log("Form not submitted!");
             this.error = true;

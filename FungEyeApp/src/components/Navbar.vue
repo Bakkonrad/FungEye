@@ -79,6 +79,11 @@ export default {
       isAdmin: false,
     };
   },
+  mounted() {
+    checkAuth();
+    checkAdmin();
+    this.isAdmin = isAdmin;
+  },
   setup() {
     const isNavbarCollapsed = ref(false);
 

@@ -153,6 +153,9 @@ export default {
       if (this.isPlaceholder === true) {
         exportedData.imageUrl = "placeholder";
       }
+      else {
+        exportedData.imageUrl = null;
+      }
 
       // console.log(exportedData);
 

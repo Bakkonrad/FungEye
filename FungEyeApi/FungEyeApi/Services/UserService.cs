@@ -17,7 +17,7 @@ namespace FungEyeApi.Services
             this.db = db;
         }
 
-        public async Task<User> GetUserProfile(int userId) // Zwraca dane u¿ytkownika do okna profilu
+        public async Task<User> GetUserProfile(int userId) // Zwraca dane uï¿½ytkownika do okna profilu
         {
             try
             {
@@ -109,7 +109,7 @@ namespace FungEyeApi.Services
                     query = query.Where(u => u.Username.Contains(search.ToString()) || u.Email.Contains(search.ToString()) || u.FirstName.Contains(search.ToString()));
                 }
 
-                int pageSize = 100;
+                int pageSize = 5;
                 int pageNumber = page != null ? page.Value : 1;
                 query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
@@ -127,7 +127,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                //sprawdzenie czy follow miêdzy u¿ytkownikami ju¿ istnieje
+                //sprawdzenie czy follow miï¿½dzy uï¿½ytkownikami juï¿½ istnieje
                 var existingFollow = await db.Follows.FirstOrDefaultAsync(u => u.UserId == userId) ?? throw new Exception("User not found in the database");
 
                 var follow = new FollowEntity
@@ -178,7 +178,7 @@ namespace FungEyeApi.Services
                     return true;
                 }
 
-                return false; // Jeœli relacja nie istnieje
+                return false; // Jeï¿½li relacja nie istnieje
             }
             catch (Exception ex)
             {

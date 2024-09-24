@@ -1,11 +1,11 @@
 <template>
     <div class="container">
-        <div v-if="banSuccessful || user.banExpirationDate" class="ban-successful">
+        <button class="btn fungeye-default-button" @click="$emit('cancel-ban')">Powrót do tabeli
+            użytkowników</button>
+        <div v-if="(banSuccessful || user.banExpirationDate) && !banExpired" class="ban-successful">
             <h2>Użytkownik {{ user.username }} został zbanowany!</h2>
             <p>Użytkownik <b>{{ user.username }}</b> jest zbanowany do <b>{{ formatDate(user.banExpirationDate)
                     }}</b></p>
-            <button class="btn fungeye-default-button" @click="$emit('cancel-ban')">Powrót do tabeli
-                użytkowników</button>
         </div>
         <div class="banUser-container container-md">
             <h2>Banowanie użytkownika {{ user.username }}</h2>
@@ -48,6 +48,7 @@ export default {
             error: false,
             apiErrorMessage: "",
             banSuccessful: false,
+            banExpired: false,
         };
     },
     methods: {
@@ -75,7 +76,8 @@ export default {
             }
         },
         formatDate(date) {
-            if (date === null) {
+            if (date === null || new Date(date) < new Date()) {
+                this.banExpired = true;
                 return;
             }
             return new Date(date).toLocaleString();

@@ -193,9 +193,13 @@ namespace FungEyeApi.Controllers
                 var updateUser = _userService.UpdateUser(userJson);
                 return Ok();
             }
+            catch(ArgumentException)
+            {
+                return StatusCode(405, "Username or email already in use");
+            }
             catch (Exception ex)
             {
-                return BadRequest(ex.InnerException?.Message ?? ex.Message);
+                return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
 

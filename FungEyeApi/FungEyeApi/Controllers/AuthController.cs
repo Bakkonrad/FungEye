@@ -3,7 +3,10 @@ using FungEyeApi.Models;
 using FungEyeApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace FungEyeApi.Controllers
 {
@@ -112,13 +115,12 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPost("loginUser/{userId}")]
-        public async Task<IActionResult> ChangePassword(int userId, [FromBody] string newPassword)
+        [HttpPost("sendResetPasswordEmail/{email}")]
+        public async Task<IActionResult> SendResetPasswordEmail(string email)
         {
             try
             {
-                var result = await _authService.ChangePassword(userId, newPassword);
+                var result = await _authService.SendResetPasswordEmail(email);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -127,5 +129,47 @@ namespace FungEyeApi.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("resetPassword/{userId}")]
+        public async Task<IActionResult> ResetPassword(int userId, [FromBody]string newPassword)
+        {
+            try
+            {
+                if (!ValidateUserId(userId))
+                {
+                    return Forbid();
+                }
+
+                var user = await _userService.GetUserProfile(userId);
+                if (user == null)
+                {
+                    return BadRequest("Invalid token");
+                }
+
+                var result = await _authService.ChangePassword(userId, newPassword);
+
+                return Ok("Password reset successfully");
+            }
+            catch (Exception ex)
+            {
+                if(ex is ArgumentException)
+                {
+                    return StatusCode(400, "User not found" + ex.Message);
+                }
+
+                return BadRequest("Invalid token");
+            }
+        }
+
+        private bool ValidateUserId(int userId)
+        {
+            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdFromToken == null || userIdFromToken != userId.ToString())
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

@@ -4,6 +4,7 @@ using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,11 +17,13 @@ namespace FungEyeApi.Services
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
         private readonly DataContext db;
 
-        public AuthService(DataContext db, IConfiguration configuration)
+        public AuthService(DataContext db, IConfiguration configuration, IEmailService emailService)
         {
             this._configuration = configuration;
+            this._emailService = emailService;
             this.db = db;
         }
 
@@ -126,6 +129,46 @@ namespace FungEyeApi.Services
             
         }
 
+        public async Task<bool> ChangePassword(int userId, string newPassword)
+        {
+            try
+            {
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+                if(userEntity == null)
+                {
+                    throw new ArgumentException("User not found in the database");
+                }
+
+                userEntity.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+                await db.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> SendResetPasswordEmail(string userEmail)
+        {
+            var token = GenerateResetToken(userEmail);
+            var resetLink = $"http://localhost:5268/resetPassword?token={token}";
+
+            var message = $"Click <a href='{resetLink}'>here</a> to reset your password.";
+            var result = await _emailService.SendEmailAsync(userEmail, "Reset your password", message);
+
+            if(result)
+            {
+                return true;
+            }
+            else
+            {
+                throw new Exception("Email sending failed");
+            }
+        }
+
+
         private Task<string> CreateToken(User user)
         {
             string userRole = user.Role == RoleEnum.Admin ? "Admin" : "User";
@@ -134,7 +177,6 @@ namespace FungEyeApi.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Role, userRole),
             };
 
@@ -153,25 +195,27 @@ namespace FungEyeApi.Services
             return Task.FromResult(jwt);
         }
 
-        public async Task<bool> ChangePassword(int userId, string newPassword)
+        private Task<string> GenerateResetToken(string email)
         {
-            try
+            List<Claim> claims = new List<Claim>
             {
-                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                new Claim(ClaimTypes.Email, email),
+            };
 
-                if(userEntity == null)
-                {
-                    throw new Exception("User not found in the database");
-                }
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Token").Value!));
 
-                userEntity.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
-                await db.SaveChangesAsync();
-                return true;
-            }
-            catch(Exception ex)
-            {
-                throw;
-            }
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(15),
+                signingCredentials: creds
+                );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return Task.FromResult(jwt);
         }
+
     }
 }

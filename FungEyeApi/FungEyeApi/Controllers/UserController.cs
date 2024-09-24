@@ -108,7 +108,11 @@ namespace FungEyeApi.Controllers
                 }
                 
                 var oldUrl = await _userService.GetUserImage(userId);
-                await _blobStorageService.DeleteFile(oldUrl);
+
+                if (!IsPlaceholder(oldUrl))
+                {
+                    bool deleteResult = await _blobStorageService.DeleteFile(oldUrl);
+                }
                 var newImageUrl = await _blobStorageService.UploadFile(image);
 
                 bool result = await _userService.UpdateUserImage(userId, newImageUrl);
@@ -159,7 +163,7 @@ namespace FungEyeApi.Controllers
             {
                 var userJson = JsonConvert.DeserializeObject<User>(user);
 
-                if (await _authService.IsUsernameOrEmailUsed(userJson.Username, userJson.Email))
+                if (await _authService.IsUsernameOrEmailUsed(userJson.Username, userJson.Email, userJson.Id))
                 {
                     return BadRequest("Username or email already in use.");
                 }
@@ -179,9 +183,10 @@ namespace FungEyeApi.Controllers
                         if (!IsPlaceholder(userJson.ImageUrl))
                         {
                             await _blobStorageService.DeleteFile(userJson.ImageUrl);
-                            var newImageUrl = await _blobStorageService.UploadFile(image);
-                            userJson.ImageUrl = newImageUrl;
                         }
+                        var newImageUrl = await _blobStorageService.UploadFile(image);
+                        userJson.ImageUrl = newImageUrl;
+                        
                     }
                 }
                 
@@ -256,6 +261,26 @@ namespace FungEyeApi.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("removeFollow/{userId}/{followId}")]
+        public async Task<IActionResult> RemoveFollow(int userId, int followId)
+        {
+            if (!ValidateUserId(userId))
+            {
+                return Forbid();
+            }
+
+            try
+            {
+                var result = await _userService.RemoveFollow(userId, followId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
 
         private bool ValidateUserId(int userId)
         {
@@ -268,9 +293,9 @@ namespace FungEyeApi.Controllers
             return true;
         }
 
-        private static bool IsPlaceholder(string? imageurl = null)
+        private static bool IsPlaceholder(string? imageurl)
         {
-            return false;
+            return imageurl == "placeholder" ? true : false;
         }
 
 

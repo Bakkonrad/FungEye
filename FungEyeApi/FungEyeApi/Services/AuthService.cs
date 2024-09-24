@@ -24,7 +24,7 @@ namespace FungEyeApi.Services
             this.db = db;
         }
 
-        public async Task<bool> IsUsernameOrEmailUsed(string? username, string? email)
+        public async Task<bool> IsUsernameOrEmailUsed(string? username, string? email, int? userId = null)
         {
             UserEntity? existingUser = null;
 
@@ -43,6 +43,11 @@ namespace FungEyeApi.Services
             else
             {
                 throw new Exception("Username or email is required");
+            }
+
+            if(userId != null && existingUser != null) // if user is updating his profile and not changing username or email
+            {
+                return existingUser.Id != userId ? true : false;
             }
 
             return existingUser != null ? true : false;

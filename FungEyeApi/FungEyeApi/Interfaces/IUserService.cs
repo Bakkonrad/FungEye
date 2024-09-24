@@ -16,7 +16,7 @@ namespace FungEyeApi.Interfaces
         Task<string> GetUserImage(int userId);
         Task<bool> AddFollow(int userId, int followId);
         Task<List<User>> GetFollows(int userId);
-        Task<bool> DeleteFollow(int userId, int followId);
+        Task<bool> RemoveFollow(int userId, int followId);
         Task<bool> DeleteAvatar(int userId);
     }
 }

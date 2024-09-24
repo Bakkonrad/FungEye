@@ -11,9 +11,9 @@ namespace FungEyeApi.Services
     public class UserService : IUserService
     {
         private readonly DataContext db;
-        private readonly BlobStorageService _blobStorageService;
+        private readonly IBlobStorageService _blobStorageService;
 
-        public UserService(DataContext db, BlobStorageService blobStorageService)
+        public UserService(DataContext db, IBlobStorageService blobStorageService)
         {
             this.db = db;
             _blobStorageService = blobStorageService;

@@ -7,6 +7,7 @@ namespace FungEyeApi.Interfaces
     {
         Task<bool> RemoveAccount(int userId);
         Task<bool> UpdateUser(User user);
+        Task<bool> RetrieveAccount(int userId);
         Task<User> GetUserProfile(int userId);
         Task<bool> UpdateUserImage(int userId, string imageUrl);
         Task<bool> IsAdmin(int userId);
@@ -15,6 +16,7 @@ namespace FungEyeApi.Interfaces
         Task<string> GetUserImage(int userId);
         Task<bool> AddFollow(int userId, int followId);
         Task<List<User>> GetFollows(int userId);
-        Task<bool> DeleteFollow(int userId, int followId);
+        Task<bool> RemoveFollow(int userId, int followId);
+        Task<bool> DeleteAvatar(int userId);
     }
 }

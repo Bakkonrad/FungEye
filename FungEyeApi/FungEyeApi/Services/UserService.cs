@@ -11,10 +11,12 @@ namespace FungEyeApi.Services
     public class UserService : IUserService
     {
         private readonly DataContext db;
+        private readonly BlobStorageService _blobStorageService;
 
-        public UserService(DataContext db)
+        public UserService(DataContext db, BlobStorageService blobStorageService)
         {
             this.db = db;
+            _blobStorageService = blobStorageService;
         }
 
         public async Task<User> GetUserProfile(int userId) // Zwraca dane u�ytkownika do okna profilu
@@ -24,7 +26,7 @@ namespace FungEyeApi.Services
                 var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 if (userEntity == null)
                 {
-                    return null;
+                    throw new Exception("User not found");
                 }
 
                 return new User(userEntity);
@@ -47,10 +49,6 @@ namespace FungEyeApi.Services
 
                 userEntity.DateDeleted = DateTime.Now;
                 await db.SaveChangesAsync();
-
-                // Logika usuwania konta
-                //db.Users.Remove(userEntity);
-                //await db.SaveChangesAsync();
 
                 return true;
             }
@@ -127,8 +125,13 @@ namespace FungEyeApi.Services
         {
             try
             {
-                //sprawdzenie czy follow mi�dzy u�ytkownikami ju� istnieje
-                var existingFollow = await db.Follows.FirstOrDefaultAsync(u => u.UserId == userId) ?? throw new Exception("User not found in the database");
+                //check if follow already exists between users
+                var existingFollow = await db.Follows.FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedUserId == followId);
+
+                if(existingFollow != null)
+                {
+                    throw new InvalidOperationException("Error during adding follow");
+                }
 
                 var follow = new FollowEntity
                 {
@@ -142,6 +145,11 @@ namespace FungEyeApi.Services
             }
             catch (Exception ex)
             {
+                if(ex is InvalidOperationException)
+                {
+                    throw;
+                }
+
                 throw new Exception("Error during adding follow: " + ex.Message);
             }
         }
@@ -164,21 +172,22 @@ namespace FungEyeApi.Services
 
         }
 
-        public async Task<bool> DeleteFollow(int userId, int followId)
+        public async Task<bool> RemoveFollow(int userId, int followId)
         {
             try
             {
                 var follow = await db.Follows
                 .FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedUserId == followId);
 
-                if (follow != null)
+                if (follow == null)
                 {
-                    db.Follows.Remove(follow);
-                    await db.SaveChangesAsync();
-                    return true;
+                    throw new Exception("Error during deleting follow: Follow doesn't exist");
                 }
 
-                return false; // Je�li relacja nie istnieje
+                db.Follows.Remove(follow);
+                await db.SaveChangesAsync();
+                return true;
+
             }
             catch (Exception ex)
             {
@@ -250,6 +259,56 @@ namespace FungEyeApi.Services
             }
 
             return existingUser != null ? true : false;
+        }
+
+        public async Task<bool> RetrieveAccount(int userId)
+        {
+            try
+            {
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (userEntity == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                userEntity.DateDeleted = null;
+                await db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> DeleteAvatar(int userId)
+        {
+            try
+            {
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (userEntity == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                var result = await _blobStorageService.DeleteFile(userEntity.ImageUrl);
+
+                if(result)
+                {
+                    userEntity.ImageUrl = null;
+                    await db.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Error during deleting avatar");
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 }

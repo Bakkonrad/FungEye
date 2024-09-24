@@ -54,6 +54,40 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
+        [HttpPost("retrieveAccount/{userId}")]
+        public async Task<IActionResult> RetrieveAccount(int userId)
+        {
+            try
+            {
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (admin == false)
+                {
+                    return Forbid();
+                }
+
+                bool result = await _userService.RetrieveAccount(userId);
+                if (result)
+                {
+                    return Ok("Account retrieved successfully.");
+                }
+                else
+                {
+                    return BadRequest("Account retrieve failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                if(ex.Message.Equals("User not found"))
+                {
+                    return NotFound(ex.Message);
+                }
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("UpdateUserImage/{userId}")]
         public async Task<IActionResult> UpdateUserImage(int userId, [FromForm] IFormFile? image = null)
@@ -74,7 +108,11 @@ namespace FungEyeApi.Controllers
                 }
                 
                 var oldUrl = await _userService.GetUserImage(userId);
-                await _blobStorageService.DeleteFile(oldUrl);
+
+                if (!IsPlaceholder(oldUrl))
+                {
+                    bool deleteResult = await _blobStorageService.DeleteFile(oldUrl);
+                }
                 var newImageUrl = await _blobStorageService.UploadFile(image);
 
                 bool result = await _userService.UpdateUserImage(userId, newImageUrl);
@@ -125,7 +163,7 @@ namespace FungEyeApi.Controllers
             {
                 var userJson = JsonConvert.DeserializeObject<User>(user);
 
-                if (await _authService.IsUsernameOrEmailUsed(userJson.Username, userJson.Email))
+                if (await _authService.IsUsernameOrEmailUsed(userJson.Username, userJson.Email, userJson.Id))
                 {
                     return BadRequest("Username or email already in use.");
                 }
@@ -145,11 +183,20 @@ namespace FungEyeApi.Controllers
                         if (!IsPlaceholder(userJson.ImageUrl))
                         {
                             await _blobStorageService.DeleteFile(userJson.ImageUrl);
-                            var newImageUrl = await _blobStorageService.UploadFile(image);
-                            userJson.ImageUrl = newImageUrl;
                         }
+                        var newImageUrl = await _blobStorageService.UploadFile(image);
+                        userJson.ImageUrl = newImageUrl;
+                        
                     }
                 }
+                
+                if(userJson.ImageUrl.Equals("changeToPlaceholder"))
+                {
+                    await _blobStorageService.DeleteFile(userJson.ImageUrl);
+                    userJson.ImageUrl = "placeholder";
+                }
+
+
 
                 var updateUser = _userService.UpdateUser(userJson);
                 return Ok();
@@ -214,6 +261,26 @@ namespace FungEyeApi.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("removeFollow/{userId}/{followId}")]
+        public async Task<IActionResult> RemoveFollow(int userId, int followId)
+        {
+            if (!ValidateUserId(userId))
+            {
+                return Forbid();
+            }
+
+            try
+            {
+                var result = await _userService.RemoveFollow(userId, followId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
 
         private bool ValidateUserId(int userId)
         {
@@ -226,9 +293,9 @@ namespace FungEyeApi.Controllers
             return true;
         }
 
-        private static bool IsPlaceholder(string? imageurl = null)
+        private static bool IsPlaceholder(string? imageurl)
         {
-            return false;
+            return imageurl == "placeholder" ? true : false;
         }
 
 

@@ -277,24 +277,6 @@ namespace FungEyeApi.Controllers
             }
         }
 
-
-        private bool ValidateUserId(int userId)
-        {
-            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdFromToken == null || userIdFromToken != userId.ToString())
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool IsPlaceholder(string? imageurl)
-        {
-            return imageurl == "placeholder" ? true : false;
-        }
-
-
         [Authorize]
         [HttpPost("banUser/{userId}/{banOption}")]
         public async Task<IActionResult> BanUser(int userId, short banOption)
@@ -323,6 +305,22 @@ namespace FungEyeApi.Controllers
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
+        }
+
+        private bool ValidateUserId(int userId)
+        {
+            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdFromToken == null || userIdFromToken != userId.ToString())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsPlaceholder(string? imageurl)
+        {
+            return imageurl == "placeholder" ? true : false;
         }
     }
 }

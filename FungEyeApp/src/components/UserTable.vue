@@ -8,28 +8,38 @@
           <th scope="col" class="table-cell">Email</th>
           <th scope="col" class="table-cell">Imię</th>
           <th scope="col" class="table-cell">Nazwisko</th>
-          <th scope="col" class="table-cell">Zbanowany do dnia</th>
+          <th scope="col" class="table-cell">Szczegóły</th>
+          <!-- <th scope="col" class="table-cell">Zbanowany do dnia</th>
           <th scope="col" class="table-cell">Usunięto dnia</th>
           <th scope="col" class="table-cell">Odzyskaj</th>
           <th scope="col" class="table-cell">Posty</th>
           <th scope="col" class="table-cell">Edytuj</th>
           <th scope="col" class="table-cell">Banuj</th>
-          <th scope="col" class="table-cell">Usuń</th>
+          <th scope="col" class="table-cell">Usuń</th> -->
         </tr>
       </thead>
       <tbody class="table-body">
-        <tr class="table-row" v-for="user in users" :key="user.id">
-          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">
-            <!-- <img :src="user.imageUrl" alt="profile picture" class="profile-picture" /> -->
+        <tr class="table-row" v-for="user in users" :key="user.id" @click="userDetails(user)">
+          <td class="table-cell img-cell" :class="user.dateDeleted ? 'deleted-user' : ''">
             <ProfileImage :imgSrc="user.imageUrl" :width="25" :height="25" :showBorder="false" />
           </td>
-          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.username }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">
+            {{ user.username }}
+          </td>
           <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.email }}</td>
           <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.firstName }}</td>
           <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.lastName }}</td>
-          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDate(user.banExpirationDate) }}
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">
+            <button class="btn fungeye-default-button" id="btn-retrieveAccount" @click="userDetails(user)">
+              <font-awesome-icon icon="fa-solid fa-angles-right"></font-awesome-icon>
+            </button>
           </td>
-          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDeletedDate(user.dateDeleted) }}
+
+          <!-- <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDate(user.banExpirationDate)
+            }}
+          </td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDeletedDate(user.dateDeleted)
+            }}
           </td>
           <td class="table-cell">
             <button class="btn fungeye-default-button" id="btn-retrieveAccount" @click="$emit('retrieve-account', user)"
@@ -45,22 +55,22 @@
           </td>
           <td class="table-cell">
             <button class="btn fungeye-default-button" id="btn-editUser" @click="$emit('edit-user', user)"
-            :disabled="user.dateDeleted !== null">
+              :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
             </button>
           </td>
           <td class="table-cell">
             <button class="btn fungeye-default-button" id="btn-banUser" @click="$emit('ban-user', user)"
-            :disabled="user.dateDeleted !== null">
+              :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-ban"></font-awesome-icon>
             </button>
           </td>
           <td class="table-cell">
             <button class="btn fungeye-red-button" id="btn-deleteUser" @click="$emit('delete-user', user)"
-            :disabled="user.dateDeleted !== null">
+              :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-trash" />
             </button>
-          </td>
+          </td> -->
         </tr>
       </tbody>
     </table>
@@ -94,6 +104,9 @@ export default {
         return "";
       }
       return new Date(date).toLocaleString();
+    },
+    userDetails(user) {
+      this.$router.push({ name: "UserProfileAdmin", params: { id: user.id } });
     },
   }
 };
@@ -170,6 +183,11 @@ thead tr:last-child th:last-child {
   height: 30px;
   padding: 0 15px;
   font-size: 1em;
+}
+
+.img-cell {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .profile-picture {

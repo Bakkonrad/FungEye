@@ -23,7 +23,7 @@
               Zarejestruj nowego admina</button>
             <SearchBar @search="handleSearch" />
           </div>
-          <UserTable :users="users" @edit-user="startEditing" @retrieve-account="retrieveAccount" @ban-user="startBanning" @delete-user="deleteUser" />
+          <UserTable :users="users"/>
           <LoadingSpinner v-if="isLoading"></LoadingSpinner>
           <div v-if="noUsersFound">
             <p class="no-users">
@@ -174,78 +174,6 @@ export default {
     handleSearch(query) {
       this.searchQuery = query;
       this.cleanUsers();
-    },
-    startEditing(user) {
-      if (user.id == localStorage.getItem("id")) {
-        alert("Aby edytować swoje dane, przejdź do swojego profilu.");
-        this.isEditing = false;
-        return;
-      }
-      this.selectedUser = { ...user };
-      this.isEditing = true;
-    },
-    cancelEditing() {
-      this.isEditing = false;
-    },
-    saveUser() {
-      // console.log("User updated");
-      this.cleanUsers();
-      this.isEditing = false;
-    },
-    async retrieveAccount(user) {
-      try {
-        const response = await UserService.retrieveAccount(user.id);
-        if (response.success === false) {
-          console.log(response.message);
-          return;
-        }
-        alert("Konto użytkownika zostało przywrócone.");
-      } catch (error) {
-        console.log(error);
-      }
-      this.cleanUsers();
-    },
-    startBanning(user) {
-      if (user.id == localStorage.getItem("id")) {
-        alert("Nie możesz zbanować samego siebie.");
-        this.isBanning = false;
-        return;
-      }
-      this.selectedUser = { ...user };
-      this.isBanning = true;
-    },
-    banUser(user, ban) {
-      console.log(user);
-      console.log("chosenTime", ban);
-      try {
-        const response = UserService.banUser(user.id, ban);
-        if (response.success === false) {
-          console.log(response.message);
-          return;
-        }
-        console.log("User banned");
-      }
-      catch (error) {
-        console.log(error);
-      }
-      this.cleanUsers();
-    },
-    cancelBanning() {
-      this.isBanning = false;
-      this.cleanUsers();
-    },
-    async deleteUser(user) {
-      if (user.id == localStorage.getItem("id")) {
-        alert("Aby usunąć swoje konto, przejdź do swojego profilu.");
-        return;
-      }
-      const confirmed = confirm(
-        `Czy na pewno chcesz usunąć użytkownika ${user.username}?`
-      );
-      if (confirmed) {
-        await UserService.deleteAccount(user.id);
-        this.cleanUsers();
-      }
     },
     getActiveTable(table) {
       let classString = "category-btn";

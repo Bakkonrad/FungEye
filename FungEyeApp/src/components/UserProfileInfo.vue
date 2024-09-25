@@ -19,7 +19,10 @@ export default {
     imgSrc: String,
     username: String,
     name_surname: String,
-    email: String,
+    email: {
+      type: String,
+      Required: false,
+    },
     createdAt: String,
   },
   methods: {
@@ -39,6 +42,7 @@ export default {
 #username {
   font-size: 1.5em;
   font-weight: 500;
+  margin-top: 0.7em;
   margin-bottom: 0.7rem !important;
 }
 

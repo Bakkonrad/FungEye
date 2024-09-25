@@ -1,15 +1,12 @@
 <template>
   <div class="profile-img-container" :class="showBorderClass()" :style="{ width: `${width}px`, height: `${height}px` }">
-    <img
-      class="profile-img"
-      :src="getProfileImage()"
-      alt="Profile Image"
-      :key="imgSrc"
-    />
+    <img class="profile-img" :src="getProfileImage()" alt="Profile Image" :key="imgSrc" />
   </div>
 </template>
 
 <script>
+import placeholder from "@/assets/images/profile-images/placeholder.png"
+
 export default {
   name: "ProfileImage",
   props: {
@@ -33,9 +30,9 @@ export default {
       default: true,
     },
   },
-  data(){
+  data() {
     return {
-      placeholderPath: "src/assets/images/profile-images/placeholder.png"
+      placeholderPath: placeholder
     }
   },
   mounted() {
@@ -43,15 +40,16 @@ export default {
   },
   methods: {
     getProfileImage() {
-      if (this.isPlaceholder) {
+      // console.log('isPlaceholder:', this.isPlaceholder);
+      // console.log('imgSrc:', this.imgSrc);
+
+      if (this.isPlaceholder || !this.imgSrc || this.imgSrc === 'placeholder') {
+        // console.log('Returning placeholder:', this.placeholderPath);
         return this.placeholderPath;
       }
-      else {
-        if (this.imgSrc === "placeholder" || this.imgSrc === this.placeholderPath) {
-          return this.placeholderPath;
-        }
-        return this.imgSrc;
-      }
+
+      // console.log('Returning imgSrc:', this.imgSrc);
+      return this.imgSrc;
     },
     showBorderClass() {
       if (this.showBorder == true) {
@@ -79,5 +77,4 @@ export default {
   height: 100%;
   border-radius: 50%;
 }
-
 </style>

@@ -11,6 +11,7 @@ import MushroomView from '@/views/MushroomView.vue'
 import AdminView from '@/views/AdminView.vue'
 import UserPostsView from '@/views/UserPostsView.vue'
 import UserProfile from '@/views/UserProfileView.vue'
+import UserProfileAdminView from '@/views/UserProfile-AdminView.vue'
 import ForgotPassword from '@/views/ForgotPasswordView.vue'
 
 const router = createRouter({
@@ -69,7 +70,7 @@ const router = createRouter({
       component: AdminView
     },
     {
-      path: '/user-posts/:email',
+      path: '/user-posts/:id',
       name: 'UserPosts',
       component: UserPostsView,
       props: true
@@ -78,6 +79,12 @@ const router = createRouter({
       path: '/user-profile/:id',
       name: 'userProfile',
       component: UserProfile,
+      props: true
+    },
+    {
+      path: '/admin/user-profile/:id',
+      name: 'UserProfileAdmin',
+      component: UserProfileAdminView,
       props: true
     },
     {

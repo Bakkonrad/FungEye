@@ -115,7 +115,7 @@ export default {
     user: {
       type: Object,
       required: true,
-    },
+    }
   },
   components: {
     BaseInput,
@@ -144,29 +144,45 @@ export default {
         firstName: this.registerFormData.firstName,
         lastName: this.registerFormData.lastName,
         username: this.registerFormData.username,
-        imageUrl: this.registerFormData.imgSrc,
+        // imageUrl: this.registerFormData.imgSrc,
         createdAt: this.registerFormData.createdAt,
         dateOfBirth: this.registerFormData.dateOfBirth,
       };
-      // console.log(exportedData.imageUrl);
       const imageFile = this.registerFormData.imgFile;
-      
-      if (this.isPlaceholderImage() === true) {
-        exportedData.imageUrl = "placeholder";
-      }
-      else if (this.deleteImage() === true) {
-        exportedData.imageUrl = "changeToPlaceholder";
-      }
-      else {
-        exportedData.imageUrl = null;
-      }
 
-      // console.log(exportedData);
+      // 1. mam placeholder, zmieniam na zdjęcie --> api potrzebuje imageUrl = 'placeholder'
+      // 2. mam zdjęcie, usuwam je - zmieniam na placeholder --> api potrzebuje imageUrl = 'changeToPlaceholder'
+      // 3. mam zdjęcie, zmieniam na inne zdjęcie --> api potrzebuje imageUrl = stare zdjęcie
+      // 4. mam placeholder, nie zmieniam --> api potrzebuje imageUrl = 'placeholder'
+      // 5. mam zdjęcie, nie zmieniam --> api potrzebuje imageUrl = stare zdjęcie
+
+      console.log("isPlaceholder", this.isPlaceholder);
+      console.log("fileChanged", this.fileChanged);
+      console.log("user.imageUrl", this.user.imageUrl);
+
+      if (this.fileChanged) {
+        if (this.user.imageUrl === 'placeholder') {
+          console.log(1);
+          exportedData.imageUrl = "placeholder";
+        } else if (this.isPlaceholder) {
+          console.log(2);
+          exportedData.imageUrl = "changeToPlaceholder";
+        } else {
+          console.log(3);
+          exportedData.imageUrl = this.user.imageUrl;
+        }
+      } else {
+        if (this.isPlaceholder) {
+          console.log(4);
+          exportedData.imageUrl = "placeholder";
+        } else {
+          console.log(5);
+          exportedData.imageUrl = this.user.imageUrl;
+        }
+      }
 
       if (result) {
-        // console.log("saving user");
         try {
-          // const response = await UserService.updateImage(exportedData.imgFile);
           const response = await UserService.updateUser(exportedData, imageFile);
           if (response.success) {
             this.$emit('save-user', response.data);
@@ -202,10 +218,8 @@ export default {
     },
     deleteImage() {
       this.fileChanged = true;
-      // console.log("deleting image");
       this.tempImgSrc = this.placeholderImage;
       this.isPlaceholder = true;
-      return true;
     },
     isPlaceholderImage() {
       if (this.registerFormData.imgSrc === "placeholder" || this.registerFormData.imgSrc === this.placeholderImage) {

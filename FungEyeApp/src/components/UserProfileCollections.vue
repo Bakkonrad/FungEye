@@ -10,15 +10,15 @@
         </div>
       </div>
       <div class="collection">
-        <h3>Znajomi &rarr;</h3>
-        <div class="hstack gap-3" id="friends-collection">
-          <div class="p-2" v-for="friend in friends" :key="friend">
+        <h3>Obserwowani &rarr;</h3>
+        <div class="hstack gap-3" id="follows-collection">
+          <div class="p-2" v-for="follow in follows" :key="follow">
             <router-link
-              :to="'/user-profile/' + friend.name"
-              class="friend-content r-link"
+              :to="'/user-profile/' + follow.id"
+              class="follow-content r-link"
             >
-              <ProfileImage :imgSrc="friend.img" :width="100" :height="100" />
-              <p>{{ friend.name }}</p>
+              <ProfileImage :imgSrc="follow.img" :width="100" :height="100" />
+              <p>{{ follow.name }}</p>
             </router-link>
           </div>
         </div>
@@ -37,7 +37,7 @@ export default {
   props: {
     mushrooms: Array,
     trophys: Array,
-    friends: Array,
+    follows: Array,
   },
 };
 </script>
@@ -70,7 +70,7 @@ export default {
 
 #mushroom-collection,
 #trophy-collection,
-#friends-collection {
+#follows-collection {
   display: flex;
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -89,7 +89,7 @@ export default {
   justify-content: center;
 }
 
-.friend-content {
+.follow-content {
   display: flex;
   flex-direction: column;
   align-items: center;

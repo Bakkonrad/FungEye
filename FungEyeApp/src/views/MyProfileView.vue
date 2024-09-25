@@ -17,7 +17,7 @@
     <div v-else>
       <div v-if="!isEditing" class="container-md">
         <div id="user-info">
-          <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :email="email" />
+          <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt"/>
           <div class="buttons">
             <button @click="startEditing" type="button" class="btn fungeye-default-button">
               <font-awesome-icon icon="fa-solid fa-gear" class="button-icon" />
@@ -29,7 +29,7 @@
             </button>
           </div>
         </div>
-        <UserProfileCollections :mushrooms="mushrooms" :friends="friends" />
+        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" />
       </div>
     </div>
     <div class="settings container-md" v-if="isEditing">
@@ -95,20 +95,23 @@ export default {
         "src/assets/images/mushrooms/ATLAS-borowik.jpg",
         "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
       ],
-      friends: [
-        {
-          name: "Przyjaciel 1",
-          img: "src/assets/images/profile-images/profile-img2.jpeg",
-        },
-        {
-          name: "Przyjaciel 2",
-          img: "src/assets/images/profile-images/profile-img3.jpeg",
-        },
-        {
-          name: "Przyjaciel 3",
-          img: "src/assets/images/profile-images/profile-img4.jpeg",
-        },
-      ],
+      // follows: [
+      //   {
+      //     id: 1,
+      //     name: "Przyjaciel 1",
+      //     img: "src/assets/images/profile-images/profile-img2.jpeg",
+      //   },
+      //   {
+      //     id: 2,
+      //     name: "Przyjaciel 2",
+      //     img: "src/assets/images/profile-images/profile-img3.jpeg",
+      //   },
+      //   {
+      //     id: 3,
+      //     name: "Przyjaciel 3",
+      //     img: "src/assets/images/profile-images/profile-img4.jpeg",
+      //   },
+      // ],
       // errorLoadingData: false,
       // errorMessage: "",
       // isEditing: false,
@@ -153,11 +156,29 @@ export default {
     const username = ref('');
     const name_surname = ref('');
     const email = ref('');
+    const createdAt = ref('');
+    const follows = ref([
+      // {
+      //   id: 1,
+      //   name: "Przyjaciel 1",
+      //   img: "src/assets/images/profile-images/profile-img2.jpeg",
+      // },
+      // {
+      //   id: 2,
+      //   name: "Przyjaciel 2",
+      //   img: "src/assets/images/profile-images/profile-img3.jpeg",
+      // },
+      // {
+      //   id: 3,
+      //   name: "Przyjaciel 3",
+      //   img: "src/assets/images/profile-images/profile-img4.jpeg",
+      // },
+    ]);
 
     const fetchUser = async () => {
       try {
         isLoading.value = true;
-        const userData = await UserService.getUserData();
+        const userData = await UserService.getUserData(localStorage.getItem("id"));
         if (!userData.success) {
           errorLoadingData.value = true;
           errorMessage.value = userData.message;
@@ -177,12 +198,14 @@ export default {
           user.value = userData.data;
           // console.log(userData.data);
           username.value = userData.data.username;
+          createdAt.value = userData.data.createdAt;
           if (userData.data.firstName && userData.data.lastName) {
             name_surname.value = userData.data.firstName + " " + userData.data.lastName;
           }
           email.value = userData.data.email;
           // this.mushrooms = response.mushrooms;
-          // this.friends = response.friends;
+          follows.value = userData.data.follows;
+          console.log(follows.value);
         }
       } catch (error) {
         errorLoadingData.value = true;
@@ -216,6 +239,8 @@ export default {
       username,
       name_surname,
       email,
+      createdAt,
+      follows,
       errorLoadingData,
       errorMessage,
       isEditing,

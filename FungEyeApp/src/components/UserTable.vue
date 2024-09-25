@@ -9,7 +9,8 @@
           <th scope="col" class="table-cell">Imię</th>
           <th scope="col" class="table-cell">Nazwisko</th>
           <th scope="col" class="table-cell">Zbanowany do dnia</th>
-          <th scope="col" class="table-cell">Zdeaktywowany do dnia</th>
+          <th scope="col" class="table-cell">Usunięto dnia</th>
+          <th scope="col" class="table-cell">Odzyskaj</th>
           <th scope="col" class="table-cell">Posty</th>
           <th scope="col" class="table-cell">Edytuj</th>
           <th scope="col" class="table-cell">Banuj</th>
@@ -18,33 +19,45 @@
       </thead>
       <tbody class="table-body">
         <tr class="table-row" v-for="user in users" :key="user.id">
-          <td class="table-cell">
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">
             <!-- <img :src="user.imageUrl" alt="profile picture" class="profile-picture" /> -->
             <ProfileImage :imgSrc="user.imageUrl" :width="25" :height="25" :showBorder="false" />
           </td>
-          <td class="table-cell">{{ user.username }}</td>
-          <td class="table-cell">{{ user.email }}</td>
-          <td class="table-cell">{{ user.firstName }}</td>
-          <td class="table-cell">{{ user.lastName }}</td>
-          <td class="table-cell">{{ formatDate(user.banExpirationDate) }}</td>
-          <td class="table-cell">{{ formatDate(user.deactivationDate) }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.username }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.email }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.firstName }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.lastName }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDate(user.banExpirationDate) }}
+          </td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDeletedDate(user.dateDeleted) }}
+          </td>
           <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-viewPosts" @click="viewPosts(user.email)">
+            <button class="btn fungeye-default-button" id="btn-retrieveAccount" @click="$emit('retrieve-account', user)"
+              v-if="user.dateDeleted !== null">
+              <font-awesome-icon icon="fa-solid fa-undo"></font-awesome-icon>
+            </button>
+          </td>
+          <td class="table-cell">
+            <button class="btn fungeye-default-button" id="btn-viewPosts" @click="viewPosts(user.email)"
+              :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-list"></font-awesome-icon>
             </button>
           </td>
           <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-editUser" @click="$emit('edit-user', user)">
+            <button class="btn fungeye-default-button" id="btn-editUser" @click="$emit('edit-user', user)"
+            :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
             </button>
           </td>
           <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-banUser" @click="$emit('ban-user', user)">
+            <button class="btn fungeye-default-button" id="btn-banUser" @click="$emit('ban-user', user)"
+            :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-ban"></font-awesome-icon>
             </button>
           </td>
           <td class="table-cell">
-            <button class="btn fungeye-red-button" id="btn-deleteUser" @click="$emit('delete-user', user)">
+            <button class="btn fungeye-red-button" id="btn-deleteUser" @click="$emit('delete-user', user)"
+            :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-trash" />
             </button>
           </td>
@@ -67,11 +80,18 @@ export default {
       this.$router.push({ name: "UserPosts", params: { email: email } });
     },
     formatDate(date) {
-      if (date === null || new Date(date) < new Date() || date === undefined) {
+      // console.log(date);
+      if (date === null || new Date(date) < new Date()) {
         return "";
       }
       if (new Date(date).getFullYear() > 2100) {
         return "Na zawsze";
+      }
+      return new Date(date).toLocaleString();
+    },
+    formatDeletedDate(date) {
+      if (date === null) {
+        return "";
       }
       return new Date(date).toLocaleString();
     },
@@ -172,6 +192,14 @@ thead tr:last-child th:last-child {
   color: var(--black);
 }
 
+.deleted-user {
+  color: grey !important;
+}
+
+button .deleted-user {
+  cursor: not-allowed !important;
+}
+
 @media screen and (max-width: 992px) {
   .table-container {
     margin: 20px 20px;
@@ -193,6 +221,6 @@ thead tr:last-child th:last-child {
     width: 20px;
     height: 20px;
   }
-  
+
 }
 </style>

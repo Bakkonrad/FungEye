@@ -129,6 +129,7 @@ export default {
       fileChanged: false,
       placeholderImage: '../src/assets/images/profile-images/placeholder.png',
       isPlaceholder: false,
+
     };
   },
   methods: {
@@ -149,9 +150,12 @@ export default {
       };
       // console.log(exportedData.imageUrl);
       const imageFile = this.registerFormData.imgFile;
-
-      if (this.isPlaceholder === true) {
+      
+      if (this.isPlaceholderImage() === true) {
         exportedData.imageUrl = "placeholder";
+      }
+      else if (this.deleteImage() === true) {
+        exportedData.imageUrl = "changeToPlaceholder";
       }
       else {
         exportedData.imageUrl = null;
@@ -201,6 +205,7 @@ export default {
       // console.log("deleting image");
       this.tempImgSrc = this.placeholderImage;
       this.isPlaceholder = true;
+      return true;
     },
     isPlaceholderImage() {
       if (this.registerFormData.imgSrc === "placeholder" || this.registerFormData.imgSrc === this.placeholderImage) {

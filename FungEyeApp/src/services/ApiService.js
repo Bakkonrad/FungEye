@@ -13,6 +13,8 @@ const handleApiError = (error) => {
                 return 'Błąd: Brak dostępu.';
             case 404:
                 return 'Błąd: Nie znaleziono zasobu.';
+            case 405:
+                return 'Użytkownik o podanym adresie email lub loginie już istnieje.';
             case 409:
                 return 'Błąd: Użytkownik zbanowany do dnia ' + error.response.data;
             case 500:

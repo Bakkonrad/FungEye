@@ -22,13 +22,13 @@ $http.interceptors.request.use(
     }
 );
 
-const getUserData = async () => {
+const getUserData = async (userId) => {
     try {
         const isTokenValid = await ApiService.validateToken();
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        const userId = localStorage.getItem('id');
+        // const userId = localStorage.getItem('id');
         const response = await $http.post(`api/User/getProfile/${userId}`);
 
         if (response.status === 200) {
@@ -173,13 +173,64 @@ const banUser = async (userId, ban) => {
     }
 }
 
+const retrieveAccount = async (userId) => {
+    try {
+        const response = await $http.post(`/api/User/retrieveAccount/${userId}`);
+        if (response.status === 200) {
+            return { success: true, message: 'Konto odzyskane' };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error retrieving account:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
+const followUser = async (follow) => {
+    try {
+        const userId = parseInt(localStorage.getItem('id'));
+        console.log("follow: ", follow);
+        console.log("userId: ", userId);
+        const response = await $http.post(`/api/User/addFollow/${userId}/${follow}`);
+        if (response.status === 200) {
+            return { success: true, message: 'Użytkownik obserwowany' };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error following user:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
+const unfollowUser = async (follow) => {
+    try {
+        const userId = parseInt(localStorage.getItem('id'));
+        console.log("follow: ", follow);
+        console.log("userId: ", userId);
+        const response = await $http.post(`/api/User/removeFollow/${userId}/${follow}`);
+        if (response.status === 200) {
+            return { success: true, message: 'Użytkownik przestał być obserwowany' };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error following user:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
 export default {
     getUserData,
     getAllUsers,
     // updateImage,
     updateUser,
     deleteAccount,
-    banUser
+    banUser,
+    retrieveAccount,
+    followUser,
+    unfollowUser
 };
 
 

@@ -4,7 +4,7 @@
       <div id="user-text">
         <p id="username">{{ username }}</p>
         <p v-if="name_surname" id="name_surname">{{ name_surname }}</p>
-        <p id="email">{{ email }}</p>
+        <p id="createdAt">Członek od: {{ formatDate(createdAt) }}</p>
       </div>
     </div>
 </template>
@@ -20,6 +20,12 @@ export default {
     username: String,
     name_surname: String,
     email: String,
+    createdAt: String,
+  },
+  methods: {
+    formatDate(date) {
+      return new Date(date).toLocaleDateString();
+    },
   },
 };
 </script>
@@ -33,7 +39,18 @@ export default {
 #username {
   font-size: 1.5em;
   font-weight: 500;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin-bottom: 0.7rem !important;
+}
+
+#name_surname {
+  font-size: 1.2em;
+  font-weight: 400;
+  margin-bottom: 0.4rem !important;
+}
+
+#createdAt {
+  font-size: 1em;
+  font-weight: 300;
 }
 
 @media screen and (max-width: 400px) {

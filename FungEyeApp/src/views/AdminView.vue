@@ -23,7 +23,7 @@
               Zarejestruj nowego admina</button>
             <SearchBar @search="handleSearch" />
           </div>
-          <UserTable :users="users" @edit-user="startEditing" @ban-user="startBanning" @delete-user="deleteUser" />
+          <UserTable :users="users" @edit-user="startEditing" @retrieve-account="retrieveAccount" @ban-user="startBanning" @delete-user="deleteUser" />
           <LoadingSpinner v-if="isLoading"></LoadingSpinner>
           <div v-if="noUsersFound">
             <p class="no-users">
@@ -191,6 +191,19 @@ export default {
       // console.log("User updated");
       this.cleanUsers();
       this.isEditing = false;
+    },
+    async retrieveAccount(user) {
+      try {
+        const response = await UserService.retrieveAccount(user.id);
+        if (response.success === false) {
+          console.log(response.message);
+          return;
+        }
+        alert("Konto użytkownika zostało przywrócone.");
+      } catch (error) {
+        console.log(error);
+      }
+      this.cleanUsers();
     },
     startBanning(user) {
       if (user.id == localStorage.getItem("id")) {

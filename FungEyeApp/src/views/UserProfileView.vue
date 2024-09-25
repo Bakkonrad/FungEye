@@ -1,41 +1,23 @@
 <template>
   <div>
-    <div v-if="!user" class="not-loggedIn container-md">
+    <div v-if="errorFindingUser" class="not-loggedIn container-md">
       <h1>Profil użytkownika</h1>
       <p>Taki użytkownik nie istnieje!</p>
       <button @click="goBack" class="btn fungeye-default-button">Powrót do poprzedniej strony</button>
     </div>
-    <div v-if="user" class="container-md">
+    <div v-else class="container-md">
       <div id="user-info">
-        <UserProfileInfo
-          :imgSrc="imgSrc"
-          :username="username"
-          :name_surname="name_surname"
-          :email="email"
-        />
+        <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
         <div class="buttons">
-          <button
-            v-if="notMyFriend"
-            @click="addFriend"
-            type="button"
-            class="btn fungeye-default-button"
-          >
-            &plus; Dodaj do znajomych
+          <button v-if="!followed" @click="follow" type="button" class="btn fungeye-default-button">
+            &plus; Obserwuj
           </button>
-          <button
-            v-if="!notMyFriend"
-            @click="deleteFriend"
-            type="button"
-            class="btn fungeye-red-button"
-          >
-            Usuń ze znajomych
+          <button v-else @click="unfollow" type="button" class="btn fungeye-red-button">
+            Usuń z obserwowanych
           </button>
         </div>
       </div>
-      <UserProfileCollections
-        :mushrooms="mushrooms"
-        :friends="friends"
-      />
+      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" />
     </div>
   </div>
 </template>
@@ -53,66 +35,57 @@ export default {
     UserProfileInfo,
   },
   async created() {
-    //   const response = await UserService.getUserData();
-    const response = {
-      imgSrc: "https://picsum.photos/200/300",
-      username: "username",
-      firstName: "firstName",
-      lastName: "lastName",
-      email: "email",
-      mushrooms: [
-        "https://picsum.photos/200/300",
-        "https://picsum.photos/200/300",
-        "https://picsum.photos/200/300",
-        "https://picsum.photos/200/300",
-        "https://picsum.photos/200/300",
-        "https://picsum.photos/200/300",
-      ],
-      friends: [
-        {
-          name: "Przyjaciel 1",
-          img: "https://picsum.photos/200/300",
-        },
-        {
-          name: "Przyjaciel 2",
-          img: "https://picsum.photos/200/300",
-        },
-        {
-          name: "Przyjaciel 3",
-          img: "https://picsum.photos/200/300",
-        },
-      ],
-    };
-    console.log(response);
-
-    if (response) {
-      this.user = response;
-      this.imgSrc = response.imgSrc;
-      this.username = response.username;
-      this.name_surname = response.firstName + " " + response.lastName;
-      this.email = response.email;
-      this.mushrooms = response.mushrooms;
-      this.friends = response.friends;
+    this.id = this.$route.params.id;
+    if (this.id == localStorage.getItem("id")) {
+      this.$router.push({ name: "myProfile" });
+      return;
     }
+    console.log(this.id);
+    const response = await UserService.getUserData(this.id);
+    if (response.success === false) {
+      this.errorFindingUser = true; 
+      console.log(response.message);
+      return;
+    }
+    this.user = response.data;
+    this.imgSrc = response.data.imageUrl;
+    this.username = response.data.username;
+    this.name_surname = response.data.firstName + " " + response.data.lastName;
+    this.email = response.data.email;
+    this.createdAt = response.data.createdAt;
+    // this.mushrooms = response.data.mushrooms;
+    this.follows = response.data.follows;
+    // if (this.follows.length > 0 && this.follows.includes(localStorage.getItem("id"))) {
+    //   this.followed = true;
+    // } else {
+    //   this.followed = false;
+    // }
   },
   data() {
     return {
+      id: null,
       imgSrc: "",
       user: null,
-      notMyFriend: true,
+      followed: true,
       username: "",
       name_surname: "",
       email: "",
       mushrooms: [],
-      friends: [],
+      follows: [],
+      createdAt: "",
+      errorFindingUser: false,
     };
   },
   methods: {
-    addFriend() {
-      this.notMyFriend = false;
+    follow() {
+      this.followed = true;
+      const response = UserService.followUser(this.id);
+      console.log(response);
     },
-    deleteFriend() {
-      this.notMyFriend = true;
+    unfollow() {
+      this.followed = false;
+      const response = UserService.unfollowUser(this.id);
+      console.log(response);
     },
     goBack() {
       this.$router.go(-1);
@@ -159,17 +132,18 @@ export default {
     padding: 0;
     width: 80vw;
   }
+
   #user-info {
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 1em;
   }
+
   .buttons {
     flex-direction: column;
     gap: 1em;
   }
-  
-}
 
+}
 </style>

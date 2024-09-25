@@ -230,7 +230,7 @@ export default {
         email: this.registerFormData.email,
         firstName: this.registerFormData.firstName,
         lastName: this.registerFormData.lastName,
-        imageUrl: "https://avatar.iran.liara.run/public/" + this.randomNumber(),
+        imageUrl: "placeholder",
         username: this.registerFormData.username,
         password: this.registerFormData.password,
         dateOfBirth: this.registerFormData.dateOfBirth,

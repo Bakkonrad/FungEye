@@ -89,6 +89,7 @@ fabric.properties
 images/
 images_FasterRCNN/
 models/
+model_public/
 
 # IPython
 profile_default/

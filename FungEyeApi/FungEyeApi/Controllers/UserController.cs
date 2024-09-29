@@ -237,45 +237,7 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPost("addFollow/{userId}/{followId}")]
-        public async Task<IActionResult> AddFollow(int userId, int followId)
-        {
-            if (!ValidateUserId(userId))
-            {
-                return Forbid();
-            }
-
-            try
-            {
-                var result = await _userService.AddFollow(userId, followId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
-        }
-
-        [Authorize]
-        [HttpPost("removeFollow/{userId}/{followId}")]
-        public async Task<IActionResult> RemoveFollow(int userId, int followId)
-        {
-            if (!ValidateUserId(userId))
-            {
-                return Forbid();
-            }
-
-            try
-            {
-                var result = await _userService.RemoveFollow(userId, followId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
-        }
+        
 
         [Authorize]
         [HttpPost("banUser/{userId}/{banOption}")]
@@ -317,6 +279,7 @@ namespace FungEyeApi.Controllers
 
             return true;
         }
+
 
         private static bool IsPlaceholder(string? imageurl)
         {

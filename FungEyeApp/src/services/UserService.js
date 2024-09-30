@@ -1,6 +1,5 @@
 import axios from 'axios';
 import ApiService from './ApiService';
-import { parse } from '@fortawesome/fontawesome-svg-core';
 
 const $http = axios.create({
     baseURL: "http://localhost:5268/",

@@ -1,19 +1,22 @@
 <template>
-    <RouterLink :to="'/mushroom/' + id" class="possible-mushroom">
-        <p class="probability">{{ probability }}%</p>
-      <img
-        src="../assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg"
-        alt=""
-        class="album-photo"
-      />
+  <RouterLink v-if="probability > 0" :to="'/mushroom/' + id" class="possible-mushroom">
+    <div class="left-side">
+      <img src="../assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg" alt="" class="album-photo" />
       <div class="mushroom-names">
         <h2 class="mushroom-name">{{ mushroomName }}</h2>
         <p class="mushroom-latin">{{ mushroomLatin }}</p>
       </div>
+    </div>
+    <div class="right-side">
+      <div class="probability" :class="probabilityColor()">
+        <p>{{ probability }}</p>
+        <p>%</p>
+      </div>
       <div class="arrow">
         &#10095;
       </div>
-    </RouterLink>
+    </div>
+  </RouterLink>
 </template>
 
 <script>
@@ -36,26 +39,76 @@ export default {
       default: 0,
     },
   },
+  // change color of probability depending on its value
+  methods: {
+    probabilityColor() {
+      if (this.probability < 50) {
+        return "red";
+      } else if (this.probability < 80) {
+        return "orange";
+      } else {
+        return "green";
+      }
+    },
+  }
 };
 </script>
 
 <style scoped>
-
 .possible-mushroom {
-  background: rgba(
-    0,
-    0,
-    0,
-    0.6
-  ); /* Półprzezroczyste tło dla czytelności tekstu */
+  background: rgba(0,
+      0,
+      0,
+      0.6);
+  /* Półprzezroczyste tło dla czytelności tekstu */
   padding: 0.5em 1em 0.5em 1em;
   border-radius: 1rem;
   color: white;
   flex-direction: row;
+  justify-content: space-between;
   display: flex;
   align-items: center;
   gap: 1.5em;
+  width: 100%;
   text-decoration: none;
+}
+
+.probability {
+  font-size: 0.8em;
+  width: 4rem;
+  border-radius: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.left-side {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1em;
+}
+
+.right-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start !important;
+  align-items: center;
+  gap: 0.3em;
+  margin: 0;
+}
+
+.red {
+  background-color: var(--red);
+}
+
+.orange {
+  background-color: var(--warning);
+}
+
+.green {
+  background-color: var(--green);
 }
 
 .album-photo {

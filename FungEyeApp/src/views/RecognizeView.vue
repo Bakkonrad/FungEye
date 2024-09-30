@@ -63,7 +63,7 @@
         </div>
       </div>
       <LoadingSpinner v-if="isLoading"></LoadingSpinner>
-      <RecognizeResult v-if="showResult && images.length > 0" :image="images[0].url"> </RecognizeResult>
+      <RecognizeResult v-if="showResult && images.length > 0" :image="images[0].url" :results="results"> </RecognizeResult>
     </div>
   </div>
 </template>
@@ -71,6 +71,7 @@
 <script>
 import RecognizeResult from "@/components/RecognizeResult.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import FungiService from "@/services/FungiService";
 
 export default {
   components: {
@@ -89,10 +90,13 @@ export default {
         //   url: "https://via.placeholder.com/150",
         // },
       ],
+      file: null,
       isDragging: false,
       showResult: false,
       imagesUploaded: null,
       id: 2,
+      isLoading: false,
+      results: [],
     };
   },
   methods: {
@@ -107,6 +111,7 @@ export default {
           });
         }
       }
+      this.file = files[0];
       this.imagesUploaded = true;
       console.log(this.images);
     },
@@ -138,15 +143,23 @@ export default {
           });
         }
       }
+      this.file = files[0];
       console.log(this.images);
     },
-    recognize() {
+    async recognize() {
       if (this.images.length === 0) {
         this.imagesUploaded = false;
         return;
       }
       this.isLoading = true;
-      this.showResult = true;
+      console.log(this.file);
+      const response = await FungiService.predict(this.file);
+      console.log(response.data);
+      if (response) {
+        // limit to 3 results
+        this.results = response.data.slice(0, 3);
+        this.showResult = true;
+      }
       this.isLoading = false;
     },
   },

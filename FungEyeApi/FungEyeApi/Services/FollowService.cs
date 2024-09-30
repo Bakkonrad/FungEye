@@ -51,7 +51,7 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<List<User>> GetFollowers(int userId)
+        public async Task<List<FollowUser>> GetFollowers(int userId)
         {
             try
             {
@@ -60,7 +60,7 @@ namespace FungEyeApi.Services
                             .Select(f => f.FollowedUser)
                             .ToListAsync();
 
-                return followers.Select(u => new User(u)).ToList();
+                return followers.Select(u => new FollowUser(u)).ToList();
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<List<User>> GetFollows(int userId)
+        public async Task<List<FollowUser>> GetFollows(int userId)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace FungEyeApi.Services
                             .Select(f => f.FollowedUser)
                             .ToListAsync();
 
-                return follows.Select(u => new User(u)).ToList();
+                return follows.Select(u => new FollowUser(u)).ToList();
             }
             catch (Exception ex)
             {

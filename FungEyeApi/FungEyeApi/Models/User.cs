@@ -1,6 +1,8 @@
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Enums;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Newtonsoft.Json;
+using System.Data;
 
 namespace FungEyeApi.Models
 {
@@ -73,5 +75,26 @@ namespace FungEyeApi.Models
         public string? Username { get; set; }
         public string? Email { get; set; }
         public required string Password { get; set; }
+    }
+
+    public class FollowUser
+    {
+        public FollowUser() { }
+
+        public FollowUser(UserEntity user)
+        {
+            Id = user.Id;
+            Username = user.Username;
+            ImageUrl = user.ImageUrl;
+        }
+
+        [JsonProperty("id")]
+        public int Id { get; set; }
+
+        [JsonProperty("Username")]
+        public string? Username { get; set; }
+
+        [JsonProperty("imageUrl")]
+        public string? ImageUrl { get; set; }
     }
 }

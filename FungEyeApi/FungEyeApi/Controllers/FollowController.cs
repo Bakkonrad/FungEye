@@ -93,6 +93,21 @@ namespace FungEyeApi.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPost("isFollowing/{userId}/{followId}")]
+        public async Task<IActionResult> IsFollowing(int userId, int followId)
+        {
+            try
+            {
+                var result = await _followService.IsFollowing(userId, followId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         private bool ValidateUserId(int userId)
         {
             var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

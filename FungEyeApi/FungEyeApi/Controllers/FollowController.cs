@@ -6,6 +6,8 @@ using System.Security.Claims;
 
 namespace FungEyeApi.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class FollowController : ControllerBase
     {
         private readonly IFollowService _followService;

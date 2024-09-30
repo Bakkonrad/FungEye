@@ -57,7 +57,7 @@ namespace FungEyeApi.Services
             {
                 var followers = await db.Follows
                             .Where(f => f.FollowedUserId == userId)
-                            .Select(f => f.FollowedUser)
+                            .Select(f => f.User)
                             .ToListAsync();
 
                 return followers.Select(u => new FollowUser(u)).ToList();

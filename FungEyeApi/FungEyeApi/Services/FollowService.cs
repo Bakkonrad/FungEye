@@ -109,5 +109,25 @@ namespace FungEyeApi.Services
             }
 
         }
+
+        public async Task<bool> IsFollowing(int userId, int followId)
+        {
+            try
+            {
+                //check if follow already exists between users
+                var existingFollow = await db.Follows.FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedUserId == followId);
+
+                return existingFollow != null;
+            }
+            catch (Exception ex)
+            {
+                if (ex is InvalidOperationException)
+                {
+                    throw;
+                }
+
+                throw new Exception("Error during adding follow: " + ex.Message);
+            }
+        }
     }
 }

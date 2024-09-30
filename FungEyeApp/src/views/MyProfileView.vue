@@ -214,6 +214,7 @@ export default {
         followers.value = userFollowers.data;
         console.log("Follows: ", follows.value);
         console.log("Followers: ", followers.value);
+        console.log(userData.data.imageUrl);
 
       } catch (error) {
         errorLoadingData.value = true;

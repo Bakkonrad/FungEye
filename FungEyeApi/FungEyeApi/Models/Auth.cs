@@ -20,7 +20,7 @@ namespace FungEyeApi.Models
 
     public enum CreateTokenEnum
     {
-        register = 1,
-        resetPassword = 2
+        Login = 1,
+        ResetPassword = 2
     }
 }

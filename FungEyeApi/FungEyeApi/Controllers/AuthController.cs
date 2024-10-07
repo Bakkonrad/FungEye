@@ -120,7 +120,12 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if(string.IsNullOrWhiteSpace(resetPasswordModel.Email))
+                if(!await _authService.IsUsernameOrEmailUsed(null, resetPasswordModel.Email))
+                {
+                    return StatusCode(501 ,"User not found");
+                }
+
+                if (string.IsNullOrWhiteSpace(resetPasswordModel.Email))
                 {
                     return BadRequest("Email is required");
                 }

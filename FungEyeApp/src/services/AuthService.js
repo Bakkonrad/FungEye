@@ -96,7 +96,8 @@ const setUser = () => {
 
 const sendResetPasswordEmail = async (email) => {
     try {
-        const response = await $http.post(`api/Auth/sendResetPasswordEmail/${email}`);
+        console.log(email);
+        const response = await $http.post(`api/Auth/sendResetPasswordEmail`, {email: email});
         if (response.status === 200) {
             // alert('Sprawdź swoją skrzynkę mailową!');
             console.log('Sprawdź swoją skrzynkę mailową!');
@@ -109,12 +110,34 @@ const sendResetPasswordEmail = async (email) => {
     }
 }
 
+const resetPassword = async (token, password) => {
+    try {
+        var decodedToken = jwtDecode(token);
+        // console.log(decodedToken);
+        var userId = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+        console.log(userId);
+        console.log(typeof userId);
+        const response = await $http.post(`api/Auth/resetPassword/${userId}`, {password: password}, {headers: {Authorization: `Bearer ${token}`}});
+        if (response.status === 200) {
+            alert('Hasło zostało zresetowane!');
+            return { success: true };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        return { success: false, message: errorMessage };
+    }
+
+}
+
 export default {
     login,
     register,
     logout,
     setUser,
-    sendResetPasswordEmail
+    sendResetPasswordEmail,
+    resetPassword
 }
 
 export const isLoggedIn = ref(false);

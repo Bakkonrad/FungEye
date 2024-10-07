@@ -155,7 +155,7 @@ namespace FungEyeApi.Services
             var user = GetUser(userEmail);
             
             var token = user.Result != null ? CreateToken(user.Result, CreateTokenEnum.ResetPassword) : throw new Exception("User not found");
-            var resetLink = $"http://localhost:5268/resetPassword?token={token.Result}";
+            var resetLink = $"http://localhost:5173/resetPassword?token={token.Result}";
 
             var message = $"Click <a href='{resetLink}'>here</a> to reset your password.";
             var result = await _emailService.SendEmailAsync(userEmail, "Reset your password", message);

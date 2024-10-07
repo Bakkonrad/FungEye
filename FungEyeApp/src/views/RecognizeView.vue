@@ -66,8 +66,10 @@
             </div>
           </div>
         </div>
-        <div class="error">
+        <div class="error mt-2">
           <span v-if="imagesUploaded === false" class="error-message">Nie wybrano zdjęcia</span>
+          <span v-if="errorRecognizing === true" class="error-message">Błąd podczas rozpoznawania. Spróbuj ponownie.</span>
+          <span v-if="fileSizeError === true" class="error-message">Przesłano za duży plik. Maksymalny rozmiar to 10MB.</span>
         </div>
         <div class="recognize-button">
           <button @click="recognize" class="btn fungeye-default-button" id="upload-button">
@@ -104,6 +106,9 @@ export default {
       isLoading: false,
       results: [],
       directionsState: "Pokaż instrukcję",
+      maxFileSize: 10 * 1024 * 1024, // 10MB
+      fileSizeError: false,
+      errorRecognizing: false,
     };
   },
   methods: {
@@ -111,6 +116,9 @@ export default {
       const files = event.target.files;
       if (files.length === 0) return;
       for (let i = 0; i < files.length; i++) {
+        if (this.checkFileSize(files[i]) === false) {
+          return;
+        };
         if (!this.images.some((image) => image.name === files[i].name)) {
           this.images.push({
             name: files[i].name,
@@ -121,6 +129,15 @@ export default {
       this.file = files[0];
       this.imagesUploaded = true;
       console.log(this.images);
+    },
+    checkFileSize(file) {
+      if (file.size > this.maxFileSize) {
+        this.fileSizeError = true;
+        return false;
+      }
+      else {
+        this.fileSizeError = false;
+      }
     },
     deleteImage(index) {
       this.images.splice(index, 1);
@@ -143,6 +160,9 @@ export default {
       const files = event.dataTransfer.files;
       if (files.length === 0) return;
       for (let i = 0; i < files.length; i++) {
+        if (this.checkFileSize(files[i]) === false) {
+          return;
+        };
         if (!this.images.some((image) => image.name === files[i].name)) {
           this.images.push({
             name: files[i].name,
@@ -161,12 +181,15 @@ export default {
       this.isLoading = true;
       console.log(this.file);
       const response = await FungiService.predict(this.file);
-      console.log(response.data);
-      if (response) {
-        // limit to 3 results
-        this.results = response.data.slice(0, 3);
-        this.showResult = true;
+      if (response.success == false || response.data.length === 0) {
+        console.log(response.message);
+        this.errorRecognizing = true;
+        this.isLoading = false;
+        return;
       }
+      console.log(response.data);
+      this.results = response.data.slice(0, 3);
+      this.showResult = true;
       this.isLoading = false;
     },
     toggleDirections() {

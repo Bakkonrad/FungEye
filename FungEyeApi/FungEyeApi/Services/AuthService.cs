@@ -119,7 +119,7 @@ namespace FungEyeApi.Services
                     throw new Exception("Account is deleted");
                 }
 
-                string token = await CreateToken(new User(checkUser));
+                string token = await CreateToken(new User(checkUser), CreateTokenEnum.Login);
                 return token;
             }
             catch(Exception ex)
@@ -152,8 +152,10 @@ namespace FungEyeApi.Services
 
         public async Task<bool> SendResetPasswordEmail(string userEmail)
         {
-            var token = GenerateResetToken(userEmail);
-            var resetLink = $"http://localhost:5268/resetPassword?token={token}";
+            var user = GetUser(userEmail);
+            
+            var token = user.Result != null ? CreateToken(user.Result, CreateTokenEnum.ResetPassword) : throw new Exception("User not found");
+            var resetLink = $"http://localhost:5268/resetPassword?token={token.Result}";
 
             var message = $"Click <a href='{resetLink}'>here</a> to reset your password.";
             var result = await _emailService.SendEmailAsync(userEmail, "Reset your password", message);
@@ -169,7 +171,7 @@ namespace FungEyeApi.Services
         }
 
 
-        private Task<string> CreateToken(User user)
+        private Task<string> CreateToken(User user, CreateTokenEnum createTokenOption)
         {
             string userRole = user.Role == RoleEnum.Admin ? "Admin" : "User";
 
@@ -184,38 +186,65 @@ namespace FungEyeApi.Services
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: creds
-                );
-
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return Task.FromResult(jwt);
-        }
-
-        private Task<string> GenerateResetToken(string email)
-        {
-            List<Claim> claims = new List<Claim>
+            switch (createTokenOption)
             {
-                new Claim(ClaimTypes.Email, email),
-            };
+                case CreateTokenEnum.ResetPassword:
+                    var resetPasswordToken = new JwtSecurityToken(
+                                claims: claims,
+                                expires: DateTime.Now.AddMinutes(15),
+                                signingCredentials: creds
+                                );
+                    var resetPasswordJwt = new JwtSecurityTokenHandler().WriteToken(resetPasswordToken);
+                    return Task.FromResult(resetPasswordJwt);
+                
+                case CreateTokenEnum.Login:
+                    var loginToken = new JwtSecurityToken(
+                        claims: claims,
+                        expires: DateTime.Now.AddDays(1),
+                        signingCredentials: creds
+                        );
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Token").Value!));
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(15),
-                signingCredentials: creds
-                );
-
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return Task.FromResult(jwt);
+                    var jwt = new JwtSecurityTokenHandler().WriteToken(loginToken);
+                    return Task.FromResult(jwt);
+            }
+            throw new Exception("Invalid token creation option");
         }
 
+        public async Task<bool> DoesUserExist(string? email)
+        {
+            UserEntity? existingUser = null;
+
+            if ( email != null)
+            {
+                existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            }
+            else
+            {
+                throw new Exception("Email is required");
+            }
+
+            return existingUser != null ? true : false;
+        }
+
+        public async Task<User> GetUser(string? email)
+        {
+            UserEntity? existingUser = null;
+
+            if (email != null)
+            {
+                existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            }
+            else
+            {
+                throw new Exception("Email is required");
+            }
+
+            return new User(existingUser) ?? null;
+        }
+
+        public Task<bool> ValidateToken(string token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

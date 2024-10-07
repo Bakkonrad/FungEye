@@ -152,7 +152,14 @@ namespace FungEyeApi.Services
 
         public async Task<bool> SendResetPasswordEmail(string userEmail)
         {
-            var token = GenerateResetToken(userEmail);
+            var existingUser = DoesUserExist(userEmail);
+            if(existingUser == null)
+            {
+                throw new Exception("User not found");
+            }
+            //var token = CreateToken(userEmail);
+            var token = "token";
+            //var resetLink = $"http://localhost:5268/resetPassword?token={token.Result}";
             var resetLink = $"http://localhost:5268/resetPassword?token={token}";
 
             var message = $"Click <a href='{resetLink}'>here</a> to reset your password.";
@@ -195,27 +202,47 @@ namespace FungEyeApi.Services
             return Task.FromResult(jwt);
         }
 
-        private Task<string> GenerateResetToken(string email)
+        //private Task<string> GenerateResetToken(string email)
+        //{
+        //    List<Claim> claims = new List<Claim>
+        //    {
+        //        new Claim(ClaimTypes.Email, email),
+        //    };
+
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Token").Value!));
+
+        //    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+        //    var token = new JwtSecurityToken(
+        //        claims: claims,
+        //        expires: DateTime.Now.AddMinutes(15),
+        //        signingCredentials: creds
+        //        );
+
+        //    var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+        //    return Task.FromResult(jwt);
+        //}
+
+        public async Task<bool> DoesUserExist(string? email)
         {
-            List<Claim> claims = new List<Claim>
+            UserEntity? existingUser = null;
+
+            if ( email != null)
             {
-                new Claim(ClaimTypes.Email, email),
-            };
+                existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            }
+            else
+            {
+                throw new Exception("Email is required");
+            }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("Jwt:Token").Value!));
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(15),
-                signingCredentials: creds
-                );
-
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return Task.FromResult(jwt);
+            return existingUser != null ? true : false;
         }
 
+        public Task<bool> ValidateToken(string token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace FungEyeApi.Interfaces
         Task<bool> IsUsernameOrEmailUsed(string? username, string? email, int? userId = null);
         Task<string> Login(LoginUser user); //JWT token
         Task<bool> SendResetPasswordEmail(string userEmail);
+        Task<bool> ValidateToken(string token);
     }
 }

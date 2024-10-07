@@ -115,12 +115,16 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        [HttpPost("sendResetPasswordEmail/{email}")]
-        public async Task<IActionResult> SendResetPasswordEmail(string email)
+        [HttpPost("sendResetPasswordEmail")]
+        public async Task<IActionResult> SendResetPasswordEmail([FromBody] SendResetPasswordEmail resetPasswordModel)
         {
             try
             {
-                var result = await _authService.SendResetPasswordEmail(email);
+                if(string.IsNullOrWhiteSpace(resetPasswordModel.Email))
+                {
+                    return BadRequest("Email is required");
+                }
+                var result = await _authService.SendResetPasswordEmail(resetPasswordModel.Email);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -131,7 +135,7 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [HttpPost("resetPassword/{userId}")]
-        public async Task<IActionResult> ResetPassword(int userId, [FromBody]string newPassword)
+        public async Task<IActionResult> ResetPassword(int userId, [FromBody] ResetPassword resetPasswordModel)
         {
             try
             {
@@ -146,7 +150,12 @@ namespace FungEyeApi.Controllers
                     return BadRequest("Invalid token");
                 }
 
-                var result = await _authService.ChangePassword(userId, newPassword);
+                if(string.IsNullOrWhiteSpace(resetPasswordModel.Password))
+                {
+                    return BadRequest("Password is required");
+                }
+
+                var result = await _authService.ChangePassword(userId, resetPasswordModel.Password);
 
                 return Ok("Password reset successfully");
             }

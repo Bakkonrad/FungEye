@@ -59,6 +59,10 @@ input {
   /* Standard syntax */
 }
 
+b {
+  font-weight: 600;
+}
+
 /* fonts */
 h1 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -68,13 +72,13 @@ h1 {
 
 h2 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 2em;
 }
 
 h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 300;
+  font-weight: 600;
   font-size: 1.5em;
 }
 

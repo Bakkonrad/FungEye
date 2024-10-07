@@ -1,10 +1,11 @@
 <template>
-  <RouterLink v-if="probability > 0" :to="'/mushroom/' + id" class="possible-mushroom">
+  <div v-if="probability > 0" class="possible-mushroom" @click="copyName">
+    <!-- <RouterLink v-if="probability > 0" :to="'/mushroom/' + id" class="possible-mushroom"> -->
     <div class="left-side">
       <img src="../assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg" alt="" class="album-photo" />
       <div class="mushroom-names">
         <h2 class="mushroom-name">{{ mushroomName }}</h2>
-        <p class="mushroom-latin">{{ mushroomLatin }}</p>
+        <p class="mushroom-latin">{{ formattedMushroomLatin() }}</p>
       </div>
     </div>
     <div class="right-side">
@@ -16,7 +17,8 @@
         &#10095;
       </div>
     </div>
-  </RouterLink>
+  <!-- </RouterLink> -->
+  </div>
 </template>
 
 <script>
@@ -50,6 +52,13 @@ export default {
         return "green";
       }
     },
+    formattedMushroomLatin() {
+      return this.mushroomLatin.split('_')[0] + ' ' + this.mushroomLatin.split('_')[1];
+    },
+    copyName() {
+      console.log('copying: ' + this.formattedMushroomLatin());
+      navigator.clipboard.writeText(this.formattedMushroomLatin());
+    },
   }
 };
 </script>
@@ -71,6 +80,7 @@ export default {
   gap: 1.5em;
   width: 100%;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .probability {
@@ -130,5 +140,27 @@ export default {
 .mushroom-latin {
   font-size: 1em;
   font-style: italic;
+}
+
+@media screen and (max-width: 768px) {
+  .possible-mushroom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1em;
+  }
+
+  .mushroom-names {
+    flex-wrap: wrap;
+  }
+
+  .right-side {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+  }
+
+  .album-photo {
+    display: none;
+  }
 }
 </style>

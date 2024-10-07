@@ -8,17 +8,19 @@
         <div v-if="!resetConfirmed" class="find-account">
             <div v-if="!emailSent">
                 <h2>Znajdź swoje konto</h2>
-                <p>Wprowadź adres e-mail lub login, aby odzyskać hasło</p>
+                <p>Wprowadź adres e-mail użyty do tego konta, aby odzyskać hasło</p>
                 <div class="mb-3">
-                    <BaseInput v-model="email" type="text" class="email-input" />
+                    <BaseInput v-model="formData.email" type="text" class="email-input" color="black"
+                        :class="{ invalidInput: error }" />
                 </div>
-                <p v-if="error" class="error-message">{{ errorMessage }}</p>
+                <p v-for="error in v$.email.$errors" :key="error.$uid" class="error-message">{{ error.$message }}</p>
                 <button @click="searchForEmail" class="btn fungeye-default-button submitFormButton">Dalej</button>
             </div>
             <!-- Email found -->
             <div v-if="emailSent" class="found-account">
                 <h2>Wysłano e-mail</h2>
-                <p>Na podany adres e-mail został wysłany link do zresetowania hasła</p>
+                <p>Na adres e-mail <b>{{ formData.email }}</b> został wysłany link do zresetowania hasła.</p>
+                <br>
                 <h3>Email nie dotarł?</h3>
                 <p>Sprawdź w folderze Spam lub</p>
                 <button @click="sendEmail" class="btn fungeye-default-button submitFormButton">Wyślij ponownie</button>
@@ -33,7 +35,7 @@
                         'password-input': !submitted,
                         validInput: submitted && !v$.password.$invalid,
                         invalidInput: submitted && v$.password.$invalid,
-                    }" />
+                    }" color="black" />
                     <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
                         {{ error.$message }}
                     </span>
@@ -43,7 +45,7 @@
                         'confirmPassword-input': !submitted,
                         validInput: submitted && !v$.confirmPassword.$invalid,
                         invalidInput: submitted && v$.confirmPassword.$invalid,
-                    }" />
+                    }" color="black" />
                     <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
                         {{ error.$message }}
                     </span>
@@ -69,6 +71,7 @@ import {
     helpers,
 } from "@vuelidate/validators";
 import { computed, reactive } from "vue";
+import AuthService from "@/services/AuthService";
 
 export default {
     components: {
@@ -80,7 +83,7 @@ export default {
             error: false,
             errorMessage: "",
             emailSent: false,
-            resetConfirmed: true,
+            resetConfirmed: false,
             submitted: false,
         };
     },
@@ -88,10 +91,15 @@ export default {
         const formData = reactive({
             password: null,
             confirmPassword: null,
+            email: null,
         });
 
         const rules = computed(() => {
             return {
+                email: {
+                    required: helpers.withMessage("Adres e-mail jest wymagany. ", required),
+                    email: helpers.withMessage("Niepoprawny adres e-mail. ", email),
+                },
                 password: {
                     required: helpers.withMessage("Hasło jest wymagane. ", required),
                     minLength: helpers.withMessage(
@@ -124,7 +132,12 @@ export default {
         };
     },
     methods: {
-        searchForEmail() {
+        async searchForEmail() {
+            const result = await this.v$.email.$validate();
+            if (!result) {
+                this.error = true;
+                return;
+            }
             // const response = UserService.userExists(this.email);
             console.log(this.email);
             const response = true; // user exists
@@ -132,22 +145,29 @@ export default {
             if (response) {
                 this.error = false;
                 this.sendEmail();
-                this.emailSent = true;
             } else {
                 this.error = true;
                 this.errorMessage = "Nie znaleziono konta o podanym adresie e-mail";
             }
         },
         sendEmail() {
-            console.log("Sending email to: " + this.email);
-        },
-        resetPassword() {
-            this.submitted = true;
-            if (this.v$.password.$invalid || this.v$.confirmPassword.$invalid) {
+            const response = AuthService.sendResetPasswordEmail(this.email);
+            if (response.success === false) {
                 this.error = true;
-                this.errorMessage = "Formularz zawiera błędy";
+                this.errorMessage = response.message;
                 return;
             }
+            this.emailSent = true;
+            console.log("Email sent");
+        },
+        async resetPassword() {
+            const validPassword = await this.v$.password.$validate();
+            const validConfirmPassword = await this.v$.confirmPassword.$validate();
+            if (!validPassword || !validConfirmPassword) {
+                this.error = true;
+                return;
+            }
+            this.submitted = true;
             this.error = false;
             console.log("Resetting password");
         },
@@ -157,6 +177,10 @@ export default {
 </script>
 
 <style scoped>
+b {
+    font-weight: 600;
+}
+
 .page-title {
     text-align: center;
     margin-bottom: 2rem;

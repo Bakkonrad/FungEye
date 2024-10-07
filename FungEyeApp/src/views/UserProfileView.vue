@@ -9,15 +9,15 @@
       <div id="user-info">
         <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
         <div class="buttons">
-          <button v-if="followed === false" @click="follow" type="button" class="btn fungeye-default-button">
+          <button v-if="followed == false" @click="follow" type="button" class="btn fungeye-default-button">
             &plus; Obserwuj
           </button>
-          <button v-else @click="unfollow" type="button" class="btn fungeye-red-button">
+          <button v-if="followed == true" @click="unfollow" type="button" class="btn fungeye-red-button">
             Usuń z obserwowanych
           </button>
         </div>
       </div>
-      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" />
+      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" />
     </div>
   </div>
 </template>
@@ -80,13 +80,14 @@ export default {
       this.follows = followsResponse.data;
       this.followers = followersResponse.data;
     },
-    async checkIfFollowed() { 
-      if (this.follows.includes(this.id)) {
-        this.followed = true;
-      } else {
-        this.followed = false;
+    async checkIfFollowed() {
+      const response = await FollowService.isFollowing(localStorage.getItem("id"), this.id);
+      console.log(localStorage.getItem("id") + " is following " + this.id + "? " + response.data);
+      if (response.success === false) {
+        console.log(response.message);
+        return;
       }
-      console.log(this.followed);
+      this.followed = response.data;
     },
     follow() {
       const response = FollowService.followUser(this.id);
@@ -95,6 +96,7 @@ export default {
         return;
       }
       console.log(response);
+      this.followed = true;
       this.fetchUser();
     },
     unfollow() {
@@ -104,6 +106,7 @@ export default {
         return;
       }
       console.log(response);
+      this.followed = false;
       this.fetchUser();
     },
     goBack() {

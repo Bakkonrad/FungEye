@@ -88,7 +88,9 @@ fabric.properties
 */.ipynb_checkpoints/*
 **/.idea/
 images/
+images_FasterRCNN/
 models/
+model_public/
 
 # IPython
 profile_default/
@@ -1029,3 +1031,4 @@ yarn-error.log
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,vue,vuejs,node
 FungEyeApi/.idea/.idea.FungEyeApi/.idea
+FungEyeAi/inception_v3_mushroomsv1_3_8/variables/variables.data-00000-of-00001

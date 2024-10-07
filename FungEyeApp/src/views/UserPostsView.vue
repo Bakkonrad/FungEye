@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-      <h1>Posty użytkownika: {{ email }}</h1>
+      <h1>Posty użytkownika: {{ id }}</h1>
       <div v-if="loading">Ładowanie postów...</div>
       <div v-else>
         <div v-if="posts.length === 0">Brak postów do wyświetlenia.</div>
@@ -17,7 +17,7 @@
   
   <script>
   export default {
-    props: ['email'],
+    props: ['id'],
     data() {
       return {
         posts: [],
@@ -31,7 +31,7 @@
       async fetchPosts() {
         try {
           // Example URL do zastąpienia odpowiednim endpointem API
-          const response = await fetch(`https://api.example.com/posts?email=${this.email}`);
+          const response = await fetch(`https://api.example.com/posts?email=${this.id}`);
           const data = await response.json();
           this.posts = data;
         } catch (error) {

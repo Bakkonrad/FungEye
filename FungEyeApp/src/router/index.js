@@ -1,84 +1,111 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LogInView from '../views/LogInView.vue'
-import RegisterView from '@/views/RegisterView.vue'
-import AtlasView from '../views/AtlasView.vue'
-import MyProfileView from '@/views/MyProfileView.vue'
-import PortalView from '@/views/PortalView.vue'
-import RecognizeView from '@/views/RecognizeView.vue'
-import WeatherView from '@/views/WeatherView.vue'
-import MushroomView from '@/views/MushroomView.vue'
-import AdminView from '@/views/AdminView.vue'
-import UserPostsView from '@/views/UserPostsView.vue'
-import UserProfile from '@/views/UserProfileView.vue'
+import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "../views/HomeView.vue";
+import LogInView from "../views/LogInView.vue";
+import RegisterView from "@/views/RegisterView.vue";
+import AtlasView from "../views/AtlasView.vue";
+import MyProfileView from "@/views/MyProfileView.vue";
+import PortalView from "@/views/PortalView.vue";
+import RecognizeView from "@/views/RecognizeView.vue";
+import WeatherView from "@/views/WeatherView.vue";
+import MushroomView from "@/views/MushroomView.vue";
+import AdminView from "@/views/AdminView.vue";
+import UserPostsView from "@/views/UserPostsView.vue";
+import UserProfile from "@/views/UserProfileView.vue";
+import UserProfileAdminView from "@/views/UserProfile-AdminView.vue";
+import ForgotPassword from "@/views/ForgotPasswordView.vue";
+import ResetPasswordView from "@/views/ResetPasswordView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: HomeView
+      path: "/",
+      name: "home",
+      component: HomeView,
     },
     {
-      path: '/log-in',
-      name: 'logIn',
-      component: LogInView
+      path: "/log-in",
+      name: "logIn",
+      component: LogInView,
     },
     {
-      path: '/register',
-      name: 'register',
-      component: RegisterView
+      path: "/register",
+      name: "register",
+      component: RegisterView,
+      props: { admin: false },
     },
     {
-      path: '/atlas',
-      name: 'atlas',
-      component: AtlasView
+      path: "/atlas",
+      name: "atlas",
+      component: AtlasView,
     },
     {
-      path: '/my-profile',
-      name: 'myProfile',
-      component: MyProfileView
+      path: "/my-profile",
+      name: "myProfile",
+      component: MyProfileView,
     },
     {
-      path: '/portal',
-      name: 'portal',
-      component: PortalView
+      path: "/portal",
+      name: "portal",
+      component: PortalView,
     },
     {
-      path: '/recognize',
-      name: 'recognize',
-      component: RecognizeView
+      path: "/recognize",
+      name: "recognize",
+      component: RecognizeView,
     },
     {
-      path: '/weather',
-      name: 'weather',
-      component: WeatherView
+      path: "/weather",
+      name: "weather",
+      component: WeatherView,
     },
     {
-      path: '/mushroom/:id',
-      name: 'mushroom',
+      path: "/mushroom/:id",
+      name: "mushroom",
       component: MushroomView,
-      props: true
+      props: true,
     },
     {
-      path: '/admin',
-      name: 'admin',
-      component: AdminView
+      path: "/admin",
+      name: "admin",
+      component: AdminView,
     },
     {
-      path: '/user-posts/:email',
-      name: 'UserPosts',
+      path: "/user-posts/:id",
+      name: "UserPosts",
       component: UserPostsView,
-      props: true
+      props: true,
     },
     {
-      path: '/user-profile/:id',
-      name: 'userProfile',
+      path: "/user-profile/:id",
+      name: "userProfile",
       component: UserProfile,
-      props: true
-    }
-  ]
-})
+      props: true,
+    },
+    {
+      path: "/admin/user-profile/:id",
+      name: "UserProfileAdmin",
+      component: UserProfileAdminView,
+      props: true,
+    },
+    {
+      path: "/forgot-password",
+      name: "forgotPassword",
+      component: ForgotPassword,
+    },
+    {
+      path: "/register/admin",
+      name: "registerAdmin",
+      component: RegisterView,
+      props: { admin: true },
+    },
+    {
+      path: "/resetPassword",
+      name: "resetPassword",
+      component: ResetPasswordView,
+      props: (route) => ({ token: route.query.token }),
+    },
+  ],
+});
 
-export default router
+export default router;

@@ -49,13 +49,18 @@ h3,
 button,
 nav,
 label,
-img {
+img,
+input {
   -webkit-user-select: none;
   /* Safari */
   -ms-user-select: none;
   /* IE 10 and IE 11 */
   user-select: none;
   /* Standard syntax */
+}
+
+b {
+  font-weight: 600;
 }
 
 /* fonts */
@@ -67,13 +72,13 @@ h1 {
 
 h2 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 2em;
 }
 
 h3 {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 300;
+  font-weight: 600;
   font-size: 1.5em;
 }
 
@@ -87,6 +92,11 @@ p1 {
 ul {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
+}
+
+.page-title {
+  text-align: center;
+  margin-top: 20px;
 }
 
 ::-webkit-scrollbar {
@@ -108,7 +118,8 @@ ul {
 
 /* buttons */
 .fungeye-default-button,
-.fungeye-red-button {
+.fungeye-red-button,
+.fungeye-secondary-button {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -127,6 +138,7 @@ ul {
   font-weight: 300;
   font-size: 1.2em;
   height: 50px;
+  text-decoration: none;
 }
 
 .fungeye-default-button:hover {
@@ -164,8 +176,27 @@ ul {
   color: white;
 }
 
+.fungeye-secondary-button {
+  /* transparent background */
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+}
+
+.fungeye-secondary-button:hover {
+  background: #f1ebddb5;
+  color: var(--black) !important;
+}
+
+.fungeye-secondary-button:focus,
+.fungeye-secondary-button:active,
+.fungeye-secondary-button:active:focus {
+  background: var(--beige);
+  color: var(--black) !important;
+}
+
 .button-icon {
-  margin-right: 5px;
+  margin-right: 10px;
 }
 
 /* forms */
@@ -236,12 +267,6 @@ input.validInput {
   color: white;
 }
 
-#forgotPassword {
-  color: white;
-  display: flex;
-  justify-content: flex-end;
-}
-
 .submitFormButton {
   width: 100%;
   margin-top: 1em;
@@ -250,5 +275,42 @@ input.validInput {
 .r-view {
   margin-top: 2em;
   min-height: calc(100vh - 70px);
+}
+
+/* mushroom attributes */
+.attribute {
+  background-color: var(--green);
+  padding: 1px 25px;
+  color: white;
+  border-radius: 15px;
+  font-weight: 300;
+}
+
+/* iglaste */
+.attribute.coniferous {
+  background-color: var(--dark-green);
+}
+
+/* liściaste */
+.attribute.deciduous {
+  background-color: var(--light-green);
+  color: var(--black);
+}
+
+/* jadalny */
+.attribute.edible {
+  background-color: var(--green);
+}
+
+/* niejadalny */
+.attribute.inedible {
+  background-color: var(--beige);
+  border: 1px solid var(--dark-red);
+  color: var(--dark-red);
+}
+
+/* trujący */
+.attribute.poisonous {
+  background-color: var(--red);
 }
 </style>

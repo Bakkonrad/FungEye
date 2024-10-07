@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { jwtDecode } from "jwt-decode";
-import { isLoggedIn, isAdmin, checkAdmin, setProfileImage, profileImage } from './AuthService';
+import ApiService from './ApiService';
 
 const $http = axios.create({
     baseURL: "http://localhost:5268/",
@@ -22,174 +21,215 @@ $http.interceptors.request.use(
     }
 );
 
-const login = async (user) => {
+const getUserData = async (userId) => {
     try {
-        const response = await $http.post('api/Auth/loginUser', user);
-        if (response.status === 200) {
-            localStorage.setItem('token', response.data);
-            isLoggedIn.value = true;
-            // console.log(isLoggedIn.value);
-            console.log(response.data);
-            setUser();
-            $http.defaults.headers.common['Authorization'] = `Bearer ${response.data}`;
-            alert('Zalogowano!');
-            return { success: true };
+        const isTokenValid = await ApiService.validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        return { success: false, message: 'Nieznany błąd' };
-    } catch (error) {
-        const errorMessage = handleApiError(error);
-        return { success: false, message: errorMessage };
-    }
-};
-
-const register = async (user) => {
-    try {
-        console.log(user);
-        const response = await $http.post('api/Auth/registerUser', user);
-        if (response.status === 200) {
-            alert('Rejestracja przebiegła pomyślnie! Teraz możesz się zalogować.');
-            return true;
-        }
-        return {message: 'Nieznany błąd'};
-    } catch (error) {
-        const errorMessage = handleApiError(error);
-        return {message: errorMessage};
-    }
-}
-
-const logout = () => {
-    localStorage.removeItem('token');
-    // localStorage.removeItem('user');
-    localStorage.removeItem('id');
-    localStorage.removeItem('username');
-    localStorage.removeItem('role');
-    localStorage.removeItem('profileImg');
-    isLoggedIn.value = false;
-    isAdmin.value = false;
-    alert('Wylogowano!');
-    return true;
-}
-
-const setUser = () => {
-    var token = localStorage.getItem('token');
-    if (token) {
-        var decodedToken = jwtDecode(token);
-        // console.log(decodedToken);
-        var userId = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-        var username = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
-        var role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-        localStorage.setItem('id', userId);
-        localStorage.setItem('username', username);
-        localStorage.setItem('role', role);
-        checkAdmin();
-        // console.log(localStorage.getItem('token'));
-        // console.log(localStorage.getItem('id') + ' ' + localStorage.getItem('role'));
-        // console.log(localStorage.getItem('user') + ' ' + localStorage.getItem('username'));
-    }
-    else
-        console.log('token not found');
-}
-
-const getUserData = async () => {
-    try {
-        const userId = localStorage.getItem('id');
+        // const userId = localStorage.getItem('id');
         const response = await $http.post(`api/User/getProfile/${userId}`);
 
         if (response.status === 200) {
-            return {success: true, data: response.data};
-        } 
-        return {success: false, message: 'Nieznany błąd'};
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: 'Nieznany błąd' };
     } catch (error) {
-        const errorMessage = handleApiError(error);
+        const errorMessage = ApiService.handleApiError(error);
         console.error('Error loading data:', errorMessage);
-        return {success: false, message: errorMessage};
+        return { success: false, message: errorMessage };
     }
 }
 
-const deleteAccount = async (userId) => {
+const getAllUsers = async (page, search) => {
     try {
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            alert("No token found. Please log in.");
-            return false;
-        }
-
-        // Send only userId in the body
-        const response = await $http.post(`/api/User/removeAccount/${userId}`);
-        if (response.status === 200) {
-            return {success: true}
-        }
-        return {success: false, message: 'Nieznany błąd'};
-    } catch (error) {
-        const errorMessage = handleApiError(error);
-        console.error('Error deleting account:', errorMessage);
-        return {success: false, message: errorMessage};
-    }
-}
-
-const updateImage = async (image) => {
-    try {
-        const token = localStorage.getItem('token');
-        const userId = localStorage.getItem('id');
-
-        if (!token) {
-            alert("No token found. Please log in.");
-            return false;
-        }
-
+        const userId = parseInt(localStorage.getItem("id"));
+        // console.log("get users: ", page, search);
         const formData = new FormData();
-        formData.append('image', image);
-
-        // Send userId and image in the body
-        const response = await $http.post(`/api/User/UpdateUserImage/${userId}`, formData, {
+        formData.append('userId', userId);
+        if (page) {
+            formData.append('page', page);
+        }
+        if (search) {
+            formData.append('search', search);
+        }
+        const response = await $http.post('api/User/getUsers', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
         });
         if (response.status === 200) {
-            return {success: true, data: response.data};
+            return { success: true, data: response.data };
         }
-        return {success: false, message: 'Nieznany błąd'};
+        return { success: false, message: 'Nieznany błąd' };
     } catch (error) {
-        const errorMessage = handleApiError(error);
-        console.error('Error updating image:', errorMessage);
-        return {success: false, message: errorMessage};
+        const errorMessage = ApiService.handleApiError(error);
+        return { success: false, message: errorMessage };
     }
 }
 
-const handleApiError = (error) => {
-    if (error.response) {
-        switch (error.response.status) {
-            case 400:
-                return 'Błąd: Nieprawidłowe dane.';
-            case 401:
-                return 'Błąd: Nieautoryzowany dostęp.';
-            case 403:
-                return 'Błąd: Brak dostępu.';
-            case 404:
-                return 'Błąd: Nie znaleziono zasobu.';
-            case 500:
-                return 'Błąd: Wewnętrzny błąd serwera.';
-            default:
-                return `Błąd: ${error.response.statusText}`;
+const deleteAccount = async (userId) => {
+    try {
+        const isTokenValid = await ApiService.validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-    } else if (error.request) {
-        // Request was made but no response received
-        return 'Błąd: Brak odpowiedzi z serwera.';
-    } else {
-        // Something happened in setting up the request
-        return `Błąd: ${error.message}`;
+        const response = await $http.post(`/api/User/removeAccount/${userId}`);
+        if (response.status === 200) {
+            return { success: true }
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = handleApiError(error);
+        console.error('Error deleting account:', errorMessage);
+        return { success: false, message: errorMessage };
     }
-};
+}
+
+const updateUser = async (user, image) => {
+    try {
+        const isTokenValid = await ApiService.validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
+        }
+
+        const token = localStorage.getItem('token');
+
+        // console.log("user: ", user);
+
+        const formData = new FormData();
+        formData.append('user', JSON.stringify(user));
+        if (image) {
+            formData.append('image', image);
+        }
+
+        // console.log("formData: ", formData.getAll('image'));
+
+        const response = await $http.put('/api/User/updateUser', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error updating user:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
+// const updateImage = async (image) => {
+//     try {
+//         const isTokenValid = await validateToken();
+//         if (isTokenValid.success == false) {
+//             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
+//         }
+
+//         const userId = localStorage.getItem('id');
+
+//         const formData = new FormData();
+//         formData.append('image', image);
+
+//         const response = await $http.post(`/api/User/UpdateUserImage/${userId}`, formData, {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data'
+//             }
+//         });
+//         if (response.status === 200) {
+//             return { success: true, data: response.data };
+//         }
+//         return { success: false, message: 'Nieznany błąd' };
+//     } catch (error) {
+//         const errorMessage = handleApiError(error);
+//         console.error('Error updating image:', errorMessage);
+//         return { success: false, message: errorMessage };
+//     }
+// }
+
+const banUser = async (userId, ban) => {
+    try {
+        console.log("ban: ", userId, ban);
+        const isTokenValid = await ApiService.validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
+        }
+        const banInt = parseInt(ban);
+        const response = await $http.post(`/api/User/banUser/${userId}/${banInt}`);
+        // const response = { status: 200 };
+        if (response.status === 200) {
+            alert('Użytkownik zbanowany!');
+            return { success: true, message: 'Użytkownik zbanowany', data: response.data };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error banning user:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
+const retrieveAccount = async (userId) => {
+    try {
+        const response = await $http.post(`/api/User/retrieveAccount/${userId}`);
+        if (response.status === 200) {
+            return { success: true, message: 'Konto odzyskane' };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error retrieving account:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
+const followUser = async (follow) => {
+    try {
+        const userId = parseInt(localStorage.getItem('id'));
+        console.log("follow: ", follow);
+        console.log("userId: ", userId);
+        const response = await $http.post(`/api/User/addFollow/${userId}/${follow}`);
+        if (response.status === 200) {
+            return { success: true, message: 'Użytkownik obserwowany' };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error following user:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
+const unfollowUser = async (follow) => {
+    try {
+        const userId = parseInt(localStorage.getItem('id'));
+        console.log("follow: ", follow);
+        console.log("userId: ", userId);
+        const response = await $http.post(`/api/User/removeFollow/${userId}/${follow}`);
+        if (response.status === 200) {
+            return { success: true, message: 'Użytkownik przestał być obserwowany' };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error following user:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
 
 export default {
-    login,
-    register,
-    logout,
     getUserData,
-    updateImage,
-    deleteAccount
+    getAllUsers,
+    // updateImage,
+    updateUser,
+    deleteAccount,
+    banUser,
+    retrieveAccount,
+    followUser,
+    unfollowUser
 };
 
 

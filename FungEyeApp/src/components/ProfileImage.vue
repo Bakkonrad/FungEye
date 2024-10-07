@@ -1,22 +1,21 @@
 <template>
-  <div class="profile-img-container" :style="{ width: `${width}px`, height: `${height}px` }">
-    <img
-      class="profile-img"
-      :src="imgSrc"
-      alt="Profile Image"
-      
-    />
+  <div class="profile-img-container" :class="showBorderClass()" :style="{ width: `${width}px`, height: `${height}px` }">
+    <img class="profile-img" :src="getProfileImage()" alt="Profile Image" :key="imgSrc" />
   </div>
 </template>
 
 <script>
+import placeholder from "@/assets/images/profile-images/placeholder.png"
+
 export default {
   name: "ProfileImage",
   props: {
+    isPlaceholder: {
+      type: Boolean
+    },
     imgSrc: {
       type: String,
       required: true,
-      default: "https://picsum.photos/200",
     },
     width: {
       type: Number,
@@ -26,7 +25,38 @@ export default {
       type: Number,
       default: 50,
     },
-  }
+    showBorder: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  data() {
+    return {
+      placeholderPath: placeholder
+    }
+  },
+  mounted() {
+    this.showBorderClass();
+  },
+  methods: {
+    getProfileImage() {
+      // console.log('isPlaceholder:', this.isPlaceholder);
+      // console.log('imgSrc:', this.imgSrc);
+
+      if (this.isPlaceholder || !this.imgSrc || this.imgSrc === 'placeholder') {
+        // console.log('Returning placeholder:', this.placeholderPath);
+        return this.placeholderPath;
+      }
+
+      // console.log('Returning imgSrc:', this.imgSrc);
+      return this.imgSrc;
+    },
+    showBorderClass() {
+      if (this.showBorder == true) {
+        return "profile-image-stroke";
+      }
+    },
+  },
 };
 </script>
 
@@ -35,9 +65,10 @@ export default {
   width: 4em;
   height: 4em;
   border-radius: 50%;
-  /* profile-image-stroke */
+}
+
+.profile-image-stroke {
   border: 2px solid var(--green);
-  /* profile-image-shadow */
   filter: drop-shadow(0px 4px 4px rgba(56, 102, 65, 0.2));
 }
 
@@ -46,5 +77,4 @@ export default {
   height: 100%;
   border-radius: 50%;
 }
-
 </style>

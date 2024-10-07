@@ -1,37 +1,43 @@
 <template>
   <div id="collections">
-    <div class="collection upper-collection">
-      <h3>Zebrane grzyby &rarr;</h3>
-      <div class="hstack gap-3" id="mushroom-collection">
-        <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
-          <img class="mushroom" :src="mushroom" alt="Mushroom" />
-        </div>
-      </div>
-    </div>
     <div class="bottom-collections">
       <div class="collection">
-        <h3>Trofea &rarr;</h3>
-        <div class="hstack gap-3" id="trophy-collection">
-          <div class="p-2" v-for="trophy in trophys" :key="trophy">
-            <div class="trophy-content">
-              <img class="mushroom" :src="trophy.img" alt="Trophy" />
-              <p>{{ trophy.name }}</p>
-            </div>
+        <h3>Zebrane grzyby</h3>
+        <div v-if="mushrooms.length > 0" class="hstack gap-3 mushroom-collection">
+          <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
+            <img class="mushroom" :src="mushroom" alt="Mushroom" />
           </div>
+        </div>
+        <div v-else>
+          <p>Brak zebranych grzybów</p>
         </div>
       </div>
       <div class="collection">
-        <h3>Znajomi &rarr;</h3>
-        <div class="hstack gap-3" id="friends-collection">
-          <div class="p-2" v-for="friend in friends" :key="friend">
-            <router-link
-              :to="'/user-profile/' + friend.name"
-              class="friend-content r-link"
-            >
-              <ProfileImage :imgSrc="friend.img" :width="100" :height="100" />
-              <p>{{ friend.name }}</p>
+        <h3>Obserwowani</h3>
+        <div v-if="follows.length > 0" class="hstack gap-3 follows-collection">
+          <div class="p-2" v-for="follow in follows" :key="follow">
+            <router-link :to="'/user-profile/' + follow.id" class="follow-content r-link">
+              <ProfileImage :imgSrc="follow.imageUrl" :width="100" :height="100" />
+              <p>{{ follow.username }}</p>
             </router-link>
           </div>
+        </div>
+        <div v-else>
+          <p>Brak obserwowanych</p>
+        </div>
+      </div>
+      <div class="collection">
+        <h3>Obserwatorzy</h3>
+        <div v-if="followers.length > 0" class="hstack gap-3 follows-collection">
+          <div class="p-2" v-for="follower in followers" :key="follower">
+            <router-link :to="'/user-profile/' + follower.id" class="follow-content r-link">
+              <ProfileImage :imgSrc="follower.imageUrl" :width="100" :height="100" />
+              <p>{{ follower.username }}</p>
+            </router-link>
+          </div>
+        </div>
+        <div v-else>
+          <p>Brak obserwatorów</p>
         </div>
       </div>
     </div>
@@ -48,7 +54,8 @@ export default {
   props: {
     mushrooms: Array,
     trophys: Array,
-    friends: Array,
+    follows: Array,
+    followers: Array,
   },
 };
 </script>
@@ -79,9 +86,8 @@ export default {
   gap: 2em;
 }
 
-#mushroom-collection,
-#trophy-collection,
-#friends-collection {
+.mushroom-collection,
+.follows-collection {
   display: flex;
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -100,7 +106,7 @@ export default {
   justify-content: center;
 }
 
-.friend-content {
+.follow-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -112,6 +118,7 @@ export default {
   .upper-collection {
     width: 80vw;
   }
+
   /* .bottom-collections {
     width: 80vw;
   } */
@@ -121,6 +128,7 @@ export default {
   #collections {
     gap: 1em;
   }
+
   .collection {
     width: 90vw;
   }
@@ -129,7 +137,6 @@ export default {
     flex-direction: column;
     gap: 2em;
   }
-  
-}
 
+}
 </style>

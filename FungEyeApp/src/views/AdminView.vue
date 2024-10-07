@@ -1,28 +1,29 @@
 <template>
   <div v-if="isAdmin == true" class="admin-panel" @scroll="handleScroll">
     <h1>Panel administratora</h1>
-    <div class="buttons my-3">
-      <button class="btn category-btn" :class="getActiveTable('users')" @click="showUsers">
-        Użytkownicy
-      </button>
-      <button class="btn category-btn disabled" :class="getActiveTable('mushrooms')"
-        @click="showMushrooms">Grzyby</button>
-    </div>
     <div v-if="error" class="error-loading-data">
       {{ errorMessage }}
     </div>
     <!-- search bar and table for users -->
     <div v-else>
+      <div class="buttons my-3">
+        <button class="btn category-btn" :class="getActiveTable('users')" @click="showUsers">
+          Użytkownicy
+        </button>
+        <button class="btn category-btn disabled" :class="getActiveTable('mushrooms')"
+          @click="showMushrooms">Grzyby</button>
+      </div>
       <div v-if="activeTable === 'users'">
-        <div v-if="!isEditing">
-          <div class="input-group mb-3" id="searchUsers">
-            <input type="text" v-model="searchQuery" placeholder="Szukaj użytkowników..." class="form-control" id="searchUsers-input"
-            aria-describedby="button-addon2" />
-            <button @click="filterUsers" class="btn fungeye-default-button" type="button" id="button-addon2">
-              <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="search-icon" />
-            </button>
+        <div v-if="!isEditing && !isBanning">
+          <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton"
+            @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
+          <div class="admin-actions">
+            <button class="btn fungeye-default-button" @click="addmin">
+              <font-awesome-icon icon="fa-solid fa-plus" class="button-icon"/>
+              Zarejestruj nowego admina</button>
+            <SearchBar @search="handleSearch" />
           </div>
-          <UserTable :users="users" @edit-user="startEditing" @ban-user="banUserPrompt" @delete-user="deleteUser" />
+          <UserTable :users="users"/>
           <LoadingSpinner v-if="isLoading"></LoadingSpinner>
           <div v-if="noUsersFound">
             <p class="no-users">
@@ -30,7 +31,8 @@
             </p>
           </div>
         </div>
-        <UserEdit v-else :user="selectedUser" @cancel-edit="cancelEditing" @save-user="saveUser" />
+        <UserEdit v-if="isEditing" :user="selectedUser" @cancel-edit="cancelEditing" @save-user="saveUser" />
+        <UserBan v-if="isBanning" :user="selectedUser" @cancel-ban="cancelBanning" @ban-user="banUser" />
       </div>
       <!-- search bar and table for mushrooms -->
       <div v-else>
@@ -54,19 +56,24 @@
 <script>
 import UserTable from "@/components/UserTable.vue";
 import UserEdit from "@/components/EditUser.vue";
-import AdminService from "@/services/AdminService";
+import UserService from "@/services/UserService";
 import { checkAdmin, isAdmin } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import SearchBar from "@/components/SearchBar.vue";
+import UserBan from "@/components/BanUser.vue";
 
 export default {
   components: {
     UserTable,
     UserEdit,
     LoadingSpinner,
+    SearchBar,
+    UserBan,
   },
   data() {
     return {
       isEditing: false,
+      isBanning: false,
       selectedUser: null,
       searchQuery: "",
       users: [],
@@ -80,6 +87,7 @@ export default {
       noUsersFound: false,
       noUsersMessage: "",
       activeTable: "users",
+      goToTheTopButton: null,
     };
   },
   setup() {
@@ -89,11 +97,12 @@ export default {
     };
   },
   async mounted() {
+    this.goToTheTopButton = this.$refs.goToTheTopButton;
     if (localStorage.getItem("token") && this.isAdmin == true) {
-      console.log(localStorage.getItem("role"));
+      // console.log(localStorage.getItem("role"));
       this.fetchUsers(this.currentPage);
     } else {
-      console.log(localStorage.getItem("role"));
+      // console.log(localStorage.getItem("role"));
       console.log("No token or no admin rights");
     }
     window.addEventListener("scroll", this.handleScroll);
@@ -102,10 +111,10 @@ export default {
     window.removeEventListener("scroll", this.handleScroll);
   },
   methods: {
-    async fetchUsers(page) {
+    async fetchUsers() {
       try {
         this.isLoading = true;
-        const response = await AdminService.getAllUsers(page);
+        const response = await UserService.getAllUsers(this.currentPage, this.searchQuery);
         if (!response.success) {
           this.error = true;
           this.errorMessage = response.message;
@@ -121,8 +130,9 @@ export default {
           this.noUsersMessage = "To już wszystkie wyniki.";
           return;
         }
-        console.log(response.data);
-        console.log(response.data.length);
+        this.noUsersFound = false;
+        // console.log(response.data);
+        // console.log(response.data.length);
         const newUsers = response.data;
         this.users = [...this.users, ...newUsers];
       } catch (error) {
@@ -133,86 +143,39 @@ export default {
       }
     },
     handleScroll() {
-      if (!this.isEditing && (window.innerHeight + window.scrollY >= document.body.offsetHeight)) {
-        this.currentPage++;
-        this.fetchUsers(this.currentPage);
-      }
-    },
-    async filterUsers() {
-      try {
-        this.isLoading = true;
-        const filteredUsers = await AdminService.getAllUsers(
-          0,
-          this.searchQuery
-        );
-        if (filteredUsers.data.length === 0) {
-          console.log("No users found");
-          this.noUsersFound = true;
-        } else {
-          this.noUsersFound = false;
-        }
-        this.users = filteredUsers.data;
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    startEditing(user) {
-      this.selectedUser = { ...user };
-      this.isEditing = true;
-    },
-    cancelEditing() {
-      this.isEditing = false;
-    },
-    saveUser(updatedUser) {
-      const index = this.users.findIndex(
-        (user) => user.email === updatedUser.email
-      );
-      if (index !== -1) {
-        this.users.splice(index, 1, updatedUser);
-        this.users = this.users.slice(0, this.currentPage * this.usersPerPage);
-      }
-      this.isEditing = false;
-    },
-    banUserPrompt(email) {
-      const duration = prompt(
-        "Podaj czas bana w sekundach (30s do 2592000s):",
-        30
-      );
-      if (!duration || isNaN(duration) || duration < 30 || duration > 2592000) {
-        alert("Nieprawidłowy czas");
+      if (this.goToTheTopButton === null) {
         return;
       }
-
-      const durationInSeconds = parseInt(duration);
-      const now = new Date();
-      const bannedUntil = new Date(now.getTime() + durationInSeconds * 1000);
-
-      this.banUser(email, bannedUntil);
-    },
-    banUser(email, bannedUntil) {
-      const user = this.users.find((user) => user.email === email);
-      if (user) {
-        user.BannedUntil = bannedUntil;
-        alert(`Użytkownik ${email} zbanowany do ${bannedUntil}`);
+      if (!this.isEditing && (window.innerHeight + window.scrollY >= document.body.offsetHeight)) {
+        if (!this.noUsersFound) {
+          this.currentPage++;
+          this.fetchUsers();
+        }
+      }
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        this.goToTheTopButton.style.display = "block";
       } else {
-        alert("Nie znaleziono użytkownika");
+        this.goToTheTopButton.style.display = "none";
       }
     },
-    deleteUser(email) {
-      const confirmed = confirm(
-        `Czy na pewno chcesz usunąć użytkownika ${email}?`
-      );
-      if (confirmed) {
-        this.users = this.users.filter((user) => user.email !== email);
-        this.users = this.users.filter((user) => user.email !== email);
-        alert(`Użytkownik ${email} został usunięty.`);
-      }
+    // When the user clicks on the button, scroll to the top of the document
+    goToTheTop() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    },
+    cleanUsers() {
+      this.users = [];
+      this.currentPage = 1;
+      this.fetchUsers();
+    },
+    addmin() {
+      this.$router.push("/register/admin");
+    },
+    handleSearch(query) {
+      this.searchQuery = query;
+      this.cleanUsers();
     },
     getActiveTable(table) {
-      this.isEditing = false;
-      this.selectedUser = null;
       let classString = "category-btn";
       if (this.activeTable === table) {
         classString += " active";
@@ -220,9 +183,13 @@ export default {
       return classString;
     },
     showUsers() {
+      this.isEditing = false;
+      this.selectedUser = null;
       this.activeTable = "users";
     },
     showMushrooms() {
+      this.isEditing = false;
+      this.selectedUser = null;
       this.activeTable = "mushrooms";
     },
   },
@@ -235,23 +202,6 @@ export default {
   color: var(--black) !important;
   height: auto;
   overflow-y: auto;
-}
-
-#searchUsers {
-  width: 30%;
-  margin: 0 auto;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  padding: 5px;
-  min-width: 50px;
-  text-align: center;
-}
-
-#searchUsers-input {
-  border-radius: 35px 0 0 35px !important;
 }
 
 .buttons {
@@ -298,15 +248,71 @@ export default {
   margin: 0 auto;
 }
 
+#goToTheTopButton {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  border: none;
+  outline: none;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  height: auto;
+}
+
+.admin-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 .no-users {
   text-align: center;
   font-weight: 600;
   margin-top: 20px;
 }
 
+@media screen and (max-width: 1400px) {
+  .buttons {
+    width: 30%;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .buttons {
+    width: 40%;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .buttons {
+    width: 50%;
+  }
+}
+
 @media screen and (max-width: 768px) {
-  #searchUsers {
+  .buttons {
     width: 80%;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  h1 {
+    font-size: 2em;
+  }
+
+  .buttons {
+    width: 90%;
+  }
+
+  .category-btn {
+    font-size: 1em;
+    padding: 5px 20px !important;
   }
 }
 </style>

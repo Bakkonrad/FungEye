@@ -17,68 +17,37 @@
     <div v-else>
       <div v-if="!isEditing" class="container-md">
         <div id="user-info">
-          <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :email="email" />
+          <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
           <div class="buttons">
             <button @click="startEditing" type="button" class="btn fungeye-default-button">
+              <font-awesome-icon icon="fa-solid fa-gear" class="button-icon" />
               Ustawienia
             </button>
             <button @click="logOut" type="button" class="btn fungeye-red-button">
+              <font-awesome-icon icon="fa-solid fa-right-from-bracket" class="button-icon" />
               Wyloguj się
             </button>
           </div>
         </div>
-        <UserProfileCollections :mushrooms="mushrooms" :trophys="trophys" :friends="friends" />
+        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" />
       </div>
     </div>
     <div class="settings container-md" v-if="isEditing">
       <div class="main-header">
         <h2>Ustawienia</h2>
         <button @click="cancelEditing" type="button" class="btn fungeye-default-button">
+          <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
           Powrót do mojego profilu
         </button>
       </div>
       <div class="settings-content">
         <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
         <div class="settings-content-right">
-          <!-- <div class="edit-container">
-            <div class="edit-form">
-              <h3>Zmiana hasła konta</h3>
-              <div class="mb-3">
-                <BaseInput v-model="registerFormData.password" type="password" label="Hasło (min. 8 znaków)" :class="{
-                  'password-input': !submitted,
-                  validInput: submitted && !v$.password.$invalid,
-                  invalidInput: submitted && v$.password.$invalid,
-                  }" />
-                  <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
-                    {{ error.$message }}
-                  </span>
-                </div>
-                <div class="mb-3">
-                  <BaseInput v-model="registerFormData.confirmPassword" type="password" label="Potwierdź hasło" :class="{
-                    'confirmPassword-input': !submitted,
-                    validInput: submitted && !v$.confirmPassword.$invalid,
-                    invalidInput: submitted && v$.confirmPassword.$invalid,
-                    }" />
-                    <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
-                      {{ error.$message }}
-                    </span>
-                  </div>
-                  <div class="mb-3">
-                    <BaseInput v-model="registerFormData.dateOfBirth" type="date" label="Data urodzenia" :class="{
-                      'dateOfBirth-input': !submitted,
-                      validInput: submitted && !v$.dateOfBirth.$invalid,
-                      invalidInput: submitted && v$.dateOfBirth.$invalid,
-                      }" />
-                      <span class="error-message" v-for="error in v$.dateOfBirth.$errors" :key="error.$uid">
-                        {{ error.$message }}
-                      </span>
-              </div>
-            </div> 
-          </div> -->
           <div class="edit-container">
             <div class="edit-form">
               <h3>Usuwanie konta</h3>
               <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
+                <font-awesome-icon icon="fa-solid fa-trash" class="button-icon" />
                 Usuń konto
               </button>
             </div>
@@ -92,6 +61,8 @@
 <script>
 import ProfileImage from "@/components/ProfileImage.vue";
 import UserService from "@/services/UserService";
+import AuthService from "@/services/AuthService";
+import FollowService from "@/services/FollowService";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
@@ -118,41 +89,30 @@ export default {
       // name_surname: "",
       // email: "",
       mushrooms: [
-        "src/assets/images/mushrooms/7a45d643-473a-417e-9f6d-6928440c0dc1.jpeg",
-        "src/assets/images/mushrooms/db5c95b8-5596-4d91-8dcd-f1a9703e5a97.jpeg",
-        "src/assets/images/mushrooms/a8eb8c5b-aaed-46e3-8798-a563d52ad54b.jpeg",
-        "src/assets/images/mushrooms/8f54bebd-3afe-4c7c-93db-c1fd4ecc22fd.jpeg",
-        "src/assets/images/mushrooms/bd692b45-3db3-4541-aaff-c40a12e08c12.jpeg",
-        "src/assets/images/mushrooms/e4a1283f-27a2-467e-bd4a-d6ffc2ea0a5f.jpeg",
+        "src/assets/images/mushrooms/ATLAS-borowik.jpg",
+        "src/assets/images/mushrooms/ATLAS-muchomor.jpg",
+        "src/assets/images/mushrooms/ATLAS-kurka.jpg",
+        "src/assets/images/mushrooms/ATLAS-podgrzybek.jpg",
+        "src/assets/images/mushrooms/ATLAS-borowik.jpg",
+        "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
       ],
-      trophys: [
-        {
-          name: "trofeum 1",
-          img: "src/assets/images/trophys/2e0d2c9d-fc61-4346-afbc-6d55199d78cc.jpeg",
-        },
-        {
-          name: "trofeum 2",
-          img: "src/assets/images/trophys/7d5dbeac-5c83-4109-b3e7-ddf6f5777fcb.jpeg",
-        },
-        {
-          name: "trofeum 3",
-          img: "src/assets/images/trophys/71192d4e-9873-4951-a053-11954e2b6e06.jpeg",
-        },
-      ],
-      friends: [
-        {
-          name: "Przyjaciel 1",
-          img: "src/assets/images/profile-images/profile-img2.jpeg",
-        },
-        {
-          name: "Przyjaciel 2",
-          img: "src/assets/images/profile-images/profile-img3.jpeg",
-        },
-        {
-          name: "Przyjaciel 3",
-          img: "src/assets/images/profile-images/profile-img4.jpeg",
-        },
-      ],
+      // follows: [
+      //   {
+      //     id: 1,
+      //     name: "Przyjaciel 1",
+      //     img: "src/assets/images/profile-images/profile-img2.jpeg",
+      //   },
+      //   {
+      //     id: 2,
+      //     name: "Przyjaciel 2",
+      //     img: "src/assets/images/profile-images/profile-img3.jpeg",
+      //   },
+      //   {
+      //     id: 3,
+      //     name: "Przyjaciel 3",
+      //     img: "src/assets/images/profile-images/profile-img4.jpeg",
+      //   },
+      // ],
       // errorLoadingData: false,
       // errorMessage: "",
       // isEditing: false,
@@ -161,7 +121,7 @@ export default {
   },
   methods: {
     logOut() {
-      UserService.logout();
+      AuthService.logout();
       this.$router.push("/log-in");
     },
     async deleteAccount() {
@@ -174,7 +134,7 @@ export default {
       try {
         const response = await UserService.deleteAccount(parseInt(localStorage.getItem('id')));
         if (response.success) {
-          console.log("Account deleted");
+          // console.log("Account deleted");
           this.logOut();
         }
         else {
@@ -197,35 +157,65 @@ export default {
     const username = ref('');
     const name_surname = ref('');
     const email = ref('');
+    const createdAt = ref('');
+    // const follows = ref([
+    //   // {
+    //   //   id: 1,
+    //   //   name: "Przyjaciel 1",
+    //   //   img: "src/assets/images/profile-images/profile-img2.jpeg",
+    //   // },
+    //   // {
+    //   //   id: 2,
+    //   //   name: "Przyjaciel 2",
+    //   //   img: "src/assets/images/profile-images/profile-img3.jpeg",
+    //   // },
+    //   // {
+    //   //   id: 3,
+    //   //   name: "Przyjaciel 3",
+    //   //   img: "src/assets/images/profile-images/profile-img4.jpeg",
+    //   // },
+    // ]);
+    const follows = ref([]);
+    const followers = ref([]);
 
     const fetchUser = async () => {
       try {
         isLoading.value = true;
-        const userData = await UserService.getUserData();
+        const userData = await UserService.getUserData(localStorage.getItem("id"));
+        const userFollows = await FollowService.getFollowing(localStorage.getItem("id"));
+        const userFollowers = await FollowService.getFollowers(localStorage.getItem("id"));
         if (!userData.success) {
           errorLoadingData.value = true;
           errorMessage.value = userData.message;
           return;
-        } else {
-          if (userData.data.imageUrl) {
-            imgSrc.value = userData.data.imageUrl;
-            localStorage.setItem("profileImg", userData.data.imageUrl);
-            setProfileImage(userData.data.imageUrl);
-          }
-          else { // placeholder image
-            imgSrc.value = "https://avatar.iran.liara.run/public";
-          }
-          user.value = userData.data;
-          console.log(userData.data);
-          username.value = userData.data.username;
-          if (userData.data.firstName && userData.data.lastName) {
-            name_surname.value = userData.data.firstName + " " + userData.data.lastName;
-          }
-          email.value = userData.data.email;
-          // this.mushrooms = response.mushrooms;
-          // this.trophys = response.trophys;
-          // this.friends = response.friends;
         }
+
+        if (userData.data.imageUrl && userData.data.imageUrl !== "string" && userData.data.imageUrl !== "placeholder") {
+          imgSrc.value = userData.data.imageUrl;
+          localStorage.setItem("profileImg", userData.data.imageUrl);
+          setProfileImage(userData.data.imageUrl);
+        }
+        else { // placeholder image
+          const placeholderImg = "src/assets/images/profile-images/placeholder.png";
+          imgSrc.value = placeholderImg;
+          localStorage.setItem("profileImg", placeholderImg);
+          setProfileImage(placeholderImg);
+        }
+        user.value = userData.data;
+        // console.log(userData.data);
+        username.value = userData.data.username;
+        createdAt.value = userData.data.createdAt;
+        if (userData.data.firstName && userData.data.lastName) {
+          name_surname.value = userData.data.firstName + " " + userData.data.lastName;
+        }
+        email.value = userData.data.email;
+        // this.mushrooms = response.mushrooms;
+        follows.value = userFollows.data;
+        followers.value = userFollowers.data;
+        console.log("Follows: ", follows.value);
+        console.log("Followers: ", followers.value);
+        console.log(userData.data.imageUrl);
+
       } catch (error) {
         errorLoadingData.value = true;
         errorMessage.value = userData.message;
@@ -258,6 +248,9 @@ export default {
       username,
       name_surname,
       email,
+      createdAt,
+      follows,
+      followers,
       errorLoadingData,
       errorMessage,
       isEditing,
@@ -310,26 +303,6 @@ export default {
   justify-content: space-between;
 }
 
-@media screen and (max-width: 768px) {
-  .container-md {
-    margin-top: 1em;
-    justify-content: center;
-    padding: 0;
-    width: 80vw;
-  }
-
-  #user-info {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1em;
-  }
-
-  .buttons {
-    flex-direction: column;
-    gap: 1em;
-  }
-}
 
 .settings {
   display: flex;
@@ -386,5 +359,50 @@ h3 {
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 500px;
+}
+
+@media screen and (max-width: 1200px) {
+  .settings-content {
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 1em;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .container-md {
+    margin-top: 1em;
+    justify-content: center;
+    padding: 0;
+    width: 80vw;
+  }
+
+  #user-info {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .main-header {
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  h3 {
+    font-size: 1.5em;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .edit-form {
+    width: 90vw;
+  }
 }
 </style>

@@ -14,6 +14,7 @@ import UserProfile from "@/views/UserProfileView.vue";
 import UserProfileAdminView from "@/views/UserProfile-AdminView.vue";
 import ForgotPassword from "@/views/ForgotPasswordView.vue";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
+import PostView from "@/views/PostView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -105,7 +106,12 @@ const router = createRouter({
       component: ResetPasswordView,
       props: (route) => ({ token: route.query.token }),
     },
-  ],
-});
+    {
+      path: '/post/:id',
+      name: 'post',
+      component: PostView
+    }
+  ]
+})
 
 export default router;

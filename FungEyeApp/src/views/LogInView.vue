@@ -2,55 +2,39 @@
   <div v-if="loggedIn" class="logged-in container-md">
     <h1 id="loggedIn-h1">Jesteś już zalogowany!</h1>
     <div class="buttons">
-      <router-link to="/my-profile" class="btn fungeye-default-button"
-        >Przejdź do swojego profilu</router-link
-      >
+      <router-link to="/my-profile" class="btn fungeye-default-button">Przejdź do swojego profilu</router-link>
       <button @click="logOut" class="btn fungeye-red-button">
         Wyloguj się
       </button>
     </div>
   </div>
   <div v-else class="container-md">
-    <img class="log-in-bg" src="../assets/images/backgrounds/log-in-bg.jpeg" />
+    <img class="log-in-bg" src="../assets/images/backgrounds/LOGIN-form-background.jpg" />
     <div class="log-in-content">
       <h1>Witaj ponownie!</h1>
       <p>Zaloguj się, aby móc w pełni korzystać z możliwości FungEye</p>
       <form>
         <div class="mb-3">
-          <BaseInput
-            v-model="loginFormData.email"
-            type="text"
-            label="Login lub email"
-            class="email-input"
-            :class="{ invalidInput: error }"
-          />
+          <BaseInput v-model="loginFormData.email" type="text" label="Login lub email" class="email-input"
+            :class="{ invalidInput: error }" @focus="resetValidation" />
         </div>
         <div class="mb-3">
-          <BaseInput
-            v-model="loginFormData.password"
-            type="password"
-            label="Hasło"
-            class="password-input"
-            :class="{ invalidInput: error }"
-          />
+          <BaseInput v-model="loginFormData.password" type="password" label="Hasło" class="password-input"
+            @focus="resetValidation" :class="{ invalidInput: error }" />
         </div>
-        <!-- <div id="forgotPassword" class="form-text">Zapomniałeś/aś hasła?</div> -->
-        <span v-if="error" class="error-message"
-          >{{ errorMessage }}</span
-        >
-        <button
-          type="submit"
-          class="btn fungeye-default-button submitFormButton"
-          @click.prevent="submitForm"
-        >
+        <span v-if="error" class="error-message">{{ errorMessage }}</span>
+        <button type="submit" class="btn fungeye-default-button submitFormButton" @click.prevent="submitForm">
           Zaloguj się
         </button>
       </form>
+      <RouterLink to="/forgot-password" id="forgotPassword" class="btn fungeye-secondary-button submitFormButton">Nie
+        pamiętasz hasła?
+      </RouterLink>
       <span id="registerLink">
-        <p>Nie masz jeszcze konta?</p>
-        <RouterLink to="/register" class="router-registerLink"
-          ><p><b>Zarejestruj się</b></p></RouterLink
-        >
+        <p id="noAccount">Nie masz jeszcze konta?</p>
+        <RouterLink to="/register" class="router-registerLink">
+          <p><b>Zarejestruj się</b></p>
+        </RouterLink>
       </span>
     </div>
   </div>
@@ -63,7 +47,7 @@ import { required } from "@vuelidate/validators";
 import { ref } from "vue";
 import { isLoggedIn, checkAuth } from "@/services/AuthService";
 
-import UserService from "@/services/UserService";
+import AuthService from "@/services/AuthService";
 
 export default {
   components: {
@@ -71,6 +55,11 @@ export default {
   },
   data() {
     return {
+      loginFormData: {
+        username: null,
+        email: null,
+        password: null,
+      },
       error: false,
       errorMessage: "",
       loggedIn: false,
@@ -91,13 +80,16 @@ export default {
         this.loginFormData.username = null;
       }
       try {
-        const result = await UserService.login(this.loginFormData);
+        const result = await AuthService.login(this.loginFormData);
         if (!result.success) {
           this.error = true;
           this.errorMessage = result.message;
+          this.loginFormData.password = null;
+          this.loginFormData.email = null;
           return;
         }
         this.$router.push("/my-profile");
+        this.resetValidation();
       }
       catch (error) {
         this.errorMessage = result.message;
@@ -105,8 +97,12 @@ export default {
       }
     },
     async logOut() {
-      await UserService.logout();
+      AuthService.logout();
       this.$router.push("/");
+    },
+    resetValidation() {
+      this.error = false;
+      this.errorMessage = "";
     },
   },
   setup() {
@@ -188,7 +184,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 2em 2em 3em 2em;
+  padding: 2em 2em 2em 2em;
 }
 
 h1 {
@@ -201,23 +197,87 @@ p {
   font-size: 1.3em;
 }
 
+.submitFormButton {
+  margin-top: 1.5em;
+}
+
 @media (max-width: 768px) {
+  h1 {
+    font-size: 2.5em;
+  }
+
   .log-in-content {
     width: 80vw;
   }
+
+  #noAccount {
+    margin: 0 !important;
+  }
+
   #registerLink {
     align-items: center;
     flex-direction: column;
-    gap: 0;
+    gap: 0 !important;
   }
+
+  .router-registerLink {
+    margin-top: 0;
+  }
+
   .buttons {
     flex-direction: column;
     gap: 1em;
   }
+
   .logged-in {
     width: 80vw;
     margin-left: 2em;
   }
+}
+
+@media screen and (max-width: 465px) {
+  .log-in-bg {
+    width: 97vw;
+  }
+
+  .log-in-content {
+    width: 90vw;
+    padding: 2em 0.5em 2em 0.5em;
+  }
+  
+  .log-in-content p {
+    font-size: 1.1em;
+  }
+
+  #noAccount {
+    margin: 0 !important;
+  }
+
+  #registerLink {
+    margin-top: 1.5em !important;
+    gap: 0 !important;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .log-in-content {
+    padding: 2em 0.5em 2em 0.5em;
+  }
+
+  h1 {
+    font-size: 2.5em;
+  }
+
+  p {
+    font-size: 1.1em;
+  }
+  
+}
+
+#forgotPassword {
+  margin-top: 1em;
+  justify-content: center;
+  text-decoration: none;
 }
 
 #registerLink {
@@ -225,16 +285,20 @@ p {
   display: flex;
   justify-content: center;
   gap: 0.5em;
-  margin-top: 2em;
+  margin-top: 3em;
 }
 
 .router-registerLink {
-  color: white;
   text-decoration: none;
+  margin: 0 !important;
 }
 
-.router-registerLink:hover {
-  color: var(--light-green) !important;
+.router-registerLink p {
+  color: white;
+  transition: text-decoration 0.5s;
+}
+
+.router-registerLink:hover p {
   text-decoration: underline;
 }
 </style>

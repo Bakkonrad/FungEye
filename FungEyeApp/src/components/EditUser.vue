@@ -7,11 +7,14 @@
           <input style="display: none;" type="file" accept="image/*" @change="onFileChange" ref="fileInput"></input>
           <div class="fileInput" @click="$refs.fileInput.click()">
             <span class="edit-pencil">&#9998;</span>
-            <ProfileImage class="image" :imgSrc="fileChanged ? tempImgSrc : registerFormData.imgSrc" :width="100"
+            <ProfileImage class="image" :isPlaceholder="isPlaceholder" :imgSrc="fileChanged ? tempImgSrc : registerFormData.imgSrc" :width="100"
               :height="100" />
           </div>
           <button v-if="fileChanged" class="btn fungeye-red-button revert" @click="revertImage()">&#10554; Przywróć
-            zdjęcie</button>
+            poprzednie zdjęcie</button>
+          <button v-if="!fileChanged && isPlaceholderImage() == false" class="btn fungeye-red-button revert" @click="deleteImage()">
+            <font-awesome-icon icon="fa-solid fa-trash" class="button-icon" />
+            Usuń zdjęcie</button>
         </div>
         <div class="mb-3">
           <BaseInput v-model="registerFormData.email" type="text" label="Email" :class="{
@@ -86,7 +89,6 @@
             {{ error.$message }}
           </span>
         </div> -->
-        <div id="requiredFields" class="form-text">* Pola obowiązkowe</div>
         <span class="error-message" v-if="error">{{ apiErrorMessage }}</span>
         <div class="button-group">
           <button type="submit" class="btn fungeye-default-button" @click="save">
@@ -103,18 +105,17 @@
 <script>
 import BaseInput from './BaseInput.vue';
 import { useVuelidate } from '@vuelidate/core';
-import { required, email, minLength, sameAs, helpers } from '@vuelidate/validators';
+import { email, minLength, sameAs, helpers } from '@vuelidate/validators';
 import { ref, reactive, computed, onMounted } from 'vue';
 import UserService from '@/services/UserService';
 import ProfileImage from './ProfileImage.vue';
-import { profileImage } from '@/services/AuthService';
 
 export default {
   props: {
     user: {
       type: Object,
       required: true,
-    },
+    }
   },
   components: {
     BaseInput,
@@ -126,6 +127,9 @@ export default {
       apiErrorMessage: "",
       submitted: false,
       fileChanged: false,
+      placeholderImage: '../src/assets/images/profile-images/placeholder.png',
+      isPlaceholder: false,
+
     };
   },
   methods: {
@@ -134,20 +138,52 @@ export default {
       this.submitted = true;
 
       const exportedData = {
+        id: this.registerFormData.id,
+        role: this.registerFormData.role,
         email: this.registerFormData.email,
         firstName: this.registerFormData.firstName,
         lastName: this.registerFormData.lastName,
         username: this.registerFormData.username,
-        imgFile: this.registerFormData.imgFile,
-        password: this.registerFormData.password,
+        // imageUrl: this.registerFormData.imgSrc,
+        createdAt: this.registerFormData.createdAt,
         dateOfBirth: this.registerFormData.dateOfBirth,
       };
+      const imageFile = this.registerFormData.imgFile;
 
-      console.log(exportedData);
+      // 1. mam placeholder, zmieniam na zdjęcie --> api potrzebuje imageUrl = 'placeholder'
+      // 2. mam zdjęcie, usuwam je - zmieniam na placeholder --> api potrzebuje imageUrl = 'changeToPlaceholder'
+      // 3. mam zdjęcie, zmieniam na inne zdjęcie --> api potrzebuje imageUrl = stare zdjęcie
+      // 4. mam placeholder, nie zmieniam --> api potrzebuje imageUrl = 'placeholder'
+      // 5. mam zdjęcie, nie zmieniam --> api potrzebuje imageUrl = stare zdjęcie
+
+      console.log("isPlaceholder", this.isPlaceholder);
+      console.log("fileChanged", this.fileChanged);
+      console.log("user.imageUrl", this.user.imageUrl);
+
+      if (this.fileChanged) {
+        if (this.user.imageUrl === 'placeholder') {
+          console.log(1);
+          exportedData.imageUrl = "placeholder";
+        } else if (this.isPlaceholder) {
+          console.log(2);
+          exportedData.imageUrl = "changeToPlaceholder";
+        } else {
+          console.log(3);
+          exportedData.imageUrl = this.user.imageUrl;
+        }
+      } else {
+        if (this.isPlaceholder) {
+          console.log(4);
+          exportedData.imageUrl = "placeholder";
+        } else {
+          console.log(5);
+          exportedData.imageUrl = this.user.imageUrl;
+        }
+      }
 
       if (result) {
         try {
-          const response = await UserService.updateImage(exportedData.imgFile);
+          const response = await UserService.updateUser(exportedData, imageFile);
           if (response.success) {
             this.$emit('save-user', response.data);
           } else {
@@ -159,9 +195,15 @@ export default {
           this.apiErrorMessage = "Wystąpił błąd podczas zapisywania danych. Spróbuj ponownie.";
         }
       }
+      else {
+        this.error = true;
+        this.apiErrorMessage = this.v$.$errors;
+        // this.apiErrorMessage = "Niepoprawnie wypełnione pola formularza.";
+      }
     },
 
     onFileChange(event) {
+      this.isPlaceholder = false;
       const file = event.target.files[0];
       if (!file) return;
       event.target.value = "";
@@ -169,16 +211,31 @@ export default {
       this.tempImgSrc = URL.createObjectURL(file);
       this.registerFormData.imgFile = file;
     },
-
     revertImage() {
       this.fileChanged = false;
       this.tempImgSrc = null;
       this.registerFormData.imgFile = null;
     },
+    deleteImage() {
+      this.fileChanged = true;
+      this.tempImgSrc = this.placeholderImage;
+      this.isPlaceholder = true;
+    },
+    isPlaceholderImage() {
+      if (this.registerFormData.imgSrc === "placeholder" || this.registerFormData.imgSrc === this.placeholderImage) {
+        this.isPlaceholder = true;
+        return true;
+      }
+      else {
+        this.isPlaceholder = false;
+        return false;
+      }
+    },
   },
   setup(props) {
-
     const registerFormData = reactive({
+      id: props.user.id,
+      role: props.user.role,
       email: null,
       firstName: null,
       lastName: null,
@@ -187,6 +244,7 @@ export default {
       imgFile: null,
       password: null,
       confirmPassword: null,
+      createdAt: props.user.createdAt,
       dateOfBirth: null,
     });
 
@@ -242,23 +300,7 @@ export default {
             "Hasła powinny być identyczne. ",
             sameAs(registerFormData.password)
           ),
-        },
-        dateOfBirth: {
-          validDate: helpers.withMessage("Nieprawidłowa data. ", (value) => {
-            return !isNaN(new Date(value).getTime());
-          }),
-          betweenDates: helpers.withMessage(
-            "Data urodzenia musi być pomiędzy 1900-01-01 a " + today + ". ",
-            (value) => {
-              // First, check if the date is valid. If not, skip this validation.
-              if (isNaN(new Date(value).getTime())) {
-                return true; // Return true to not trigger this validation message when the date is invalid.
-              }
-              // If the date is valid, proceed with the betweenDates validation.
-              return betweenDates(value);
-            }
-          ),
-        },
+        }
       };
     });
 
@@ -346,9 +388,20 @@ h3 {
   font-size: 1em;
 }
 
+.error-message {
+  margin-bottom: 1em;
+}
+
 .button-group {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+@media screen and (max-width: 500px) {
+  .edit-form {
+    width: 90vw;
+  }
+  
 }
 </style>

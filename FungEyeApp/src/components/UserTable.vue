@@ -4,46 +4,73 @@
       <thead class="table-header">
         <tr class="table-row">
           <th scope="col" class="table-cell"></th>
-          <th scope="col" class="table-cell">Nazwa Użytkownika</th>
+          <th scope="col" class="table-cell">Login</th>
           <th scope="col" class="table-cell">Email</th>
           <th scope="col" class="table-cell">Imię</th>
           <th scope="col" class="table-cell">Nazwisko</th>
+          <th scope="col" class="table-cell">Szczegóły</th>
+          <!-- <th scope="col" class="table-cell">Zbanowany do dnia</th>
+          <th scope="col" class="table-cell">Usunięto dnia</th>
+          <th scope="col" class="table-cell">Odzyskaj</th>
           <th scope="col" class="table-cell">Posty</th>
           <th scope="col" class="table-cell">Edytuj</th>
           <th scope="col" class="table-cell">Banuj</th>
-          <th scope="col" class="table-cell">Usuń</th>
+          <th scope="col" class="table-cell">Usuń</th> -->
         </tr>
       </thead>
       <tbody class="table-body">
-        <tr class="table-row" v-for="user in users" :key="user.email">
-          <td class="table-cell">
-            <img v-if="user.imageUrl" :src="user.imageUrl" alt="profile picture" class="profile-picture" />
-            <img v-else src="https://avatar.iran.liara.run/public/76" alt="profile picture" class="profile-picture" />
+        <tr class="table-row" v-for="user in users" :key="user.id" @click="userDetails(user)">
+          <td class="table-cell img-cell" :class="user.dateDeleted ? 'deleted-user' : ''">
+            <ProfileImage :imgSrc="user.imageUrl" :width="25" :height="25" :showBorder="false" />
           </td>
-          <td class="table-cell">{{ user.username }}</td>
-          <td class="table-cell">{{ user.email }}</td>
-          <td class="table-cell">{{ user.firstName }}</td>
-          <td class="table-cell">{{ user.lastName }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">
+            {{ user.username }}
+          </td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.email }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.firstName }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ user.lastName }}</td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">
+            <button class="btn fungeye-default-button" id="btn-retrieveAccount" @click="userDetails(user)">
+              <font-awesome-icon icon="fa-solid fa-angles-right"></font-awesome-icon>
+            </button>
+          </td>
+
+          <!-- <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDate(user.banExpirationDate)
+            }}
+          </td>
+          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDeletedDate(user.dateDeleted)
+            }}
+          </td>
           <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-viewPosts" @click="viewPosts(user.email)">
+            <button class="btn fungeye-default-button" id="btn-retrieveAccount" @click="$emit('retrieve-account', user)"
+              v-if="user.dateDeleted !== null">
+              <font-awesome-icon icon="fa-solid fa-undo"></font-awesome-icon>
+            </button>
+          </td>
+          <td class="table-cell">
+            <button class="btn fungeye-default-button" id="btn-viewPosts" @click="viewPosts(user.email)"
+              :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-list"></font-awesome-icon>
             </button>
           </td>
           <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-editUser" @click="$emit('edit-user', user)">
+            <button class="btn fungeye-default-button" id="btn-editUser" @click="$emit('edit-user', user)"
+              :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
             </button>
           </td>
           <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-banUser" @click="$emit('ban-user', user.email)">
+            <button class="btn fungeye-default-button" id="btn-banUser" @click="$emit('ban-user', user)"
+              :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-ban"></font-awesome-icon>
             </button>
           </td>
           <td class="table-cell">
-            <button class="btn fungeye-red-button" id="btn-deleteUser" @click="deleteUser(user.email)">
+            <button class="btn fungeye-red-button" id="btn-deleteUser" @click="$emit('delete-user', user)"
+              :disabled="user.dateDeleted !== null">
               <font-awesome-icon icon="fa-solid fa-trash" />
             </button>
-          </td>
+          </td> -->
         </tr>
       </tbody>
     </table>
@@ -51,18 +78,35 @@
 </template>
 
 <script>
+import ProfileImage from './ProfileImage.vue';
+
 export default {
   props: ["users"],
+  components: {
+    ProfileImage,
+  },
   methods: {
     viewPosts(email) {
       this.$router.push({ name: "UserPosts", params: { email: email } });
     },
-    deleteUser(email) {
-      if (
-        confirm(`Czy na pewno chcesz usunąć użytkownika o emailu ${email}?`)
-      ) {
-        this.$emit("delete-user", email);
+    formatDate(date) {
+      // console.log(date);
+      if (date === null || new Date(date) < new Date()) {
+        return "";
       }
+      if (new Date(date).getFullYear() > 2100) {
+        return "Na zawsze";
+      }
+      return new Date(date).toLocaleString();
+    },
+    formatDeletedDate(date) {
+      if (date === null) {
+        return "";
+      }
+      return new Date(date).toLocaleString();
+    },
+    userDetails(user) {
+      this.$router.push({ name: "UserProfileAdmin", params: { id: user.id } });
     },
   }
 };
@@ -141,6 +185,10 @@ thead tr:last-child th:last-child {
   font-size: 1em;
 }
 
+.img-cell {
+  padding-right: 0px !important;
+}
+
 .profile-picture {
   width: 25px;
   height: 25px;
@@ -159,5 +207,37 @@ thead tr:last-child th:last-child {
 #btn-banUser {
   background-color: var(--warning);
   color: var(--black);
+}
+
+.deleted-user {
+  color: grey !important;
+}
+
+button .deleted-user {
+  cursor: not-allowed !important;
+}
+
+@media screen and (max-width: 992px) {
+  .table-container {
+    margin: 20px 20px;
+    max-width: 95%;
+  }
+
+  .table-hover>tbody>tr>td {
+    padding: 10px;
+  }
+
+  .fungeye-default-button,
+  .fungeye-red-button {
+    height: 25px;
+    padding: 0 10px;
+    font-size: 0.8em;
+  }
+
+  .profile-picture {
+    width: 20px;
+    height: 20px;
+  }
+
 }
 </style>

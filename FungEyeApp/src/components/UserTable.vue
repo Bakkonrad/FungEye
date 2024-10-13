@@ -186,8 +186,7 @@ thead tr:last-child th:last-child {
 }
 
 .img-cell {
-  display: flex;
-  justify-content: flex-end;
+  padding-right: 0px !important;
 }
 
 .profile-picture {

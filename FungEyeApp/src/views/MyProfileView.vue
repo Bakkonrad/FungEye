@@ -17,7 +17,7 @@
     <div v-else>
       <div v-if="!isEditing" class="container-md">
         <div id="user-info">
-          <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt"/>
+          <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
           <div class="buttons">
             <button @click="startEditing" type="button" class="btn fungeye-default-button">
               <font-awesome-icon icon="fa-solid fa-gear" class="button-icon" />
@@ -29,7 +29,7 @@
             </button>
           </div>
         </div>
-        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" />
+        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" />
       </div>
     </div>
     <div class="settings container-md" v-if="isEditing">
@@ -62,6 +62,7 @@
 import ProfileImage from "@/components/ProfileImage.vue";
 import UserService from "@/services/UserService";
 import AuthService from "@/services/AuthService";
+import FollowService from "@/services/FollowService";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
@@ -157,56 +158,64 @@ export default {
     const name_surname = ref('');
     const email = ref('');
     const createdAt = ref('');
-    const follows = ref([
-      // {
-      //   id: 1,
-      //   name: "Przyjaciel 1",
-      //   img: "src/assets/images/profile-images/profile-img2.jpeg",
-      // },
-      // {
-      //   id: 2,
-      //   name: "Przyjaciel 2",
-      //   img: "src/assets/images/profile-images/profile-img3.jpeg",
-      // },
-      // {
-      //   id: 3,
-      //   name: "Przyjaciel 3",
-      //   img: "src/assets/images/profile-images/profile-img4.jpeg",
-      // },
-    ]);
+    // const follows = ref([
+    //   // {
+    //   //   id: 1,
+    //   //   name: "Przyjaciel 1",
+    //   //   img: "src/assets/images/profile-images/profile-img2.jpeg",
+    //   // },
+    //   // {
+    //   //   id: 2,
+    //   //   name: "Przyjaciel 2",
+    //   //   img: "src/assets/images/profile-images/profile-img3.jpeg",
+    //   // },
+    //   // {
+    //   //   id: 3,
+    //   //   name: "Przyjaciel 3",
+    //   //   img: "src/assets/images/profile-images/profile-img4.jpeg",
+    //   // },
+    // ]);
+    const follows = ref([]);
+    const followers = ref([]);
 
     const fetchUser = async () => {
       try {
         isLoading.value = true;
         const userData = await UserService.getUserData(localStorage.getItem("id"));
+        const userFollows = await FollowService.getFollowing(localStorage.getItem("id"));
+        const userFollowers = await FollowService.getFollowers(localStorage.getItem("id"));
         if (!userData.success) {
           errorLoadingData.value = true;
           errorMessage.value = userData.message;
           return;
-        } else {
-          if (userData.data.imageUrl && userData.data.imageUrl !== "string" && userData.data.imageUrl !== "placeholder") {
-            imgSrc.value = userData.data.imageUrl;
-            localStorage.setItem("profileImg", userData.data.imageUrl);
-            setProfileImage(userData.data.imageUrl);
-          }
-          else { // placeholder image
-            const placeholderImg = "src/assets/images/profile-images/placeholder.png";
-            imgSrc.value = placeholderImg;
-            localStorage.setItem("profileImg", placeholderImg);
-            setProfileImage(placeholderImg);
-          }
-          user.value = userData.data;
-          // console.log(userData.data);
-          username.value = userData.data.username;
-          createdAt.value = userData.data.createdAt;
-          if (userData.data.firstName && userData.data.lastName) {
-            name_surname.value = userData.data.firstName + " " + userData.data.lastName;
-          }
-          email.value = userData.data.email;
-          // this.mushrooms = response.mushrooms;
-          follows.value = userData.data.follows;
-          console.log(follows.value);
         }
+
+        if (userData.data.imageUrl && userData.data.imageUrl !== "string" && userData.data.imageUrl !== "placeholder") {
+          imgSrc.value = userData.data.imageUrl;
+          localStorage.setItem("profileImg", userData.data.imageUrl);
+          setProfileImage(userData.data.imageUrl);
+        }
+        else { // placeholder image
+          const placeholderImg = "src/assets/images/profile-images/placeholder.png";
+          imgSrc.value = placeholderImg;
+          localStorage.setItem("profileImg", placeholderImg);
+          setProfileImage(placeholderImg);
+        }
+        user.value = userData.data;
+        // console.log(userData.data);
+        username.value = userData.data.username;
+        createdAt.value = userData.data.createdAt;
+        if (userData.data.firstName && userData.data.lastName) {
+          name_surname.value = userData.data.firstName + " " + userData.data.lastName;
+        }
+        email.value = userData.data.email;
+        // this.mushrooms = response.mushrooms;
+        follows.value = userFollows.data;
+        followers.value = userFollowers.data;
+        console.log("Follows: ", follows.value);
+        console.log("Followers: ", followers.value);
+        console.log(userData.data.imageUrl);
+
       } catch (error) {
         errorLoadingData.value = true;
         errorMessage.value = userData.message;
@@ -241,6 +250,7 @@ export default {
       email,
       createdAt,
       follows,
+      followers,
       errorLoadingData,
       errorMessage,
       isEditing,

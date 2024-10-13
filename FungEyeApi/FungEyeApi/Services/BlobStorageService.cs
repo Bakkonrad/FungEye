@@ -11,16 +11,20 @@ namespace FungEyeApi.Services
         private readonly DataContext db;
         private readonly string _containerName = "users";
 
-        //public BlobStorageService(IConfiguration config)
-        //{
-        //    _connectionString = config.GetConnectionString("AzureBlobStorageConnectionLocal");
-        //}
+        private readonly string _connectionString;
 
-        public BlobStorageService(BlobServiceClient blobServiceClient, DataContext db)
+        public BlobStorageService(IConfiguration config)
         {
-            _blobServiceClient = blobServiceClient;
-            this.db = db;
+            _connectionString = config.GetConnectionString("AzureBlobStorageConnection");
+
+            _blobServiceClient = new BlobServiceClient(_connectionString);
         }
+
+        //public BlobStorageService(BlobServiceClient blobServiceClient, DataContext db)
+        //{
+        //    _blobServiceClient = blobServiceClient;
+        //    this.db = db;
+        //}
 
         public async Task<string> UploadFile(IFormFile file)
         {

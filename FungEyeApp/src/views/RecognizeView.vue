@@ -1,33 +1,46 @@
 <template>
   <div class="container-md">
     <h1 class="page-title">Rozpoznawanie grzybów</h1>
-    <div class="directions">
-      <h2>Instrukcja</h2>
-      <div class="directions-text">
-        <p>
-          1. Aby rozpocząć proces rozpoznawania grzybów, wybierz zdjęcie grzyba z dysku lub zrób zdjęcie za pomocą
-          kamery.
-        </p>
-        <p>
-          <b>Uwaga!</b> Do jednej analizy należy wybrać zdjęcia tylko jednego grzyba. Inaczej wyniki mogą być
-          nieprawidłowe.
-        </p>
-        <p>
-          2. Po wybraniu zdjęcia, kliknij przycisk "Rozpoznaj". Po chwili dostaniesz 3 prawdopodobne wyniki rozpoznania.
-        </p>
-        <p>
-          <b>Uwaga!</b> Wyniki mogą być niedokładne. W celu uzyskania pewniejszych wyników, skonsultuj się z ekspertem.
-        </p>
-        <p>
-          3. Jeśli chcesz dowiedzieć się więcej o danym gatunku grzyba, kliknij na nazwę gatunku w wynikach rozpoznania.
-        </p>
+    <div class="button-container">
+      <button type="button" class="btn fungeye-default-button" @click="toggleDirections">{{ directionsState }}</button>
+    </div>
+    <div v-if="directionsState === 'Zwiń instrukcję'" class="directions-column">
+      <div class="directions">
+        <h2>Instrukcja</h2>
+        <div class="directions-text">
+          <p>
+            1. Aby rozpocząć proces rozpoznawania grzybów, wybierz zdjęcie grzyba z dysku lub zrób zdjęcie za pomocą
+            kamery.
+          </p>
+          <p>
+            <b>Uwaga!</b> Do jednej analizy należy wybrać zdjęcia tylko jednego grzyba. Inaczej wyniki mogą być
+            nieprawidłowe.
+          </p>
+          <p>
+            2. Po wybraniu zdjęcia, kliknij przycisk "Rozpoznaj". Po chwili dostaniesz 3 prawdopodobne wyniki
+            rozpoznania.
+          </p>
+          <p>
+            <b>Uwaga!</b> Wyniki mogą być niedokładne. W celu uzyskania pewniejszych wyników, skonsultuj się z
+            ekspertem.
+          </p>
+          <p>
+            3. Jeśli chcesz dowiedzieć się więcej o danym gatunku grzyba, kliknij na nazwę gatunku w wynikach
+            rozpoznania.
+          </p>
+        </div>
       </div>
     </div>
+    <!-- <div class="recognize-content"> -->
     <div class="container-md content">
       <div class="photo-upload">
         <div class="card">
           <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" multiple />
-          <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
+          <div v-if="showResult" class="back-to-file-upload">
+            <button type="button" class="btn fungeye-secondary-button" @click="clearImages">Wybierz inne
+              zdjęcia</button>
+          </div>
+          <div v-if="!showResult" class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
             @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
             <span class="mobile-photo-upload">
               <span class="select">Kliknij aby zrobić lub dodać zdjęcie</span>
@@ -46,31 +59,36 @@
           <h3 v-if="images.length > 0" class="chosen-files-header">
             Wybrane zdjęcia:
           </h3>
-          <div class="container">
+          <div class="container uploaded-images" :class="images.length > 0 ? 'images-uploaded' : ''">
             <div class="image" v-for="(image, index) in images" :key="index">
               <span class="delete" @click="deleteImage(index)">&times;</span>
               <img :src="image.url" alt="uploaded image" />
             </div>
           </div>
         </div>
-        <div class="error">
+        <div class="error mt-2">
           <span v-if="imagesUploaded === false" class="error-message">Nie wybrano zdjęcia</span>
+          <span v-if="errorRecognizing === true" class="error-message">Błąd podczas rozpoznawania. Spróbuj ponownie.</span>
+          <span v-if="fileSizeError === true" class="error-message">Przesłano za duży plik. Maksymalny rozmiar to 10MB.</span>
         </div>
         <div class="recognize-button">
-          <button @click="recognize" type="button" class="btn fungeye-default-button" id="upload-button">
+          <button @click="recognize" class="btn fungeye-default-button" id="upload-button">
             Rozpoznaj
           </button>
         </div>
       </div>
       <LoadingSpinner v-if="isLoading"></LoadingSpinner>
-      <RecognizeResult v-if="showResult && images.length > 0" :image="images[0].url"> </RecognizeResult>
+      <RecognizeResult v-if="showResult && images.length > 0" :image="images[0].url" :results="results">
+      </RecognizeResult>
     </div>
   </div>
+  <!-- </div> -->
 </template>
 
 <script>
 import RecognizeResult from "@/components/RecognizeResult.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import FungiService from "@/services/FungiService";
 
 export default {
   components: {
@@ -79,20 +97,18 @@ export default {
   },
   data() {
     return {
-      images: [
-        // {
-        //   name: "image1.jpg",
-        //   url: "https://picsum.photos/600/1800",
-        // },
-        // {
-        //   name: "image2.jpg",
-        //   url: "https://via.placeholder.com/150",
-        // },
-      ],
+      images: [],
+      file: null,
       isDragging: false,
       showResult: false,
       imagesUploaded: null,
       id: 2,
+      isLoading: false,
+      results: [],
+      directionsState: "Pokaż instrukcję",
+      maxFileSize: 10 * 1024 * 1024, // 10MB
+      fileSizeError: false,
+      errorRecognizing: false,
     };
   },
   methods: {
@@ -100,6 +116,9 @@ export default {
       const files = event.target.files;
       if (files.length === 0) return;
       for (let i = 0; i < files.length; i++) {
+        if (this.checkFileSize(files[i]) === false) {
+          return;
+        };
         if (!this.images.some((image) => image.name === files[i].name)) {
           this.images.push({
             name: files[i].name,
@@ -107,8 +126,18 @@ export default {
           });
         }
       }
+      this.file = files[0];
       this.imagesUploaded = true;
       console.log(this.images);
+    },
+    checkFileSize(file) {
+      if (file.size > this.maxFileSize) {
+        this.fileSizeError = true;
+        return false;
+      }
+      else {
+        this.fileSizeError = false;
+      }
     },
     deleteImage(index) {
       this.images.splice(index, 1);
@@ -131,6 +160,9 @@ export default {
       const files = event.dataTransfer.files;
       if (files.length === 0) return;
       for (let i = 0; i < files.length; i++) {
+        if (this.checkFileSize(files[i]) === false) {
+          return;
+        };
         if (!this.images.some((image) => image.name === files[i].name)) {
           this.images.push({
             name: files[i].name,
@@ -138,26 +170,74 @@ export default {
           });
         }
       }
+      this.file = files[0];
       console.log(this.images);
     },
-    recognize() {
+    async recognize() {
       if (this.images.length === 0) {
         this.imagesUploaded = false;
         return;
       }
       this.isLoading = true;
+      console.log(this.file);
+      const response = await FungiService.predict(this.file);
+      if (response.success == false || response.data.length === 0) {
+        console.log(response.message);
+        this.errorRecognizing = true;
+        this.isLoading = false;
+        return;
+      }
+      console.log(response.data);
+      this.results = response.data.slice(0, 3);
       this.showResult = true;
       this.isLoading = false;
+    },
+    toggleDirections() {
+      this.directionsState = this.directionsState === "Pokaż instrukcję" ? "Zwiń instrukcję" : "Pokaż instrukcję";
+    },
+    clearImages() {
+      this.images = [];
+      this.imagesUploaded = null;
+      this.results = [];
+      this.showResult = false;
     },
   },
 };
 </script>
 
 <style scoped>
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.recognize-content {
+  display: flex;
+  justify-content: center !important;
+  align-items: center;
+  flex-direction: row;
+  gap: 2em;
+  width: 100%;
+}
+
 .content {
   display: flex;
   justify-content: center;
   gap: 2em;
+}
+
+.directions-column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 2em;
+  width: 100%;
+  border: #ccc 1px solid;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
 }
 
 .directions {
@@ -235,8 +315,10 @@ export default {
   margin-bottom: 8px;
   margin-top: 20px;
   width: 100%;
-  height: auto;
-  max-height: 200px;
+}
+
+.images-uploaded {
+  height: 250px;
 }
 
 .container .image {
@@ -250,6 +332,12 @@ export default {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+.uploaded-images {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: auto;
 }
 
 .container .image img {
@@ -309,6 +397,10 @@ export default {
 }
 
 @media screen and (max-width: 768px) {
+  .page-title {
+    font-size: 2em;
+  }
+
   .container-md {
     flex-direction: column;
     gap: 1em;

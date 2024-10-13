@@ -33,12 +33,17 @@
     .profile-button-text {
         display: none;
     }
+
+    .button-icon {
+        margin-right: 0px;
+    }
 }
 
 @media screen and (max-width: 991px) {
     .fungeye-default-button {
         background-color: var(--green) !important;
     }
+
     .profile-button-text {
         display: flex;
     }

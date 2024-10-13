@@ -230,6 +230,11 @@
   margin-top: 0;
 }
 
+.card-text {
+  font-size: 1.1em;
+  padding: 0 15px;
+}
+
 .button-container {
   display: flex;
   justify-content: center;

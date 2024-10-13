@@ -18,11 +18,11 @@
                 <div class="user-admin-info">
                     <h2>Informacje</h2>
                     <ul class="infos">
-                        <li><strong>Administrator:</strong> {{ isAdmin ? "Tak" : "Nie" }}</li>
-                        <li><strong>Konto zbanowane:</strong> {{ isBanned ? "Tak" : "Nie" }}</li>
-                        <li v-if="isBanned"><strong>Konto zbanowane do dnia:</strong> {{ dateBanned }}</li>
-                        <li><strong>Konto usunięte:</strong> {{ dateDeleted ? "Tak" : "Nie" }}</li>
-                        <li v-if="isDeleted"><strong>Konto usunięte dnia:</strong> {{ dateDeleted }}</li>
+                        <li><b>Administrator:</b> {{ isAdmin ? "Tak" : "Nie" }}</li>
+                        <li><b>Konto zbanowane:</b> {{ isBanned ? "Tak" : "Nie" }}</li>
+                        <li v-if="isBanned"><b>Konto zbanowane do dnia:</b> {{ dateBanned }}</li>
+                        <li><b>Konto usunięte:</b> {{ dateDeleted ? "Tak" : "Nie" }}</li>
+                        <li v-if="isDeleted"><b>Konto usunięte dnia:</b> {{ dateDeleted }}</li>
                     </ul>
                 </div>
                 <div class="admin-actions">

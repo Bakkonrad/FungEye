@@ -9,15 +9,15 @@
       <div id="user-info">
         <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
         <div class="buttons">
-          <button v-if="!followed" @click="follow" type="button" class="btn fungeye-default-button">
+          <button v-if="followed == false" @click="follow" type="button" class="btn fungeye-default-button">
             &plus; Obserwuj
           </button>
-          <button v-else @click="unfollow" type="button" class="btn fungeye-red-button">
+          <button v-if="followed == true" @click="unfollow" type="button" class="btn fungeye-red-button">
             Usuń z obserwowanych
           </button>
         </div>
       </div>
-      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" />
+      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" />
     </div>
   </div>
 </template>
@@ -27,6 +27,7 @@ import ProfileImage from "@/components/ProfileImage.vue";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import UserService from "@/services/UserService";
+import FollowService from "@/services/FollowService";
 
 export default {
   components: {
@@ -35,57 +36,78 @@ export default {
     UserProfileInfo,
   },
   async created() {
-    this.id = this.$route.params.id;
-    if (this.id == localStorage.getItem("id")) {
-      this.$router.push({ name: "myProfile" });
-      return;
-    }
-    console.log(this.id);
-    const response = await UserService.getUserData(this.id);
-    if (response.success === false) {
-      this.errorFindingUser = true; 
-      console.log(response.message);
-      return;
-    }
-    this.user = response.data;
-    this.imgSrc = response.data.imageUrl;
-    this.username = response.data.username;
-    this.name_surname = response.data.firstName + " " + response.data.lastName;
-    this.email = response.data.email;
-    this.createdAt = response.data.createdAt;
-    // this.mushrooms = response.data.mushrooms;
-    this.follows = response.data.follows;
-    // if (this.follows.length > 0 && this.follows.includes(localStorage.getItem("id"))) {
-    //   this.followed = true;
-    // } else {
-    //   this.followed = false;
-    // }
+    this.fetchUser();
+    this.checkIfFollowed();
   },
   data() {
     return {
       id: null,
       imgSrc: "",
       user: null,
-      followed: true,
+      followed: null,
       username: "",
       name_surname: "",
       email: "",
       mushrooms: [],
       follows: [],
+      followers: [],
       createdAt: "",
       errorFindingUser: false,
     };
   },
   methods: {
+    async fetchUser() {
+      this.id = this.$route.params.id;
+      if (this.id == localStorage.getItem("id")) {
+        this.$router.push({ name: "myProfile" });
+        return;
+      }
+      console.log(this.id);
+      const response = await UserService.getUserData(this.id);
+      const followsResponse = await FollowService.getFollowing(this.id);
+      const followersResponse = await FollowService.getFollowers(this.id);
+      if (response.success === false) {
+        this.errorFindingUser = true;
+        console.log(response.message);
+        return;
+      }
+      this.user = response.data;
+      this.imgSrc = response.data.imageUrl;
+      this.username = response.data.username;
+      this.name_surname = response.data.firstName + " " + response.data.lastName;
+      this.email = response.data.email;
+      this.createdAt = response.data.createdAt;
+      this.follows = followsResponse.data;
+      this.followers = followersResponse.data;
+    },
+    async checkIfFollowed() {
+      const response = await FollowService.isFollowing(localStorage.getItem("id"), this.id);
+      console.log(localStorage.getItem("id") + " is following " + this.id + "? " + response.data);
+      if (response.success === false) {
+        console.log(response.message);
+        return;
+      }
+      this.followed = response.data;
+    },
     follow() {
-      this.followed = true;
-      const response = UserService.followUser(this.id);
+      const response = FollowService.followUser(this.id);
+      if (response.success === false) {
+        console.log(response.message);
+        return;
+      }
       console.log(response);
+      this.followed = true;
+      this.fetchUser();
     },
     unfollow() {
-      this.followed = false;
-      const response = UserService.unfollowUser(this.id);
+      const response = FollowService.unfollowUser(this.id);
+      if (response.success === false) {
+        console.log(response.message);
+        return;
+      }
       console.log(response);
+      this.followed = false;
+      this.fetchUser();
     },
     goBack() {
       this.$router.go(-1);

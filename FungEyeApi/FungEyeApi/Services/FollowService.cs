@@ -51,16 +51,16 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<List<User>> GetFollowers(int userId)
+        public async Task<List<FollowUser>> GetFollowers(int userId)
         {
             try
             {
                 var followers = await db.Follows
                             .Where(f => f.FollowedUserId == userId)
-                            .Select(f => f.FollowedUser)
+                            .Select(f => f.User)
                             .ToListAsync();
 
-                return followers.Select(u => new User(u)).ToList();
+                return followers.Select(u => new FollowUser(u)).ToList();
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<List<User>> GetFollows(int userId)
+        public async Task<List<FollowUser>> GetFollows(int userId)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace FungEyeApi.Services
                             .Select(f => f.FollowedUser)
                             .ToListAsync();
 
-                return follows.Select(u => new User(u)).ToList();
+                return follows.Select(u => new FollowUser(u)).ToList();
             }
             catch (Exception ex)
             {
@@ -108,6 +108,26 @@ namespace FungEyeApi.Services
                 throw new Exception("Error during deleting follow: " + ex.Message);
             }
 
+        }
+
+        public async Task<bool> IsFollowing(int userId, int followId)
+        {
+            try
+            {
+                //check if follow already exists between users
+                var existingFollow = await db.Follows.FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedUserId == followId);
+
+                return existingFollow != null;
+            }
+            catch (Exception ex)
+            {
+                if (ex is InvalidOperationException)
+                {
+                    throw;
+                }
+
+                throw new Exception("Error during adding follow: " + ex.Message);
+            }
         }
     }
 }

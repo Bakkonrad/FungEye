@@ -80,7 +80,7 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/post',
+      path: '/post/:id',
       name: 'post',
       component: PostView
     }

@@ -20,7 +20,7 @@
         </div>
   
         <!-- Przycisk polubienia -->
-        <button @click="toggleLike" :class="{ liked: isLiked }">
+        <button @click.stop="toggleLike" :class="{ liked: isLiked }">
           {{ isLiked ? 'Lubię to 👍' : 'Lubię to 👍' }}
         </button>
       </div>
@@ -56,7 +56,7 @@
       return {
         post: {
           username: 'Mariusz Pudzianowski',
-          image: 'src/assets/images/mushrooms/db5c95b8-5596-4d91-8dcd-f1a9703e5a97.jpeg',
+          image: 'src/assets/images/mushrooms/a8eb8c5b-aaed-46e3-8798-a563d52ad54b.jpeg',
           content: 'Patrzcie jakiego super grzyba znalazłem! Dzięki aplikacji FungEye niestety wiem, że jest on trujący 🍄',
           likes: 100,
           comments: [
@@ -84,6 +84,10 @@
           this.post.comments.push({ username: this.currentUser, text: this.newComment });
           this.newComment = '';
         }
+      },
+      goToPortal() {
+        // Przeniesienie do portalu
+        this.$router.push({ name: 'portal' });
       }
     }
   };
@@ -99,12 +103,13 @@
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
-  
+   
   .post-image img {
     width: 100%;
     max-height: 400px;
     object-fit: cover;
     border-radius: 15px;
+    cursor: pointer;
   }
   
   .post-content {
@@ -112,6 +117,7 @@
     margin-top: 20px;
     background-color: #fff7e6;
     border-radius: 15px;
+    cursor: pointer;
   }
   
   .username {
@@ -207,4 +213,3 @@
     margin-bottom: 5px;
   }
   </style>
-  

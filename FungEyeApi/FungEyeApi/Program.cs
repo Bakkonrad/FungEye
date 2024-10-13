@@ -55,6 +55,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IModelService, ModelService>();
 builder.Services.AddScoped<IFollowService, FollowService>();
+builder.Services.AddScoped<IFungiAtlasService, FungiAtlasService>();
 //builder.Services.AddAzureClients(clientBuilder =>
 //{
 //    clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnectionString:blob"]!, preferMsi: true);

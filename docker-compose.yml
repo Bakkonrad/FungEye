@@ -22,6 +22,21 @@ services:
     depends_on:
       - api
 
+  tfserving:
+    image: tensorflow/serving:latest-gpu
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./inception:/models/inception/1
+    environment:
+      - MODEL_NAME=inception
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+
 networks:
   default:
     name: fungeye-network

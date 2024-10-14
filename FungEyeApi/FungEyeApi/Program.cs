@@ -46,7 +46,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddDbContext<DataContext>(options =>
 {
     //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.UseSqlite(@"Data Source=../mydatabase.db");
+    options.UseSqlite(@"Data Source=data/mydatabase.db");
 });
 builder.Services.AddHostedService<DeleteExpiredAccountsService>();
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
@@ -68,7 +68,7 @@ app.UseCors();
 
 
 app.UseSwagger();
-//app.UseSwaggerUI();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

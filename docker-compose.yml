@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./FungEyeApi/FungEyeApi
+      dockerfile: Dockerfile
+    ports:
+      - "5268:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    volumes:
+      - ./secrets.json:/app/secrets.json:ro
+      - ./FungEyeApi:/app/data
+
+  app:
+    build:
+      context: ./FungEyeApp
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+networks:
+  default:
+    name: fungeye-network

@@ -32,7 +32,7 @@ stop:
 	@echo -e "$(RED)FungEye project has been stopped.$(NC)"
 
 # Restart the project
-restart: down up
+restart: stop start
 
 # Rebuild all services
 build:

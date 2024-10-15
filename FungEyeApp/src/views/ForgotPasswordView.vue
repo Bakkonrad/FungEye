@@ -14,34 +14,28 @@
                         :class="{ invalidInput: error }" />
                 </div>
                 <p v-for="error in v$.email.$errors" :key="error.$uid" class="error-message">{{ error.$message }}</p>
-                <button @click="searchForEmail" class="btn fungeye-default-button submitFormButton">Dalej</button>
+                <button @click="sendEmail" class="btn fungeye-default-button submitFormButton">Wyślij email</button>
             </div>
-            <!-- Email found -->
+            <!-- Email sent -->
             <div v-if="emailSent" class="found-account">
                 <h2>Wysłano e-mail</h2>
                 <p>Na adres e-mail <b>{{ formData.email }}</b> został wysłany link do zresetowania hasła.</p>
                 <br>
                 <h3>Email nie dotarł?</h3>
-                <p>Sprawdź w folderze Spam lub</p>
+                <p>Sprawdź w folderze Spam lub wyślij email ponownie</p>
                 <button @click="sendEmail" class="btn fungeye-default-button submitFormButton">Wyślij ponownie</button>
             </div>
         </div>
-        <RouterLink :to="{name: 'resetPassword', query: {token: token}}">
-            reset
-        </RouterLink>
     </div>
 </template>
 
 <script>
 import { RouterLink } from "vue-router";
 import BaseInput from "../components/BaseInput.vue";
-import UserService from "@/services/UserService";
 import { useVuelidate } from "@vuelidate/core";
 import {
     required,
     email,
-    minLength,
-    sameAs,
     helpers,
 } from "@vuelidate/validators";
 import { computed, reactive } from "vue";
@@ -84,25 +78,12 @@ export default {
         };
     },
     methods: {
-        async searchForEmail() {
+        async sendEmail() {
             const result = await this.v$.email.$validate();
             if (!result) {
                 this.error = true;
                 return;
             }
-            // const response = UserService.userExists(this.email);
-            console.log(this.email);
-            const response = true; // user exists
-            // const response = false; // user does not exist
-            if (response) {
-                this.error = false;
-                this.sendEmail();
-            } else {
-                this.error = true;
-                this.errorMessage = "Nie znaleziono konta o podanym adresie e-mail";
-            }
-        },
-        sendEmail() {
             const response = AuthService.sendResetPasswordEmail(this.formData.email);
             if (response.success === false) {
                 this.error = true;
@@ -111,17 +92,6 @@ export default {
             }
             this.emailSent = true;
             console.log("Email sent");
-        },
-        async resetPassword() {
-            const validPassword = await this.v$.password.$validate();
-            const validConfirmPassword = await this.v$.confirmPassword.$validate();
-            if (!validPassword || !validConfirmPassword) {
-                this.error = true;
-                return;
-            }
-            this.submitted = true;
-            this.error = false;
-            console.log("Resetting password");
         },
     },
 };

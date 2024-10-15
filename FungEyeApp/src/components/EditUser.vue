@@ -59,36 +59,6 @@
             {{ error.$message }}
           </span>
         </div>
-        <!-- <div class="mb-3">
-          <BaseInput v-model="registerFormData.password" type="password" label="Hasło (min. 8 znaków)" :class="{
-            'password-input': !submitted,
-            validInput: submitted && !v$.password.$invalid,
-            invalidInput: submitted && v$.password.$invalid,
-          }" />
-          <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
-            {{ error.$message }}
-          </span>
-        </div>
-        <div class="mb-3">
-          <BaseInput v-model="registerFormData.confirmPassword" type="password" label="Potwierdź hasło" :class="{
-            'confirmPassword-input': !submitted,
-            validInput: submitted && !v$.confirmPassword.$invalid,
-            invalidInput: submitted && v$.confirmPassword.$invalid,
-          }" />
-          <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
-            {{ error.$message }}
-          </span>
-        </div> -->
-        <!-- <div class="mb-3">
-          <BaseInput v-model="registerFormData.dateOfBirth" type="date" label="Data urodzenia" :class="{
-            'dateOfBirth-input': !submitted,
-            validInput: submitted && !v$.dateOfBirth.$invalid,
-            invalidInput: submitted && v$.dateOfBirth.$invalid,
-          }" />
-          <span class="error-message" v-for="error in v$.dateOfBirth.$errors" :key="error.$uid">
-            {{ error.$message }}
-          </span>
-        </div> -->
         <span class="error-message" v-if="error">{{ apiErrorMessage }}</span>
         <div class="button-group">
           <button type="submit" class="btn fungeye-default-button" @click="save">

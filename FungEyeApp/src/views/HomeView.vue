@@ -58,7 +58,7 @@
         </div>
       </div>
       <div class="button-container">
-        <RouterLink to="/portal" class="btn fungeye-default-button" id="portal-button">Przejdź do portalu</RouterLink>
+        <RouterLink to="/register" class="btn fungeye-default-button" id="portal-button">Dołącz do społeczności</RouterLink>
       </div>
     </section>
   </div>

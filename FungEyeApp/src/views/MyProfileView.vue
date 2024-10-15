@@ -42,6 +42,37 @@
       </div>
       <div class="settings-content">
         <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
+        <!-- zmiana hasła z użyciem komponentów -->
+        <div class="settings-content-right">
+          <div class="edit-container">
+            <div class="edit-form">
+              <h3>Zmiana hasła</h3>
+              <form @submit.prevent="resetPassword">
+                <BaseInput v-model="resetPasswordFormData.password" type="password" placeholder="Nowe hasło" :class="{
+                  'password-input': !submitted,
+                  validInput: submitted && !v$.password.$invalid,
+                  invalidInput: submitted && v$.password.$invalid,
+                }" color="black" />
+                <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
+                  {{ error.$message }}
+                </span>
+                <BaseInput v-model="resetPasswordFormData.confirmPassword" type="password"
+                  placeholder="Powtórz nowe hasło" :class="{
+                    'confirmPassword-input': !submitted,
+                    validInput: submitted && !v$.confirmPassword.$invalid,
+                    invalidInput: submitted && v$.confirmPassword.$invalid,
+                  }" color="black" />
+                <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
+                  {{ error.$message }}
+                </span>
+                <p v-if="error" class="error-message">{{ errorMessage }}</p>
+                <button type="submit" class="btn fungeye-default-button">
+                  Zmień hasło
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
         <div class="settings-content-right">
           <div class="edit-container">
             <div class="edit-form">
@@ -67,9 +98,11 @@ import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
 import BaseInput from "@/components/BaseInput.vue";
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, computed } from "vue";
 import { isLoggedIn, profileImage, setProfileImage } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import { useVuelidate } from "@vuelidate/core";
+import { required, minLength, helpers, sameAs } from "@vuelidate/validators";
 
 export default {
   components: {
@@ -82,12 +115,9 @@ export default {
   },
   data() {
     return {
-      // imgSrc: "",
-      // imgFile: null,
-      // user: null,
-      // username: "",
-      // name_surname: "",
-      // email: "",
+      submitted: false,
+      errorLoadingData: false,
+      error: false,
       mushrooms: [
         "src/assets/images/mushrooms/ATLAS-borowik.jpg",
         "src/assets/images/mushrooms/ATLAS-muchomor.jpg",
@@ -96,27 +126,6 @@ export default {
         "src/assets/images/mushrooms/ATLAS-borowik.jpg",
         "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
       ],
-      // follows: [
-      //   {
-      //     id: 1,
-      //     name: "Przyjaciel 1",
-      //     img: "src/assets/images/profile-images/profile-img2.jpeg",
-      //   },
-      //   {
-      //     id: 2,
-      //     name: "Przyjaciel 2",
-      //     img: "src/assets/images/profile-images/profile-img3.jpeg",
-      //   },
-      //   {
-      //     id: 3,
-      //     name: "Przyjaciel 3",
-      //     img: "src/assets/images/profile-images/profile-img4.jpeg",
-      //   },
-      // ],
-      // errorLoadingData: false,
-      // errorMessage: "",
-      // isEditing: false,
-      // isLoading: true,
     };
   },
   methods: {
@@ -134,7 +143,6 @@ export default {
       try {
         const response = await UserService.deleteAccount(parseInt(localStorage.getItem('id')));
         if (response.success) {
-          // console.log("Account deleted");
           this.logOut();
         }
         else {
@@ -144,6 +152,21 @@ export default {
       catch (error) {
         console.error("Error deleting account: ", error);
       }
+    },
+    async resetPassword() {
+      this.submitted = true;
+      const result = await this.v$.$validate();
+      if (!result) {
+        return;
+      }
+      const response = await AuthService.resetPassword(localStorage.getItem('token'), this.resetPasswordFormData.password);
+      if (!response.success) {
+        this.errorLoadingData = true;
+        this.errorMessage = response.message;
+        return;
+      }
+      this.logOut();
+      this.$router.push("/log-in");
     },
   },
   setup() {
@@ -158,23 +181,6 @@ export default {
     const name_surname = ref('');
     const email = ref('');
     const createdAt = ref('');
-    // const follows = ref([
-    //   // {
-    //   //   id: 1,
-    //   //   name: "Przyjaciel 1",
-    //   //   img: "src/assets/images/profile-images/profile-img2.jpeg",
-    //   // },
-    //   // {
-    //   //   id: 2,
-    //   //   name: "Przyjaciel 2",
-    //   //   img: "src/assets/images/profile-images/profile-img3.jpeg",
-    //   // },
-    //   // {
-    //   //   id: 3,
-    //   //   name: "Przyjaciel 3",
-    //   //   img: "src/assets/images/profile-images/profile-img4.jpeg",
-    //   // },
-    // ]);
     const follows = ref([]);
     const followers = ref([]);
 
@@ -202,19 +208,14 @@ export default {
           setProfileImage(placeholderImg);
         }
         user.value = userData.data;
-        // console.log(userData.data);
         username.value = userData.data.username;
         createdAt.value = userData.data.createdAt;
         if (userData.data.firstName && userData.data.lastName) {
           name_surname.value = userData.data.firstName + " " + userData.data.lastName;
         }
         email.value = userData.data.email;
-        // this.mushrooms = response.mushrooms;
         follows.value = userFollows.data;
         followers.value = userFollowers.data;
-        console.log("Follows: ", follows.value);
-        console.log("Followers: ", followers.value);
-        console.log(userData.data.imageUrl);
 
       } catch (error) {
         errorLoadingData.value = true;
@@ -241,6 +242,39 @@ export default {
       fetchUser();
     });
 
+    const resetPasswordFormData = reactive({
+      password: null,
+      confirmPassword: null,
+    });
+
+    const rules = computed(() => {
+      return {
+        password: {
+          required: helpers.withMessage("Hasło jest wymagane. ", required),
+          minLength: helpers.withMessage(
+            "Hasło powinno zawierać conajmniej 8 znaków. ",
+            minLength(8)
+          ),
+        },
+        confirmPassword: {
+          required: helpers.withMessage(
+            "Potwierdzenie hasła jest wymagane. ",
+            required
+          ),
+          minLength: helpers.withMessage(
+            "Hasło powinno zawierać conajmniej 8 znaków. ",
+            minLength(8)
+          ),
+          sameAsPassword: helpers.withMessage(
+            "Hasła powinny być identyczne. ",
+            sameAs(resetPasswordFormData.password)
+          ),
+        },
+      }
+    });
+
+    const v$ = useVuelidate(rules, resetPasswordFormData);
+
     return {
       imgSrc,
       imgFile,
@@ -259,6 +293,8 @@ export default {
       startEditing,
       cancelEditing,
       saveUser,
+      resetPasswordFormData,
+      v$
     };
   },
 };

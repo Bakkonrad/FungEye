@@ -2,40 +2,25 @@
   <div class="add-post">
     <!-- Obrazek profilowy użytkownika -->
     <ProfileImage
-      imgSrc="https://fastly.picsum.photos/id/40/4106/2806.jpg?hmac=MY3ra98ut044LaWPEKwZowgydHZ_rZZUuOHrc3mL5mI"
-    ></ProfileImage>
+      imgSrc="https://fastly.picsum.photos/id/40/4106/2806.jpg?hmac=MY3ra98ut044LaWPEKwZowgydHZ_rZZUuOHrc3mL5mI">
+    </ProfileImage>
 
     <!-- Pole tekstowe do wpisania treści posta -->
-    <textarea
-      v-model="content"
-      class="form-control textarea"
-      id="exampleFormControlTextarea1"
-      placeholder="Podziel się swoim koszykiem..."
-      @input="autoResize"
-    ></textarea>
+    <textarea v-model="content" class="form-control textarea" id="exampleFormControlTextarea1"
+      placeholder="Podziel się swoim koszykiem..." @input="autoResize"></textarea>
 
     <!-- Sekcja przeciągania/upuszczania lub wyboru zdjęć -->
-    <div class="drag-area"
-         @click="$refs.fileInput.click()"
-         @dragover.prevent="onDragOver"
-         @dragleave.prevent="onDragLeave"
-         @drop.prevent="onDrop">
-      <span v-if="!isDragging">
+    <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
+      @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
+      <span v-if="!isDragging" class="drag-text">
         <header>Przeciągnij zdjęcie tutaj</header>
         <span class="select">lub kliknij, aby wybrać plik</span>
       </span>
       <span v-else>
         <header>Upuść zdjęcie tutaj</header>
       </span>
-      <input
-        ref="fileInput"
-        type="file"
-        class="form-control file-input"
-        @change="onFileChange"
-        style="display: none;"
-        accept="image/*"
-        multiple
-      />
+      <input ref="fileInput" type="file" class="form-control file-input" @change="onFileChange" style="display: none;"
+        accept="image/*" multiple />
     </div>
 
     <!-- Podgląd wybranych zdjęć -->
@@ -47,13 +32,18 @@
     </div>
 
     <!-- Sekcja przycisków -->
-    <div class="post-actions">
-      <button class="btn fungeye-default-button" @click="publishPost">Opublikuj</button>
-    </div>
+  </div>
+  <div class="post-actions">
+    <button class="btn fungeye-default-button" @click="publishPost">Opublikuj</button>
+  </div>
+  <!-- Błąd -->
+  <div v-if="error" class="error-message">
+    {{ errorMessage }}
   </div>
 </template>
 
 <script>
+import PostService from "@/services/PostService";
 import ProfileImage from "./ProfileImage.vue";
 
 export default {
@@ -65,6 +55,8 @@ export default {
       content: '', // Przechowywanie treści posta
       images: [],  // Przechowywanie przesłanych zdjęć
       isDragging: false,  // Status przeciągania plików
+      error: null,
+      errorMessage: '',
     };
   },
   methods: {
@@ -98,15 +90,27 @@ export default {
     deleteImage(index) {
       this.images.splice(index, 1);
     },
-    publishPost() {
-      if (this.content || this.images.length) {
-        this.$emit('add-post', { content: this.content, images: this.images });
-        this.content = '';
-        this.images = [];
-        this.$refs.fileInput.value = ''; // Czyszczenie inputu do pliku
-      } else {
+    async publishPost() {
+      console.log(this.content);
+      console.log(this.images);
+      if (this.content.trim() == '' && this.images.length === 0) {
         alert('Nie można opublikować pustego posta');
+        return;
       }
+      const post = {
+        content: this.content,
+        images: this.images,
+      };
+      const response = await PostService.addPost(post);
+      if (response.success == false) {
+        this.error = true;
+        this.errorMessage = response.message;
+        console.log(response.message);
+        return;
+      }
+      this.content = '';
+      this.images = [];
+      this.$refs.fileInput.value = ''; // Czyszczenie inputu do pliku
     },
     autoResize(event) {
       const textarea = event.target;
@@ -123,22 +127,30 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 1rem;
+  margin-top: 1rem;
   padding: 1rem;
   border-radius: 0.5rem;
+  border: 1px solid var(--black);
+  background: radial-gradient(135.63% 132.41% at 149.88% 23.51%,
+      var(--green) 50%,
+      var(--dark-green) 100%)
+    /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */
+  ;
 }
 
 .add-post .textarea {
-  width: 50rem;
+  /* width: 50rem; */
   margin: 0.5rem;
   background-color: var(--beige) !important;
-  resize: none; /* Wyłączenie możliwości zmiany rozmiaru przez użytkownika */
-  overflow: hidden; /* Ukrycie paska przewijania */
+  resize: none;
+  /* Wyłączenie możliwości zmiany rozmiaru przez użytkownika */
+  overflow: hidden;
+  /* Ukrycie paska przewijania */
 }
 
 .add-post .textarea:focus {
   border-color: var(--green);
-  background-color: var(--dark-beige) !important;
+  /* background-color: var(--dark-beige) !important; */
   color: var(--black) !important;
 }
 
@@ -155,6 +167,10 @@ export default {
   width: 100%;
   max-width: 600px;
   margin-top: 1rem;
+}
+
+.drag-area .drag-text {
+  color: white
 }
 
 .drag-area header {
@@ -221,5 +237,11 @@ export default {
 .add-post button {
   width: auto;
   padding: 0.5rem 1rem;
+}
+
+@media screen and (max-width: 710px) {
+  .add-post {
+    width: 100%;
+  }
 }
 </style>

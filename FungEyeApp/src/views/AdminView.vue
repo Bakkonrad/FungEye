@@ -42,14 +42,10 @@
     </div>
   </div>
   <!-- is not admin -->
-  <div v-else style="
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      align-items: center;
-    ">
+  <div v-else class="unauthorized">
     <h1>Brak dostępu!</h1>
     <p>Aby zobaczyć tę stronę, należy zalogować się jako administrator</p>
+    <RouterLink to="/log-in" class="btn fungeye-default-button">Zaloguj się</RouterLink>
   </div>
 </template>
 
@@ -61,6 +57,7 @@ import { checkAdmin, isAdmin } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import SearchBar from "@/components/SearchBar.vue";
 import UserBan from "@/components/BanUser.vue";
+import { RouterLink } from "vue-router";
 
 export default {
   components: {

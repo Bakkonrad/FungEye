@@ -14,12 +14,14 @@
         id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <RouterLink to="/" :class="getActiveNavLink('home')" aria-current="page">Strona główna</RouterLink>
+            <RouterLink to="/" :class="getActiveNavLink('home')" aria-current="page">Strona główna
+            </RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink to="/recognize" :class="getActiveNavLink('recognize')">Rozpoznawanie grzybów</RouterLink>
+            <RouterLink to="/recognize" :class="getActiveNavLink('recognize')">Rozpoznawanie grzybów
+            </RouterLink>
           </li>
-          <li class="nav-item">
+          <li v-if="loggedIn === true" class="nav-item">
             <RouterLink to="/portal" :class="getActiveNavLink('portal')">Portal</RouterLink>
           </li>
           <li class="nav-item">
@@ -54,7 +56,6 @@
 </template>
 
 <script>
-// import ProfileImage from "./ProfileImage.vue";
 import LogInRegisterButton from "./LogInRegisterButton.vue";
 import {
   isLoggedIn,
@@ -65,6 +66,7 @@ import {
 import Logo from "./Logo.vue";
 import MyProfileButton from "./MyProfileButton.vue";
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   name: "Navbar",
@@ -83,6 +85,7 @@ export default {
     checkAuth();
     checkAdmin();
     this.isAdmin = isAdmin;
+    this.loggedIn = isLoggedIn;
   },
   setup() {
     const isNavbarCollapsed = ref(false);
@@ -96,6 +99,16 @@ export default {
     const toggleNavbar = () => {
       isNavbarCollapsed.value = !isNavbarCollapsed.value;
     };
+
+    const hideNavbar = () => {
+      isNavbarCollapsed.value = false;
+    };
+
+    const router = useRouter();
+    router.beforeEach((to, from, next) => {
+      hideNavbar();  // Ukryj navbar przed zmianą trasy
+      next();
+    });
 
     return {
       loggedIn: isLoggedIn,

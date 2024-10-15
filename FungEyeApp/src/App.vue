@@ -204,8 +204,9 @@ ul {
   color: var(--red);
 }
 
-input {
-  color: white !important;
+input,
+textarea {
+  /* color: white !important; */
   /* width: 90% !important; */
 
   box-sizing: border-box;
@@ -217,11 +218,13 @@ input {
   border-radius: 15px !important;
 }
 
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: rgba(0, 0, 0, 0.572) !important;
 }
 
-input:focus {
+input:focus,
+textarea:focus {
   background: rgba(255, 255, 255, 0.5) !important;
   border-color: var(--dark-green) !important;
   box-shadow: 0 0 0 0.15rem rgba(56, 102, 65, 0.25) !important;
@@ -312,5 +315,12 @@ input.validInput {
 /* trujący */
 .attribute.poisonous {
   background-color: var(--red);
+}
+
+.unauthorized {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

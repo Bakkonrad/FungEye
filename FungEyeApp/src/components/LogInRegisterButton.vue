@@ -47,5 +47,9 @@
     .profile-button-text {
         display: flex;
     }
+
+    .button-icon {
+        margin-right: 0.3em;
+    }
 }
 </style>

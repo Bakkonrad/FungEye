@@ -13,7 +13,7 @@
     <div class="log-in-content">
       <h1>Witaj ponownie!</h1>
       <p>Zaloguj się, aby móc w pełni korzystać z możliwości FungEye</p>
-      <form>
+      <form @submit.prevent="submitForm">
         <div class="mb-3">
           <BaseInput v-model="loginFormData.email" type="text" label="Login lub email" class="email-input"
             :class="{ invalidInput: error }" @focus="resetValidation" />
@@ -23,7 +23,7 @@
             @focus="resetValidation" :class="{ invalidInput: error }" />
         </div>
         <span v-if="error" class="error-message">{{ errorMessage }}</span>
-        <button type="submit" class="btn fungeye-default-button submitFormButton" @click.prevent="submitForm">
+        <button type="submit" class="btn fungeye-default-button submitFormButton">
           Zaloguj się
         </button>
       </form>
@@ -55,15 +55,9 @@ export default {
   },
   data() {
     return {
-      loginFormData: {
-        username: null,
-        email: null,
-        password: null,
-      },
       error: false,
       errorMessage: "",
       loggedIn: false,
-      // error: true,
     };
   },
   methods: {
@@ -73,19 +67,16 @@ export default {
         this.error = true;
         return;
       }
-      if (!this.loginFormData.email.includes("@")) {
-        this.loginFormData.username = this.loginFormData.email;
-        this.loginFormData.email = null;
-      } else {
-        this.loginFormData.username = null;
-      }
+      const loginData = {
+        email: this.loginFormData.email.includes("@") ? this.loginFormData.email : null,
+        username: this.loginFormData.email.includes("@") ? null : this.loginFormData.email,
+        password: this.loginFormData.password,
+      };
       try {
-        const result = await AuthService.login(this.loginFormData);
+        const result = await AuthService.login(loginData);
         if (!result.success) {
           this.error = true;
           this.errorMessage = result.message;
-          this.loginFormData.password = null;
-          this.loginFormData.email = null;
           return;
         }
         this.$router.push("/my-profile");
@@ -244,7 +235,7 @@ p {
     width: 90vw;
     padding: 2em 0.5em 2em 0.5em;
   }
-  
+
   .log-in-content p {
     font-size: 1.1em;
   }
@@ -271,7 +262,7 @@ p {
   p {
     font-size: 1.1em;
   }
-  
+
 }
 
 #forgotPassword {

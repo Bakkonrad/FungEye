@@ -45,8 +45,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.UseSqlite(@"Data Source=../mydatabase.db");
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING"));
+    //options.UseSqlite(@"Data Source=../mydatabase.db");
 });
 builder.Services.AddHostedService<DeleteExpiredAccountsService>();
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();

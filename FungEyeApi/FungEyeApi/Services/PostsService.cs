@@ -19,33 +19,33 @@ namespace FungEyeApi.Services
             this.db = db;
         }
 
-        //public async Task<bool> RemoveAccount(int userId, string token)
-        //{
-        //    try
-        //    {
-        //        // Sprawdü, czy token JWT jest prawid≥owy
-        //        var isValidToken = ValidateJWTToken(token, userId);
-        //        if (!isValidToken)
-        //        {
-        //            throw new Exception("Unauthorized");
-        //        }
+        public async Task<bool> RemoveAccount(int userId, string token)
+        {
+            try
+            {
+                // Sprawdü, czy token JWT jest prawid≥owy
+                var isValidToken = ValidateJWTToken(token, userId);
+                if (!isValidToken)
+                {
+                    throw new Exception("Unauthorized");
+                }
 
-        //        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        //        if (user == null)
-        //        {
-        //            throw new Exception("User doesn't exist");
-        //        }
+                var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user == null)
+                {
+                    throw new Exception("User doesn't exist");
+                }
 
-        //        // Logika usuwania konta
-        //        db.Users.Remove(user);
-        //        await db.SaveChangesAsync();
+                // Logika usuwania konta
+                db.Users.Remove(user);
+                await db.SaveChangesAsync();
 
-        //        return true;
-        //    }
-        //    catch(Exception ex) 
-        //    {
-        //        throw new Exception("Error during removing account :" + ex.Message);
-        //    }
-        //}
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during removing account :" + ex.Message);
+            }
+        }
     }
 }

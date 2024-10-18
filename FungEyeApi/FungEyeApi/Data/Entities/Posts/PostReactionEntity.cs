@@ -6,13 +6,14 @@ namespace FungEyeApi.Data.Entities
     public class PostReactionEntity
     {
         public int Id { get; set; }
-        public int ReactionTypeId { get; set; }
-        public int PostId { get; set; }
-        public int UserId { get; set; }
-        public PostReactionTypeEntity ReactionType { get; set; }
+
+        // Post, do któego należy reakcja
+        public required int PostId { get; set; }
         public PostEntity Post { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? ModifiedAt { get; set; }
+
+        // Użytkownik, który dodał reakcję
+        public required int UserId { get; set; }
+        public UserEntity User { get; set; }
 
         public static PostReactionEntity Create(int postId, int userId, int reactionTypeId)
         {
@@ -20,25 +21,9 @@ namespace FungEyeApi.Data.Entities
             {
                 PostId = postId,
                 UserId = userId,
-                ReactionTypeId = reactionTypeId,
-                CreatedAt = DateTime.Now,
             };
 
             return entity;
-        }
-
-        public static PostReactionEntity Modify(int postId, int userId, int reactionTypeId)
-        {
-            //var entity = new PostReactionEntity
-            //{
-            //    PostId = postId,
-            //    UserId = userId,
-            //    ReactionTypeId = reactionTypeId,
-            //    CreatedAt = DateTime.Now,
-            //};
-
-            //return entity;
-            throw new NotImplementedException();
         }
     }
 }

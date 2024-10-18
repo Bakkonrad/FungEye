@@ -24,7 +24,7 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("removeAccount/{userId}")]
+        [HttpDelete("removeAccount/{userId}")]
         public async Task<IActionResult> RemoveAccount(int userId)
         {
             try
@@ -54,7 +54,7 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("retrieveAccount/{userId}")]
+        [HttpGet("retrieveAccount/{userId}")]
         public async Task<IActionResult> RetrieveAccount(int userId)
         {
             try
@@ -89,7 +89,7 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpPost("updateUserImage/{userId}")]
+        [HttpPut("updateUserImage/{userId}")]
         public async Task<IActionResult> UpdateUserImage(int userId, [FromForm] IFormFile? image = null)
         {
             try
@@ -133,7 +133,7 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("getProfile/{userId}")]
+        [HttpGet("getProfile/{userId}")]
         public async Task<IActionResult> GetProfile(int userId)
         {
             var user = await _userService.GetUserProfile(userId);
@@ -148,14 +148,14 @@ namespace FungEyeApi.Controllers
         [HttpPut("updateUser")]
         [Consumes("multipart/form-data")]
         [Authorize]
-        public async Task<IActionResult> UpdateUser([FromForm] string user,
+        public async Task<IActionResult> UpdateUser([FromForm] string userJson,
             [FromForm] IFormFile? image = null)
         {
             try
             {
-                var userJson = JsonConvert.DeserializeObject<User>(user);
+                var user = JsonConvert.DeserializeObject<User>(userJson);
 
-                if (await _authService.IsUsernameOrEmailUsed(userJson.Username, userJson.Email, userJson.Id))
+                if (await _authService.IsUsernameOrEmailUsed(user.Username, user.Email, user.Id))
                 {
                     return BadRequest("Username or email already in use.");
                 }
@@ -163,7 +163,7 @@ namespace FungEyeApi.Controllers
                 var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (!ValidateUserId(userJson.Id) && admin == false)
+                if (!ValidateUserId(user.Id) && admin == false)
                 {
                     return Forbid();
                 }
@@ -172,25 +172,25 @@ namespace FungEyeApi.Controllers
                 {
                     if (image.Length > 0)
                     {
-                        if (!IsPlaceholder(userJson.ImageUrl))
+                        if (!IsPlaceholder(user.ImageUrl))
                         {
-                            await _blobStorageService.DeleteFile(userJson.ImageUrl);
+                            await _blobStorageService.DeleteFile(user.ImageUrl);
                         }
                         var newImageUrl = await _blobStorageService.UploadFile(image);
-                        userJson.ImageUrl = newImageUrl;
+                        user.ImageUrl = newImageUrl;
                         
                     }
                 }
                 
-                if(userJson.ImageUrl.Equals("changeToPlaceholder"))
+                if(user.ImageUrl.Equals("changeToPlaceholder"))
                 {
-                    await _blobStorageService.DeleteFile(userJson.ImageUrl);
-                    userJson.ImageUrl = "placeholder";
+                    await _blobStorageService.DeleteFile(user.ImageUrl);
+                    user.ImageUrl = "placeholder";
                 }
 
 
 
-                var updateUser = _userService.UpdateUser(userJson);
+                var updateUser = _userService.UpdateUser(user);
                 return Ok();
             }
             catch(ArgumentException)
@@ -205,7 +205,7 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpPost("getUsers")]
+        [HttpGet("getUsers")]
         public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null,
             [FromForm] string? search = null)
         {

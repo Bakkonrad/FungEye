@@ -7,19 +7,22 @@
       <RouterLink to="/log-in" class="btn fungeye-default-button">Zaloguj się</RouterLink>
     </div>
     <div v-else class="content">
-      <!-- Formularz do dodania nowego posta -->
+      <!-- Przyciski -->
       <div class="buttons">
-        <button class="btn fungeye-default-button" @click="toggleTab('post')">Wyświetl posty</button>
+        <button class="btn fungeye-default-button" @click="toggleTab('all-posts')">Wyświetl wszystkie posty</button>
+        <button class="btn fungeye-default-button" @click="toggleTab('post')">Wyświetl posty obserwowanych</button>
         <button class="btn fungeye-default-button" @click="toggleTab('search')">Szukaj użytkowników</button>
       </div>
-      <div v-if="showPosts" class="posts-content">
-        <AddPost @add-post="addPost" />
+      <!-- Posty -->
+      <div v-if="showPosts || showAllPosts" class="posts-content">
+        <AddPost @post-added="getPosts"/>
         <div class="posts">
-          <div v-for="post in posts" :key="post.id" class="post-item" @click="viewPost(post.id)">
-            <Post :content="post.content" :images="post.images" :username="post.username" />
+          <div v-for="post in posts" :key="post.id" class="post-item">
+            <Post :id="post.id" :content="post.content" :image="post.image" :userId="post.userId" />
           </div>
         </div>
       </div>
+      <!-- Wyszukiwanie użytkowników -->
       <div v-if="searchUsers" class="searching">
         <SearchBar @search="handleSearch" />
         <LoadingSpinner v-if="isLoading"></LoadingSpinner>
@@ -49,10 +52,10 @@ export default {
   },
   data() {
     return {
-      posts: [],  // Początkowo brak postów
-      nextId: 1,  // Inicjalizacja id dla nowych postów
+      posts: [], 
       loggedIn: false,
-      showPosts: true,
+      showAllPosts: true,
+      showPosts: false,
       searchUsers: false,
       isLoading: false,
       noUsersFound: false,
@@ -66,26 +69,28 @@ export default {
     };
   },
   methods: {
-    viewPost(postId) {
-      // Przekierowanie do widoku posta z odpowiednim id
-      this.$router.push({ name: 'post', params: { id: postId } });
-    },
-    addPost(newPost) {
-      // Dodajemy id do nowego posta i zwiększamy licznik id
-      newPost.id = this.nextId++;
-      this.posts.push(newPost);  // Dodanie nowego posta do listy
+    getPosts(post) {
+      this.posts.push(post);
+      
     },
     toggleTab(tab) {
-      if (tab === 'post') {
+      if (tab === 'all-posts') {
+        this.showAllPosts = true;
+        this.showPosts = false;
+        this.searchUsers = false;
+      } 
+      else if (tab === 'post') {
+        this.showAllPosts = false;
         this.showPosts = true;
         this.searchUsers = false;
-      } else if (tab === 'search') {
-        this.searchUsers = true;
+      }
+      else if (tab === 'search') {
+        this.showAllPosts = false;
         this.showPosts = false;
+        this.searchUsers = true;
       }
     },
     handleSearch(query) {
-      // Wyszukiwanie użytkowników
       console.log('Search query:', query);
     },
   },
@@ -125,14 +130,15 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: 1rem;
   width: 100%;
   max-width: 40rem;
+  margin: auto;
 }
 
 .post-item {
   width: 100%;
-  cursor: pointer;
 }
 
 .searching {
@@ -146,6 +152,19 @@ export default {
 
 #searchBar {
   width: 100%;
+  max-width: 600px;
+}
+
+@media screen and (max-width: 768px) {
+
+  .buttons {
+    width: 90%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+  
 }
 
 @media screen and (max-width: 556px) {

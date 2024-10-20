@@ -1,32 +1,65 @@
 <template>
   <div class="card">
     <div class="card-body">
-      <img v-if="imgSrc" :src="imgSrc" alt="postImage" class="post-image" />
-      <span class="username-data">
-        <ProfileImage />
-        <p class="username">{{ username }}</p>
+      <span class="header">
+        <span class="username-data">
+          <ProfileImage :imgSrc="imgSrc" />
+          <p class="username">{{ username }}</p>
+        </span>
+        <span class="buttons">
+          <button class="btn" @click="reportUser">
+            <font-awesome-icon icon="fa-solid fa-flag" class="button-icon"></font-awesome-icon>
+            Zgłoś
+          </button>
+          <button v-if="detailsView && isAuthor" class="btn" @click="editPost">
+            <font-awesome-icon icon="fa-solid fa-pen" class="button-icon"></font-awesome-icon>
+            Edytuj
+          </button>
+        </span>
       </span>
+
       <p class="card-text">{{ content }}</p>
-      <div v-if="images.length > 0" class="image-preview">
-        <div v-for="(image, index) in images" :key="index" class="image-box">
-          <img :src="image.url" alt="uploaded image" />
-        </div>
+      <div v-if="image && image.name != ''" :class="detailsView ? 'post-image' : 'uploaded-image'">
+        <img :src="image.url" alt="uploaded image" />
       </div>
-      <div class="card-footer">
+      <div class="likes-and-comments">
         <span class="likes">
-          <button class="btn" @click.stop="toggleLike">{{ isLiked ? 'Nie lubię tego' : 'Lubię to' }}</button>
-          <p class="num-of-likes">{{ numOfLikes }}</p>
+          <span class="num-of-likes">
+            <p class="likes-header">Polubienia: </p>
+            <p class="number-of-likes">{{ localNumOfLikes }}</p>
+            <font-awesome-icon icon="fa-solid fa-thumbs-up"></font-awesome-icon>
+          </span>
         </span>
         <span class="comments">
-          <button class="btn">Komentarze</button>
-          <p class="num-of-comments">{{ numOfComments }}</p>
+          <span class="num-of-comments">
+            <p class="comments-header">Komentarze: </p>
+            <p class="num-of-comments">{{ numOfComments }}</p>
+            <font-awesome-icon icon="fa-solid fa-comment"></font-awesome-icon>
+          </span>
         </span>
+      </div>
+      <div class="card-footer">
+        <button class="btn like-button" :class="isLiked ? 'dislike' : ''" @click.stop="toggleLike">
+          <div v-if="!isLiked">
+            <font-awesome-icon icon="fa-solid fa-thumbs-up" class="button-icon"></font-awesome-icon>
+            Lubię to
+          </div>
+          <div v-else>
+            <font-awesome-icon icon="fa-solid fa-thumbs-down" class="button-icon"></font-awesome-icon>
+            Nie lubię tego
+          </div>
+        </button>
+        <button v-if="!detailsView" class="btn" @click="viewPost">
+          <font-awesome-icon icon="fa-solid fa-angles-right" class="button-icon"></font-awesome-icon>
+          Zobacz post
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import UserService from "@/services/UserService";
 import ProfileImage from "./ProfileImage.vue";
 
 export default {
@@ -34,21 +67,21 @@ export default {
     ProfileImage,
   },
   props: {
-    imgSrc: {
-      type: String,
-      required: false,
+    id: {
+      type: Number,
+      required: true,
     },
-    username: {
-      type: String,
-      default: "Username",
+    userId: {
+      type: Number,
+      default: 0,
     },
     content: {
       type: String,
       required: true,
     },
-    images: {
-      type: Array,
-      default: () => [],
+    image: {
+      type: Object,
+      default: () => ({}),
     },
     numOfLikes: {
       type: Number,
@@ -58,20 +91,50 @@ export default {
       type: Number,
       default: 0,
     },
+    detailsView: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
       isLiked: false,
+      imgSrc: "",
+      username: "",
+      isImageVisible: false,
+      localNumOfLikes: this.numOfLikes,
+      isAuthor: this.userId === 2,
     };
+  },
+  mounted() {
+    this.getAuthorData();
   },
   methods: {
     toggleLike() {
-      if (this.isLiked) {
-        this.$emit('update:numOfLikes', this.numOfLikes - 1);
-      } else {
-        this.$emit('update:numOfLikes', this.numOfLikes + 1);
-      }
       this.isLiked = !this.isLiked;
+    },
+    async getAuthorData() {
+      const response = await UserService.getUserData(this.userId);
+      if (response.success === false) {
+        console.error("Error while fetching user data");
+        return;
+      }
+      this.imgSrc = response.data.imageUrl;
+      this.username = response.data.username;
+    },
+    viewPost() {
+      this.$router.push({ name: 'post', params: { id: this.id } });
+    },
+    toggleLike() {
+      this.isLiked = !this.isLiked;
+      if (this.isLiked) {
+        this.localNumOfLikes++;
+      } else {
+        this.localNumOfLikes--;
+      }
+    },
+    reportUser() {
+      alert("Zgłoszono użytkownika");
     },
   },
 };
@@ -79,7 +142,6 @@ export default {
 
 <style scoped>
 .card {
-  margin: 1rem;
   border-radius: 0.5rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   background-color: var(--beige);
@@ -89,6 +151,12 @@ export default {
   display: flex;
   flex-direction: column;
   padding: 1rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .username-data {
@@ -105,15 +173,7 @@ export default {
 }
 
 .card-text {
-  margin: 1rem;
-}
-
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: first baseline;
   margin-top: 1rem;
-  background-color: var(--beige);
 }
 
 .likes,
@@ -125,28 +185,81 @@ export default {
   justify-content: first baseline !important;
 }
 
-.image-preview {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  margin-top: 1rem;
-}
-
-.image-box {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin-right: 10px;
-  margin-bottom: 10px;
+.uploaded-image {
+  margin-bottom: 1rem;
   border-radius: 10px;
+  width: 100%;
+  max-height: 20rem;
   overflow: hidden;
 }
 
-.image-box img {
+.uploaded-image img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.post-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  max-height: 50rem;
   border-radius: 10px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.post-image img {
+  width: 100%;
+  max-width: 750px;
+  object-fit: cover;
+}
+
+.likes {
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.num-of-likes,
+.num-of-comments {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  align-items: first baseline;
+  gap: 0.5rem;
+}
+
+.like-button.dislike {
+  color: var(--red);
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  background-color: var(--beige);
+}
+
+.likes-and-comments {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media screen and (max-width: 556px) {
+  .header {
+    flex-direction: column-reverse;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .card-footer {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .likes-header,
+  .comments-header {
+    display: none;
+  }
 }
 </style>

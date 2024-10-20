@@ -15,7 +15,7 @@ namespace FungEyeApi.Controllers
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
         private readonly IBlobStorageService _blobStorageService;
-
+        private readonly static BlobContainerEnum blobContainer = BlobContainerEnum.Users;
         public UserController(IUserService userService, IBlobStorageService blobStorageService, IAuthService authService)
         {
             _userService = userService;
@@ -111,9 +111,9 @@ namespace FungEyeApi.Controllers
 
                 if (!IsPlaceholder(oldUrl))
                 {
-                    bool deleteResult = await _blobStorageService.DeleteFile(oldUrl);
+                    bool deleteResult = await _blobStorageService.DeleteFile(oldUrl, blobContainer);
                 }
-                var newImageUrl = await _blobStorageService.UploadFile(image);
+                var newImageUrl = await _blobStorageService.UploadFile(image, blobContainer);
 
                 bool result = await _userService.UpdateUserImage(userId, newImageUrl);
 
@@ -174,9 +174,9 @@ namespace FungEyeApi.Controllers
                     {
                         if (!IsPlaceholder(user.ImageUrl))
                         {
-                            await _blobStorageService.DeleteFile(user.ImageUrl);
+                            await _blobStorageService.DeleteFile(user.ImageUrl, blobContainer);
                         }
-                        var newImageUrl = await _blobStorageService.UploadFile(image);
+                        var newImageUrl = await _blobStorageService.UploadFile(image, blobContainer);
                         user.ImageUrl = newImageUrl;
                         
                     }
@@ -184,13 +184,11 @@ namespace FungEyeApi.Controllers
                 
                 if(user.ImageUrl.Equals("changeToPlaceholder"))
                 {
-                    await _blobStorageService.DeleteFile(user.ImageUrl);
+                    await _blobStorageService.DeleteFile(user.ImageUrl, blobContainer);
                     user.ImageUrl = "placeholder";
                 }
 
-
-
-                var updateUser = _userService.UpdateUser(user);
+                var updateUser = await _userService.UpdateUser(user);
                 return Ok();
             }
             catch(ArgumentException)

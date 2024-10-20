@@ -73,7 +73,7 @@ namespace FungEyeApi.Services
             }
         }
 
-        private string GetContainerName(BlobContainerEnum blobContainer)
+        private static string GetContainerName(BlobContainerEnum blobContainer)
         {
             return blobContainer switch
             {

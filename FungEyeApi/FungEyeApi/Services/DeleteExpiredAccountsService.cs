@@ -42,7 +42,7 @@ namespace FungEyeApi.Services
                     {
                         if (!string.IsNullOrEmpty(user.ImageUrl))
                         {
-                            await blobService.DeleteFile(user.ImageUrl);
+                            await blobService.DeleteFile(user.ImageUrl, Enums.BlobContainerEnum.Users);
                         }
                     }
 

@@ -19,12 +19,13 @@ namespace FungEyeApi.Models.Posts
 
 
         public int Id { get; set; }
-        public required string Content { get; set; }
+        public string Content { get; set; }
         public string? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
         public int UserId { get; set; }
-        public long PostReactionsAmount { get; set; }
+        public long LikeAmount { get; set; }
+        public long CommentsAmount { get; set; }
         public bool LoggedUserReacted { get; set; }
     }
 }

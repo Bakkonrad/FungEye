@@ -108,7 +108,7 @@ namespace FungEyeApi.Services
                 }
 
                 int pageSize = 5;
-                int pageNumber = page != null ? page.Value : 1;
+                int pageNumber = page ?? 1;
                 query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
                 var users = await query.ToListAsync();
@@ -218,7 +218,7 @@ namespace FungEyeApi.Services
                     throw new Exception("User not found");
                 }
 
-                var result = await _blobStorageService.DeleteFile(userEntity.ImageUrl);
+                var result = await _blobStorageService.DeleteFile(userEntity.ImageUrl, BlobContainerEnum.Users);
 
                 if(result)
                 {

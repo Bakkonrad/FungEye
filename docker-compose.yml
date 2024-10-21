@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   api:
     build:
@@ -32,12 +30,6 @@ services:
       - ./inception_v3_mushroomsv1_3_8:/models/inception/1
     environment:
       - MODEL_NAME=inception
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              capabilities: [gpu]
 
 networks:
   default:

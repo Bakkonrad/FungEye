@@ -11,9 +11,15 @@
 <script>
 export default {
     name: "SearchBar",
+    props: {
+        initialQuery: {
+            type: String,
+            default: "",
+        },
+    },
     data() {
         return {
-            searchQuery: "",
+            searchQuery: this.initialQuery,
         };
     },
     methods: {

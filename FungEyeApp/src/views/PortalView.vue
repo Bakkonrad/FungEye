@@ -9,13 +9,13 @@
     <div v-else class="content">
       <!-- Przyciski -->
       <div class="buttons">
-        <button class="btn fungeye-default-button" @click="toggleTab('all-posts')">Wyświetl wszystkie posty</button>
-        <button class="btn fungeye-default-button" @click="toggleTab('post')">Wyświetl posty obserwowanych</button>
-        <button class="btn fungeye-default-button" @click="toggleTab('search')">Szukaj użytkowników</button>
+        <router-link :to="'/portal/all-posts'" class="btn fungeye-default-button" @click="toggleTab('all-posts')">Wyświetl wszystkie posty</router-link>
+        <router-link :to="'/portal/followed-posts'" class="btn fungeye-default-button" @click="toggleTab('posts')">Wyświetl posty obserwowanych</router-link>
+        <router-link :to="'/portal/search-users?q=' + searchQuery" class="btn fungeye-default-button" @click="toggleTab('search')">Szukaj użytkowników</router-link>
       </div>
       <!-- Posty -->
       <div v-if="showPosts || showAllPosts" class="posts-content">
-        <AddPost @post-added="getPosts"/>
+        <AddPost @post-added="getPosts" />
         <div class="posts">
           <div v-for="post in posts" :key="post.id" class="post-item">
             <Post :id="post.id" :content="post.content" :image="post.image" :userId="post.userId" />
@@ -24,12 +24,24 @@
       </div>
       <!-- Wyszukiwanie użytkowników -->
       <div v-if="searchUsers" class="searching">
-        <SearchBar @search="handleSearch" />
-        <LoadingSpinner v-if="isLoading"></LoadingSpinner>
-        <div v-if="noUsersFound">
-          <p class="no-users">
-            {{ noUsersMessage }}
-          </p>
+        <SearchBar @search="handleSearch" :initialQuery="searchQuery" />
+        <div class="search-content">
+          <LoadingSpinner v-if="isLoading"></LoadingSpinner>
+          <div v-if="error">
+            <p class="error-message">
+              {{ errorMessage }}
+            </p>
+          </div>
+          <div class="users">
+            <div v-if="users.length > 0" class="users-collection">
+              <div class="p-2" v-for="user in users" :key="user.id">
+                <router-link :to="'/user-profile/' + user.id" class="users-content r-link">
+                  <ProfileImage :imgSrc="user.imageUrl" :width="100" :height="100" />
+                  <p>{{ user.username }}</p>
+                </router-link>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -42,6 +54,8 @@ import Post from "../components/Post.vue";
 import SearchBar from "../components/SearchBar.vue";
 import { isLoggedIn, checkAuth } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import UserService from "@/services/UserService";
+import ProfileImage from "@/components/ProfileImage.vue";
 
 export default {
   components: {
@@ -49,17 +63,30 @@ export default {
     AddPost,
     SearchBar,
     LoadingSpinner,
+    ProfileImage,
+  },
+  props: {
+    defaultTab: {
+      type: String,
+      default: 'search',
+    },
+    query: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
-      posts: [], 
+      posts: [],
       loggedIn: false,
       showAllPosts: true,
       showPosts: false,
       searchUsers: false,
+      searchQuery: this.query,
       isLoading: false,
-      noUsersFound: false,
-      noUsersMessage: "",
+      error: false,
+      errorMessage: "",
+      users: [],
     };
   },
   setup() {
@@ -68,30 +95,59 @@ export default {
       loggedIn: isLoggedIn,
     };
   },
+  mounted() {
+    // this.getPosts();
+    this.toggleTab(this.defaultTab);
+    this.searchQuery = this.query;
+    if (this.defaultTab === 'search' && this.searchQuery !== '') {
+      this.handleSearch(this.searchQuery);
+    }
+  },
   methods: {
     getPosts(post) {
       this.posts.push(post);
-      
     },
     toggleTab(tab) {
+      this.showPosts = false;
+      this.showAllPosts = false;
+      this.searchUsers = false;
+
       if (tab === 'all-posts') {
         this.showAllPosts = true;
-        this.showPosts = false;
-        this.searchUsers = false;
-      } 
-      else if (tab === 'post') {
-        this.showAllPosts = false;
+      } else if (tab === 'posts') {
         this.showPosts = true;
-        this.searchUsers = false;
-      }
-      else if (tab === 'search') {
-        this.showAllPosts = false;
-        this.showPosts = false;
+      } else if (tab === 'search') {
         this.searchUsers = true;
       }
     },
-    handleSearch(query) {
-      console.log('Search query:', query);
+    async handleSearch(query) {
+      if (query.trim() === '' || query.length < 3) {
+        this.users = [];
+        this.error = true;
+        this.errorMessage = "Wpisz conajmniej 3 znaki aby rozpocząć wyszukiwanie";
+        return;
+      }
+      this.searchQuery = query;
+      this.$router.push({ name: 'searchUsers', query: { q: query } });
+      this.isLoading = true;
+      this.error = false;
+      this.errorMessage = "";
+      const response = await UserService.getAllUsers(0, query);
+      if (response.success === false) {
+        this.isLoading = false;
+        this.error = true;
+        this.errorMessage = "Wystąpił błąd podczas wyszukiwania użytkowników";
+        return;
+      }
+      this.users = response.data;
+      this.isLoading = false;
+      if (this.users.length === 0) {
+        this.error = true;
+        this.errorMessage = "Nie znaleziono użytkowników spełniających kryteria wyszukiwania";
+        return;
+      }
+      this.error = false;
+      this.errorMessage = "";
     },
   },
 };
@@ -144,10 +200,35 @@ export default {
 .searching {
   display: flex;
   justify-content: center;
+  flex-direction: column;
   align-items: center;
   gap: 1rem;
   width: 100%;
   margin-top: 2rem;
+}
+
+.search-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.users-collection {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.users-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 #searchBar {
@@ -164,7 +245,7 @@ export default {
     align-items: center;
     gap: 1rem;
   }
-  
+
 }
 
 @media screen and (max-width: 556px) {

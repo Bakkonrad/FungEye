@@ -1,9 +1,7 @@
 <template>
   <div class="container-md">
-    <!-- Formularz do dodania nowego posta -->
     <AddPost @add-post="addPost" />
 
-    <!-- Lista postów -->
     <div class="posts">
       <div 
         v-for="post in posts" 
@@ -63,6 +61,6 @@ export default {
 
 .post-item {
   width: 100%;
-  cursor: pointer; /* Podświetlenie postu jako klikalnego */
+  cursor: pointer;
 }
 </style>

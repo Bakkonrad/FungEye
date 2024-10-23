@@ -1,13 +1,23 @@
 <template>
   <div class="atlas-view">
     <h1>Atlas grzybów</h1>
-    <SearchBar @search="handleSearch" />
 
-    <!-- Przycisk dodania nowego grzyba -->
-    <div class="button-center">
-      <button @click="showAddMushroomModal = true" class="btn-mushroom">Dodaj nowego grzyba</button>
+    <div v-if="isAdmin" class="button-center">
+      <button @click="showAddMushroomModal = true" class="btn fungeye-default-button">
+        <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
+        Dodaj nowego grzyba</button>
     </div>
 
+    <div class="feedback">
+      <div v-if="error" class="error-message">
+        <p>{{ errorMessage }}</p>
+      </div>
+      <div v-else class="success-message">
+        <p v-if="successMessage">{{ successMessage }}</p>
+      </div>
+    </div>
+
+    <SearchBar @search="handleSearch" />
     <div class="alphabet-filter">
       <span v-for="letter in alphabet" :key="letter" @click="filterByLetter(letter)"
         :class="{ 'active-letter': activeLetter === letter }">
@@ -23,74 +33,51 @@
     </div>
 
     <div class="mushroom-list">
-      <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card">
-        <img :src="mushroom.image" alt="Mushroom Image" class="mushroom-image" />
-        <div class="mushroom-info">
-          <h3>{{ mushroom.name }}</h3>
-          <p>{{ mushroom.description }}</p>
-          <div class="attributes">
-            <span v-for="attr in mushroom.attributes" :key="attr"
-              :class="['attribute', attributeClass(attr), { 'active-attribute': isActiveAttribute(attr) }]">
-              {{ attr }}
-            </span>
+      <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card" @click="openMushroomView(mushroom.id)">
+        <span class="left">
+          <img :src="mushroom.image" alt="Mushroom Image" class="mushroom-image" />
+          <div class="mushroom-info">
+            <h3>{{ mushroom.name }}</h3>
+            <div class="attributes">
+              <span v-for="attr in mushroom.attributes" :key="attr" class="mushroom-attribute" @click.stop="toggleAttributeFilter(attr)"
+                :class="['attribute', attributeClass(attr), { 'active-attribute': isActiveAttribute(attr) }]">
+                {{ attr }}
+              </span>
+            </div>
           </div>
-
-          <!-- Przycisk edytowania i usuwania grzyba -->
-          <div class="mushroom-actions">
-            <button @click="editMushroom(mushroom)" class="btn-mushroom">Edytuj</button>
-            <button @click="confirmDeleteMushroom(mushroom)" class="btn-mushroom">Usuń</button>
-          </div>
+        </span>
+        <!-- Przycisk edytowania i usuwania grzyba -->
+        <div class="mushroom-actions">
+          <button class="btn btn-mushroom fungeye-default-button">
+            <font-awesome-icon v-if="!mushroomSaved" icon="fa-regular fa-bookmark" @click.stop="saveMushroom"/>
+            <font-awesome-icon v-else icon="fa-solid fa-bookmark" @click.stop="unsaveMushroom"/>
+          </button>
+          <button v-if="isAdmin" @click.stop="editMushroom(mushroom)" class="btn btn-mushroom fungeye-default-button">
+            <font-awesome-icon icon="fa-solid fa-pen" />
+          </button>
+          <button v-if="isAdmin" @click.stop="confirmDeleteMushroom(mushroom)" class="btn btn-mushroom fungeye-red-button">
+            <font-awesome-icon icon="fa-solid fa-trash" />
+          </button>
         </div>
       </div>
     </div>
 
     <!-- Modal dodawania/edycji grzyba -->
     <div v-if="showAddMushroomModal || showEditMushroomModal" class="modal">
-      <div class="modal-content">
-        <h2>{{ showEditMushroomModal ? 'Edytuj grzyba' : 'Dodaj nowego grzyba' }}</h2>
-        <input v-model="mushroomForm.name" type="text" placeholder="Nazwa grzyba" class="edit-input" />
-        
-        <!-- Dodaj zdjęcie grzyba -->
-        <div class="photo-upload">
-          <input
-            style="display: none"
-            type="file"
-            accept="image/*"
-            @change="onFileChange"
-            ref="fileInput"
-          />
-          <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
-            @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
-            <span v-if="!isDragging">
-              <header>Kliknij, aby wybrać zdjęcie grzyba</header>
-              <span class="select">lub przeciągnij tutaj</span>
-            </span>
-            <span v-else>
-              <header>Upuść zdjęcie tutaj</header>
-            </span>
-          </div>
-          <div v-if="mushroomForm.image">
-            <img :src="mushroomForm.image" alt="Zdjęcie grzyba" class="uploaded-image" />
-          </div>
-        </div>
-
-        <textarea v-model="mushroomForm.description" placeholder="Opis grzyba" class="edit-input"></textarea>
-        <div class="attribute-selection">
-          <label v-for="attr in availableAttributes" :key="attr">
-            <input type="checkbox" :value="attr" v-model="mushroomForm.attributes" /> {{ attr }}
-          </label>
-        </div>
-        <button @click="saveMushroom">{{ showEditMushroomModal ? 'Zapisz zmiany' : 'Dodaj grzyb' }}</button>
-        <button @click="closeModal">Anuluj</button>
-      </div>
+      <MushroomModal :showEditMushroomModal="showEditMushroomModal" :mushroomForm="mushroomForm"
+        :availableAttributes="availableAttributes" @close="closeModal"></MushroomModal>
     </div>
 
     <!-- Modal potwierdzający usunięcie -->
     <div v-if="showDeleteMushroomModal" class="modal">
       <div class="modal-content">
-        <h2>Czy na pewno chcesz usunąć grzyba {{ mushroomToDelete.name }}?</h2>
-        <button @click="deleteMushroom">Usuń</button>
-        <button @click="closeModal">Anuluj</button>
+        <h2>Potwierdź działanie</h2>
+        <p>Czy na pewno chcesz usunąć grzyba <b>{{ mushroomToDelete.name }}</b> z bazy danych?</p>
+        <p class="warning"><strong>Uwaga!</strong> To działanie jest nieodwracalne.</p>
+        <span class="buttons">
+          <button class="btn fungeye-red-button" @click="deleteMushroom">Usuń</button>
+          <button class="btn fungeye-secondary-black-button" @click="closeModal">Anuluj</button>
+        </span>
       </div>
     </div>
   </div>
@@ -98,16 +85,27 @@
 
 <script>
 import SearchBar from '@/components/SearchBar.vue';
+import BaseInput from '@/components/BaseInput.vue';
+import MushroomModal from '@/components/MushroomModal.vue';
+import { checkAdmin, isAdmin } from '@/services/AuthService';
 
 export default {
   components: {
-    SearchBar
+    SearchBar,
+    BaseInput,
+    MushroomModal,
+  },
+  mounted() {
+    checkAdmin();
+    this.isAdmin = isAdmin;
   },
   data() {
     return {
+      isAdmin: false,
       searchQuery: '',
       activeLetter: '',
       selectedAttributes: [],
+      addMushroomSelectedAttributes: [],
       mushrooms: [
         {
           id: 1,
@@ -138,7 +136,11 @@ export default {
       },
       mushroomToDelete: null,
       editMushroomId: null,
-      isDragging: false
+      isDragging: false,
+      error: false,
+      errorMessage: '',
+      successMessage: '',
+      mushroomSaved: false,
     };
   },
   computed: {
@@ -178,9 +180,10 @@ export default {
     resetActiveLetter() {
       this.activeLetter = '';
     },
-    openMushroomView(mushroom) {
-      this.$router.push({ name: 'MushroomView', params: { id: mushroom.id } });
-      console.log('Otwieram kartę grzyba:', mushroom);
+    openMushroomView(id) {
+      const mushroomId = parseInt(id);
+      console.log('Otwieram kartę grzyba:', mushroomId);
+      this.$router.push({ name: 'MushroomView', params: { id: mushroomId } });
     },
     toggleAttributeFilter(attribute) {
       const index = this.selectedAttributes.indexOf(attribute);
@@ -202,9 +205,6 @@ export default {
         poisonous: attribute === 'trujący',
       };
     },
-    openMushroomView(mushroom) {
-      this.$router.push({ name: 'MushroomView', params: { id: mushroom.id } });
-    },
     addMushroom() {
       this.showAddMushroomModal = true;
     },
@@ -213,25 +213,27 @@ export default {
       this.mushroomForm = { ...mushroom };
       this.showEditMushroomModal = true;
     },
-    saveMushroom() {
-      if (this.showEditMushroomModal) {
-        const mushroomIndex = this.mushrooms.findIndex((m) => m.id === this.editMushroomId);
-        this.mushrooms.splice(mushroomIndex, 1, { ...this.mushroomForm });
-      } else {
-        this.mushrooms.push({
-          ...this.mushroomForm,
-          id: this.mushrooms.length + 1,
-        });
-      }
-      this.closeModal();
-    },
     confirmDeleteMushroom(mushroom) {
       this.mushroomToDelete = mushroom;
       this.showDeleteMushroomModal = true;
     },
     deleteMushroom() {
       this.mushrooms = this.mushrooms.filter((m) => m.id !== this.mushroomToDelete.id);
+      const response = { success: true }
       this.closeModal();
+      if (response.success === true) {
+        this.error = true;
+        this.errorMessage = 'Wystąpił błąd podczas usuwania grzyba.';
+        return;
+      }
+      this.error = false;
+      this.successMessage = 'Grzyb został usunięty.';
+    },
+    saveMushroom() {
+      this.mushroomSaved = true;
+    },
+    unsaveMushroom() {
+      this.mushroomSaved = false;
     },
     closeModal() {
       this.showAddMushroomModal = false;
@@ -273,7 +275,6 @@ export default {
 </script>
 
 <style scoped>
-
 .modal {
   position: fixed;
   top: 0;
@@ -287,67 +288,43 @@ export default {
 }
 
 .modal-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 450px;
+    background-color: var(--beige);
+    padding: 20px;
+    border-radius: 10px;
+    width: 450px;
 }
 
-.edit-input {
-  color: black !important;
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.photo-upload {
+.feedback {
   display: flex;
   justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 10px;
 }
 
-.drag-area {
-  width: 100%;
-  border: 2px dashed #ccc;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: 0.4s;
+.success-message {
+  color: var(--green);
 }
 
-.uploaded-image {
-  margin-top: 10px;
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.mushroom-actions {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  gap: 10px;
+h3 {
+  font-weight: 500;
 }
 
 .btn-mushroom {
-  margin: 0;
-  padding: 10px;
-  background-color: var(--green);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  padding: 0 1rem;
+  height: 1.5em;
+  width: 2.5em;
 }
 
 .button-center {
   display: flex;
   justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.attribute-selection {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 1rem 0
 }
 
 .atlas-view {
@@ -438,8 +415,10 @@ h1 {
 .mushroom-card {
   position: relative;
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   background-color: var(--beige);
   padding: 10px;
   margin: 10px 0;
@@ -452,7 +431,6 @@ h1 {
 }
 
 .mushroom-card:hover {
-  /* background-color: #f0f0f0; */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
@@ -463,13 +441,26 @@ h1 {
   border-radius: 50%;
 }
 
+.mushroom-card .left {
+  display: flex;
+  flex-direction: row;
+}
+
 .mushroom-info {
-  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .mushroom-info h3 {
   margin: 0;
   font-size: 22px;
+}
+
+.mushroom-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
 }
 
 .attributes {
@@ -493,12 +484,37 @@ h1 {
   background-color: #f0f0f0;
 }
 
+.warning {
+  color: var(--red);
+}
+
 @media screen and (max-width: 768px) {
   .mushroom-card {
     align-items: flex-start;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 15px;
     width: 95%;
   }
+}
+
+@media screen and (max-width: 576px) {
+  .mushroom-card {
+    width: 100%;
+  }
+
+  .mushroom-card .left {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.buttons button {
+    width: 100%;
 }
 </style>

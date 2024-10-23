@@ -13,23 +13,15 @@
             <h2 class="latin-name">{{ latinName }}</h2>
           </div>
         </div>
-        <div class="buttons">
-          <button type="button" class="btn fungeye-default-button">
-            Dodaj do kolekcji
-          </button>
-          <button type="button" class="btn fungeye-default-button">
-            Udostępnij
-          </button>
-        </div>
+        <button type="button" class="btn fungeye-default-button">
+          <font-awesome-icon icon="fa-solid fa-bookmark" class="button-icon"/>
+          Dodaj do kolekcji
+        </button>
       </div>
       <div class="mushroom-view-attributes">
         <ul class="attribute-list">
-          <li
-            v-for="attribute in attributes"
-            :key="attribute"
-            class="attribute"
-            :class="changeAttributeClass(attribute)"
-          >
+          <li v-for="attribute in attributes" :key="attribute" class="attribute"
+            :class="changeAttributeClass(attribute)">
             {{ attribute }}
           </li>
         </ul>
@@ -56,11 +48,7 @@
           <div class="mushroom-view-photos-user">
             <h4>Zdjęcia użytkowników</h4>
             <div class="mushroom-view-photos-user-images">
-              <span
-                class="placeholder"
-                v-for="photo in userPhotos"
-                :key="photo"
-              >
+              <span class="placeholder" v-for="photo in userPhotos" :key="photo">
               </span>
               <!-- <img
                                 v-for="photo in userPhotos"
@@ -78,12 +66,12 @@
 
 <script>
 export default {
-    props: {
-        id: {
-            type: Number,
-            required: true,
-        },
+  props: {
+    id: {
+      type: Number,
+      required: true,
     },
+  },
   data() {
     return {
       isLoading: true,
@@ -118,10 +106,6 @@ export default {
     async fetchMushroomData() {
       this.isLoading = true;
       try {
-        // Replace 'yourApiEndpoint' with the actual API endpoint and include the ID in the request
-        // const response = await fetch(`yourApiEndpoint/${this.id}`);
-        // const data = await response.json();
-        // Update your component's data with the fetched data
         this.name = "Borowik szlachetny";
         this.latinName = "Boletus edulis";
         this.attributes = [
@@ -149,7 +133,6 @@ export default {
         ];
       } catch (error) {
         console.error("Failed to fetch mushroom data:", error);
-        // Handle error appropriately
       } finally {
         this.isLoading = false; // Ensure loading state is updated regardless of success or failure
       }
@@ -179,7 +162,7 @@ export default {
 .mushroom-view-header {
   display: flex;
   align-items: flex-start;
-    justify-content: space-between;
+  justify-content: space-between;
 }
 
 .header {
@@ -203,13 +186,6 @@ export default {
 .latin-name {
   font-size: 1.2em;
   font-style: italic;
-}
-
-.buttons {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  margin-top: 20px;
 }
 
 .mushroom-view-content {

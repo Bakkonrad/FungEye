@@ -81,7 +81,7 @@ const router = createRouter({
     },
     {
       path: "/mushroom/:id",
-      name: "mushroom",
+      name: "MushroomView",
       component: MushroomView,
       props: true,
     },

@@ -151,6 +151,10 @@ thead tr:last-child th:last-child {
   border-radius: 50%;
 }
 
+.profile-img-container {
+  min-width: auto !important;
+}
+
 #btn-viewPosts {
   background-color: var(--light-green);
   color: var(--black);

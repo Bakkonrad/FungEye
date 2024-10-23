@@ -72,11 +72,11 @@
               </form>
             </div>
           </div>
-        </div>
-        <div class="settings-content-right">
           <div class="edit-container">
             <div class="edit-form">
               <h3>Usuwanie konta</h3>
+              <p class="delete-info">Uwaga! Kliknięcie tego przycisku spowoduje wygaśnięcie konta i nie będzie można się na nie zalogować. Aby przywrócić swoje konto, należy wysłać wiadomość do Administratora.</p>
+              <p class="delete-info">Po okresie 30 dni od kliknięcia przycisku "Usuń konto" zostanie ono trwale usunięte i nie będzie można go przywrócić.</p>
               <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
                 <font-awesome-icon icon="fa-solid fa-trash" class="button-icon" />
                 Usuń konto
@@ -395,6 +395,10 @@ h3 {
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   width: 500px;
+}
+
+.delete-info {
+  color: white;
 }
 
 @media screen and (max-width: 1200px) {

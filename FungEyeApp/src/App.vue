@@ -119,7 +119,8 @@ ul {
 /* buttons */
 .fungeye-default-button,
 .fungeye-red-button,
-.fungeye-secondary-button {
+.fungeye-secondary-button,
+.fungeye-secondary-black-button {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -193,6 +194,24 @@ ul {
 .fungeye-secondary-button:active:focus {
   background: var(--beige);
   color: var(--black) !important;
+}
+
+.fungeye-secondary-black-button {
+  background: var(--beige);
+  color: var(--black);
+  border: 1px solid var(--black);
+}
+
+.fungeye-secondary-black-button:hover {
+  background: #4b4b4b;
+  color: white;
+}
+
+.fungeye-secondary-black-button:focus,
+.fungeye-secondary-black-button:active,
+.fungeye-secondary-black-button:active:focus {
+  background: #1f1f1f;
+  color: white;
 }
 
 .button-icon {

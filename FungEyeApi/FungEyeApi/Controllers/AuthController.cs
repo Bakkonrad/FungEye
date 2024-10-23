@@ -71,6 +71,7 @@ namespace FungEyeApi.Controllers
                 bool result = await _authService.RegisterAdmin(user);
                 if (result)
                 {
+                    await _authService.SendSetAdminPasswordEmail(user.Email);
                     return Ok("Admin registered successfully.");
                 }
                 else

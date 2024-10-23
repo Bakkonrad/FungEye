@@ -17,11 +17,11 @@ namespace FungEyeApi.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                // Wykonaj logikę co 24 godziny (lub inny interwał czasowy)
-                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+                // Run tasks every 24 hours
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
 
-                // Wywołaj metodę czyszczącą konta
                 await DeleteExpiredAccountsAsync();
+                await SendRemiderEmailForExpiredAccountsAsync();
             }
         }
 
@@ -33,7 +33,7 @@ namespace FungEyeApi.Services
                 var blobService = scope.ServiceProvider.GetRequiredService<IBlobStorageService>();
 
                 var expiredUsers = await dbContext.Users
-                    .Where(u => u.DateDeleted != null && u.DateDeleted <= DateTime.Now.AddDays(-30))
+                    .Where(u => u.DateDeleted != null && u.DateDeleted <= DateTime.Now.AddMinutes(-5))
                     .ToListAsync();
 
                 if (expiredUsers.Count > 0)
@@ -50,6 +50,27 @@ namespace FungEyeApi.Services
                     await dbContext.SaveChangesAsync();
 
                     
+                }
+            }
+        }
+
+        private async Task SendRemiderEmailForExpiredAccountsAsync()
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+
+                var expiredUsers = await dbContext.Users
+                    .Where(u => u.DateDeleted != null && u.DateDeleted <= DateTime.Now.AddMinutes(-1))
+                    .ToListAsync();
+
+                if (expiredUsers.Count > 0)
+                {
+                    foreach (var user in expiredUsers)
+                    {
+                        await emailService.SendEmailAsync(user.Email, Enums.SendEmailOptionsEnum.RemindOfExpiredAccount);
+                    }
                 }
             }
         }

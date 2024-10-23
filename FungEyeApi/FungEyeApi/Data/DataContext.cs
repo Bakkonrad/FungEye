@@ -10,7 +10,6 @@ namespace FungEyeApi.Data
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
-
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -20,6 +19,8 @@ namespace FungEyeApi.Data
             ConfigureUser(builder.Entity<UserEntity>());
             ConfigureFollow(builder.Entity<FollowEntity>());
             ConfigurePost(builder.Entity<PostEntity>());
+            ConfigureComment(builder.Entity<CommentEntity>());
+            ConfigureReaction(builder.Entity<PostReactionEntity>());
         }
 
         private void ConfigureUser(EntityTypeBuilder<UserEntity> user)
@@ -32,11 +33,20 @@ namespace FungEyeApi.Data
             user.HasIndex(u => u.Username).IsUnique();
             user.HasIndex(u => u.Email).IsUnique();
 
-            // Nawigacyjne właściwości do relacji wiele-do-wielu
             user.HasMany(u => u.Follows)
-                   .WithOne(f => f.User)
-                   .HasForeignKey(f => f.UserId)
-                   .OnDelete(DeleteBehavior.Restrict);
+                .WithOne(f => f.User)
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            user.HasMany(u => u.Comments)
+                .WithOne(c => c.User)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            user.HasMany(u => u.Reactions)
+                .WithOne(r => r.User)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         private void ConfigureFollow(EntityTypeBuilder<FollowEntity> follow)
@@ -49,23 +59,58 @@ namespace FungEyeApi.Data
 
         private void ConfigurePost(EntityTypeBuilder<PostEntity> post)
         {
-            post.HasMany(p => p.Comments)
-                   .WithOne(c => c.Post)
-                   .HasForeignKey(c => c.PostId)
-                   .OnDelete(DeleteBehavior.Cascade);
+            post.ToTable("Posts");
+            post.HasKey(p => p.Id);
+            post.Property(p => p.Content).IsRequired();
 
-            // Configure cascade delete for Reactions
+            post.HasMany(p => p.Comments)
+                .WithOne(c => c.Post)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
             post.HasMany(p => p.Reactions)
-                   .WithOne(r => r.Post)
-                   .HasForeignKey(r => r.PostId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                .WithOne(r => r.Post)
+                .HasForeignKey(r => r.PostId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+        private void ConfigureComment(EntityTypeBuilder<CommentEntity> comment)
+        {
+            comment.ToTable("Comments");
+            comment.HasKey(c => c.Id);
+            comment.Property(c => c.Content).IsRequired();
+
+            comment.HasOne(c => c.Post)
+                .WithMany(p => p.Comments)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            comment.HasOne(c => c.User)
+                .WithMany(u => u.Comments)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+        private void ConfigureReaction(EntityTypeBuilder<PostReactionEntity> reaction)
+        {
+            reaction.ToTable("Reactions");
+            reaction.HasKey(r => r.Id);
+
+            reaction.HasOne(r => r.Post)
+                .WithMany(p => p.Reactions)
+                .HasForeignKey(r => r.PostId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            reaction.HasOne(r => r.User)
+                .WithMany(u => u.Reactions)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<FollowEntity> Follows { get; set; }
         public DbSet<PostEntity> Posts { get; set; }
         public DbSet<CommentEntity> Comments { get; set; }
-        public DbSet<PostReactionEntity> PostReactions { get; set; }
-
+        public DbSet<PostReactionEntity> Reactions { get; set; }
     }
 }

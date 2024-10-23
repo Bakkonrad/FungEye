@@ -60,7 +60,7 @@ const unfollowUser = async (followId) => {
 
     const userId = parseInt(localStorage.getItem("id"));
     followId = parseInt(followId);
-    const response = await $http.post(
+    const response = await $http.delete(
       `api/Follow/removeFollow/${userId}/${followId}`
     );
 
@@ -79,7 +79,7 @@ const unfollowUser = async (followId) => {
 const getFollowers = async (userId) => {
   try {
     userId = parseInt(userId);
-    const response = await $http.post(`api/Follow/getFollowers/${userId}`);
+    const response = await $http.get(`api/Follow/getFollowers/${userId}`);
 
     if (response.status === 200) {
       return { success: true, data: response.data };
@@ -96,7 +96,7 @@ const getFollowers = async (userId) => {
 const getFollowing = async (userId) => {
   try {
     userId = parseInt(userId);
-    const response = await $http.post(`api/Follow/getFollows/${userId}`);
+    const response = await $http.get(`api/Follow/getFollows/${userId}`);
 
     if (response.status === 200) {
       return { success: true, data: response.data };
@@ -113,7 +113,7 @@ const isFollowing = async (userId, followId) => {
   try {
     userId = parseInt(userId);
     followId = parseInt(followId);
-    const response = await $http.post(
+    const response = await $http.get(
       `api/Follow/isFollowing/${userId}/${followId}`
     );
 

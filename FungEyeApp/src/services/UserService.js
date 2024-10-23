@@ -54,7 +54,10 @@ const getAllUsers = async (page, search) => {
         if (search) {
             formData.append('search', search);
         }
-        const response = await $http.get('api/User/getUsers', formData, {
+        console.log("formData: ", formData.getAll('userId'));
+        console.log("formData: ", formData.getAll('page'));
+        console.log("formData: ", formData.getAll('search'));
+        const response = await $http.post('api/User/getUsers', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

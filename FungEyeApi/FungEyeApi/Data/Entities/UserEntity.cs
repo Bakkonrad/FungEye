@@ -1,10 +1,13 @@
 ﻿using FungEyeApi.Enums;
 using FungEyeApi.Models;
+using System.Data;
 
 namespace FungEyeApi.Data.Entities
 {
     public class UserEntity
     {
+        public UserEntity() { }
+
         public int Id { get; set; }
         public required int Role { get; set; }
         public required string Username { get; set; }

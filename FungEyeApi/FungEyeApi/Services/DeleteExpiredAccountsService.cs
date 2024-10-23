@@ -1,4 +1,5 @@
 ﻿using FungEyeApi.Data;
+using FungEyeApi.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace FungEyeApi.Services
@@ -29,15 +30,26 @@ namespace FungEyeApi.Services
             using (var scope = _serviceProvider.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+                var blobService = scope.ServiceProvider.GetRequiredService<IBlobStorageService>();
 
                 var expiredUsers = await dbContext.Users
                     .Where(u => u.DateDeleted != null && u.DateDeleted <= DateTime.Now.AddDays(-30))
                     .ToListAsync();
 
-                if (expiredUsers.Any())
+                if (expiredUsers.Count > 0)
                 {
+                    foreach (var user in expiredUsers)
+                    {
+                        if (!string.IsNullOrEmpty(user.ImageUrl))
+                        {
+                            await blobService.DeleteFile(user.ImageUrl, Enums.BlobContainerEnum.Users);
+                        }
+                    }
+
                     dbContext.Users.RemoveRange(expiredUsers);
                     await dbContext.SaveChangesAsync();
+
+                    
                 }
             }
         }

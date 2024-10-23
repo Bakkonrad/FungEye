@@ -98,7 +98,7 @@ const updateUser = async (user, image) => {
         // console.log("user: ", user);
 
         const formData = new FormData();
-        formData.append('user', JSON.stringify(user));
+        formData.append('userJson', JSON.stringify(user));
         if (image) {
             formData.append('image', image);
         }

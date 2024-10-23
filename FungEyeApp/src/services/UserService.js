@@ -27,8 +27,9 @@ const getUserData = async (userId) => {
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
+        console.log("token: ", localStorage.getItem('token'));
         // const userId = localStorage.getItem('id');
-        const response = await $http.post(`api/User/getProfile/${userId}`);
+        const response = await $http.get(`api/User/getProfile/${userId}`);
 
         if (response.status === 200) {
             return { success: true, data: response.data };
@@ -53,6 +54,9 @@ const getAllUsers = async (page, search) => {
         if (search) {
             formData.append('search', search);
         }
+        console.log("formData: ", formData.getAll('userId'));
+        console.log("formData: ", formData.getAll('page'));
+        console.log("formData: ", formData.getAll('search'));
         const response = await $http.post('api/User/getUsers', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -74,7 +78,7 @@ const deleteAccount = async (userId) => {
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        const response = await $http.post(`/api/User/removeAccount/${userId}`);
+        const response = await $http.delete(`/api/User/removeAccount/${userId}`);
         if (response.status === 200) {
             return { success: true }
         }
@@ -174,7 +178,7 @@ const banUser = async (userId, ban) => {
 
 const retrieveAccount = async (userId) => {
     try {
-        const response = await $http.post(`/api/User/retrieveAccount/${userId}`);
+        const response = await $http.get(`/api/User/retrieveAccount/${userId}`);
         if (response.status === 200) {
             return { success: true, message: 'Konto odzyskane' };
         }
@@ -208,7 +212,7 @@ const unfollowUser = async (follow) => {
         const userId = parseInt(localStorage.getItem('id'));
         console.log("follow: ", follow);
         console.log("userId: ", userId);
-        const response = await $http.post(`/api/User/removeFollow/${userId}/${follow}`);
+        const response = await $http.delete(`/api/User/removeFollow/${userId}/${follow}`);
         if (response.status === 200) {
             return { success: true, message: 'Użytkownik przestał być obserwowany' };
         }

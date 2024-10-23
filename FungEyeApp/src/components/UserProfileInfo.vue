@@ -4,6 +4,7 @@
       <div id="user-text">
         <p id="username">{{ username }}</p>
         <p v-if="name_surname" id="name_surname">{{ name_surname }}</p>
+        <p v-if="email" id="email">{{ email }}</p>
         <p id="createdAt">Członek od: {{ formatDate(createdAt) }}</p>
       </div>
     </div>

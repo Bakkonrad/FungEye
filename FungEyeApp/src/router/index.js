@@ -49,6 +49,25 @@ const router = createRouter({
       path: "/portal",
       name: "portal",
       component: PortalView,
+      props: { defaultTab: "all-posts" },
+    },
+    {
+      path: "/portal/all-posts",
+      name: "allPosts",
+      component: PortalView,
+      props: { defaultTab: "all-posts" },
+    },
+    {
+      path: "/portal/followed-posts",
+      name: "followedPosts",
+      component: PortalView,
+      props: { defaultTab: "followed-posts" },
+    },
+    {
+      path: "/portal/search-users",
+      name: "searchUsers",
+      component: PortalView,
+      props: route => ({ defaultTab: "search", query: route.query.q || "" }),
     },
     {
       path: "/recognize",
@@ -62,7 +81,7 @@ const router = createRouter({
     },
     {
       path: "/mushroom/:id",
-      name: "mushroom",
+      name: "MushroomView",
       component: MushroomView,
       props: true,
     },

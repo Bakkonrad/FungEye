@@ -1,36 +1,45 @@
 <template>
     <div class="container-md reset-password-container">
-        <RouterLink to="/log-in" class="back-to-login">
-            <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
-            Powrót do logowania
-        </RouterLink>
-        <h2>Resetuj hasło</h2>
-        <p>Wprowadź nowe hasło</p>
-        <form @submit.prevent="resetPassword">
-            <div class="mb-3">
-                <BaseInput v-model="formData.password" type="password" label="Hasło* (min. 8 znaków)" :class="{
-                    'password-input': !submitted,
-                    validInput: submitted && !v$.password.$invalid,
-                    invalidInput: submitted && v$.password.$invalid,
-                }" color="black" />
-                <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
-                    {{ error.$message }}
-                </span>
-            </div>
-            <div class="mb-3">
-                <BaseInput v-model="formData.confirmPassword" type="password" label="Potwierdź hasło*" :class="{
-                    'confirmPassword-input': !submitted,
-                    validInput: submitted && !v$.confirmPassword.$invalid,
-                    invalidInput: submitted && v$.confirmPassword.$invalid,
-                }" color="black" />
-                <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
-                    {{ error.$message }}
-                </span>
-            </div>
-            <p v-if="error" class="error-message">{{ errorMessage }}</p>
-            <button type="submit" class="btn fungeye-default-button submitFormButton">Zresetuj
-                hasło</button>
-        </form>
+        <div v-if="!token">
+            <h2>Brak dostępu!</h2>
+            <p>Link do resetowania hasła jest niepoprawny</p>
+            <RouterLink to="/log-in" class="btn fungeye-default-button">
+                Przejdź do strony logowania
+            </RouterLink>
+        </div>
+        <div v-else>
+            <RouterLink to="/log-in" class="back-to-login">
+                <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
+                Powrót do logowania
+            </RouterLink>
+            <h2>Resetuj hasło</h2>
+            <p>Wprowadź nowe hasło</p>
+            <form @submit.prevent="resetPassword">
+                <div class="mb-3">
+                    <BaseInput v-model="formData.password" type="password" label="Hasło* (min. 8 znaków)" :class="{
+                        'password-input': !submitted,
+                        validInput: submitted && !v$.password.$invalid,
+                        invalidInput: submitted && v$.password.$invalid,
+                    }" color="black" />
+                    <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
+                        {{ error.$message }}
+                    </span>
+                </div>
+                <div class="mb-3">
+                    <BaseInput v-model="formData.confirmPassword" type="password" label="Potwierdź hasło*" :class="{
+                        'confirmPassword-input': !submitted,
+                        validInput: submitted && !v$.confirmPassword.$invalid,
+                        invalidInput: submitted && v$.confirmPassword.$invalid,
+                    }" color="black" />
+                    <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
+                        {{ error.$message }}
+                    </span>
+                </div>
+                <p v-if="error" class="error-message">{{ errorMessage }}</p>
+                <button type="submit" class="btn fungeye-default-button submitFormButton">Zresetuj
+                    hasło</button>
+            </form>
+        </div>
     </div>
 </template>
 
@@ -55,7 +64,8 @@ export default {
     props: {
         token: {
             type: String,
-            required: true
+            required: true,
+            default: ''
         }
     },
     setup() {
@@ -127,6 +137,7 @@ export default {
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
 .back-to-login {
     display: flex;
     align-items: center;

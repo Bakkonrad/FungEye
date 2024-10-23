@@ -88,7 +88,7 @@ namespace FungEyeApi.Services
                 var posts = await query.ToListAsync();
 
                 var postsToModel = posts.Select(p => new Post(p)).ToList();
-                postsToModel = await GetPostsInfo(postsToModel);
+                postsToModel = await GetPostsInfo(postsToModel, userId);
 
                 return postsToModel;
             }
@@ -108,9 +108,9 @@ namespace FungEyeApi.Services
             throw new NotImplementedException();
         }
 
-        private async Task<List<Post>> GetPostsInfo(List<Post> posts)
+        private async Task<List<Post>> GetPostsInfo(List<Post> posts, int userId)
         {
-            var reactions = db.PostReactions.AsQueryable();
+            var reactions = db.Reactions.AsQueryable();
             var comments = db.Comments.AsQueryable();
 
             foreach (var post in posts)

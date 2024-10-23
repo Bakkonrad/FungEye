@@ -1,6 +1,22 @@
 <template>
   <div class="atlas-view">
     <h1>Atlas grzybów</h1>
+
+    <div v-if="isAdmin" class="button-center">
+      <button @click="showAddMushroomModal = true" class="btn fungeye-default-button">
+        <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
+        Dodaj nowego grzyba</button>
+    </div>
+
+    <div class="feedback">
+      <div v-if="error" class="error-message">
+        <p>{{ errorMessage }}</p>
+      </div>
+      <div v-else class="success-message">
+        <p v-if="successMessage">{{ successMessage }}</p>
+      </div>
+    </div>
+
     <SearchBar @search="handleSearch" />
     <div class="alphabet-filter">
       <span v-for="letter in alphabet" :key="letter" @click="filterByLetter(letter)"
@@ -17,18 +33,51 @@
     </div>
 
     <div class="mushroom-list">
-      <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card"
-        @click="openMushroomView(mushroom)">
-        <img :src="mushroom.image" alt="Mushroom Image" class="mushroom-image" />
-        <div class="mushroom-info">
-          <h3>{{ mushroom.name }}</h3>
-          <div class="attributes">
-            <span v-for="attr in mushroom.attributes" :key="attr" @click.stop="toggleAttributeFilter(attr)"
-              :class="['attribute', attributeClass(attr), { 'active-attribute': isActiveAttribute(attr) }]">
-              {{ attr }}
-            </span>
+      <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card" @click="openMushroomView(mushroom.id)">
+        <span class="left">
+          <img :src="mushroom.image" alt="Mushroom Image" class="mushroom-image" />
+          <div class="mushroom-info">
+            <h3>{{ mushroom.name }}</h3>
+            <div class="attributes">
+              <span v-for="attr in mushroom.attributes" :key="attr" class="mushroom-attribute" @click.stop="toggleAttributeFilter(attr)"
+                :class="['attribute', attributeClass(attr), { 'active-attribute': isActiveAttribute(attr) }]">
+                {{ attr }}
+              </span>
+            </div>
           </div>
+        </span>
+        <!-- Przycisk edytowania i usuwania grzyba -->
+        <div class="mushroom-actions">
+          <button class="btn btn-mushroom fungeye-default-button">
+            <font-awesome-icon v-if="!mushroomSaved" icon="fa-regular fa-bookmark" @click.stop="saveMushroom"/>
+            <font-awesome-icon v-else icon="fa-solid fa-bookmark" @click.stop="unsaveMushroom"/>
+          </button>
+          <button v-if="isAdmin" @click.stop="editMushroom(mushroom)" class="btn btn-mushroom fungeye-default-button">
+            <font-awesome-icon icon="fa-solid fa-pen" />
+          </button>
+          <button v-if="isAdmin" @click.stop="confirmDeleteMushroom(mushroom)" class="btn btn-mushroom fungeye-red-button">
+            <font-awesome-icon icon="fa-solid fa-trash" />
+          </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal dodawania/edycji grzyba -->
+    <div v-if="showAddMushroomModal || showEditMushroomModal" class="modal">
+      <MushroomModal :showEditMushroomModal="showEditMushroomModal" :mushroomForm="mushroomForm"
+        :availableAttributes="availableAttributes" @close="closeModal"></MushroomModal>
+    </div>
+
+    <!-- Modal potwierdzający usunięcie -->
+    <div v-if="showDeleteMushroomModal" class="modal">
+      <div class="modal-content">
+        <h2>Potwierdź działanie</h2>
+        <p>Czy na pewno chcesz usunąć grzyba <b>{{ mushroomToDelete.name }}</b> z bazy danych?</p>
+        <p class="warning"><strong>Uwaga!</strong> To działanie jest nieodwracalne.</p>
+        <span class="buttons">
+          <button class="btn fungeye-red-button" @click="deleteMushroom">Usuń</button>
+          <button class="btn fungeye-secondary-black-button" @click="closeModal">Anuluj</button>
+        </span>
       </div>
     </div>
   </div>
@@ -36,33 +85,62 @@
 
 <script>
 import SearchBar from '@/components/SearchBar.vue';
+import BaseInput from '@/components/BaseInput.vue';
+import MushroomModal from '@/components/MushroomModal.vue';
+import { checkAdmin, isAdmin } from '@/services/AuthService';
 
 export default {
   components: {
-    SearchBar
+    SearchBar,
+    BaseInput,
+    MushroomModal,
+  },
+  mounted() {
+    checkAdmin();
+    this.isAdmin = isAdmin;
   },
   data() {
     return {
+      isAdmin: false,
       searchQuery: '',
       activeLetter: '',
       selectedAttributes: [],
+      addMushroomSelectedAttributes: [],
       mushrooms: [
         {
           id: 1,
           name: 'Borowik szlachetny',
           image: 'src/assets/images/mushrooms/ATLAS-borowik.jpg',
-          attributes: ['iglaste', 'liściaste', 'jadalny']
+          attributes: ['iglaste', 'liściaste', 'jadalny'],
+          description: 'Borowik szlachetny to jeden z najbardziej cenionych grzybów jadalnych.'
         },
         {
           id: 2,
           name: 'Muchomor czerwony',
           image: 'src/assets/images/mushrooms/ATLAS-muchomor.jpg',
-          attributes: ['iglaste', 'liściaste', 'trujący', 'niejadalny']
+          attributes: ['iglaste', 'liściaste', 'trujący', 'niejadalny'],
+          description: 'Muchomor czerwony to grzyb trujący, znany ze swojego charakterystycznego wyglądu.'
         },
-        // Testowe grzybki
       ],
       alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-      availableAttributes: ['iglaste', 'liściaste', 'jadalny', 'niejadalny', 'trujący']
+      availableAttributes: ['iglaste', 'liściaste', 'jadalny', 'niejadalny', 'trujący'],
+      showAddMushroomModal: false,
+      showEditMushroomModal: false,
+      showDeleteMushroomModal: false,
+
+      mushroomForm: {
+        name: '',
+        image: '',
+        attributes: [],
+        description: ''
+      },
+      mushroomToDelete: null,
+      editMushroomId: null,
+      isDragging: false,
+      error: false,
+      errorMessage: '',
+      successMessage: '',
+      mushroomSaved: false,
     };
   },
   computed: {
@@ -70,23 +148,23 @@ export default {
       let filtered = this.mushrooms;
 
       if (this.activeLetter) {
-        filtered = filtered.filter(mushroom => mushroom.name.startsWith(this.activeLetter));
+        filtered = filtered.filter((mushroom) => mushroom.name.startsWith(this.activeLetter));
       }
 
       if (this.searchQuery) {
-        filtered = filtered.filter(mushroom =>
+        filtered = filtered.filter((mushroom) =>
           mushroom.name.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
 
       if (this.selectedAttributes.length) {
-        filtered = filtered.filter(mushroom =>
-          this.selectedAttributes.every(attr => mushroom.attributes.includes(attr))
+        filtered = filtered.filter((mushroom) =>
+          this.selectedAttributes.every((attr) => mushroom.attributes.includes(attr))
         );
       }
 
       return filtered;
-    }
+    },
   },
   methods: {
     handleSearch(query) {
@@ -102,9 +180,10 @@ export default {
     resetActiveLetter() {
       this.activeLetter = '';
     },
-    openMushroomView(mushroom) {
-      this.$router.push({ name: 'MushroomView', params: { id: mushroom.id } });
-      console.log('Otwieram kartę grzyba:', mushroom);
+    openMushroomView(id) {
+      const mushroomId = parseInt(id);
+      console.log('Otwieram kartę grzyba:', mushroomId);
+      this.$router.push({ name: 'MushroomView', params: { id: mushroomId } });
     },
     toggleAttributeFilter(attribute) {
       const index = this.selectedAttributes.indexOf(attribute);
@@ -125,12 +204,129 @@ export default {
         inedible: attribute === 'niejadalny',
         poisonous: attribute === 'trujący',
       };
-    }
-  }
+    },
+    addMushroom() {
+      this.showAddMushroomModal = true;
+    },
+    editMushroom(mushroom) {
+      this.editMushroomId = mushroom.id;
+      this.mushroomForm = { ...mushroom };
+      this.showEditMushroomModal = true;
+    },
+    confirmDeleteMushroom(mushroom) {
+      this.mushroomToDelete = mushroom;
+      this.showDeleteMushroomModal = true;
+    },
+    deleteMushroom() {
+      this.mushrooms = this.mushrooms.filter((m) => m.id !== this.mushroomToDelete.id);
+      const response = { success: true }
+      this.closeModal();
+      if (response.success === true) {
+        this.error = true;
+        this.errorMessage = 'Wystąpił błąd podczas usuwania grzyba.';
+        return;
+      }
+      this.error = false;
+      this.successMessage = 'Grzyb został usunięty.';
+    },
+    saveMushroom() {
+      this.mushroomSaved = true;
+    },
+    unsaveMushroom() {
+      this.mushroomSaved = false;
+    },
+    closeModal() {
+      this.showAddMushroomModal = false;
+      this.showEditMushroomModal = false;
+      this.showDeleteMushroomModal = false;
+      this.mushroomForm = {
+        name: '',
+        image: '',
+        attributes: [],
+        description: ''
+      };
+      this.mushroomToDelete = null;
+    },
+    // Obsługa przesyłania zdjęcia
+    onFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.mushroomForm.image = URL.createObjectURL(file);
+      }
+    },
+    onDragOver(event) {
+      event.preventDefault();
+      this.isDragging = true;
+    },
+    onDragLeave(event) {
+      event.preventDefault();
+      this.isDragging = false;
+    },
+    onDrop(event) {
+      event.preventDefault();
+      this.isDragging = false;
+      const file = event.dataTransfer.files[0];
+      if (file) {
+        this.mushroomForm.image = URL.createObjectURL(file);
+      }
+    },
+  },
 };
 </script>
 
 <style scoped>
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+    background-color: var(--beige);
+    padding: 20px;
+    border-radius: 10px;
+    width: 450px;
+}
+
+.feedback {
+  display: flex;
+  justify-content: center;
+}
+
+.success-message {
+  color: var(--green);
+}
+
+h3 {
+  font-weight: 500;
+}
+
+.btn-mushroom {
+  padding: 0 1rem;
+  height: 1.5em;
+  width: 2.5em;
+}
+
+.button-center {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.attribute-selection {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 1rem 0
+}
+
 .atlas-view {
   padding: 0 20px;
 }
@@ -202,7 +398,7 @@ h1 {
 .active-attribute.deciduous,
 .attribute-filter span.deciduous.active-attribute,
 .active-attribute.edible,
-.attribute-filter span.edible.active-attribute,
+.attribute-filter span.edible-active-attribute,
 .active-attribute.inedible,
 .attribute-filter span.inedible.active-attribute,
 .active-attribute.poisonous,
@@ -217,9 +413,12 @@ h1 {
 }
 
 .mushroom-card {
+  position: relative;
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   background-color: var(--beige);
   padding: 10px;
   margin: 10px 0;
@@ -232,7 +431,6 @@ h1 {
 }
 
 .mushroom-card:hover {
-  /* background-color: #f0f0f0; */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
@@ -243,13 +441,26 @@ h1 {
   border-radius: 50%;
 }
 
+.mushroom-card .left {
+  display: flex;
+  flex-direction: row;
+}
+
 .mushroom-info {
-  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .mushroom-info h3 {
   margin: 0;
   font-size: 22px;
+}
+
+.mushroom-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
 }
 
 .attributes {
@@ -273,12 +484,37 @@ h1 {
   background-color: #f0f0f0;
 }
 
+.warning {
+  color: var(--red);
+}
+
 @media screen and (max-width: 768px) {
   .mushroom-card {
     align-items: flex-start;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 15px;
     width: 95%;
   }
+}
+
+@media screen and (max-width: 576px) {
+  .mushroom-card {
+    width: 100%;
+  }
+
+  .mushroom-card .left {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.buttons button {
+    width: 100%;
 }
 </style>

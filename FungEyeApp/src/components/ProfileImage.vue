@@ -64,6 +64,7 @@ export default {
 .profile-img-container {
   width: 4em;
   height: 4em;
+  min-width: 50px;
   border-radius: 50%;
 }
 

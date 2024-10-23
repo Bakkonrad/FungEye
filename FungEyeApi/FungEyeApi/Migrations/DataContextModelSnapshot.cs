@@ -49,7 +49,7 @@ namespace FungEyeApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("FungEyeApi.Data.Entities.FollowEntity", b =>
@@ -89,7 +89,7 @@ namespace FungEyeApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PostReactions");
+                    b.ToTable("Reactions", (string)null);
                 });
 
             modelBuilder.Entity("FungEyeApi.Data.Entities.Posts.PostEntity", b =>
@@ -107,6 +107,9 @@ namespace FungEyeApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
@@ -117,7 +120,7 @@ namespace FungEyeApi.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("FungEyeApi.Data.Entities.UserEntity", b =>
@@ -184,13 +187,13 @@ namespace FungEyeApi.Migrations
                     b.HasOne("FungEyeApi.Data.Entities.Posts.PostEntity", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("FungEyeApi.Data.Entities.UserEntity", "User")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Post");
@@ -222,13 +225,13 @@ namespace FungEyeApi.Migrations
                     b.HasOne("FungEyeApi.Data.Entities.Posts.PostEntity", "Post")
                         .WithMany("Reactions")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("FungEyeApi.Data.Entities.UserEntity", "User")
-                        .WithMany()
+                        .WithMany("Reactions")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Post");
@@ -256,7 +259,11 @@ namespace FungEyeApi.Migrations
 
             modelBuilder.Entity("FungEyeApi.Data.Entities.UserEntity", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("Follows");
+
+                    b.Navigation("Reactions");
                 });
 #pragma warning restore 612, 618
         }

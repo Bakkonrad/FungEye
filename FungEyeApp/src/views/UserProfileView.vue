@@ -28,6 +28,7 @@ import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import UserService from "@/services/UserService";
 import FollowService from "@/services/FollowService";
+import { ref } from "vue";
 
 export default {
   components: {
@@ -44,15 +45,19 @@ export default {
       id: null,
       imgSrc: "",
       user: null,
-      followed: null,
       username: "",
       name_surname: "",
       email: "",
       mushrooms: [],
-      follows: [],
-      followers: [],
       createdAt: "",
       errorFindingUser: false,
+    };
+  },
+  setup() {
+    return {
+      followed: ref(null),
+      follows: ref([]),
+      followers: ref([]),
     };
   },
   methods: {
@@ -62,7 +67,6 @@ export default {
         this.$router.push({ name: "myProfile" });
         return;
       }
-      console.log(this.id);
       const response = await UserService.getUserData(this.id);
       const followsResponse = await FollowService.getFollowing(this.id);
       const followersResponse = await FollowService.getFollowers(this.id);
@@ -82,7 +86,6 @@ export default {
     },
     async checkIfFollowed() {
       const response = await FollowService.isFollowing(localStorage.getItem("id"), this.id);
-      console.log(localStorage.getItem("id") + " is following " + this.id + "? " + response.data);
       if (response.success === false) {
         console.log(response.message);
         return;
@@ -95,7 +98,6 @@ export default {
         console.log(response.message);
         return;
       }
-      console.log(response);
       this.followed = true;
       this.fetchUser();
     },
@@ -105,7 +107,6 @@ export default {
         console.log(response.message);
         return;
       }
-      console.log(response);
       this.followed = false;
       this.fetchUser();
     },

@@ -117,10 +117,9 @@ const resetPassword = async (token, password) => {
         var userId = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
 
         console.log(userId);
-        console.log(typeof userId);
-        const response = await $http.post(`api/Auth/resetPassword/${userId}`, {password: password}, {headers: {Authorization: `Bearer ${token}`}});
+        const response = await $http.post(`api/Auth/resetPassword/${parseInt(userId)}`, {password: password}, {headers: {Authorization: `Bearer ${token}`}});
         if (response.status === 200) {
-            alert('Hasło zostało zresetowane!');
+            alert('Hasło zostało zresetowane! Zaloguj się.');
             return { success: true };
         }
         return { success: false, message: 'Nieznany błąd' };
@@ -153,7 +152,7 @@ export function checkAuth() {
 }
 
 export function checkAdmin() {
-    if (localStorage.getItem("role") == "Admin") { 
+    if (localStorage.getItem("token") && localStorage.getItem("role") == "Admin" ) { 
         isAdmin.value = true;
     } else {
         isAdmin.value = false;

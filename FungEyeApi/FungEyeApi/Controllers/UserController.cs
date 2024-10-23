@@ -182,7 +182,7 @@ namespace FungEyeApi.Controllers
                     }
                 }
                 
-                if(user.ImageUrl.Equals("changeToPlaceholder"))
+                if(user.ImageUrl != null && user.ImageUrl.Equals("changeToPlaceholder"))
                 {
                     await _blobStorageService.DeleteFile(user.ImageUrl, blobContainer);
                     user.ImageUrl = "placeholder";
@@ -203,9 +203,8 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpGet("getUsers")]
-        public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null,
-            [FromForm] string? search = null)
+        [HttpPost("getUsers")]
+        public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null, [FromForm] string? search = null)
         {
             if (!ValidateUserId(userId))
             {

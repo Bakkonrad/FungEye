@@ -143,6 +143,7 @@ export default {
       this.images.splice(index, 1);
       if (this.images.length === 0) {
         this.showResult = false;
+        this.errorRecognizing = false;  
       }
     },
     onDragOver(event) {
@@ -242,7 +243,6 @@ export default {
 
 .directions {
   margin-top: 20px;
-  /* make it in the center */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -260,7 +260,6 @@ export default {
   background: radial-gradient(135.63% 132.41% at 149.88% 23.51%,
       var(--green) 50%,
       var(--dark-green) 100%)
-    /* warning: gradient uses a rotation that is not supported by CSS and may not behave as expected */
   ;
   width: 100%;
   height: 400px;

@@ -71,6 +71,7 @@ namespace FungEyeApi.Controllers
                 bool result = await _authService.RegisterAdmin(user);
                 if (result)
                 {
+                    await _authService.SendSetAdminPasswordEmail(user.Email);
                     return Ok("Admin registered successfully.");
                 }
                 else
@@ -144,10 +145,16 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if (!ValidateUserId(userId))
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                if (!await _userService.IsAdmin(userIdFromToken))
                 {
-                    return Forbid();
+                    if (!ValidateUserId(userId))
+                    {
+                        return Forbid();
+                    }
                 }
+                
 
                 var user = await _userService.GetUserProfile(userId);
                 if (user == null)

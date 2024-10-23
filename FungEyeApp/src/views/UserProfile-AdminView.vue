@@ -101,7 +101,6 @@ export default {
             this.$router.push({ name: "userProfile", params: { id: this.id } });
         },
         formatDate(date) {
-            // console.log(date);
             if (date === null || new Date(date) < new Date()) {
                 this.isBanned = false;
                 return "";
@@ -184,7 +183,6 @@ export default {
                 this.$router.push({ name: "myProfile" });
                 return;
             }
-            // console.log(this.id);
             const response = await UserService.getUserData(this.id);
             if (response.success === false) {
                 this.errorFindingUser = true;
@@ -192,7 +190,6 @@ export default {
                 return;
             }
             this.user = response.data;
-            console.log(this.user.imageUrl);
             this.role = response.data.role;
             if (this.role === 2) {
                 this.isAdmin = true;

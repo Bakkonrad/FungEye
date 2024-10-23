@@ -204,8 +204,7 @@ namespace FungEyeApi.Controllers
         [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("getUsers")]
-        public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null,
-            [FromForm] string? search = null)
+        public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null, [FromForm] string? search = null)
         {
             if (!ValidateUserId(userId))
             {

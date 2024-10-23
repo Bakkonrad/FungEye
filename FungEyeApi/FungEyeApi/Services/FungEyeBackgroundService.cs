@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FungEyeApi.Services
 {
-    public class DeleteExpiredAccountsService : BackgroundService
+    public class FungEyeBackgroundService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public DeleteExpiredAccountsService(IServiceProvider serviceProvider)
+        public FungEyeBackgroundService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -18,10 +18,11 @@ namespace FungEyeApi.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 // Run tasks every 24 hours
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
 
-                await DeleteExpiredAccountsAsync();
+                
                 await SendRemiderEmailForExpiredAccountsAsync();
+                await DeleteExpiredAccountsAsync();
             }
         }
 
@@ -32,8 +33,10 @@ namespace FungEyeApi.Services
                 var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var blobService = scope.ServiceProvider.GetRequiredService<IBlobStorageService>();
 
+                var date = DateTime.Now.AddDays(-30);
+
                 var expiredUsers = await dbContext.Users
-                    .Where(u => u.DateDeleted != null && u.DateDeleted <= DateTime.Now.AddMinutes(-5))
+                    .Where(u => u.DateDeleted != null && u.DateDeleted <= date)
                     .ToListAsync();
 
                 if (expiredUsers.Count > 0)
@@ -48,8 +51,6 @@ namespace FungEyeApi.Services
 
                     dbContext.Users.RemoveRange(expiredUsers);
                     await dbContext.SaveChangesAsync();
-
-                    
                 }
             }
         }
@@ -61,8 +62,22 @@ namespace FungEyeApi.Services
                 var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
                 var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
+
+                var date = DateTime.Now.AddDays(-2);
+                //var expiredUsers = await dbContext.Users
+                //    .Where(u => u.DateDeleted != null && u.DateDeleted <= now)
+                //    .ToListAsync();
+
+                //Console.WriteLine($"Current Time: {now}");
+                //foreach (var user in expiredUsers)
+                //{
+                //    Console.WriteLine($"User DateDeleted: {user.DateDeleted}");
+                //}
+
+                //var date = DateTime.UtcNow;
+
                 var expiredUsers = await dbContext.Users
-                    .Where(u => u.DateDeleted != null && u.DateDeleted <= DateTime.Now.AddMinutes(-1))
+                    .Where(u => u.DateDeleted != null && u.DateDeleted <= date)
                     .ToListAsync();
 
                 if (expiredUsers.Count > 0)

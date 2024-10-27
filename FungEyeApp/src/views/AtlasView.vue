@@ -2,10 +2,18 @@
   <div class="atlas-view">
     <h1>Atlas grzybów</h1>
 
-    <div v-if="isAdmin" class="button-center">
-      <button @click="showAddMushroomModal = true" class="btn fungeye-default-button">
-        <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
-        Dodaj nowego grzyba</button>
+    <div class="upper-buttons">
+      <div v-if="isAdmin" class="button-center">
+        <button @click="showAddMushroomModal = true" class="btn fungeye-default-button">
+          <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
+          Nowy grzyb</button>
+      </div>
+      <div class="button-center">
+        <button class="btn fungeye-default-button" @click="toggleSavedTab">
+            <font-awesome-icon v-if="!showSaved" icon="fa-solid fa-bookmark" class="button-icon" />
+            {{ showSaved === true ? 'Pokaż wszystkie' : 'Pokaż tylko zapisane' }}
+        </button>
+      </div>
     </div>
 
     <div class="feedback">
@@ -33,13 +41,15 @@
     </div>
 
     <div class="mushroom-list">
-      <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card" @click="openMushroomView(mushroom.id)">
+      <div v-for="mushroom in filteredMushrooms()" :key="mushroom.id" class="mushroom-card"
+        @click="openMushroomView(mushroom.id)">
         <span class="left">
           <img :src="mushroom.image" alt="Mushroom Image" class="mushroom-image" />
           <div class="mushroom-info">
             <h3>{{ mushroom.name }}</h3>
             <div class="attributes">
-              <span v-for="attr in mushroom.attributes" :key="attr" class="mushroom-attribute" @click.stop="toggleAttributeFilter(attr)"
+              <span v-for="attr in mushroom.attributes" :key="attr" class="mushroom-attribute"
+                @click.stop="toggleAttributeFilter(attr)"
                 :class="['attribute', attributeClass(attr), { 'active-attribute': isActiveAttribute(attr) }]">
                 {{ attr }}
               </span>
@@ -48,14 +58,15 @@
         </span>
         <!-- Przycisk edytowania i usuwania grzyba -->
         <div class="mushroom-actions">
-          <button class="btn btn-mushroom fungeye-default-button">
-            <font-awesome-icon v-if="!mushroomSaved" icon="fa-regular fa-bookmark" @click.stop="saveMushroom"/>
-            <font-awesome-icon v-else icon="fa-solid fa-bookmark" @click.stop="unsaveMushroom"/>
+          <button class="btn btn-mushroom fungeye-default-button" @click.stop="toggleSaveMushroom(mushroom.id)">
+            <font-awesome-icon v-if="!mushroom.savedByUser" icon="fa-regular fa-bookmark" />
+            <font-awesome-icon v-else icon="fa-solid fa-bookmark" />
           </button>
           <button v-if="isAdmin" @click.stop="editMushroom(mushroom)" class="btn btn-mushroom fungeye-default-button">
             <font-awesome-icon icon="fa-solid fa-pen" />
           </button>
-          <button v-if="isAdmin" @click.stop="confirmDeleteMushroom(mushroom)" class="btn btn-mushroom fungeye-red-button">
+          <button v-if="isAdmin" @click.stop="confirmDeleteMushroom(mushroom)"
+            class="btn btn-mushroom fungeye-red-button">
             <font-awesome-icon icon="fa-solid fa-trash" />
           </button>
         </div>
@@ -72,7 +83,7 @@
     <div v-if="showDeleteMushroomModal" class="modal">
       <div class="modal-content">
         <h2>Potwierdź działanie</h2>
-        <p>Czy na pewno chcesz usunąć grzyba <b>{{ mushroomToDelete.name }}</b> z bazy danych?</p>
+        <p>Czy na pewno chcesz usunąć grzyb <b>{{ mushroomToDelete.name }}</b> z bazy danych?</p>
         <p class="warning"><strong>Uwaga!</strong> To działanie jest nieodwracalne.</p>
         <span class="buttons">
           <button class="btn fungeye-red-button" @click="deleteMushroom">Usuń</button>
@@ -88,6 +99,7 @@ import SearchBar from '@/components/SearchBar.vue';
 import BaseInput from '@/components/BaseInput.vue';
 import MushroomModal from '@/components/MushroomModal.vue';
 import { checkAdmin, isAdmin } from '@/services/AuthService';
+import { parse } from '@fortawesome/fontawesome-svg-core';
 
 export default {
   components: {
@@ -132,7 +144,8 @@ export default {
         name: '',
         image: '',
         attributes: [],
-        description: ''
+        description: '',
+        savedByUser: false,
       },
       mushroomToDelete: null,
       editMushroomId: null,
@@ -140,10 +153,13 @@ export default {
       error: false,
       errorMessage: '',
       successMessage: '',
-      mushroomSaved: false,
+      showSaved: false,
     };
   },
-  computed: {
+  computed() {
+    this.filteredMushrooms();
+  },
+  methods: {
     filteredMushrooms() {
       let filtered = this.mushrooms;
 
@@ -163,10 +179,13 @@ export default {
         );
       }
 
+      if (this.showSaved) {
+        filtered = filtered.filter((mushroom) => mushroom.savedByUser === true);
+        console.log(filtered);
+      }
+
       return filtered;
     },
-  },
-  methods: {
     handleSearch(query) {
       this.searchQuery = query;
     },
@@ -229,11 +248,9 @@ export default {
       this.error = false;
       this.successMessage = 'Grzyb został usunięty.';
     },
-    saveMushroom() {
-      this.mushroomSaved = true;
-    },
-    unsaveMushroom() {
-      this.mushroomSaved = false;
+    toggleSaveMushroom(mushroomId) {
+      const id = parseInt(mushroomId);
+      this.mushrooms[id - 1].savedByUser = !this.mushrooms[id - 1].savedByUser;
     },
     closeModal() {
       this.showAddMushroomModal = false;
@@ -247,28 +264,9 @@ export default {
       };
       this.mushroomToDelete = null;
     },
-    // Obsługa przesyłania zdjęcia
-    onFileChange(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.mushroomForm.image = URL.createObjectURL(file);
-      }
-    },
-    onDragOver(event) {
-      event.preventDefault();
-      this.isDragging = true;
-    },
-    onDragLeave(event) {
-      event.preventDefault();
-      this.isDragging = false;
-    },
-    onDrop(event) {
-      event.preventDefault();
-      this.isDragging = false;
-      const file = event.dataTransfer.files[0];
-      if (file) {
-        this.mushroomForm.image = URL.createObjectURL(file);
-      }
+    toggleSavedTab() {
+      this.showSaved = !this.showSaved;
+      this.filteredMushrooms();
     },
   },
 };
@@ -288,15 +286,22 @@ export default {
 }
 
 .modal-content {
-    background-color: var(--beige);
-    padding: 20px;
-    border-radius: 10px;
-    width: 450px;
+  background-color: var(--beige);
+  padding: 20px;
+  border-radius: 10px;
+  width: 450px;
 }
 
 .feedback {
   display: flex;
   justify-content: center;
+}
+
+.upper-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1rem;
 }
 
 .success-message {
@@ -488,7 +493,7 @@ h1 {
   color: var(--red);
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 955px) {
   .mushroom-card {
     align-items: flex-start;
     flex-direction: column-reverse;
@@ -509,12 +514,12 @@ h1 {
 }
 
 .buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .buttons button {
-    width: 100%;
+  width: 100%;
 }
 </style>

@@ -14,8 +14,6 @@ export default {
       type: Boolean
     },
     imgSrc: {
-      type: String,
-      required: true,
     },
     width: {
       type: Number,
@@ -43,7 +41,7 @@ export default {
       // console.log('isPlaceholder:', this.isPlaceholder);
       // console.log('imgSrc:', this.imgSrc);
 
-      if (this.isPlaceholder || !this.imgSrc || this.imgSrc === 'placeholder') {
+      if (this.isPlaceholder || !this.imgSrc || this.imgSrc === 'placeholder' || this.imgSrc === 'null' || this.imgSrc === null) {
         // console.log('Returning placeholder:', this.placeholderPath);
         return this.placeholderPath;
       }

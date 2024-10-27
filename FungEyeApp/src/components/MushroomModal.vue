@@ -1,6 +1,6 @@
 <template>
     <div class="modal-content">
-        <h2>{{ showEditMushroomModal ? 'Edytuj grzyba' : 'Dodaj nowego grzyba' }}</h2>
+        <h2>{{ showEditMushroomModal ? 'Edytuj grzyb' : 'Dodaj nowy grzyb' }}</h2>
         <BaseInput v-model="mushroomForm.name" placeholder="Nazwa grzyba" color="black" />
 
         <!-- Dodaj zdjęcie grzyba -->
@@ -31,7 +31,7 @@
         </div>
         <hr>
         <span class="buttons">
-            <button class="btn fungeye-default-button" @click="showEditMushroomModal ? saveChanges() : addMushroom()">{{ showEditMushroomModal ? 'Zapisz zmiany' : 'Dodaj grzyba' }}</button>
+            <button class="btn fungeye-default-button" @click="showEditMushroomModal ? saveChanges() : addMushroom()">{{ showEditMushroomModal ? 'Zapisz zmiany' : 'Dodaj grzyb' }}</button>
             <button class="btn fungeye-red-button" @click="$emit('close')">Anuluj</button>
         </span>
     </div>

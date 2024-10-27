@@ -2,18 +2,22 @@
   <div class="card">
     <div class="card-body">
       <span class="header">
-        <span class="username-data">
+        <span class="username-data" @click="goToProfile">
           <ProfileImage :imgSrc="imgSrc" />
           <p class="username">{{ username }}</p>
         </span>
         <span class="buttons">
-          <button class="btn" @click="reportUser">
+          <button v-if="!isAuthor" class="btn" @click="reportUser">
             <font-awesome-icon icon="fa-solid fa-flag" class="button-icon"></font-awesome-icon>
             Zgłoś
           </button>
-          <button v-if="detailsView && isAuthor" class="btn" @click="editPost">
+          <button v-if="detailsView && isAuthor" class="btn" @click="$emit('edit')">
             <font-awesome-icon icon="fa-solid fa-pen" class="button-icon"></font-awesome-icon>
             Edytuj
+          </button>
+          <button v-if="detailsView && (isAuthor || isAdmin)" class="btn" @click="$emit('delete')">
+            <font-awesome-icon icon="fa-solid fa-trash" class="button-icon"></font-awesome-icon>
+            Usuń post
           </button>
         </span>
       </span>
@@ -61,10 +65,13 @@
 <script>
 import UserService from "@/services/UserService";
 import ProfileImage from "./ProfileImage.vue";
+import { checkAdmin, isAdmin } from "@/services/AuthService";
+import BaseInput from "./BaseInput.vue";
 
 export default {
   components: {
     ProfileImage,
+    BaseInput,
   },
   props: {
     id: {
@@ -103,15 +110,47 @@ export default {
       username: "",
       isImageVisible: false,
       localNumOfLikes: this.numOfLikes,
-      isAuthor: this.userId === 2,
+      isAuthor: false,
+      isAdmin: false,
+    };
+  },
+  setup() {
+    checkAdmin();
+    return {
+      isAdmin: isAdmin
     };
   },
   mounted() {
     this.getAuthorData();
+    this.checkAuthor();
   },
   methods: {
     toggleLike() {
       this.isLiked = !this.isLiked;
+    },
+    async getPost() {
+      // const response = await UserService.getPost(this.id);
+      const response = {
+        success: true,
+        data: {
+          userId: 5,
+          content: "content",
+          image: {
+            url: "https://picsum.photos/800/800",
+          },
+          numOfLikes: 0,
+          numOfComments: 0,
+          comments: [
+            { id: 1, imgSrc: "", username: "username", content: "content" },
+            { id: 2, imgSrc: "", username: "username", content: "content" },
+          ],
+        },
+      }
+      if (response.success === false) {
+        console.error("Error while fetching post data");
+        return;
+      }
+      this.post = response.data;
     },
     async getAuthorData() {
       const response = await UserService.getUserData(this.userId);
@@ -135,6 +174,12 @@ export default {
     },
     reportUser() {
       alert("Zgłoszono użytkownika");
+    },
+    checkAuthor() {
+      this.isAuthor = this.userId == localStorage.getItem("id");
+    },
+    goToProfile() {
+      this.$router.push({ name: 'userProfile', params: { id: this.userId } });
     },
   },
 };
@@ -163,6 +208,7 @@ export default {
   display: flex;
   align-items: last baseline;
   gap: 10px;
+  cursor: pointer;
 }
 
 .post-image {

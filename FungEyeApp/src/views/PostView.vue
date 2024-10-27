@@ -5,9 +5,9 @@
         <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon"></font-awesome-icon>
         Powrót do portalu</button>
     </div>
-    
-    <Post :id="id" :userId="userId" :content="content" :image="image" :numOfLikes="numOfLikes"
-      :numOfComments="numOfComments" :detailsView="true"></Post>
+
+    <Post :id="id" :userId="post.userId" :content="post.content" :image="post.image" :numOfLikes="post.numOfLikes"
+      :numOfComments="post.numOfComments" :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
 
     <div class="card-footer comment-section">
       <div class="add-comment">
@@ -20,19 +20,53 @@
         {{ errorMessage }}
       </div>
       <div class="all-comments">
-        <div class="comment" v-for="comment in comments" :key="comment.id">
+        <div class="comment" v-for="comment in post.comments" :key="comment.id">
           <span class="header">
-            <div class="comment-author-info">
+            <div class="comment-author-info" @click="goToProfile(comment.authorId)">
               <ProfileImage :imgSrc="comment.imgSrc" />
               <p class="username">{{ comment.username }}</p>
             </div>
-            <button class="btn" @click="reportUser">
-              <font-awesome-icon icon="fa-solid fa-flag" class="button-icon"></font-awesome-icon>
-              Zgłoś
-            </button>
+            <span class="buttons">
+              <button class="btn" @click="reportUser">
+                <font-awesome-icon icon="fa-solid fa-flag"></font-awesome-icon>
+              </button>
+              <button class="btn" @click="deletePost">
+                <font-awesome-icon icon="fa-solid fa-trash"></font-awesome-icon>
+              </button>
+            </span>
           </span>
           <p class="comment-text">{{ comment.content }}</p>
         </div>
+      </div>
+    </div>
+    <div v-if="showEditModal" class="modal">
+      <div class="modal-content">
+        <h2>Edytuj post</h2>
+        <textarea v-model="post.content" placeholder="Zawartość posta" class="edit-input form-control"></textarea>
+
+        <div class="photo-upload">
+          <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" />
+          <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
+            @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
+            <span v-if="!isDragging">
+              <header v-if="!post.image">Kliknij, aby wybrać zdjęcie do posta</header>
+              <header v-else>Kliknij, aby wybrać inne zdjęcie do posta</header>
+              <span class="select">lub przeciągnij je tutaj</span>
+            </span>
+            <span v-else>
+              <header>Upuść zdjęcie tutaj</header>
+            </span>
+          </div>
+          <div>
+            <img v-if="post.image" :src="post.image.url" alt="Zdjęcie posta" class="uploaded-image" />
+          </div>
+        </div>
+
+        <hr>
+        <span class="modal-buttons">
+          <button class="btn fungeye-default-button" @click="savePost">Zapisz</button>
+          <button class="btn fungeye-red-button" @click="closeModal">Anuluj</button>
+        </span>
       </div>
     </div>
   </div>
@@ -50,32 +84,51 @@ export default {
   },
   data() {
     return {
-      addComment: false,
       newCommentContent: "",
       isLiked: false,
       imgSrc: "",
-      username: "username",
-      userId: 2,
+      username: "",
+      userId: 0,
       id: 1,
-      content: "content",
-      image: {
-        url: "https://picsum.photos/800/800",
-      },
-      numOfLikes: 0,
-      numOfComments: 0,
       error: false,
       errorMessage: "",
-      comments: [
-        { id: 1, imgSrc: "", username: "username", content: "content" },
-        { id: 2, imgSrc: "", username: "username", content: "content" }],
+      comments: [],
+      post: {},
+      isDragging: false,
+      showEditModal: false,
     };
   },
-  mounted() {
+  created() {
+    this.getPost();
     this.getAuthorData();
   },
   methods: {
+    async getPost() {
+      // const response = await UserService.getPost(this.id);
+      const response = {
+        success: true,
+        data: {
+          userId: 5,
+          content: "content",
+          image: {
+            url: "https://picsum.photos/800/800",
+          },
+          numOfLikes: 0,
+          numOfComments: 0,
+          comments: [
+            { id: 1, imgSrc: "", authorId: 6, username: "username", content: "content" },
+            { id: 2, imgSrc: "", authorId: 6, username: "username", content: "content" },
+          ],
+        },
+      };
+      if (response.success === false) {
+        console.error("Error while fetching post data");
+        return;
+      }
+      this.post = response.data;
+    },
     async getAuthorData() {
-      const response = await UserService.getUserData(this.userId);
+      const response = await UserService.getUserData(this.post.userId);
       if (response.success === false) {
         console.error("Error while fetching user data");
         return;
@@ -94,9 +147,6 @@ export default {
       } else {
         this.numOfLikes--;
       }
-    },
-    showAddComment() {
-      this.addComment = true;
     },
     publishComment() {
       if (this.newCommentContent.trim() === "") {
@@ -117,6 +167,47 @@ export default {
     reportUser() {
       alert("Zgłoszono użytkownika");
     },
+    editPost() {
+      this.showEditModal = true;
+    },
+    deletePost() {
+      if (confirm("Czy na pewno chcesz usunąć ten post?")) {
+        console.log("Post deleted");
+        this.$router.push({ name: 'portal' });
+      }
+    },
+    savePost() {
+      if (this.post.content.trim() === "" || this.post.image === "") {
+        alert("Post nie może być pusty");
+        return;
+      }
+      alert("Zapisano zmiany");
+      this.showEditModal = false;
+    },
+    closeModal() {
+      this.showEditModal = false;
+    },
+    onFileChange(e) {
+      const file = e.target.files[0];
+      this.post.image = URL.createObjectURL(file);
+    },
+    onDragOver(e) {
+      e.preventDefault();
+      this.isDragging = true;
+    },
+    onDragLeave(e) {
+      e.preventDefault();
+      this.isDragging = false;
+    },
+    onDrop(e) {
+      e.preventDefault();
+      this.isDragging = false;
+      const file = e.dataTransfer.files[0];
+      this.post.image = URL.createObjectURL(file);
+    },
+    goToProfile(id) {
+      this.$router.push({ name: 'userProfile', params: { id: id } });
+    },
   }
 };
 </script>
@@ -125,6 +216,78 @@ export default {
 .container-md {
   max-width: 800px;
   margin: 0 auto;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+    background-color: var(--beige);
+    padding: 20px;
+    border-radius: 10px;
+    width: 450px;
+}
+
+.modal-content {
+    background-color: var(--beige);
+    padding: 20px;
+    border-radius: 10px;
+    width: 450px;
+}
+
+.edit-input {
+    color: black !important;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.photo-upload {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.drag-area {
+    width: 100%;
+    border: 2px dashed #ccc;
+    background: rgba(255, 255, 255, 0.3) !important;
+    color: rgba(0, 0, 0, 0.572) !important;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.4s;
+}
+
+.uploaded-image {
+    margin-top: 10px;
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    width: 100%;
 }
 
 .card {
@@ -192,6 +355,7 @@ export default {
   display: flex;
   align-items: last baseline;
   gap: 10px;
+  cursor: pointer;
 }
 
 .comment {
@@ -221,7 +385,6 @@ export default {
   .comment {
     padding: 0.5rem;
   }
-  
-}
 
+}
 </style>

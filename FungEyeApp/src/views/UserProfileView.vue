@@ -8,13 +8,16 @@
     <div v-else class="container-md">
       <div id="user-info">
         <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
-        <div class="buttons">
+        <div v-if="!isLoggedUser" class="buttons">
           <button v-if="followed == false" @click="follow" type="button" class="btn fungeye-default-button">
             &plus; Obserwuj
           </button>
           <button v-if="followed == true" @click="unfollow" type="button" class="btn fungeye-red-button">
             Usuń z obserwowanych
           </button>
+        </div>
+        <div v-else>
+          <button @click="goToMyProfile" class="btn fungeye-default-button">Przejdź do swojego profilu</button>
         </div>
       </div>
       <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" />
@@ -63,10 +66,10 @@ export default {
   methods: {
     async fetchUser() {
       this.id = this.$route.params.id;
-      if (this.id == localStorage.getItem("id")) {
-        this.$router.push({ name: "myProfile" });
-        return;
-      }
+      // if (this.id == localStorage.getItem("id")) {
+      //   this.$router.push({ name: "myProfile" });
+      //   return;
+      // }
       const response = await UserService.getUserData(this.id);
       const followsResponse = await FollowService.getFollowing(this.id);
       const followersResponse = await FollowService.getFollowers(this.id);
@@ -112,6 +115,12 @@ export default {
     },
     goBack() {
       this.$router.go(-1);
+    },
+    isLoggedUser() {
+      return this.id != localStorage.getItem("id");
+    },
+    goToMyProfile() {
+      this.$router.push({ name: "myProfile" });
     },
   },
 };

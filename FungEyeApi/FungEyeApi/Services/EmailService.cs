@@ -77,7 +77,7 @@ namespace FungEyeApi.Services
             if (File.Exists(fullPath))
             {
                 string htmlContent = File.ReadAllText(fullPath);
-                result = linkProvided ? string.Format(htmlContent, link) : htmlContent;
+                result = linkProvided ? htmlContent.Replace("{0}", link) : htmlContent;
                 return result;
             }
             else

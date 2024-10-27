@@ -1,4 +1,5 @@
-﻿using FungEyeApi.Enums;
+﻿using FungEyeApi.Data.Entities.Fungies;
+using FungEyeApi.Enums;
 using FungEyeApi.Models;
 using System.Data;
 
@@ -24,6 +25,7 @@ namespace FungEyeApi.Data.Entities
         public ICollection<FollowEntity>? Follows { get; set; }
         public ICollection<PostReactionEntity>? Reactions { get; set; }
         public ICollection<CommentEntity>? Comments { get; set; }
+        public ICollection<UserFungiCollectionEntity> FungiCollection { get; set; }
 
         public static UserEntity Create(RoleEnum role, string username, string email, string password, DateTime? dateOfBirth, string? firstname, string? lastname, string? imageUrl)
         {

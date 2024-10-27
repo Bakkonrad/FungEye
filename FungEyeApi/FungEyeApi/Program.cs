@@ -48,7 +48,7 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING"));
     //options.UseSqlite(@"Data Source=../mydatabase.db");
 });
-builder.Services.AddHostedService<DeleteExpiredAccountsService>();
+builder.Services.AddHostedService<FungEyeBackgroundService>();
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();

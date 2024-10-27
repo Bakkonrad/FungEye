@@ -1,4 +1,5 @@
 ﻿using FungEyeApi.Data.Entities;
+using FungEyeApi.Data.Entities.Fungies;
 using FungEyeApi.Data.Entities.Posts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -21,6 +22,8 @@ namespace FungEyeApi.Data
             ConfigurePost(builder.Entity<PostEntity>());
             ConfigureComment(builder.Entity<CommentEntity>());
             ConfigureReaction(builder.Entity<PostReactionEntity>());
+            ConfigureFungi(builder.Entity<FungiEntity>());
+            ConfigureUserFungi(builder.Entity<UserFungiCollectionEntity>());
         }
 
         private void ConfigureUser(EntityTypeBuilder<UserEntity> user)
@@ -107,10 +110,43 @@ namespace FungEyeApi.Data
                 .OnDelete(DeleteBehavior.Restrict);
         }
 
+        private void ConfigureFungi(EntityTypeBuilder<FungiEntity> fungi)
+        {
+            fungi.ToTable("Fungies");
+            fungi.HasKey(f => f.Id);
+            fungi.Property(f => f.LatinName).HasMaxLength(255).IsRequired();
+            fungi.Property(f => f.PolishName).HasMaxLength(255);
+            fungi.Property(f => f.Description).HasMaxLength(255);
+            fungi.Property(f => f.Edibility).HasMaxLength(100);
+            fungi.Property(f => f.Toxicity).HasMaxLength(100);
+            fungi.Property(f => f.Habitat).HasMaxLength(100);
+
+            fungi.HasMany(f => f.Images)
+                 .WithOne(img => img.FungiEntity)
+                 .HasForeignKey(img => img.FungiEntityId)
+                 .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        private void ConfigureUserFungi(EntityTypeBuilder<UserFungiCollectionEntity> collection)
+        {
+            collection.ToTable("UserFungiCollections");
+            collection.HasKey(uf => new { uf.UserId, uf.FungiId });
+
+            collection.HasOne(uf => uf.User)
+                   .WithMany(u => u.FungiCollection)
+                   .HasForeignKey(uf => uf.UserId);
+
+            collection.HasOne(uf => uf.Fungi)
+                   .WithMany(f => f.UserCollections)
+                   .HasForeignKey(uf => uf.FungiId);
+        }
+
+
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<FollowEntity> Follows { get; set; }
         public DbSet<PostEntity> Posts { get; set; }
         public DbSet<CommentEntity> Comments { get; set; }
         public DbSet<PostReactionEntity> Reactions { get; set; }
+        public DbSet<FungiEntity> Fungies { get; set; }
     }
 }

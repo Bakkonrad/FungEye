@@ -1,11 +1,12 @@
 <template>
     <div class="modal-content">
         <h2>{{ showEditMushroomModal ? 'Edytuj grzyb' : 'Dodaj nowy grzyb' }}</h2>
-        <BaseInput v-model="mushroomForm.name" placeholder="Nazwa grzyba" color="black" />
+        <BaseInput v-model="mushroomForm.polishName" placeholder="Nazwa polska grzyba" color="black" />
+        <BaseInput v-model="mushroomForm.latinName" placeholder="Nazwa łacińska grzyba" color="black" />
 
         <!-- Dodaj zdjęcie grzyba -->
         <div class="photo-upload">
-            <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" />
+            <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" multiple />
             <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
                 @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
                 <span v-if="!isDragging">
@@ -31,7 +32,7 @@
         </div>
         <hr>
         <span class="buttons">
-            <button class="btn fungeye-default-button" @click="showEditMushroomModal ? saveChanges() : addMushroom()">{{ showEditMushroomModal ? 'Zapisz zmiany' : 'Dodaj grzyb' }}</button>
+            <button class="btn fungeye-default-button" @click="saveChanges">{{ showEditMushroomModal ? 'Zapisz zmiany' : 'Dodaj grzyb' }}</button>
             <button class="btn fungeye-red-button" @click="$emit('close')">Anuluj</button>
         </span>
     </div>
@@ -39,6 +40,7 @@
 
 <script>
 import BaseInput from "@/components/BaseInput.vue";
+import FungiService from "@/services/FungiService";
 
 export default {
     components: {
@@ -99,19 +101,39 @@ export default {
                 poisonous: attribute === 'trujący',
             };
         },
-        saveChanges(mushroom) {
-            this.editMushroomId = mushroom.id;
-            this.mushroomForm = { ...mushroom };
-            this.showEditMushroomModal = true;
-        },
-        saveMushroom() {
+        saveChanges() {
             console.log(this.mushroomForm);
             console.log(this.selectedAttributes);
-            if (this.mushroomForm.name === '' || this.mushroomForm.image === '' || this.mushroomForm.description === '' || this.selectedAttributes.length === 0) {
+            if (this.mushroomForm.polishName === '' || this.mushroomForm.latinName === '' || this.mushroomForm.image === '' || this.mushroomForm.description === '' || this.selectedAttributes.length === 0) {
                 alert('Wypełnij wszystkie pola');
                 return;
             }
-            // addMushroom 
+            const fungi = {
+                name: this.mushroomForm.name,
+                image: this.mushroomForm.image,
+                description: this.mushroomForm.description,
+                attributes: this.selectedAttributes,
+            };
+            if (this.showEditMushroomModal) {
+                this.editMushroom(fungi);
+            } else {
+                this.addMushroom(fungi);
+            }
+        },
+        editMushroom(fungi) {
+            const response = FungiService.editFungi(fungi);
+            if (response.success === false) {
+                alert('Nie udało się edytować grzyba');
+                return;
+            }
+            this.$emit('close');
+        },
+        addMushroom(fungi) {
+            const response = FungiService.addFungi(fungi);
+            if (response.success === false) {
+                alert('Nie udało się dodać grzyba');
+                return;
+            }
             this.$emit('close');
         },
     }

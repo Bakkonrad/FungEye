@@ -1,21 +1,21 @@
 <template>
-  <div class="container-md">
-    <div class="breadcrumbs">
+  <div v-if="error === false" class="container-md">
+    <!-- <div class="breadcrumbs">
       <RouterLink to="/recognize" class="r-link">Rozpoznawanie</RouterLink> / {{ name }}
-    </div>
+    </div> -->
     <div class="mushroom-view">
       <div class="mushroom-view-header mb-3">
         <div class="header">
           <span class="placeholder main-image"></span>
           <!-- <img class="mushroom-view-header-image" :src="mainImg" alt="Mushroom" /> -->
           <div class="mushroom-names">
-            <h1>{{ name }}</h1>
+            <h1>{{ polishName }}</h1>
             <h2 class="latin-name">{{ latinName }}</h2>
           </div>
         </div>
-        <button type="button" class="btn fungeye-default-button">
-          <font-awesome-icon icon="fa-solid fa-bookmark" class="button-icon"/>
-          Dodaj do kolekcji
+        <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button" @click="saveMushroomToCollection">
+          <font-awesome-icon v-if="savedByUser" icon="fa-regular fa-bookmark" />
+          <font-awesome-icon v-else icon="fa-regular fa-bookmark" />
         </button>
       </div>
       <div class="mushroom-view-attributes">
@@ -62,9 +62,16 @@
       </div>
     </div>
   </div>
+  <div v-else class="container-md">
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  </div>
 </template>
 
 <script>
+import { checkAuth, isLoggedIn } from '@/services/AuthService';
+import FungiService from '@/services/FungiService';
 export default {
   props: {
     id: {
@@ -72,15 +79,19 @@ export default {
       required: true,
     },
   },
+  mounted() {
+    checkAuth();
+    this.isLoggedIn = isLoggedIn;
+  },
   data() {
     return {
       isLoading: true,
-      id: null,
       name: "",
       latinName: "",
       mainImg: "",
       attributes: [],
       description: "",
+      savedByUser: false,
       myPhotos: [
         {
           id: 1,
@@ -96,25 +107,28 @@ export default {
         },
       ],
       userPhotos: [],
+      error: false,
+      errorMessage: "",
+      isLoggedIn: false,
     };
   },
   created() {
-    this.id = this.$route.params.id;
     this.fetchMushroomData();
   },
   methods: {
     async fetchMushroomData() {
       this.isLoading = true;
       try {
-        this.name = "Borowik szlachetny";
+        // const response = await FungiService.getFungi(this.id);
+        const response = { success: true };
+        if (response.success === false) {
+          this.error = true;
+          this.errorMessage = "Błąd podczas pobierania danych grzyba";
+          return;
+        }
+        this.polishName = "Borowik szlachetny";
         this.latinName = "Boletus edulis";
-        this.attributes = [
-          "iglaste",
-          "liściaste",
-          "jadalny",
-          "niejadalny",
-          "trujący",
-        ];
+        this.attributes = ["mieszane", "trujący", "iglaste"];
         this.description =
           "Gatunek grzybów z rodziny borowikowatych, potocznie nazywany prawdziwkiem. Występuje w Ameryce Północnej i w Europie. Ponadto został zawleczony do Nowej Zelandii i południowej Afryki. W Polsce często spotykany zwłaszcza w górach, rzadziej na niżu, zwykle rzadki w okolicach wielkich miast.";
         this.userPhotos = [
@@ -142,10 +156,35 @@ export default {
         attribute: true,
         coniferous: attribute === "iglaste",
         deciduous: attribute === "liściaste",
+        mixed: attribute === "mieszane",
         edible: attribute === "jadalny",
         inedible: attribute === "niejadalny",
         poisonous: attribute === "trujący",
       };
+    },
+    async saveMushroomToCollection(mushroomId) {
+      const id = parseInt(mushroomId);
+      // const response = await FungiService.saveFungiToCollection(id);
+      const response = { success: true } // temporary
+      if (response.success === false) {
+        this.error = true;
+        this.errorMessage = 'Wystąpił błąd podczas zapisywania grzyba.';
+        return;
+      }
+      this.error = false;
+      this.fetchMushroomData();
+    },
+    async deleteMushroomFromCollection(mushroomId) {
+      const id = parseInt(mushroomId);
+      // const response = await FungiService.deleteFungiFromCollection(id);
+      const response = { success: true } // temporary
+      if (response.success === false) {
+        this.error = true;
+        this.errorMessage = 'Wystąpił błąd podczas usuwania grzyba.';
+        return;
+      }
+      this.error = false;
+      this.fetchMushroomData();
     },
   },
 };

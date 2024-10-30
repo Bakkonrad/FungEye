@@ -18,7 +18,7 @@
         <AddPost @post-added="getPosts" />
         <div class="posts">
           <div v-for="post in posts" :key="post.id" class="post-item">
-            <Post :id="post.id" :content="post.content" :image="post.image" :userId="post.userId" />
+            <Post :id="post.id" />
           </div>
         </div>
       </div>
@@ -55,6 +55,7 @@ import SearchBar from "../components/SearchBar.vue";
 import { isLoggedIn, checkAuth } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import UserService from "@/services/UserService";
+import PostService from "@/services/PostService";
 import ProfileImage from "@/components/ProfileImage.vue";
 
 export default {
@@ -96,16 +97,23 @@ export default {
     };
   },
   mounted() {
-    // this.getPosts();
     this.toggleTab(this.defaultTab);
     this.searchQuery = this.query;
     if (this.defaultTab === 'search' && this.searchQuery !== '') {
       this.handleSearch(this.searchQuery);
     }
+    if (this.defaultTab === 'posts') {
+      this.getPosts();
+    }
   },
   methods: {
-    getPosts(post) {
-      this.posts.push(post);
+    async getPosts() {
+      const response = await PostService.getPosts(filter, page);
+      if (response.success === false) {
+        console.error("Error while fetching posts data");
+        return;
+      }
+      this.posts = response.data;
     },
     toggleTab(tab) {
       this.showPosts = false;

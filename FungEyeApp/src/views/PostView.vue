@@ -6,36 +6,40 @@
         Powrót do portalu</button>
     </div>
 
-    <Post :id="id" :userId="post.userId" :content="post.content" :image="post.image" :numOfLikes="post.numOfLikes"
-      :numOfComments="post.numOfComments" :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
+    <Post :id="id" :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
 
     <div class="card-footer comment-section">
       <div class="add-comment">
         <ProfileImage :imgSrc="imgSrc" class="profile-image" />
         <textarea v-model="newCommentContent" class="form-control textarea" id="exampleFormControlTextarea1"
           placeholder="Dodaj komentarz do posta..."></textarea>
-        <button class="btn fungeye-default-button publish-button" @click="publishComment">Dodaj</button>
+        <button class="btn fungeye-default-button publish-button" @click="addComment">Dodaj</button>
       </div>
       <div v-if="error" class="error-message">
         {{ errorMessage }}
       </div>
       <div class="all-comments">
-        <div class="comment" v-for="comment in post.comments" :key="comment.id">
+        <div class="comment" v-for="comment in comments" :key="comment.id">
           <span class="header">
             <div class="comment-author-info" @click="goToProfile(comment.authorId)">
               <ProfileImage :imgSrc="comment.imgSrc" />
               <p class="username">{{ comment.username }}</p>
             </div>
             <span class="buttons">
-              <button class="btn" @click="reportUser">
+              <button v-if="!isAuthor" class="btn" @click="reportUser">
                 <font-awesome-icon icon="fa-solid fa-flag"></font-awesome-icon>
               </button>
-              <button class="btn" @click="deletePost">
+              <button v-if="isAuthor || isAdmin" class="btn" @click="deleteComment">
                 <font-awesome-icon icon="fa-solid fa-trash"></font-awesome-icon>
+              </button>
+              <button v-if="isAuthor" class="btn" @click="editCommentMode = true">
+                <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
               </button>
             </span>
           </span>
           <p class="comment-text">{{ comment.content }}</p>
+          <input v-if="editCommentMode" v-model="comment.content" type="text">
+          <button v-if="editCommentMode" class="btn fungeye-default-button" @click="editComment">Zapisz</button>
         </div>
       </div>
     </div>
@@ -76,6 +80,7 @@
 import ProfileImage from "../components/ProfileImage.vue";
 import UserService from "@/services/UserService";
 import Post from "../components/Post.vue";
+import { checkAdmin, isAdmin } from "@/services/AuthService";
 
 export default {
   components: {
@@ -96,15 +101,23 @@ export default {
       post: {},
       isDragging: false,
       showEditModal: false,
+      numOfComments: 0,
+      isAuthor: false,
+      isAdmin: false,
+      editCommentMode: false,
     };
   },
-  created() {
+  mounted() {
     this.getPost();
+    this.getComments();
     this.getAuthorData();
+    this.checkAuthor();
+    checkAdmin();
+    this.isAdmin = isAdmin;
   },
   methods: {
     async getPost() {
-      // const response = await UserService.getPost(this.id);
+      // const response = await PostService.getPost(this.id);
       const response = {
         success: true,
         data: {
@@ -115,10 +128,6 @@ export default {
           },
           numOfLikes: 0,
           numOfComments: 0,
-          comments: [
-            { id: 1, imgSrc: "", authorId: 6, username: "username", content: "content" },
-            { id: 2, imgSrc: "", authorId: 6, username: "username", content: "content" },
-          ],
         },
       };
       if (response.success === false) {
@@ -126,6 +135,22 @@ export default {
         return;
       }
       this.post = response.data;
+    },
+    async getComments() {
+      // const response = await PostService.getComments(this.id);
+      const response = {
+        success: true,
+        data: [
+          { id: 1, imgSrc: "", authorId: 6, username: "username", content: "content" },
+          { id: 2, imgSrc: "", authorId: 6, username: "username", content: "content" },
+        ],
+      };
+      if (response.success === false) {
+        console.error("Error while fetching comments data");
+        return;
+      }
+      this.comments = response.data;
+      this.numOfComments = this.comments.length;
     },
     async getAuthorData() {
       const response = await UserService.getUserData(this.post.userId);
@@ -139,30 +164,37 @@ export default {
     goToPortal() {
       this.$router.push({ name: 'portal' });
     },
-    toggleLike() {
-      this.isLiked = !this.isLiked;
-      if (this.isLiked) {
-        this.numOfLikes++;
-
-      } else {
-        this.numOfLikes--;
-      }
-    },
-    publishComment() {
+    async addComment() {
       if (this.newCommentContent.trim() === "") {
         this.error = true;
         this.errorMessage = "Komentarz nie może być pusty";
         return;
       }
+      const response = await PostService.addComment(this.id, this.newCommentContent);
+      if (response.success === false) {
+        console.error("Error while adding comment");
+        return;
+      }
       this.error = false;
-      this.comments.push({
-        id: this.comments.length + 1,
-        imgSrc: this.imgSrc,
-        username: this.username,
-        content: this.newCommentContent,
-      });
       this.newCommentContent = "";
-      this.numOfComments++;
+      this.getComments();
+    },
+    async deleteComment() {
+      const response = await PostService.deleteComment(this.id);
+      if (response.success === false) {
+        alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
+        return;
+      }
+      alert("Usunięto komentarz");
+    },
+    async editComment(comment) {
+      console.log(comment);
+      const response = await PostService.editComment(this.id, comment);
+      if (response.success === false) {
+        alert("Nie udało się edytować komentarza. Spróbuj ponownie później");
+        return;
+      }
+      alert("Edytowano komentarz");
     },
     reportUser() {
       alert("Zgłoszono użytkownika");
@@ -170,15 +202,25 @@ export default {
     editPost() {
       this.showEditModal = true;
     },
-    deletePost() {
+    async deletePost() {
       if (confirm("Czy na pewno chcesz usunąć ten post?")) {
-        console.log("Post deleted");
+        const response = await PostService.deletePost(this.id);
+        if (response.success === false) {
+          alert("Nie udało się usunąć posta. Spróbuj ponownie później");
+          return;
+        }
+        alert("Usunięto post");
         this.$router.push({ name: 'portal' });
       }
     },
-    savePost() {
+    async savePost() {
       if (this.post.content.trim() === "" || this.post.image === "") {
         alert("Post nie może być pusty");
+        return;
+      }
+      const response = await PostService.editPost(this.id, this.post);
+      if (response.success === false) {
+        alert("Nie udało się zapisać zmian");
         return;
       }
       alert("Zapisano zmiany");
@@ -207,6 +249,9 @@ export default {
     },
     goToProfile(id) {
       this.$router.push({ name: 'userProfile', params: { id: id } });
+    },
+    checkAuthor() {
+      this.isAuthor = this.userId == localStorage.getItem("id");
     },
   }
 };

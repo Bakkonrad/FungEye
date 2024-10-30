@@ -41,7 +41,7 @@ const predict = async (image) => {
   }
 };
 
-const getAllFungis = async (page, search) => {
+const getAllFungies = async (page, search) => {
   try {
     const userId = parseInt(localStorage.getItem("id"));
         // console.log("get users: ", page, search);
@@ -53,13 +53,14 @@ const getAllFungis = async (page, search) => {
         if (search) {
             formData.append('search', search);
         }
-        const response = await $http.post('api/Fungi/getFungis', formData, {
+        const response = await $http.post('api/Fungi/getFungies', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
         });
     if (response.status === 200) {
-      return { success: true, data: response.data };
+      const data = convertToAttributes(response.data);
+      return { success: true, data: data };
     }
     return { success: false, message: "Nieznany błąd" };
   } catch (error) {
@@ -69,11 +70,36 @@ const getAllFungis = async (page, search) => {
   }
 };
 
-const getFungiById = async (id) => {
+const convertToAttributes = (fungi) => {
+  const newFungi = {
+    ...fungi,
+    attributes: [],
+  }
+  if (fungi.edibility === "jadalny") {
+    newFungi.attributes.push("jadalny");
+  } else if (fungi.edibility === "niejadalny") {
+    newFungi.attributes.push("niejadalny");
+  }
+  if (fungi.toxicity === "trujący") {
+    newFungi.attributes.push("trujący");
+  }
+  if (fungi.habitat === "iglasty") {
+    newFungi.attributes.push("iglaste");
+  } else if (fungi.habitat === "liściasty") {
+    newFungi.attributes.push("liściaste");
+  }
+  else if (fungi.habitat === "mieszany") {
+    newFungi.attributes.push("mieszane");
+  }
+  return newFungi;
+}
+
+const getFungi = async (id) => {
   try {
-    const response = await $http.get(`api/Fungi/${id}`);
+    const response = await $http.get(`api/Fungi/getFungi/${id}`);
     if (response.status === 200) {
-      return { success: true, data: response.data };
+      const data = convertToAttributes(response.data);
+      return { success: true, data: data };
     }
     return { success: false, message: "Nieznany błąd" };
   } catch (error) {
@@ -83,9 +109,21 @@ const getFungiById = async (id) => {
   }
 };
 
-const addFungi = async (fungi) => {
+const addFungi = async (fungi, images) => {
   try {
-    const response = await $http.post("api/Fungi", fungi);
+    const userId = parseInt(localStorage.getItem("id"));
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("fungiJson", JSON.stringify(fungi));
+    // for (let i = 0; i < images.length; i++) {
+    //   formData.append("images", images[i]);
+    // }
+    formData.append("images", images);
+    const response = await $http.post("api/Fungi/addFungi", formData, { 
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     if (response.status === 201) {
       return { success: true, data: response.data };
     }
@@ -97,9 +135,22 @@ const addFungi = async (fungi) => {
   }
 };
 
-const updateFungi = async (id, fungi) => { 
+const editFungi = async (fungi, images) => { 
   try {
-    const response = await $http.put(`api/Fungi/${id}`, fungi);
+    const userId = parseInt(localStorage.getItem("id"));
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("fungiJson", JSON.stringify(fungi));
+    // for (let i = 0; i < images.length; i++) {
+    //   formData.append("images", images[i]);
+    // }
+    formData.append("images", images);
+    const response = await $http.post(`api/Fungi/editFungi`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      }
+    }
+    );
     if (response.status === 200) {
       return { success: true, data: response.data };
     }
@@ -113,7 +164,7 @@ const updateFungi = async (id, fungi) => {
 
 const deleteFungi = async (id) => {
   try {
-    const response = await $http.delete(`api/Fungi/${id}`);
+    const response = await $http.delete(`api/Fungi/deleteFungi/${id}`);
     if (response.status === 200) {
       return { success: true, data: response.data };
     }
@@ -125,11 +176,58 @@ const deleteFungi = async (id) => {
   }
 };
 
+const saveFungiToCollection = async (fungiId) => {
+  try {
+    const userId = parseInt(localStorage.getItem("id"));
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("fungiId", fungiId);
+    const response = await $http.post("api/Fungi/saveFungiToCollection", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    if (response.status === 201) {
+      return { success: true, data: response.data };
+    }
+    return { success: false, message: "Nieznany błąd" };
+  } catch (error) {
+    const errorMessage = ApiService.handleApiError(error);
+    console.error("Error saving fungi to collection:", errorMessage);
+    return { success: false, message: errorMessage };
+  }
+}
 
-export default { predict,
-  getAllFungis, // userId, page, search w formData
-  getFungiById, // id w url
-  addFungi, // userId, fungi w body
-  updateFungi, // userId, id w url, fungi w body
-  deleteFungi, // userId, id w url
- };
+const deleteFungiFromCollecion = async (fungiId) => {
+  try {
+    const userId = parseInt(localStorage.getItem("id"));
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("fungiId", fungiId);
+    const response = await $http.delete("api/Fungi/deleteFungiFromCollection", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    if (response.status === 201) {
+      return { success: true, data: response.data };
+    }
+    return { success: false, message: "Nieznany błąd" };
+  } catch (error) {
+    const errorMessage = ApiService.handleApiError(error);
+    console.error("Error saving fungi to collection:", errorMessage);
+    return { success: false, message: errorMessage };
+  }
+}
+
+
+export default { 
+  predict,
+  getAllFungies,
+  getFungi,
+  addFungi,
+  editFungi,
+  deleteFungi,
+  saveFungiToCollection,
+  deleteFungiFromCollecion
+};

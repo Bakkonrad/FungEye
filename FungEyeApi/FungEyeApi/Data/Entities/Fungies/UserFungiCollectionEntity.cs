@@ -7,5 +7,14 @@
 
         public int FungiId { get; set; }
         public FungiEntity Fungi { get; set; }
+
+        public static UserFungiCollectionEntity Create(int userId, int fungiId)
+        {
+            return new UserFungiCollectionEntity()
+            {
+                UserId = userId,
+                FungiId = fungiId
+            };
+        }
     }
 }

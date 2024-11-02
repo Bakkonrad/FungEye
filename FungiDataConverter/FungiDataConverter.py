@@ -1,7 +1,7 @@
 import csv
 
-input_file = 'mushroom_descriptions.txt'
-output_file = 'mushroom_descriptions.csv'
+input_file = 'mushroom_description.txt'
+output_file = 'mushroom_description.csv'
 
 with open(input_file, 'r', encoding='utf-8') as infile, open(output_file, 'w', newline='', encoding='utf-8') as outfile:
     writer = csv.writer(outfile)

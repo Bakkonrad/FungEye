@@ -1,4 +1,4 @@
-﻿namespace FungEyeApi.Data.Entities.Posts
+﻿namespace FungEyeApi.Data.Entities
 {
     public class PostEntity
     {
@@ -10,10 +10,23 @@
 
         // Użytkownik, który stworzył post
         public required int UserId { get; set; }
-        public UserEntity User { get; set; }
+        public UserEntity? User { get; set; }
 
         public ICollection<PostReactionEntity>? Reactions { get; set; }
 
         public ICollection<CommentEntity>? Comments { get; set; }
+
+        public static PostEntity Create(int userId, string content, string? imageUrl)
+        {
+            var entity = new PostEntity
+            {
+                UserId = userId,
+                Content = content,
+                ImageUrl = imageUrl,
+                CreatedAt = DateTime.Now
+            };
+
+            return entity;
+        }
     }
 }

@@ -24,16 +24,16 @@ namespace FungEyeApi.Services
                 using var memoryStream = new MemoryStream();
                 await file.CopyToAsync(memoryStream);
 
-                // Resize the image to 224x224
+                // Resize the image to 299x299
                 using var image = System.Drawing.Image.FromStream(memoryStream);
-                using var resizedImage = new Bitmap(image, new Size(224, 224));
+                using var resizedImage = new Bitmap(image, new Size(299, 299));
 
-                // Normalize the image data to [0, 1] and reshape it into [1, 224, 224, 3]
-                float[,,] imageArray = new float[224, 224, 3]; // Batch of 1 image, 224x224 size, 3 channels (RGB)
+                // Normalize the image data to [0, 1] and reshape it into [1, 299, 299, 3]
+                float[,,] imageArray = new float[299, 299, 3]; // Batch of 1 image, 299x299 size, 3 channels (RGB)
 
-                for (int i = 0; i < 224; i++)
+                for (int i = 0; i < 299; i++)
                 {
-                    for (int j = 0; j < 224; j++)
+                    for (int j = 0; j < 299; j++)
                     {
                         var pixel = resizedImage.GetPixel(i, j);
                         imageArray[i, j, 0] = pixel.R / 255.0f; // Red channel

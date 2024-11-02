@@ -64,17 +64,6 @@ namespace FungEyeApi.Services
 
 
                 var date = DateTime.Now.AddDays(-2);
-                //var expiredUsers = await dbContext.Users
-                //    .Where(u => u.DateDeleted != null && u.DateDeleted <= now)
-                //    .ToListAsync();
-
-                //Console.WriteLine($"Current Time: {now}");
-                //foreach (var user in expiredUsers)
-                //{
-                //    Console.WriteLine($"User DateDeleted: {user.DateDeleted}");
-                //}
-
-                //var date = DateTime.UtcNow;
 
                 var expiredUsers = await dbContext.Users
                     .Where(u => u.DateDeleted != null && u.DateDeleted <= date)
@@ -87,6 +76,19 @@ namespace FungEyeApi.Services
                         await emailService.SendEmailAsync(user.Email, Enums.SendEmailOptionsEnum.RemindOfExpiredAccount);
                     }
                 }
+
+
+                //var expiredUsers = await dbContext.Users
+                //    .Where(u => u.DateDeleted != null && u.DateDeleted <= now)
+                //    .ToListAsync();
+
+                //Console.WriteLine($"Current Time: {now}");
+                //foreach (var user in expiredUsers)
+                //{
+                //    Console.WriteLine($"User DateDeleted: {user.DateDeleted}");
+                //}
+
+                //var date = DateTime.UtcNow;
             }
         }
     }

@@ -1,5 +1,5 @@
 ﻿using FungEyeApi.Data.Entities;
-using FungEyeApi.Data.Entities.Posts;
+using Newtonsoft.Json;
 
 namespace FungEyeApi.Models.Posts
 {
@@ -17,15 +17,34 @@ namespace FungEyeApi.Models.Posts
             ImageUrl = postEntity.ImageUrl;
         }
 
-
+        [JsonProperty("id")]
         public int Id { get; set; }
-        public string Content { get; set; }
+
+        [JsonProperty("content")]
+        public string? Content { get; set; }
+
+        [JsonProperty("imageUrl")]
         public string? ImageUrl { get; set; }
+
+        [JsonProperty("createdAt")]
         public DateTime CreatedAt { get; set; }
+
+        [JsonProperty("modifiedAt")]
         public DateTime? ModifiedAt { get; set; }
+
+        [JsonProperty("userId")]
         public int UserId { get; set; }
+
+        [JsonProperty("likeAmount")]
         public long LikeAmount { get; set; }
+
+        [JsonProperty("commentsAmount")]
         public long CommentsAmount { get; set; }
+
+        [JsonProperty("loggedUserReacted")]
         public bool LoggedUserReacted { get; set; }
+
+        [JsonProperty("deletePhoto")]
+        public bool? DeletePhoto { get; set; }
     }
 }

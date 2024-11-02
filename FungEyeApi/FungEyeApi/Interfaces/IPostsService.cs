@@ -9,8 +9,8 @@ namespace FungEyeApi.Interfaces
         Task<bool> AddPost(Post post);
         Task<bool> EditPost(Post post);
         Task<bool> DeletePost(int postId);
-        Task<bool> LikePost(int postId, int userId);
-        Task<bool> UnlikePost(int postId, int userId);
+        Task<bool> AddPostReaction(int postId, int userId);
+        Task<bool> DeletePostReaction(int postId, int userId);
         Task<bool> AddComment(Comment comment);
         Task<bool> DeleteComment(int commentId);
         Task<bool> EditComment(Comment comment);

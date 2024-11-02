@@ -117,19 +117,19 @@ export default {
   },
   methods: {
     async getPost() {
-      // const response = await PostService.getPost(this.id);
-      const response = {
-        success: true,
-        data: {
-          userId: 5,
-          content: "content",
-          image: {
-            url: "https://picsum.photos/800/800",
-          },
-          numOfLikes: 0,
-          numOfComments: 0,
-        },
-      };
+      const response = await PostService.getPost(this.id);
+      // const response = {
+      //   success: true,
+      //   data: {
+      //     userId: 5,
+      //     content: "content",
+      //     image: {
+      //       url: "https://picsum.photos/800/800",
+      //     },
+      //     numOfLikes: 0,
+      //     numOfComments: 0,
+      //   },
+      // };
       if (response.success === false) {
         console.error("Error while fetching post data");
         return;

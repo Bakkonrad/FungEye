@@ -11,22 +11,25 @@ using System.Security.Claims;
 
 namespace FungEyeApi.Controllers
 {
-    public class PostsController : ControllerBase
+    [Route("api/[controller]")]
+    [ApiController]
+    public class PostController : ControllerBase
     {
         private readonly IPostsService _postsService;
         private readonly IBlobStorageService _blobStorageService;
         private readonly static BlobContainerEnum blobContainer = BlobContainerEnum.Posts;
 
 
-        public PostsController(IPostsService postsService)
+        public PostController(IPostsService postsService, IBlobStorageService blobStorageService)
         {
             _postsService = postsService;
+            _blobStorageService = blobStorageService;
         }
 
         [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("addPost")]
-        public async Task<IActionResult> AddPost([FromForm] int userId, [FromForm] string postJson, [FromForm] IFormFile? image)
+        public async Task<IActionResult> AddPost([FromForm] int userId, [FromForm] string postJson, [FromForm] IFormFile? image = null)
         {
             try
             {
@@ -41,7 +44,7 @@ namespace FungEyeApi.Controllers
                 {
                     if (image.Length > 0)
                     {
-                        var newImageUrl = await _blobStorageService.UploadFile(image, Enums.BlobContainerEnum.Posts);
+                        var newImageUrl = await _blobStorageService.UploadFile(image, blobContainer);
                         post.ImageUrl = newImageUrl;
                     }
                 }
@@ -83,6 +86,17 @@ namespace FungEyeApi.Controllers
                         post.ImageUrl = newImageUrl;
                     }
                 }
+                else
+                {
+                    if (post.DeletePhoto != null && post.ImageUrl != null)
+                    {
+                        if (post.DeletePhoto is true)
+                        {
+                            await _blobStorageService.DeleteFile(post.ImageUrl, blobContainer);
+                            post.ImageUrl = null;
+                        }
+                    }
+                }
 
                 var result = await _postsService.EditPost(post);
                 return Ok();
@@ -116,7 +130,7 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpGet("getPosts")]
+        [HttpPost("getPosts")]
         public async Task<IActionResult> GetPosts([FromForm] int userId, [FromForm] int postsFilter, [FromForm] int? page = null)
         {
             try
@@ -137,8 +151,8 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpPost("likePost")]
-        public async Task<IActionResult> LikePost([FromForm] int userId, [FromForm] int postId)
+        [HttpPost("addPostReaction")]
+        public async Task<IActionResult> AddPostReaction([FromForm] int userId, [FromForm] int postId)
         {
             try
             {
@@ -147,7 +161,7 @@ namespace FungEyeApi.Controllers
                     return Forbid();
                 }
 
-                var result = await _postsService.LikePost(userId, postId);
+                var result = await _postsService.AddPostReaction(userId, postId);
                 return Ok();
             }
             catch (Exception ex)
@@ -158,8 +172,8 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpPost("likePost")]
-        public async Task<IActionResult> UnlikePost([FromForm] int userId, [FromForm] int postId)
+        [HttpPost("deletePostReaction")]
+        public async Task<IActionResult> DeletePostReaction([FromForm] int userId, [FromForm] int postId)
         {
             try
             {
@@ -168,7 +182,7 @@ namespace FungEyeApi.Controllers
                     return Forbid();
                 }
 
-                var result = await _postsService.UnlikePost(userId, postId);
+                var result = await _postsService.DeletePostReaction(userId, postId);
                 return Ok();
             }
             catch (Exception ex)
@@ -179,7 +193,7 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpGet("getComments")]
+        [HttpPost("getComments")]
         public async Task<IActionResult> GetComments([FromForm] int userId, [FromForm] int postId)
         {
             try
@@ -212,7 +226,7 @@ namespace FungEyeApi.Controllers
 
                 var comment = JsonConvert.DeserializeObject<Comment>(commentJson) ?? throw new Exception("Cannot deserialize Post object");
 
-                comment.UserId = userId;
+                comment.User = new FollowUser { Id = userId };
 
                 var result = await _postsService.AddComment(comment);
                 return Ok();

@@ -5,56 +5,170 @@ using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using FungEyeApi.Models.Posts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.JsonWebTokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Security.Claims;
-using System.Text;
 
 namespace FungEyeApi.Services
 {
     public class PostsService : IPostsService
     {
         private readonly DataContext db;
+        private readonly IBlobStorageService _blobStorageService;
 
-        public PostsService(DataContext db)
+
+        public PostsService(DataContext db, IBlobStorageService blobStorageService)
         {
             this.db = db;
+            _blobStorageService = blobStorageService;
         }
 
         public async Task<bool> AddComment(Comment comment)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var commentEntity = CommentEntity.Create(comment.PostId, comment.User.Id, comment.Content);
+                await db.Comments.AddAsync(commentEntity);
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during adding comment: " + ex.Message);
+            }
         }
 
         public async Task<bool> AddPost(Post post)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if(post.Content == null)
+                {
+                    throw new Exception("Post content cannot be null");
+                }
+                var postEntity = PostEntity.Create(post.UserId, post.Content, post.ImageUrl);
+                await db.Posts.AddAsync(postEntity);
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during adding post: " + ex.Message);
+            }
         }
 
         public async Task<bool> DeleteComment(int commentId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var comment = await db.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
+
+                if (comment == null)
+                {
+                    return false;
+                }
+
+                db.Comments.Remove(comment);
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during deleting comment: " + ex.Message);
+            }
         }
 
         public async Task<bool> DeletePost(int postId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var post = await db.Posts.FirstOrDefaultAsync(p => p.Id == postId);
+
+                if (post == null)
+                {
+                    return false;
+                }
+
+                if(post.ImageUrl != null)
+                {
+                    await _blobStorageService.DeleteFile(post.ImageUrl, Enums.BlobContainerEnum.Posts);
+                }
+
+                db.Posts.Remove(post);
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during deleting post: " + ex.Message);
+            }
         }
 
         public async Task<bool> EditComment(Comment comment)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var commentEntity = await db.Comments.FirstOrDefaultAsync(c => c.Id == comment.Id);
+
+                if (commentEntity == null)
+                {
+                    return false;
+                }
+
+                commentEntity.Content = comment.Content;
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during editing comment: " + ex.Message);
+            }
         }
 
         public async Task<bool> EditPost(Post post)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var postEntity = await db.Posts.FirstOrDefaultAsync(p => p.Id == post.Id);
+
+                if (postEntity == null)
+                {
+                    return false;
+                }
+                else if (post.Content == null)
+                {
+                    throw new Exception("New content cannot be null");
+                }
+
+                postEntity.Content = post.Content;
+                postEntity.ModifiedAt = DateTime.Now;
+                postEntity.ImageUrl = post.ImageUrl;
+
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during editing post: " + ex.Message);
+            }
         }
 
         public async Task<List<Comment>> GetComments(int postId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var comments = await db.Comments.Where(c => c.PostId == postId).ToListAsync();
+                var commentsToModel = comments.Select(c => new Comment(c)).ToList();
+
+                return commentsToModel;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during retrieving comments: " + ex.Message);
+            }
         }
 
         public async Task<List<Post>> GetPosts(PostsFilter filter, int userId, int? page = null)
@@ -98,14 +212,48 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<bool> LikePost(int postId, int userId)
+        public async Task<bool> AddPostReaction(int postId, int userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if(await db.Reactions.AnyAsync(r => r.PostId == postId && r.UserId == userId))
+                {
+                    return false;
+                }
+
+                var reactionEntity = PostReactionEntity.Create(postId, userId);
+
+                await db.Reactions.AddAsync(reactionEntity);
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Adding post reaction failed. " + ex.Message);
+            }
         }
 
-        public async Task<bool> UnlikePost(int postId, int userId)
+        public async Task<bool> DeletePostReaction(int postId, int userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var existingReaction = await db.Reactions.FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId);
+
+                if(existingReaction == null)
+                {
+                    return false;
+                }
+
+                db.Reactions.Remove(existingReaction);
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Deleting post reaction failed. " + ex.Message);
+            }
         }
 
         private async Task<List<Post>> GetPostsInfo(List<Post> posts, int userId)
@@ -117,7 +265,7 @@ namespace FungEyeApi.Services
             {
                 post.LikeAmount = await reactions.CountAsync(r => r.PostId == post.Id);
                 post.CommentsAmount = await comments.CountAsync(r => r.PostId == post.Id);
-                post.LoggedUserReacted = await reactions.AnyAsync(r => r.PostId == post.Id && r.UserId == post.UserId);
+                post.LoggedUserReacted = await reactions.AnyAsync(r => r.PostId == post.Id && r.UserId == userId);
             }
 
             return posts;

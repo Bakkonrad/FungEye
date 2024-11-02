@@ -1,5 +1,4 @@
-﻿using FungEyeApi.Data.Entities.Posts;
-using FungEyeApi.Enums;
+﻿using FungEyeApi.Enums;
 
 namespace FungEyeApi.Data.Entities
 {
@@ -15,7 +14,7 @@ namespace FungEyeApi.Data.Entities
         public required int UserId { get; set; }
         public UserEntity User { get; set; }
 
-        public static PostReactionEntity Create(int postId, int userId, int reactionTypeId)
+        public static PostReactionEntity Create(int postId, int userId)
         {
             var entity = new PostReactionEntity
             {

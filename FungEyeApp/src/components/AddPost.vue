@@ -94,12 +94,13 @@ export default {
       const post = {
         id: 0,
         content: this.content,
-        image: this.image,
+        // image: this.image,
         userId: parseInt(localStorage.getItem("id")),
       };
 
-      // const response = await PostService.addPost(post);
-      const response = { success: true };
+      // console.log(post);
+      const response = await PostService.addPost(post, this.image);
+      // const response = { success: true };
       if (response.success == false) {
         this.error = true;
         this.errorMessage = response.message;

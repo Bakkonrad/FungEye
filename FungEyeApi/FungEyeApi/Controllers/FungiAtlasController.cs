@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using FungEyeApi.Enums;
+﻿using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
-using FungEyeApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using FungEyeApi.Data.Entities;
 using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace FungEyeApi.Controllers
 {
@@ -15,7 +12,6 @@ namespace FungEyeApi.Controllers
     [ApiController]
     public class FungiAtlasController : ControllerBase
     {
-        private readonly IAuthService _authService;
         private readonly IFungiAtlasService _fungiAtlasService;
         private readonly IUserService _userService;
         private readonly IBlobStorageService _blobStorageService;
@@ -23,9 +19,8 @@ namespace FungEyeApi.Controllers
 
 
 
-        public FungiAtlasController(IAuthService authService, IFungiAtlasService fungiAtlasService, IUserService userService, BlobStorageService blobStorageService)
+        public FungiAtlasController(IAuthService authService, IFungiAtlasService fungiAtlasService, IUserService userService, IBlobStorageService blobStorageService)
         {
-            _authService = authService;
             _fungiAtlasService = fungiAtlasService;
             _userService = userService;
             _blobStorageService = blobStorageService;
@@ -34,26 +29,31 @@ namespace FungEyeApi.Controllers
         [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("addFungi")]
-        public async Task<IActionResult> AddFungi([FromForm] int userId, [FromForm] string fungiJson, [FromForm] IFormFile? image)
+        public async Task<IActionResult> AddFungi([FromForm] int userId, [FromForm] string fungiJson, [FromForm] IFormFileCollection? images)
         {
             try
             {
                 var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 var admin = await _userService.IsAdmin(userIdFromToken);
                 
-                if (!ValidateUserId(userId) || admin == false)
+                if (!ValidateUserId(userId) && admin == false)
                 {
-                    return Forbid();
+                    return Forbid("Only admin can perform this action");
                 }
                 
                 var fungi = JsonConvert.DeserializeObject<Fungi>(fungiJson) ?? throw new Exception("Cannot deserialize Fungi object");
 
-                if (image != null)
+                if (images != null && images.Count > 0)
                 {
-                    if (image.Length > 0)
+                    fungi.ImagesUrl = new List<string>();
+
+                    foreach (var image in images)
                     {
-                        var newImageUrl = await _blobStorageService.UploadFile(image, Enums.BlobContainerEnum.Fungies);
-                        fungi.ImagesUrl = new List<string>() { newImageUrl };
+                        if (image.Length > 0)
+                        {
+                            var newImageUrl = await _blobStorageService.UploadFile(image, blobContainer);
+                            fungi.ImagesUrl.Add(newImageUrl);
+                        }
                     }
                 }
 
@@ -69,30 +69,43 @@ namespace FungEyeApi.Controllers
         [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("editFungi")]
-        public async Task<IActionResult> EditFungi([FromForm] int userId, [FromForm] string fungiJson, [FromForm] IFormFile? image)
+        public async Task<IActionResult> EditFungi([FromForm] int userId, [FromForm] string fungiJson, [FromForm] IFormFileCollection? images)
         {
             try
             {
                 var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 var admin = await _userService.IsAdmin(userIdFromToken);
                 
-                if (!ValidateUserId(userId) || admin == false)
+                if (!ValidateUserId(userId) && admin == false)
                 {
-                    return Forbid();
+                    return Forbid("Only admin can perform this action");
                 }
                 
                 var fungi = JsonConvert.DeserializeObject<Fungi>(fungiJson) ?? throw new Exception("Cannot deserialize Fungi object");
 
-                if (image != null)
+                if(fungi.ImagesUrlsToDelete != null && fungi.ImagesUrlsToDelete.Count > 0)
                 {
-                    if (image.Length > 0)
+                    foreach (var imageUrl in fungi.ImagesUrlsToDelete)
                     {
-                        if (!String.IsNullOrWhiteSpace(fungi.ImagesUrl[0]))
+                        if(fungi.ImagesUrl != null && fungi.ImagesUrl.Contains(imageUrl))
                         {
-                            await _blobStorageService.DeleteFile(fungi.ImagesUrl[0], blobContainer);
+                            fungi.ImagesUrl.Remove(imageUrl);
                         }
-                        var newImageUrl = await _blobStorageService.UploadFile(image, Enums.BlobContainerEnum.Fungies);
-                        fungi.ImagesUrl[0] = newImageUrl;
+                        await _blobStorageService.DeleteFile(imageUrl, blobContainer);
+                    }
+                }
+
+                if (images != null && images.Count > 0)
+                {
+                    fungi.ImagesUrl ??= new List<string>();
+
+                    foreach (var image in images)
+                    {
+                        if (image.Length > 0)
+                        {
+                            var newImageUrl = await _blobStorageService.UploadFile(image, blobContainer);
+                            fungi.ImagesUrl.Add(newImageUrl);
+                        }
                     }
                 }
 
@@ -112,9 +125,12 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if (!ValidateUserId(userId))
+                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (!ValidateUserId(userId) && admin == false)
                 {
-                    return Forbid();
+                    return Forbid("Only admin can perform this action");
                 }
 
                 var result = await _fungiAtlasService.DeleteFungi(fungiId);
@@ -126,19 +142,13 @@ namespace FungEyeApi.Controllers
             }
         }
         
-        [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpGet("getFungies")]
-        public async Task<IActionResult> GetFungies([FromForm] int userId, [FromForm] int fungiesFilter, [FromForm] int? page = null)
+        [HttpPost("getFungies")]
+        public async Task<IActionResult> GetFungies([FromForm] int? page = null, [FromForm] string? search = null)
         {
             try
             {
-                if (!ValidateUserId(userId))
-                {
-                    return Forbid();
-                }
-
-                var result = await _fungiAtlasService.GetFungies(page);
+                var result = await _fungiAtlasService.GetFungies(page, search);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -146,10 +156,38 @@ namespace FungEyeApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-        
+
+        [HttpGet("getFungi/{fungiId}")]
+        public async Task<IActionResult> GetFungi(int fungiId)
+        {
+            try
+            {
+                var result = await _fungiAtlasService.GetFungi(fungiId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet("getFungiByName/{fungiName}")]
+        public async Task<IActionResult> GetFungiByName(string fungiName)
+        {
+            try
+            {
+                var result = await _fungiAtlasService.GetFungi(fungiName);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         [Authorize]
-        [HttpPost("saveFungi")]
-        public async Task<IActionResult> SaveFungi([FromForm] int userId, [FromForm] int fungiId)
+        [HttpPost("addFungiToCollection")]
+        public async Task<IActionResult> AddFungiToCollection([FromForm] int userId, [FromForm] int fungiId)
         {
             try
             {
@@ -158,16 +196,35 @@ namespace FungEyeApi.Controllers
                     return Forbid();
                 }
 
-                var result = await _fungiAtlasService.SaveFungi(userId, fungiId);
-                return Ok(result);
+                var result = await _fungiAtlasService.AddFungiToCollection(userId, fungiId);
+                return Ok();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-        
-        //}
+
+        [Authorize]
+        [HttpDelete("deleteFungiFromCollection")]
+        public async Task<IActionResult> DeleteFungiFromCollection([FromForm] int userId, [FromForm] int fungiId)
+        {
+            try
+            {
+                if (!ValidateUserId(userId))
+                {
+                    return Forbid();
+                }
+
+                var result = await _fungiAtlasService.DeleteFungiFromCollection(userId, fungiId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         private bool ValidateUserId(int userId)
         {
             var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

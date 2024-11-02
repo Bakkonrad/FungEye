@@ -102,18 +102,19 @@ export default {
     if (this.defaultTab === 'search' && this.searchQuery !== '') {
       this.handleSearch(this.searchQuery);
     }
-    if (this.defaultTab === 'posts') {
-      this.getPosts();
-    }
+    this.getPosts();
   },
   methods: {
     async getPosts() {
+      const filter = this.showAllPosts ? 1 : 2;
+      const page = 1;
       const response = await PostService.getPosts(filter, page);
       if (response.success === false) {
         console.error("Error while fetching posts data");
         return;
       }
       this.posts = response.data;
+      console.log(this.posts);
     },
     toggleTab(tab) {
       this.showPosts = false;

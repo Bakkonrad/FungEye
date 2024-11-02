@@ -1,5 +1,4 @@
-﻿using FungEyeApi.Data.Entities.Posts;
-
+﻿
 namespace FungEyeApi.Data.Entities
 {
     public class CommentEntity

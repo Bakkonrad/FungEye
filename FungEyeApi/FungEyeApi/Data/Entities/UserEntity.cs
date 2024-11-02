@@ -7,8 +7,6 @@ namespace FungEyeApi.Data.Entities
 {
     public class UserEntity
     {
-        public UserEntity() { }
-
         public int Id { get; set; }
         public required int Role { get; set; }
         public required string Username { get; set; }
@@ -25,7 +23,7 @@ namespace FungEyeApi.Data.Entities
         public ICollection<FollowEntity>? Follows { get; set; }
         public ICollection<PostReactionEntity>? Reactions { get; set; }
         public ICollection<CommentEntity>? Comments { get; set; }
-        public ICollection<UserFungiCollectionEntity> FungiCollection { get; set; }
+        public ICollection<UserFungiCollectionEntity>? FungiCollection { get; set; }
 
         public static UserEntity Create(RoleEnum role, string username, string email, string password, DateTime? dateOfBirth, string? firstname, string? lastname, string? imageUrl)
         {

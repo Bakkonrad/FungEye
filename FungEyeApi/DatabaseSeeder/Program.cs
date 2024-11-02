@@ -18,6 +18,9 @@ class Program
         // Dodaj użytkowników
         await AddUsersAsync(context);
 
+        // Dodaj użytkowników
+        await AddFungiImagesAsync(context);
+
         Console.WriteLine("Użytkownicy zostali dodani.");
     }
 
@@ -36,5 +39,10 @@ class Program
 
         // Zapisanie zmian w bazie danych
         context.SaveChanges();
+    }
+
+    private static async Task AddFungiImagesAsync(DataContext context)
+    {
+        throw new NotImplementedException();
     }
 }

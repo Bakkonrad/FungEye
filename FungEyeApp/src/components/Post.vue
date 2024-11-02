@@ -95,6 +95,7 @@ export default {
       isAdmin: false,
       userId: 0,
       post: {},
+      numOfComments: 0,
     };
   },
   setup() {
@@ -104,7 +105,7 @@ export default {
     };
   },
   mounted() {
-    this.getAuthorData();
+    // this.getAuthorData();
     this.checkAuthor();
   },
   methods: {
@@ -131,10 +132,11 @@ export default {
         return;
       }
       this.post = response.data;
+      console.log(this.post);
       this.localNumOfLikes = this.post.numOfLikes;
     },
     async getAuthorData() {
-      const response = await UserService.getUserData(this.userId);
+      const response = await UserService.getUserData(this.post.userId);
       if (response.success === false) {
         console.error("Error while fetching user data");
         return;

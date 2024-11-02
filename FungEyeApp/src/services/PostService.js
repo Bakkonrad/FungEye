@@ -32,7 +32,7 @@ const getPosts = async (postsFilter, page) => {
         if (page) {
             formData.append("page", page);
         }
-        const response = await $http.get("api/Post/getPosts", formData, {
+        const response = await $http.post("api/Post/getPosts", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -64,9 +64,18 @@ const getPost = async (postId) => {
     }
 }
 
-const addPost = async (post) => {
+const addPost = async (post, image) => {
     try {
-        const response = await $http.post("api/Post/addPost", post);
+        const formData = new FormData();
+        const userId = parseInt(localStorage.getItem("id"));
+        formData.append("userId", userId);
+        formData.append("postJson", JSON.stringify(post));
+        formData.append("image", image);
+        const response = await $http.post("api/Post/addPost", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
 
         if (response.status === 200) {
             return { success: true, data: response.data };

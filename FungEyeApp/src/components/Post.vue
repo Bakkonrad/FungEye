@@ -43,9 +43,9 @@
         </span>
       </div>
       <div class="card-footer">
-        <button class="btn like-button" :class="isLiked ? 'liked' : ''"
-          @click.stop="isLiked ? deleteLike() : addLike()">
-          <div v-if="!isLiked">
+        <button class="btn like-button" :class="localIsLiked ? 'liked' : ''"
+          @click.stop="localIsLiked ? deleteLike() : addLike()">
+          <div v-if="!localIsLiked">
             <font-awesome-icon icon="fa-solid fa-thumbs-up" class="button-icon"></font-awesome-icon>
             Lubię to
           </div>
@@ -123,8 +123,6 @@ export default {
     };
   },
   mounted() {
-    console.log(this.isLiked);
-    console.log(this.numOfLikes);
     this.post = {
       id: this.id,
       userId: this.userId,
@@ -134,8 +132,8 @@ export default {
       isLiked: this.isLiked,
       userId: this.userId,
     };
-    // this.localIsLiked = this.isLiked;
-    // this.localNumOfLikes = this.numOfLikes;
+    this.localNumOfLikes = this.numOfLikes;
+    this.localIsLiked = this.isLiked;
     console.log(this.post);
     this.getAuthorData();
     this.checkAuthor();

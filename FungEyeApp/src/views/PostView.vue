@@ -50,7 +50,7 @@
     <div v-if="showEditModal" class="modal">
       <div class="modal-content">
         <h2>Edytuj post</h2>
-        <textarea v-model="post.content" placeholder="Zawartość posta" class="edit-input form-control"></textarea>
+        <textarea v-model="postContentToEdit" placeholder="Zawartość posta" class="edit-input form-control"></textarea>
 
         <div class="photo-upload">
           <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" />
@@ -98,7 +98,6 @@ export default {
       imgSrc: "",
       username: "",
       userId: 0,
-      id: 1,
       error: false,
       errorMessage: "",
       comments: [],
@@ -109,6 +108,7 @@ export default {
       isAuthor: false,
       isAdmin: false,
       editCommentMode: false,
+      postContentToEdit: "",
     };
   },
   mounted() {
@@ -122,18 +122,10 @@ export default {
     if (this.$route.query.post) {
       this.post = JSON.parse(this.$route.query.post);
     }
-    console.log(this.post);
   },
   methods: {
     async getComments() {
-      const response = await PostService.getComments(this.id);
-      // const response = {
-      //   success: true,
-      //   data: [
-      //     { id: 1, imgSrc: "", authorId: 6, username: "username", content: "content" },
-      //     { id: 2, imgSrc: "", authorId: 6, username: "username", content: "content" },
-      //   ],
-      // };
+      const response = await PostService.getComments(this.post.id);
       if (response.success === false) {
         console.error("Error while fetching comments data");
         return;
@@ -159,7 +151,12 @@ export default {
         this.errorMessage = "Komentarz nie może być pusty";
         return;
       }
-      const response = await PostService.addComment(this.id, this.newCommentContent);
+      const comment = {
+        content: this.newCommentContent,
+        postId: this.post.id,
+      };
+      console.log(comment);
+      const response = await PostService.addComment(comment);
       if (response.success === false) {
         console.error("Error while adding comment");
         return;
@@ -169,16 +166,24 @@ export default {
       this.getComments();
     },
     async deleteComment() {
-      const response = await PostService.deleteComment(this.id);
+      const response = await PostService.deleteComment(this.post.id);
       if (response.success === false) {
         alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
         return;
       }
       alert("Usunięto komentarz");
     },
-    async editComment(comment) {
-      console.log(comment);
-      const response = await PostService.editComment(this.id, comment);
+    async editComment() {
+      if (this.comment.content.trim() === "") {
+        this.error = true;
+        this.errorMessage = "Komentarz nie może być pusty";
+        return;
+      }
+      const newComment = {
+        content: this.comment.content,
+        postId: this.post.id,
+      };
+      const response = await PostService.editComment(newComment);
       if (response.success === false) {
         alert("Nie udało się edytować komentarza. Spróbuj ponownie później");
         return;
@@ -190,10 +195,11 @@ export default {
     },
     editPost() {
       this.showEditModal = true;
+      this.postContentToEdit = this.post.content;
     },
     async deletePost() {
       if (confirm("Czy na pewno chcesz usunąć ten post?")) {
-        const response = await PostService.deletePost(this.id);
+        const response = await PostService.deletePost(this.post.id);
         if (response.success === false) {
           alert("Nie udało się usunąć posta. Spróbuj ponownie później");
           return;
@@ -203,11 +209,16 @@ export default {
       }
     },
     async savePost() {
-      if (this.post.content.trim() === "" || this.post.image === "") {
+      if (this.postContentToEdit.trim() === "" || this.post.image === "") {
         alert("Post nie może być pusty");
         return;
       }
-      const response = await PostService.editPost(this.id, this.post);
+      const editedPost = {
+        id: this.post.id,
+        content: this.postContentToEdit,
+        // image: this.post.image,
+      };
+      const response = await PostService.editPost(editedPost);
       if (response.success === false) {
         alert("Nie udało się zapisać zmian");
         return;

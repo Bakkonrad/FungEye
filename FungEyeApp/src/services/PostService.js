@@ -121,7 +121,7 @@ const deletePost = async (postId) => {
         const userId = parseInt(localStorage.getItem("id"));
         formData.append("userId", userId);
         formData.append("postId", postId);
-        const response = await $http.delete(`api/Post/deletePost`, formData, {
+        const response = await $http.post(`api/Post/deletePost`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -228,6 +228,7 @@ const addComment = async (comment) => {
         const formData = new FormData();
         formData.append("userId", userId);
         formData.append("commentJson", JSON.stringify(comment));
+        console.log("commentJson", JSON.stringify(comment));
         const response = await $http.post("api/Post/addComment", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",

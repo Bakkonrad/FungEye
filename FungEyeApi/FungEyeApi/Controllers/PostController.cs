@@ -109,7 +109,7 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpDelete("deletePost")]
+        [HttpPost("deletePost")]
         public async Task<IActionResult> DeletePost([FromForm] int userId, [FromForm] int postId)
         {
             try

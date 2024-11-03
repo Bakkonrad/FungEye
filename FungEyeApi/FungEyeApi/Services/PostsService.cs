@@ -160,7 +160,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var comments = await db.Comments.Where(c => c.PostId == postId).ToListAsync();
+                var comments = await db.Comments.Where(c => c.PostId == postId).Include(c=>c.User).ToListAsync();
                 var commentsToModel = comments.Select(c => new Comment(c)).ToList();
 
                 return commentsToModel;

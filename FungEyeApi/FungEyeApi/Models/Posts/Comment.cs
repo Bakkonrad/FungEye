@@ -5,6 +5,7 @@ namespace FungEyeApi.Models
 {
     public class Comment
     {
+        public Comment() {}
         public Comment(CommentEntity commentEntity) 
         {
             Id = commentEntity.Id;
@@ -18,15 +19,15 @@ namespace FungEyeApi.Models
         public int Id { get; set; }
 
         [JsonProperty("content")]
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
         [JsonProperty("createdAt")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         [JsonProperty("postId")]
         public int PostId { get; set; }
 
         [JsonProperty("user")]
-        public FollowUser User { get; set; }
+        public FollowUser? User { get; set; }
     }
 }

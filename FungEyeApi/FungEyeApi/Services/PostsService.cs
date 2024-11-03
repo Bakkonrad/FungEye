@@ -234,7 +234,7 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<bool> DeletePostReaction(int postId, int userId)
+        public async Task<bool> DeletePostReaction(int userId, int postId)
         {
             try
             {

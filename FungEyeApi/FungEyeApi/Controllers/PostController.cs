@@ -16,13 +16,15 @@ namespace FungEyeApi.Controllers
     public class PostController : ControllerBase
     {
         private readonly IPostsService _postsService;
+        private readonly IUserService _userService;
         private readonly IBlobStorageService _blobStorageService;
         private readonly static BlobContainerEnum blobContainer = BlobContainerEnum.Posts;
 
 
-        public PostController(IPostsService postsService, IBlobStorageService blobStorageService)
+        public PostController(IPostsService postsService, IUserService userService, IBlobStorageService blobStorageService)
         {
             _postsService = postsService;
+            _userService = userService;
             _blobStorageService = blobStorageService;
         }
 
@@ -114,7 +116,10 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if (!ValidateUserId(userId))
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (!ValidateUserId(userId) && admin == false)
                 {
                     return Forbid();
                 }
@@ -161,7 +166,7 @@ namespace FungEyeApi.Controllers
                     return Forbid();
                 }
 
-                var result = await _postsService.AddPostReaction(userId, postId);
+                var result = await _postsService.AddPostReaction(postId, userId);
                 return Ok();
             }
             catch (Exception ex)
@@ -267,7 +272,10 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if (!ValidateUserId(userId))
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (!ValidateUserId(userId) && admin == false)
                 {
                     return Forbid();
                 }
@@ -291,6 +299,11 @@ namespace FungEyeApi.Controllers
             }
 
             return true;
+        }
+
+        private string GetUserIdFromToken()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
         }
     }
 }

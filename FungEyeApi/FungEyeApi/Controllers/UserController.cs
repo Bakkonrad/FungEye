@@ -4,6 +4,7 @@ using FungEyeApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 
 namespace FungEyeApi.Controllers
@@ -29,7 +30,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (!ValidateUserId(userId) && admin == false)
@@ -59,7 +60,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (admin == false)
@@ -94,7 +95,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (!ValidateUserId(userId) && admin == false)
@@ -153,14 +154,14 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var user = JsonConvert.DeserializeObject<User>(userJson);
+                var user = JsonConvert.DeserializeObject<User>(userJson) ?? throw new Exception("Error during deserializing User object");
 
                 if (await _authService.IsUsernameOrEmailUsed(user.Username, user.Email, user.Id))
                 {
                     return BadRequest("Username or email already in use.");
                 }
 
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (!ValidateUserId(user.Id) && admin == false)
@@ -172,7 +173,7 @@ namespace FungEyeApi.Controllers
                 {
                     if (image.Length > 0)
                     {
-                        if (!IsPlaceholder(user.ImageUrl))
+                        if (!String.IsNullOrWhiteSpace(user.ImageUrl) && !IsPlaceholder(user.ImageUrl))
                         {
                             await _blobStorageService.DeleteFile(user.ImageUrl, blobContainer);
                         }
@@ -242,7 +243,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (admin == false)
@@ -268,7 +269,7 @@ namespace FungEyeApi.Controllers
 
         private bool ValidateUserId(int userId)
         {
-            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdFromToken = GetUserIdFromToken();
             if (userIdFromToken == null || userIdFromToken != userId.ToString())
             {
                 return false;
@@ -281,6 +282,11 @@ namespace FungEyeApi.Controllers
         private static bool IsPlaceholder(string? imageurl)
         {
             return imageurl == "placeholder" ? true : false;
+        }
+
+        private string GetUserIdFromToken()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
         }
     }
 }

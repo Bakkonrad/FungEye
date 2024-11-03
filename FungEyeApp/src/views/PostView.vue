@@ -125,13 +125,16 @@ export default {
   },
   methods: {
     async getComments() {
-      const response = await PostService.getComments(this.post.id);
+      const response = await PostService.getComments(this.id);
+      // const response = {
+      //   success: true,
+      //   data: [
+      //     { id: 1, imgSrc: "", authorId: 6, username: "username", content: "content" },
+      //     { id: 2, imgSrc: "", authorId: 6, username: "username", content: "content" },
+      //   ],
+      // };
       if (response.success === false) {
         console.error("Error while fetching comments data");
-        return;
-      }
-      if (response.data.length === 0) {
-        this.comments = [];
         return;
       }
       this.comments = response.data;

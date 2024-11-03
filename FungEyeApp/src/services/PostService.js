@@ -49,21 +49,6 @@ const getPosts = async (postsFilter, page) => {
     }
 }
 
-const getPost = async (postId) => {
-    try {
-        const response = await $http.get(`api/Post/getPost/${postId}`);
-
-        if (response.status === 200) {
-            return { success: true, data: response.data };
-        }
-        return { success: false, message: "Nieznany błąd" };
-    } catch (error) {
-        const errorMessage = ApiService.handleApiError(error);
-        console.error("Error getting post:", errorMessage);
-        return { success: false, message: errorMessage };
-    }
-}
-
 const addPost = async (post, image) => {
     try {
         const formData = new FormData();
@@ -308,7 +293,6 @@ const reportUser = async (user) => {
 
 export default {
     getPosts,
-    getPost,
     addPost,
     editPost,
     deletePost,

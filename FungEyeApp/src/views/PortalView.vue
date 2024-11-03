@@ -18,7 +18,7 @@
         <AddPost @post-added="getPosts" />
         <div class="posts">
           <div v-for="post in posts" :key="post.id" class="post-item">
-            <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl" :num-of-likes="post.likeAmount" :isLiked="post.loggedUserReacted" />
+            <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl" :num-of-likes="post.likeAmount" :is-liked="post.loggedUserReacted" />
           </div>
         </div>
       </div>

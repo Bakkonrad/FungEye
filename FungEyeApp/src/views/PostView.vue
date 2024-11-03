@@ -6,7 +6,8 @@
         Powrót do portalu</button>
     </div>
 
-    <Post :id="id" :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
+    <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.image" :numOfLikes="post.numOfLikes" :is-liked="post.isLiked"
+      :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
 
     <div class="card-footer comment-section">
       <div class="add-comment">
@@ -18,7 +19,7 @@
       <div v-if="error" class="error-message">
         {{ errorMessage }}
       </div>
-      <div class="all-comments">
+      <div v-if="comments.length > 0" class="all-comments">
         <div class="comment" v-for="comment in comments" :key="comment.id">
           <span class="header">
             <div class="comment-author-info" @click="goToProfile(comment.authorId)">
@@ -41,6 +42,9 @@
           <input v-if="editCommentMode" v-model="comment.content" type="text">
           <button v-if="editCommentMode" class="btn fungeye-default-button" @click="editComment">Zapisz</button>
         </div>
+      </div>
+      <div v-else class="no-comments">
+        <p>Brak komentarzy</p>
       </div>
     </div>
     <div v-if="showEditModal" class="modal">
@@ -79,6 +83,7 @@
 <script>
 import ProfileImage from "../components/ProfileImage.vue";
 import UserService from "@/services/UserService";
+import PostService from "@/services/PostService";
 import Post from "../components/Post.vue";
 import { checkAdmin, isAdmin } from "@/services/AuthService";
 
@@ -90,7 +95,6 @@ export default {
   data() {
     return {
       newCommentContent: "",
-      isLiked: false,
       imgSrc: "",
       username: "",
       userId: 0,
@@ -108,45 +112,27 @@ export default {
     };
   },
   mounted() {
-    this.getPost();
     this.getComments();
     this.getAuthorData();
     this.checkAuthor();
     checkAdmin();
     this.isAdmin = isAdmin;
   },
+  created() {
+    if (this.$route.query.post) {
+      this.post = JSON.parse(this.$route.query.post);
+    }
+    console.log(this.post);
+  },
   methods: {
-    async getPost() {
-      const response = await PostService.getPost(this.id);
-      // const response = {
-      //   success: true,
-      //   data: {
-      //     userId: 5,
-      //     content: "content",
-      //     image: {
-      //       url: "https://picsum.photos/800/800",
-      //     },
-      //     numOfLikes: 0,
-      //     numOfComments: 0,
-      //   },
-      // };
-      if (response.success === false) {
-        console.error("Error while fetching post data");
-        return;
-      }
-      this.post = response.data;
-    },
     async getComments() {
-      // const response = await PostService.getComments(this.id);
-      const response = {
-        success: true,
-        data: [
-          { id: 1, imgSrc: "", authorId: 6, username: "username", content: "content" },
-          { id: 2, imgSrc: "", authorId: 6, username: "username", content: "content" },
-        ],
-      };
+      const response = await PostService.getComments(this.id);
       if (response.success === false) {
         console.error("Error while fetching comments data");
+        return;
+      }
+      if (response.data.length === 0) {
+        this.comments = [];
         return;
       }
       this.comments = response.data;
@@ -276,63 +262,63 @@ export default {
 }
 
 .modal-content {
-    background-color: var(--beige);
-    padding: 20px;
-    border-radius: 10px;
-    width: 450px;
+  background-color: var(--beige);
+  padding: 20px;
+  border-radius: 10px;
+  width: 450px;
 }
 
 .modal-content {
-    background-color: var(--beige);
-    padding: 20px;
-    border-radius: 10px;
-    width: 450px;
+  background-color: var(--beige);
+  padding: 20px;
+  border-radius: 10px;
+  width: 450px;
 }
 
 .edit-input {
-    color: black !important;
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  color: black !important;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 .photo-upload {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 15px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 .drag-area {
-    width: 100%;
-    border: 2px dashed #ccc;
-    background: rgba(255, 255, 255, 0.3) !important;
-    color: rgba(0, 0, 0, 0.572) !important;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: 0.4s;
+  width: 100%;
+  border: 2px dashed #ccc;
+  background: rgba(255, 255, 255, 0.3) !important;
+  color: rgba(0, 0, 0, 0.572) !important;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.4s;
 }
 
 .uploaded-image {
-    margin-top: 10px;
-    width: 200px;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 10px;
+  margin-top: 10px;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .modal-buttons button {
-    width: 100%;
+  width: 100%;
 }
 
 .card {
@@ -394,6 +380,13 @@ export default {
   flex-direction: column;
   gap: 1rem;
   width: 100%;
+}
+
+.no-comments {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
 }
 
 .comment-author-info {

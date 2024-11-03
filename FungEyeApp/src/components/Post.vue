@@ -43,14 +43,15 @@
         </span>
       </div>
       <div class="card-footer">
-        <button class="btn like-button" :class="localIsLiked ? 'dislike' : ''" @click.stop="localIsLiked ? deleteLike() : addLike()">
-          <div v-if="!localIsLiked">
+        <button class="btn like-button" :class="isLiked ? 'liked' : ''"
+          @click.stop="isLiked ? deleteLike() : addLike()">
+          <div v-if="!isLiked">
             <font-awesome-icon icon="fa-solid fa-thumbs-up" class="button-icon"></font-awesome-icon>
             Lubię to
           </div>
           <div v-else>
-            <font-awesome-icon icon="fa-solid fa-thumbs-down" class="button-icon"></font-awesome-icon>
-            Nie lubię tego
+            <font-awesome-icon icon="fa-solid fa-thumbs-up" class="button-icon liked-button"></font-awesome-icon>
+            Polubiono
           </div>
         </button>
         <button v-if="!detailsView" class="btn" @click="viewPost">
@@ -122,35 +123,24 @@ export default {
     };
   },
   mounted() {
+    console.log(this.isLiked);
+    console.log(this.numOfLikes);
+    this.post = {
+      id: this.id,
+      userId: this.userId,
+      content: this.content,
+      image: this.image,
+      numOfLikes: this.numOfLikes,
+      isLiked: this.isLiked,
+      userId: this.userId,
+    };
+    // this.localIsLiked = this.isLiked;
+    // this.localNumOfLikes = this.numOfLikes;
+    console.log(this.post);
     this.getAuthorData();
     this.checkAuthor();
   },
   methods: {
-    // async getPost() {
-    //   const response = await PostService.getPost(this.id);
-    //   // const response = {
-    //   //   success: true,
-    //   //   data: {
-    //   //     userId: 5,
-    //   //     content: "content",
-    //   //     image: {
-    //   //       url: "https://picsum.photos/800/800",
-    //   //     },
-    //   //     numOfLikes: 0,
-    //   //     numOfComments: 0,
-    //   //     comments: [
-    //   //       { id: 1, imgSrc: "", username: "username", content: "content" },
-    //   //       { id: 2, imgSrc: "", username: "username", content: "content" },
-    //   //     ],
-    //   //   },
-    //   // }
-    //   if (response.success === false) {
-    //     console.error("Error while fetching post data");
-    //     return;
-    //   }
-    //   this.post = response.data;
-    //   this.localNumOfLikes = this.post.numOfLikes;
-    // },
     async getAuthorData() {
       const response = await UserService.getUserData(this.userId);
       if (response.success === false) {
@@ -161,7 +151,8 @@ export default {
       this.username = response.data.username;
     },
     viewPost() {
-      this.$router.push({ name: 'post', params: { id: this.id } });
+      console.log(this.post)
+      this.$router.push({ name: 'post', params: { id: this.id }, query: { post: JSON.stringify(this.post) } });
     },
     async addLike() {
       console.log(this.id);
@@ -283,8 +274,13 @@ export default {
   gap: 0.5rem;
 }
 
-.like-button.dislike {
-  color: var(--red);
+.like-button.liked {
+  color: var(--dark-green);
+  font-weight: bold;
+}
+
+.liked-button {
+  color: var(--dark-green);
 }
 
 .card-footer {

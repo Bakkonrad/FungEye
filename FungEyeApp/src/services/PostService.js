@@ -88,9 +88,21 @@ const addPost = async (post, image) => {
     }
 }
 
-const editPost = async (post) => {
+const editPost = async (post, image) => {
     try {
-        const response = await $http.put("api/Post/editPost", post);
+        const formData = new FormData();
+        const userId = parseInt(localStorage.getItem("id"));
+        formData.append("userId", userId);
+        formData.append("postJson", JSON.stringify(post));
+        if (image) {
+            formData.append("image", image);
+        }
+
+        const response = await $http.put("api/Post/editPost", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
 
         if (response.status === 200) {
             return { success: true, data: response.data };
@@ -215,7 +227,7 @@ const addComment = async (comment) => {
         const userId = parseInt(localStorage.getItem("id"));
         const formData = new FormData();
         formData.append("userId", userId);
-        formData.append("commentJson", comment);
+        formData.append("commentJson", JSON.stringify(comment));
         const response = await $http.post("api/Post/addComment", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
@@ -238,7 +250,7 @@ const editComment = async (comment) => {
         const userId = parseInt(localStorage.getItem("id"));
         const formData = new FormData();
         formData.append("userId", userId);
-        formData.append("commentJson", comment);
+        formData.append("commentJson", JSON.stringify(comment));
         const response = await $http.put("api/Post/editComment", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",

@@ -18,7 +18,7 @@
         <AddPost @post-added="getPosts" />
         <div class="posts">
           <div v-for="post in posts" :key="post.id" class="post-item">
-            <Post :id="post.id" />
+            <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl" :num-of-likes="post.likeAmount" :isLiked="post.loggedUserReacted" />
           </div>
         </div>
       </div>
@@ -102,7 +102,9 @@ export default {
     if (this.defaultTab === 'search' && this.searchQuery !== '') {
       this.handleSearch(this.searchQuery);
     }
-    this.getPosts();
+    if (this.defaultTab === 'all-posts' || this.defaultTab === 'followed-posts') {
+      this.getPosts();
+    }
   },
   methods: {
     async getPosts() {

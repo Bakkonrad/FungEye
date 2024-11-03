@@ -98,7 +98,6 @@ export default {
         userId: parseInt(localStorage.getItem("id")),
       };
 
-      // console.log(post);
       const response = await PostService.addPost(post, this.image);
       // const response = { success: true };
       if (response.success == false) {

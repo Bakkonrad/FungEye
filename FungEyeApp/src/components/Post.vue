@@ -22,9 +22,9 @@
         </span>
       </span>
 
-      <p class="card-text">{{ post.content }}</p>
-      <div v-if="post.image && post.image.name != ''" :class="detailsView ? 'post-image' : 'uploaded-image'">
-        <img :src="post.image.url" alt="uploaded image" />
+      <p class="card-text">{{ content }}</p>
+      <div v-if="image" :class="detailsView ? 'post-image' : 'uploaded-image'">
+        <img :src="image" alt="uploaded image" />
       </div>
       <div class="likes-and-comments">
         <span class="likes">
@@ -43,8 +43,8 @@
         </span>
       </div>
       <div class="card-footer">
-        <button class="btn like-button" :class="isLiked ? 'dislike' : ''" @click.stop="isLiked ? deleteLike() : addLike()">
-          <div v-if="!isLiked">
+        <button class="btn like-button" :class="localIsLiked ? 'dislike' : ''" @click.stop="localIsLiked ? deleteLike() : addLike()">
+          <div v-if="!localIsLiked">
             <font-awesome-icon icon="fa-solid fa-thumbs-up" class="button-icon"></font-awesome-icon>
             Lubię to
           </div>
@@ -79,6 +79,24 @@ export default {
       type: Number,
       required: true,
     },
+    userId: {
+      type: Number,
+      required: true,
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    image: {
+    },
+    numOfLikes: {
+      type: Number,
+      required: true,
+    },
+    isLiked: {
+      type: Boolean,
+      default: false,
+    },
     detailsView: {
       type: Boolean,
       default: false,
@@ -86,16 +104,15 @@ export default {
   },
   data() {
     return {
-      isLiked: false,
       imgSrc: "",
       username: "",
       isImageVisible: false,
-      localNumOfLikes: 0,
+      localNumOfLikes: this.numOfLikes,
       isAuthor: false,
       isAdmin: false,
-      userId: 0,
       post: {},
       numOfComments: 0,
+      localIsLiked: this.isLiked,
     };
   },
   setup() {
@@ -105,38 +122,37 @@ export default {
     };
   },
   mounted() {
-    // this.getAuthorData();
+    this.getAuthorData();
     this.checkAuthor();
   },
   methods: {
-    async getPost() {
-      const response = await PostService.getPost(this.id);
-      // const response = {
-      //   success: true,
-      //   data: {
-      //     userId: 5,
-      //     content: "content",
-      //     image: {
-      //       url: "https://picsum.photos/800/800",
-      //     },
-      //     numOfLikes: 0,
-      //     numOfComments: 0,
-      //     comments: [
-      //       { id: 1, imgSrc: "", username: "username", content: "content" },
-      //       { id: 2, imgSrc: "", username: "username", content: "content" },
-      //     ],
-      //   },
-      // }
-      if (response.success === false) {
-        console.error("Error while fetching post data");
-        return;
-      }
-      this.post = response.data;
-      console.log(this.post);
-      this.localNumOfLikes = this.post.numOfLikes;
-    },
+    // async getPost() {
+    //   const response = await PostService.getPost(this.id);
+    //   // const response = {
+    //   //   success: true,
+    //   //   data: {
+    //   //     userId: 5,
+    //   //     content: "content",
+    //   //     image: {
+    //   //       url: "https://picsum.photos/800/800",
+    //   //     },
+    //   //     numOfLikes: 0,
+    //   //     numOfComments: 0,
+    //   //     comments: [
+    //   //       { id: 1, imgSrc: "", username: "username", content: "content" },
+    //   //       { id: 2, imgSrc: "", username: "username", content: "content" },
+    //   //     ],
+    //   //   },
+    //   // }
+    //   if (response.success === false) {
+    //     console.error("Error while fetching post data");
+    //     return;
+    //   }
+    //   this.post = response.data;
+    //   this.localNumOfLikes = this.post.numOfLikes;
+    // },
     async getAuthorData() {
-      const response = await UserService.getUserData(this.post.userId);
+      const response = await UserService.getUserData(this.userId);
       if (response.success === false) {
         console.error("Error while fetching user data");
         return;
@@ -148,12 +164,14 @@ export default {
       this.$router.push({ name: 'post', params: { id: this.id } });
     },
     async addLike() {
+      console.log(this.id);
       const response = await PostService.likePost(this.id);
       if (response.success === false) {
         console.error("Error while adding like");
         return;
       }
       this.localNumOfLikes++;
+      this.localIsLiked = true;
     },
     async deleteLike() {
       const response = await PostService.unlikePost(this.id);
@@ -162,6 +180,7 @@ export default {
         return;
       }
       this.localNumOfLikes--;
+      this.localIsLiked = false;
     },
     reportUser() {
       alert("Zgłoszono użytkownika");

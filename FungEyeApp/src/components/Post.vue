@@ -7,17 +7,14 @@
           <p class="username">{{ username }}</p>
         </span>
         <span class="buttons">
-          <button v-if="!isAuthor" class="btn" @click="reportUser">
-            <font-awesome-icon icon="fa-solid fa-flag" class="button-icon"></font-awesome-icon>
-            Zgłoś
+          <button v-if="!isAuthor" class="btn" @click="report">
+            <font-awesome-icon icon="fa-solid fa-flag" :class="reportedPostId == id ? 'reported': ''"></font-awesome-icon>
           </button>
           <button v-if="detailsView && isAuthor" class="btn" @click="$emit('edit')">
-            <font-awesome-icon icon="fa-solid fa-pen" class="button-icon"></font-awesome-icon>
-            Edytuj
+            <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
           </button>
           <button v-if="detailsView && (isAuthor || isAdmin)" class="btn" @click="$emit('delete')">
-            <font-awesome-icon icon="fa-solid fa-trash" class="button-icon"></font-awesome-icon>
-            Usuń post
+            <font-awesome-icon icon="fa-solid fa-trash"></font-awesome-icon>
           </button>
         </span>
       </span>
@@ -102,6 +99,9 @@ export default {
       type: Boolean,
       default: false,
     },
+    reportedUserId: {
+      type: Number,
+    },
   },
   data() {
     return {
@@ -114,6 +114,7 @@ export default {
       post: {},
       numOfComments: 0,
       localIsLiked: this.isLiked,
+      reportedPostId: this.reportedUserId,
     };
   },
   setup() {
@@ -168,8 +169,20 @@ export default {
       this.localNumOfLikes--;
       this.localIsLiked = false;
     },
-    reportUser() {
-      alert("Zgłoszono użytkownika");
+    async report() {
+      try {
+        // const response = await PostService.report(this.id);
+        const response = { success: true };
+        if (response.success === false) {
+          console.error("Error while reporting user");
+          return;
+        }
+        this.reportedPostId = this.id;
+        alert("Zgłoszono post");
+      }
+      catch (error) {
+        console.error(error);
+      }
     },
     checkAuthor() {
       this.isAuthor = this.userId == localStorage.getItem("id");
@@ -290,6 +303,10 @@ export default {
   justify-content: space-around;
   align-items: center;
   gap: 1rem;
+}
+
+.reported {
+  color: var(--red);
 }
 
 @media screen and (max-width: 556px) {

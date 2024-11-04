@@ -10,6 +10,9 @@
         <button class="btn category-btn" :class="getActiveTable('users')" @click="showUsers">
           Użytkownicy
         </button>
+        <button class="btn category-btn" :class="getActiveTable('reports')" @click="showReports">
+          Zgłoszenia
+        </button>
         <button class="btn category-btn" :class="getActiveTable('mushrooms')" @click="showMushrooms">
           Grzyby
         </button>
@@ -33,6 +36,11 @@
         </div>
         <UserEdit v-if="isEditing" :user="selectedUser" @cancel-edit="cancelEditing" @save-user="saveUser" />
         <UserBan v-if="isBanning" :user="selectedUser" @cancel-ban="cancelBanning" @ban-user="banUser" />
+      </div>
+
+      <!-- Widok zgłoszeń -->
+      <div v-else-if="activeTable === 'reports'">
+        <ReportsView />
       </div>
 
       <!-- Nowy widok grzybów -->
@@ -62,6 +70,7 @@ import SearchBar from "@/components/SearchBar.vue";
 import UserBan from "@/components/BanUser.vue";
 import { RouterLink } from "vue-router";
 import AtlasView from "@/views/AtlasView.vue";
+import ReportsView from "@/views/ReportsView.vue";
 
 export default {
   components: {
@@ -71,6 +80,7 @@ export default {
     SearchBar,
     UserBan,
     AtlasView,
+    ReportsView,
   },
   data() {
     return {
@@ -188,6 +198,11 @@ export default {
       this.selectedUser = null;
       this.activeTable = "mushrooms";
     },
+    showReports() {
+      this.isEditing = false;
+      this.selectedUser = null;
+      this.activeTable = "reports";
+    },
   },
 };
 </script>
@@ -201,10 +216,12 @@ export default {
 
 .buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   width: 23%;
   margin: 0 auto;
   margin-bottom: 30px;
+  gap: 30px;
 }
 
 .category-btn {

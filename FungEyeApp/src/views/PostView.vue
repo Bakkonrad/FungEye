@@ -27,8 +27,8 @@
               <p class="username">{{ comment.user.username }}</p>
             </div>
             <span class="buttons">
-              <button v-if="!checkCommentAuthor(comment.user.id)" class="btn" @click="reportUser">
-                <font-awesome-icon icon="fa-solid fa-flag"></font-awesome-icon>
+              <button v-if="!checkCommentAuthor(comment.user.id)" class="btn" @click="report(comment.id)">
+                <font-awesome-icon icon="fa-solid fa-flag" :class="reportedComment == comment.id ? 'reported': ''"></font-awesome-icon>
               </button>
               <button v-if="checkCommentAuthor(comment.user.id) || isAdmin" class="btn"
                 @click="deleteComment(comment.id)">
@@ -98,6 +98,12 @@ export default {
     ProfileImage,
     Post,
   },
+  props: {
+    reportedCommentId: {
+      type: Number,
+      default: null,
+    },
+  },
   data() {
     return {
       newCommentContent: "",
@@ -122,6 +128,7 @@ export default {
         name: "",
         url: "",
       },
+      reportedComment: this.reportedCommentId,
     };
   },
   mounted() {
@@ -214,9 +221,6 @@ export default {
       this.commentToEdit = '';
       this.getComments();
     },
-    reportUser() {
-      alert("Zgłoszono użytkownika");
-    },
     editPost() {
       this.showEditModal = true;
       this.postContentToEdit = this.post.content;
@@ -307,6 +311,21 @@ export default {
         name: "",
         url: "",
       };
+    },
+    async report(commentId) {
+      try {
+        // const response = await PostService.report(commentId);
+        const response = { success: true };
+        if (response.success === false) {
+          console.error("Error while reporting comment");
+          return;
+        }
+        this.reportedComment = commentId;
+        alert("Zgłoszono komentarz");
+      }
+      catch (error) {
+        console.error(error);
+      }
     },
   }
 };
@@ -516,6 +535,10 @@ export default {
 
 .comment-text {
   margin: 0;
+}
+
+.reported {
+  color: var(--red);
 }
 
 @media screen and (max-width: 556px) {

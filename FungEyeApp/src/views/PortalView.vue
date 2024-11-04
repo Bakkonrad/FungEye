@@ -9,17 +9,32 @@
     <div v-else class="content">
       <!-- Przyciski -->
       <div class="buttons">
-        <router-link :to="'/portal/all-posts'" class="btn fungeye-default-button" @click="toggleTab('all-posts')">Wyświetl wszystkie posty</router-link>
-        <router-link :to="'/portal/followed-posts'" class="btn fungeye-default-button" @click="toggleTab('followed-posts')">Wyświetl posty obserwowanych</router-link>
-        <router-link :to="'/portal/search-users?q=' + searchQuery" class="btn fungeye-default-button" @click="toggleTab('search')">Szukaj użytkowników</router-link>
+        <router-link :to="'/portal/all-posts'" class="btn fungeye-default-button"
+          @click="toggleTab('all-posts')">Wyświetl wszystkie posty</router-link>
+        <router-link :to="'/portal/followed-posts'" class="btn fungeye-default-button"
+          @click="toggleTab('followed-posts')">Wyświetl posty obserwowanych</router-link>
+        <router-link :to="'/portal/search-users?q=' + searchQuery" class="btn fungeye-default-button"
+          @click="toggleTab('search')">Szukaj użytkowników</router-link>
       </div>
       <!-- Posty -->
       <div v-if="showFollowedPosts || showAllPosts" class="posts-content">
         <AddPost @post-added="getPosts" />
+        <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton"
+          @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
         <div class="posts">
           <div v-for="post in posts" :key="post.id" class="post-item">
-            <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl" :num-of-likes="post.likeAmount" :is-liked="post.loggedUserReacted" />
+            <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl"
+              :num-of-likes="post.likeAmount" :is-liked="post.loggedUserReacted" />
           </div>
+        </div>
+        <LoadingSpinner v-if="isLoading"></LoadingSpinner>
+        <div v-if="error || noPostsFound" class="message-container">
+          <p class="error-message">
+            {{ errorMessage }}
+          </p>
+          <p>
+            {{ noPostsMessage }}
+          </p>
         </div>
       </div>
       <!-- Wyszukiwanie użytkowników -->
@@ -88,6 +103,10 @@ export default {
       error: false,
       errorMessage: "",
       users: [],
+      currentPage: 1,
+      goToTheTopButton: null,
+      noPostsFound: false,
+      noPostsMessage: "",
     };
   },
   setup() {
@@ -102,21 +121,41 @@ export default {
     if (this.defaultTab === 'search' && this.searchQuery !== '') {
       this.handleSearch(this.searchQuery);
     }
-    if (this.defaultTab === 'all-posts' || this.defaultTab === 'followed-posts') {
-      this.getPosts();
-    }
+    this.goToTheTopButton = this.$refs.goToTheTopButton;
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  beforeDestroy() {
+    window.removeEventListener("scroll", this.handleScroll);
   },
   methods: {
     async getPosts() {
       const filter = this.showAllPosts ? 1 : 2;
-      const page = 1;
-      const response = await PostService.getPosts(filter, page);
-      if (response.success === false) {
+      this.isLoading = true;
+      try {
+        const response = await PostService.getPosts(filter, this.currentPage);
+        if (response.success === false) {
+          console.error("Error while fetching posts data");
+          return;
+        }
+        if (response.data.length === 0 && this.posts.length === 0) {
+          this.noPostsFound = true;
+          this.noPostsMessage = "Nie znaleziono postów.";
+          return;
+        } else if (response.data.length === 0) {
+          this.noPostsFound = true;
+          this.noPostsMessage = "To już wszystkie wyniki.";
+          return;
+        }
+        this.noPostsFound = false;
+        const newPosts = response.data;
+        this.posts = [...this.posts, ...newPosts];
+        console.log(this.posts);
+      } catch (error) {
         console.error("Error while fetching posts data");
-        return;
       }
-      this.posts = response.data;
-      console.log(this.posts);
+      finally {
+        this.isLoading = false;
+      }
     },
     toggleTab(tab) {
       this.showFollowedPosts = false;
@@ -132,6 +171,26 @@ export default {
       } else if (tab === 'search') {
         this.searchUsers = true;
       }
+    },
+    handleScroll() {
+      if (this.goToTheTopButton === null) {
+        return;
+      }
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        if (!this.noPostsFound) {
+          this.currentPage++;
+          this.getPosts();
+        }
+      }
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        this.goToTheTopButton.style.display = "block";
+      } else {
+        this.goToTheTopButton.style.display = "none";
+      }
+    },
+    goToTheTop() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
     },
     async handleSearch(query) {
       if (query.trim() === '' || query.length < 3) {
@@ -247,6 +306,28 @@ export default {
 #searchBar {
   width: 100%;
   max-width: 600px;
+}
+
+#goToTheTopButton {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  border: none;
+  outline: none;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  height: auto;
+}
+
+.message-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
 }
 
 @media screen and (max-width: 768px) {

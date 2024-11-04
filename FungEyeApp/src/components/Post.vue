@@ -134,7 +134,6 @@ export default {
     };
     this.localNumOfLikes = this.numOfLikes;
     this.localIsLiked = this.isLiked;
-    console.log(this.post);
     this.getAuthorData();
     this.checkAuthor();
   },
@@ -149,11 +148,9 @@ export default {
       this.username = response.data.username;
     },
     viewPost() {
-      console.log(this.post)
       this.$router.push({ name: 'post', params: { id: this.id }, query: { post: JSON.stringify(this.post) } });
     },
     async addLike() {
-      console.log(this.id);
       const response = await PostService.likePost(this.id);
       if (response.success === false) {
         console.error("Error while adding like");

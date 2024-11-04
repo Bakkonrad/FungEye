@@ -10,11 +10,11 @@
       <!-- Przyciski -->
       <div class="buttons">
         <router-link :to="'/portal/all-posts'" class="btn fungeye-default-button" @click="toggleTab('all-posts')">Wyświetl wszystkie posty</router-link>
-        <router-link :to="'/portal/followed-posts'" class="btn fungeye-default-button" @click="toggleTab('posts')">Wyświetl posty obserwowanych</router-link>
+        <router-link :to="'/portal/followed-posts'" class="btn fungeye-default-button" @click="toggleTab('followed-posts')">Wyświetl posty obserwowanych</router-link>
         <router-link :to="'/portal/search-users?q=' + searchQuery" class="btn fungeye-default-button" @click="toggleTab('search')">Szukaj użytkowników</router-link>
       </div>
       <!-- Posty -->
-      <div v-if="showPosts || showAllPosts" class="posts-content">
+      <div v-if="showFollowedPosts || showAllPosts" class="posts-content">
         <AddPost @post-added="getPosts" />
         <div class="posts">
           <div v-for="post in posts" :key="post.id" class="post-item">
@@ -81,7 +81,7 @@ export default {
       posts: [],
       loggedIn: false,
       showAllPosts: true,
-      showPosts: false,
+      showFollowedPosts: false,
       searchUsers: false,
       searchQuery: this.query,
       isLoading: false,
@@ -119,14 +119,16 @@ export default {
       console.log(this.posts);
     },
     toggleTab(tab) {
-      this.showPosts = false;
+      this.showFollowedPosts = false;
       this.showAllPosts = false;
       this.searchUsers = false;
 
       if (tab === 'all-posts') {
         this.showAllPosts = true;
-      } else if (tab === 'posts') {
-        this.showPosts = true;
+        this.getPosts();
+      } else if (tab === 'followed-posts') {
+        this.showFollowedPosts = true;
+        this.getPosts();
       } else if (tab === 'search') {
         this.searchUsers = true;
       }

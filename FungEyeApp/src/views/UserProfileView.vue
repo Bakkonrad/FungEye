@@ -8,7 +8,7 @@
     <div v-else class="container-md">
       <div id="user-info">
         <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
-        <div v-if="!isLoggedUser" class="buttons">
+        <div v-if="isLoggedUser == false" class="buttons">
           <button v-if="followed == false" @click="follow" type="button" class="btn fungeye-default-button">
             &plus; Obserwuj
           </button>
@@ -42,6 +42,7 @@ export default {
   async created() {
     this.fetchUser();
     this.checkIfFollowed();
+    this.isLoggedUser = this.isThisUserLoggedIn();
   },
   data() {
     return {
@@ -54,6 +55,7 @@ export default {
       mushrooms: [],
       createdAt: "",
       errorFindingUser: false,
+      isLoggedUser: false,
     };
   },
   setup() {
@@ -116,8 +118,8 @@ export default {
     goBack() {
       this.$router.go(-1);
     },
-    isLoggedUser() {
-      return this.id != localStorage.getItem("id");
+    isThisUserLoggedIn() {
+      return this.id == localStorage.getItem("id");
     },
     goToMyProfile() {
       this.$router.push({ name: "myProfile" });

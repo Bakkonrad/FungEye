@@ -51,6 +51,7 @@ export default {
         name: '',
         url: '',
       },
+      file: '',
       isDragging: false,
       error: null,
       errorMessage: '',
@@ -69,10 +70,12 @@ export default {
       this.isDragging = false;
       const file = event.dataTransfer.files[0];
       this.handleFileSelection(file);
+      this.file = file;
     },
     onFileChange(event) {
       const file = event.target.files[0];
       this.handleFileSelection(file);
+      this.file = file;
     },
     handleFileSelection(file) {
       if (this.image.name !== file.name) {
@@ -98,7 +101,9 @@ export default {
         userId: parseInt(localStorage.getItem("id")),
       };
 
-      const response = await PostService.addPost(post, this.image);
+      console.log(post);
+      console.log(this.file);
+      const response = await PostService.addPost(post, this.file);
       // const response = { success: true };
       if (response.success == false) {
         this.error = true;

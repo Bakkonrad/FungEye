@@ -6,8 +6,8 @@
         Powrót do portalu</button>
     </div>
 
-    <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.image" :numOfLikes="post.numOfLikes" :is-liked="post.isLiked"
-      :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
+    <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.image" :numOfLikes="post.numOfLikes"
+      :is-liked="post.isLiked" :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
 
     <div class="card-footer comment-section">
       <div class="add-comment">
@@ -22,25 +22,28 @@
       <div v-if="comments.length > 0" class="all-comments">
         <div class="comment" v-for="comment in comments" :key="comment.id">
           <span class="header">
-            <div class="comment-author-info" @click="goToProfile(comment.authorId)">
-              <ProfileImage :imgSrc="comment.imgSrc" />
-              <p class="username">{{ comment.username }}</p>
+            <div class="comment-author-info" @click="goToProfile(comment.user.id)">
+              <ProfileImage :imgSrc="comment.user.imgUrl" />
+              <p class="username">{{ comment.user.username }}</p>
             </div>
             <span class="buttons">
-              <button v-if="!isAuthor" class="btn" @click="reportUser">
+              <button v-if="!checkCommentAuthor(comment.user.id)" class="btn" @click="reportUser">
                 <font-awesome-icon icon="fa-solid fa-flag"></font-awesome-icon>
               </button>
-              <button v-if="isAuthor || isAdmin" class="btn" @click="deleteComment">
+              <button v-if="checkCommentAuthor(comment.user.id) || isAdmin" class="btn"
+                @click="deleteComment(comment.id)">
                 <font-awesome-icon icon="fa-solid fa-trash"></font-awesome-icon>
               </button>
-              <button v-if="isAuthor" class="btn" @click="editCommentMode = true">
+              <button v-if="checkCommentAuthor(comment.user.id)" class="btn"
+                @click="commentToEdit = comment.id; commentContentToEdit = comment.content">
                 <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
               </button>
             </span>
           </span>
           <p class="comment-text">{{ comment.content }}</p>
-          <input v-if="editCommentMode" v-model="comment.content" type="text">
-          <button v-if="editCommentMode" class="btn fungeye-default-button" @click="editComment">Zapisz</button>
+          <input v-if="commentToEdit === comment.id" v-model="commentContentToEdit" type="text">
+          <button v-if="commentToEdit === comment.id" class="btn fungeye-default-button"
+            @click="editComment(comment.id)">Zapisz</button>
         </div>
       </div>
       <div v-else class="no-comments">
@@ -65,8 +68,11 @@
               <header>Upuść zdjęcie tutaj</header>
             </span>
           </div>
-          <div>
-            <img v-if="post.image" :src="post.image.url" alt="Zdjęcie posta" class="uploaded-image" />
+          <div v-if="postImageToEdit.name != ''" class="container uploaded-images">
+            <div class="image">
+              <span class="delete" @click="deleteImage()">&times;</span>
+              <img :src="postImageToEdit.url" alt="Zdjęcie posta" class="uploaded-image" />
+            </div>
           </div>
         </div>
 
@@ -107,8 +113,15 @@ export default {
       numOfComments: 0,
       isAuthor: false,
       isAdmin: false,
-      editCommentMode: false,
+      commentToEdit: false,
       postContentToEdit: "",
+      isAuthorOfComment: false,
+      commentContentToEdit: "",
+      file: "",
+      postImageToEdit: {
+        name: "",
+        url: "",
+      },
     };
   },
   mounted() {
@@ -125,18 +138,16 @@ export default {
   },
   methods: {
     async getComments() {
-      const response = await PostService.getComments(this.id);
-      // const response = {
-      //   success: true,
-      //   data: [
-      //     { id: 1, imgSrc: "", authorId: 6, username: "username", content: "content" },
-      //     { id: 2, imgSrc: "", authorId: 6, username: "username", content: "content" },
-      //   ],
-      // };
+      const response = await PostService.getComments(this.post.id);
       if (response.success === false) {
         console.error("Error while fetching comments data");
         return;
       }
+      if (response.data.length === 0) {
+        this.comments = [];
+        return;
+      }
+      console.log(response.data);
       this.comments = response.data;
       this.numOfComments = this.comments.length;
     },
@@ -172,23 +183,27 @@ export default {
       this.newCommentContent = "";
       this.getComments();
     },
-    async deleteComment() {
-      const response = await PostService.deleteComment(this.post.id);
+    async deleteComment(commentId) {
+      console.log(commentId);
+      const response = await PostService.deleteComment(commentId);
       if (response.success === false) {
         alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
         return;
       }
       alert("Usunięto komentarz");
+      this.getComments();
     },
-    async editComment() {
-      if (this.comment.content.trim() === "") {
+    async editComment(commentId) {
+      console.log(this.commentContentToEdit);
+      if (this.commentContentToEdit.trim() === "") {
         this.error = true;
         this.errorMessage = "Komentarz nie może być pusty";
         return;
       }
       const newComment = {
-        content: this.comment.content,
+        content: this.commentContentToEdit,
         postId: this.post.id,
+        id: commentId,
       };
       const response = await PostService.editComment(newComment);
       if (response.success === false) {
@@ -196,6 +211,8 @@ export default {
         return;
       }
       alert("Edytowano komentarz");
+      this.commentToEdit = '';
+      this.getComments();
     },
     reportUser() {
       alert("Zgłoszono użytkownika");
@@ -203,6 +220,19 @@ export default {
     editPost() {
       this.showEditModal = true;
       this.postContentToEdit = this.post.content;
+      console.log(this.post.image);
+      if (this.post.image == "" || this.post.image == null) {
+        this.postImageToEdit = {
+          name: "",
+          url: "",
+        };
+      }
+      else {
+        this.postImageToEdit = {
+          name: this.post.image,
+          url: this.post.image,
+        };
+      }
     },
     async deletePost() {
       if (confirm("Czy na pewno chcesz usunąć ten post?")) {
@@ -223,9 +253,9 @@ export default {
       const editedPost = {
         id: this.post.id,
         content: this.postContentToEdit,
-        // image: this.post.image,
       };
-      const response = await PostService.editPost(editedPost);
+      console.log(this.file)
+      const response = await PostService.editPost(editedPost, this.file);
       if (response.success === false) {
         alert("Nie udało się zapisać zmian");
         return;
@@ -238,7 +268,11 @@ export default {
     },
     onFileChange(e) {
       const file = e.target.files[0];
-      this.post.image = URL.createObjectURL(file);
+      this.file = file;
+      this.postImageToEdit = {
+        name: file.name,
+        url: URL.createObjectURL(file),
+      };
     },
     onDragOver(e) {
       e.preventDefault();
@@ -252,13 +286,27 @@ export default {
       e.preventDefault();
       this.isDragging = false;
       const file = e.dataTransfer.files[0];
-      this.post.image = URL.createObjectURL(file);
+      this.file = file;
+      this.postImageToEdit = {
+        name: file.name,
+        url: URL.createObjectURL(file),
+      };
     },
     goToProfile(id) {
       this.$router.push({ name: 'userProfile', params: { id: id } });
     },
     checkAuthor() {
       this.isAuthor = this.userId == localStorage.getItem("id");
+    },
+    checkCommentAuthor(commentAuthorId) {
+      return commentAuthorId == localStorage.getItem("id");
+    },
+    deleteImage() {
+      this.file = "";
+      this.postImageToEdit = {
+        name: "",
+        url: "",
+      };
     },
   }
 };
@@ -324,12 +372,51 @@ export default {
   transition: 0.4s;
 }
 
-.uploaded-image {
-  margin-top: 10px;
+.container .image {
+  position: relative;
   width: 200px;
   height: 200px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.uploaded-images {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: auto;
+}
+
+.uploaded-image {
+  margin-top: 10px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 10px;
+}
+
+.container .image .delete {
+  z-index: 999;
+  position: absolute;
+  top: 10px;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 1.2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.container .image .delete:hover {
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .modal-buttons {

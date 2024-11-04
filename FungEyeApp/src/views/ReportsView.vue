@@ -26,20 +26,21 @@ export default {
     methods: {
         async getReports() {
             try {
-                // const response = await PostService.getReports();
-                const response = { success: true, data: [{ id: 1, reportedUser: "test", author: "author", postId: 1, commentId: null, createdAt: "01.01.2021" }, { id: 2, reportedUser: "reportedUser", author: "author", postId: 2, commentId: 2, createdAt: "30.05.2024" }] };
+                const response = await PostService.getReports();
+                // const response = { success: true, data: [{ id: 1, reportedUser: "test", author: "author", postId: 1, commentId: null, createdAt: "01.01.2021" }, { id: 2, reportedUser: "reportedUser", author: "author", postId: 2, commentId: 2, createdAt: "30.05.2024" }] };
                 if (!response.success) {
                     console.error("Error while fetching reports");
                     return;
                 }
                 this.reports = response.data;
+                console.log(this.reports);
             } catch (error) {
                 console.error(error);
             }
         },
-        deleteReport() {
+        async deleteReport(reportId) {
             try {
-                // await PostService.markReportAsCompleted(reportId);
+                await PostService.deleteReport(reportId);
                 console.log("Report deleted");
                 this.getReports();
             } catch (error) {

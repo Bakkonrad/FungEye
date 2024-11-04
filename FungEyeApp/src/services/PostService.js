@@ -279,10 +279,22 @@ const deleteComment = async (commentId) => {
     }
 }
 
-const reportUser = async (user) => {
+const report = async (postId, commentId) => {
     try {
-        const response = await $http.post("api/Report/reportUser", user);
-
+        const formData = new FormData();
+        const reporterId = parseInt(localStorage.getItem("id"));
+        formData.append("reporterId", reporterId);
+        if (postId) {
+            formData.append("postId", postId);
+        }
+        if (commentId) {
+            formData.append("commentId", commentId);
+        }
+        const response = await $http.post("api/Post/report", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
         if (response.status === 200) {
             return { success: true, data: response.data };
         }
@@ -291,6 +303,39 @@ const reportUser = async (user) => {
         const errorMessage = ApiService.handleApiError(error);
         console.error("Error reporting user:", errorMessage);
         return { success: false, message: errorMessage };
+    }
+}
+
+const getReports = async () => {
+    try {
+        const userId = parseInt(localStorage.getItem("id"));
+        const response = await $http.get("api/Post/getReports", userId);
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: "Nieznany błąd" };
+    } catch (error) {
+        console.error("Error getting reports:", error);
+        return { success: false, message: "Nieznany błąd" };
+    }
+}
+
+const deleteReport = async (reportId) => {
+    try {
+        const formData = new FormData();
+        formData.append("reportId", reportId);
+        const response = await $http.post("api/Post/markReportAsCompleted", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: "Nieznany błąd" };
+    } catch (error) {
+        console.error("Error deleting report:", error);
+        return { success: false, message: "Nieznany błąd" };
     }
 }
 
@@ -306,5 +351,7 @@ export default {
     addComment,
     editComment,
     deleteComment,
-    reportUser
+    report,
+    getReports,
+    deleteReport,
 };

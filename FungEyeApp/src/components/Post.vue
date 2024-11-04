@@ -171,8 +171,8 @@ export default {
     },
     async report() {
       try {
-        // const response = await PostService.report(this.id);
-        const response = { success: true };
+        const commentId = null;
+        const response = await PostService.report(this.id, commentId);
         if (response.success === false) {
           console.error("Error while reporting user");
           return;

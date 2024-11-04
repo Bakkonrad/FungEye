@@ -229,7 +229,7 @@ namespace FungEyeApi.Controllers
                     return Forbid();
                 }
 
-                var comment = JsonConvert.DeserializeObject<Comment>(commentJson) ?? throw new Exception("Cannot deserialize Post object");
+                var comment = JsonConvert.DeserializeObject<Comment>(commentJson) ?? throw new Exception("Cannot deserialize comment object");
 
                 comment.User = new FollowUser { Id = userId };
 
@@ -254,7 +254,7 @@ namespace FungEyeApi.Controllers
                     return Forbid();
                 }
 
-                var comment = JsonConvert.DeserializeObject<Comment>(commentJson) ?? throw new Exception("Cannot deserialize Post object");
+                var comment = JsonConvert.DeserializeObject<Comment>(commentJson) ?? throw new Exception("Cannot deserialize comment object");
 
                 var result = await _postsService.EditComment(comment);
                 return Ok();
@@ -281,6 +281,31 @@ namespace FungEyeApi.Controllers
                 }
 
                 var result = await _postsService.DeleteComment(commentId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [Authorize]
+        [Consumes("multipart/form-data")]
+        [HttpPost("reportPost")]
+        public async Task<IActionResult> ReportPost([FromForm] int userId, [FromForm] string commentJson)
+        {
+            try
+            {
+                if (!ValidateUserId(userId))
+                {
+                    return Forbid();
+                }
+
+                var comment = JsonConvert.DeserializeObject<Comment>(commentJson) ?? throw new Exception("Cannot deserialize comment object");
+
+                comment.User = new FollowUser { Id = userId };
+
+                var result = await _postsService.AddComment(comment);
                 return Ok();
             }
             catch (Exception ex)

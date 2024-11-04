@@ -33,7 +33,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
                 
                 if (!ValidateUserId(userId) && admin == false)
@@ -73,7 +73,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
                 
                 if (!ValidateUserId(userId) && admin == false)
@@ -125,7 +125,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (!ValidateUserId(userId) && admin == false)
@@ -234,6 +234,11 @@ namespace FungEyeApi.Controllers
             }
 
             return true;
+        }
+
+        private string GetUserIdFromToken()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
         }
     }
 }

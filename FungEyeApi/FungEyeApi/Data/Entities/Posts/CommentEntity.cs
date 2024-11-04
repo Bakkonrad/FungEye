@@ -6,6 +6,7 @@ namespace FungEyeApi.Data.Entities
         public int Id { get; set; }
         public required string Content { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime ModifiedAt { get; set; }
 
         // post do którego należy komentarz
         public required int PostId { get; set; }

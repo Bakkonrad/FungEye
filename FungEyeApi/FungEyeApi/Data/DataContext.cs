@@ -2,7 +2,6 @@
 using FungEyeApi.Data.Entities.Fungies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Emit;
 
 namespace FungEyeApi.Data
 {
@@ -57,6 +56,11 @@ namespace FungEyeApi.Data
             follow.HasKey(f => new { f.UserId, f.FollowedUserId });
             follow.HasIndex(f => f.UserId);
             follow.HasIndex(f => f.FollowedUserId);
+
+            //follow.HasOne(f => f.FollowedUser)
+            //    .WithMany()
+            //    .HasForeignKey(f => f.FollowedUserId)
+            //    .OnDelete(DeleteBehavior.Restrict);
         }
 
         private void ConfigurePost(EntityTypeBuilder<PostEntity> post)
@@ -68,12 +72,12 @@ namespace FungEyeApi.Data
             post.HasMany(p => p.Comments)
                 .WithOne(c => c.Post)
                 .HasForeignKey(c => c.PostId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
             
             post.HasMany(p => p.Reactions)
                 .WithOne(r => r.Post)
                 .HasForeignKey(r => r.PostId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         private void ConfigureComment(EntityTypeBuilder<CommentEntity> comment)
@@ -85,7 +89,7 @@ namespace FungEyeApi.Data
             comment.HasOne(c => c.Post)
                 .WithMany(p => p.Comments)
                 .HasForeignKey(c => c.PostId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             comment.HasOne(c => c.User)
                 .WithMany(u => u.Comments)
@@ -101,7 +105,7 @@ namespace FungEyeApi.Data
             reaction.HasOne(r => r.Post)
                 .WithMany(p => p.Reactions)
                 .HasForeignKey(r => r.PostId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             reaction.HasOne(r => r.User)
                 .WithMany(u => u.Reactions)
@@ -133,11 +137,13 @@ namespace FungEyeApi.Data
 
             collection.HasOne(uf => uf.User)
                    .WithMany(u => u.FungiCollection)
-                   .HasForeignKey(uf => uf.UserId);
+                   .HasForeignKey(uf => uf.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
             collection.HasOne(uf => uf.Fungi)
                    .WithMany(f => f.UserCollections)
-                   .HasForeignKey(uf => uf.FungiId);
+                   .HasForeignKey(uf => uf.FungiId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
 
 

@@ -64,7 +64,7 @@ namespace FungEyeApi.Services
 
                 if (comment == null)
                 {
-                    return false;
+                    throw new Exception("Comment not found");
                 }
 
                 db.Comments.Remove(comment);
@@ -86,7 +86,7 @@ namespace FungEyeApi.Services
 
                 if (post == null)
                 {
-                    return false;
+                    throw new Exception("Post not found");
                 }
 
                 if(post.ImageUrl != null)
@@ -113,10 +113,15 @@ namespace FungEyeApi.Services
 
                 if (commentEntity == null)
                 {
-                    return false;
+                    throw new Exception("Comment not found");
+                }
+                else if(String.IsNullOrWhiteSpace(comment.Content))
+                {
+                    throw new Exception("Content cannot be null");
                 }
 
                 commentEntity.Content = comment.Content;
+                commentEntity.ModifiedAt = DateTime.Now;
                 await db.SaveChangesAsync();
 
                 return true;
@@ -135,7 +140,7 @@ namespace FungEyeApi.Services
 
                 if (postEntity == null)
                 {
-                    return false;
+                    throw new Exception("Post not found");
                 }
                 else if (post.Content == null)
                 {
@@ -242,7 +247,7 @@ namespace FungEyeApi.Services
 
                 if(existingReaction == null)
                 {
-                    return false;
+                    throw new Exception("Reaction not found");
                 }
 
                 db.Reactions.Remove(existingReaction);

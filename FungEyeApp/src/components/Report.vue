@@ -4,13 +4,13 @@
             <h5 class="card-header">Zgłoszenie nr {{ report.id }}</h5>
             <div class="card-body">
                 <h5 class="card-title">Zgłoszono {{ postOrComment() }} użytkownika {{ report.reportedUser }}</h5>
-                <p class="card-text">Autor zgłoszenia: <strong>{{ report.author }}</strong></p>
+                <p class="card-text">Autor zgłoszenia: <strong>{{ report.reporter }}</strong></p>
                 <p class="card-text">Data zgłoszenia: <strong>{{ report.createdAt }}</strong></p>
                 <div class="action-buttons">
                     <button class="btn fungeye-default-button" @click="goToPost">Zobacz zgłoszony {{
                         postOrComment()
                         }}</button>
-                    <button class="btn fungeye-red-button" @click="$emit('delete-report')">
+                    <button class="btn fungeye-red-button" @click="$emit('delete-report', report.id)">
                         Usuń zgłoszenie
                     </button>
                 </div>

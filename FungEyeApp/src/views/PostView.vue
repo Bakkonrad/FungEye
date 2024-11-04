@@ -314,8 +314,8 @@ export default {
     },
     async report(commentId) {
       try {
-        // const response = await PostService.report(commentId);
-        const response = { success: true };
+        const postId = null;
+        const response = await PostService.report(postId, commentId);
         if (response.success === false) {
           console.error("Error while reporting comment");
           return;

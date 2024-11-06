@@ -12,9 +12,11 @@
         public required int UserId { get; set; }
         public UserEntity? User { get; set; }
 
-        public ICollection<PostReactionEntity>? Reactions { get; set; }
+        public ICollection<PostReactionEntity> Reactions { get; set; } = [];
 
-        public ICollection<CommentEntity>? Comments { get; set; }
+        public ICollection<CommentEntity> Comments { get; set; } = [];
+
+        public ICollection<ReportEntity> Reports { get; set; } = [];
 
         public static PostEntity Create(int userId, string content, string? imageUrl)
         {

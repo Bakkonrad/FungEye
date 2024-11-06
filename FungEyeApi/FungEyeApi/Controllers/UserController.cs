@@ -267,36 +267,6 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        [Authorize]
-        [HttpPost("reportUser/{userId}/{banOption}")]
-        public async Task<IActionResult> ReportUser(int userId, short banOption)
-        {
-            try
-            {
-                var userIdFromToken = int.Parse(GetUserIdFromToken());
-                var admin = await _userService.IsAdmin(userIdFromToken);
-
-                if (admin == false)
-                {
-                    return Forbid();
-                }
-
-                var result = await _userService.BanUser(userId, (BanOptionEnum)banOption);
-                if (result != null)
-                {
-                    return Ok(result);
-                }
-                else
-                {
-                    return BadRequest("User banning failed.");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, "Internal server error: " + ex.Message);
-            }
-        }
-
         private bool ValidateUserId(int userId)
         {
             var userIdFromToken = GetUserIdFromToken();

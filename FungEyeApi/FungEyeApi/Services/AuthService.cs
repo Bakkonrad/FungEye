@@ -122,7 +122,7 @@ namespace FungEyeApi.Services
                 string token = await CreateToken(new User(checkUser), CreateTokenEnum.Login);
                 return token;
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 throw;
             }
@@ -144,7 +144,7 @@ namespace FungEyeApi.Services
                 await db.SaveChangesAsync();
                 return true;
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 throw;
             }

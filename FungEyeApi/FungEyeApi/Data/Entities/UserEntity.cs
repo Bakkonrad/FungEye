@@ -24,6 +24,7 @@ namespace FungEyeApi.Data.Entities
         public ICollection<PostReactionEntity>? Reactions { get; set; }
         public ICollection<CommentEntity>? Comments { get; set; }
         public ICollection<UserFungiCollectionEntity>? FungiCollection { get; set; }
+        public ICollection<ReportEntity>? Reports { get; set; }
 
         public static UserEntity Create(RoleEnum role, string username, string email, string password, DateTime? dateOfBirth, string? firstname, string? lastname, string? imageUrl)
         {

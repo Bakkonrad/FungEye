@@ -22,6 +22,7 @@ namespace FungEyeApi.Data
             ConfigureReaction(builder.Entity<PostReactionEntity>());
             ConfigureFungi(builder.Entity<FungiEntity>());
             ConfigureUserFungi(builder.Entity<UserFungiCollectionEntity>());
+            ConfigureReport(builder.Entity<ReportEntity>());
         }
 
         private void ConfigureUser(EntityTypeBuilder<UserEntity> user)
@@ -146,6 +147,28 @@ namespace FungEyeApi.Data
                    .OnDelete(DeleteBehavior.Cascade);
         }
 
+        private void ConfigureReport(EntityTypeBuilder<ReportEntity> report)
+        {
+            report.ToTable("Reports");
+            report.HasKey(r => r.Id);
+
+            report.HasOne(r => r.ReportedBy)
+                .WithMany(u => u.Reports)
+                .HasForeignKey(r => r.ReportedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            report.HasOne(r => r.Post)
+                .WithMany(p => p.Reports)
+                .HasForeignKey(r => r.PostId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            report.HasOne(r => r.Comment)
+                .WithMany(c => c.Reports)
+                .HasForeignKey(r => r.CommentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+
 
         public DbSet<UserEntity> Users { get; set; }
         public DbSet<FollowEntity> Follows { get; set; }
@@ -154,5 +177,6 @@ namespace FungEyeApi.Data
         public DbSet<PostReactionEntity> Reactions { get; set; }
         public DbSet<FungiEntity> Fungies { get; set; }
         public DbSet<UserFungiCollectionEntity> FungiesUserCollections { get; set; }
+        public DbSet<ReportEntity> Reports { get; set; }
     }
 }

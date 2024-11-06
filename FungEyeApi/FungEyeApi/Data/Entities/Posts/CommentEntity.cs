@@ -15,6 +15,8 @@ namespace FungEyeApi.Data.Entities
         // Użytkownik, który stworzył komentarz
         public required int UserId { get; set; }
         public UserEntity User { get; set; }
+
+        public ICollection<ReportEntity> Reports { get; set; } = [];
         public static CommentEntity Create(int postId, int userId, string content)
         {
             var entity = new CommentEntity

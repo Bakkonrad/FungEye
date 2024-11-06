@@ -23,6 +23,7 @@ namespace FungEyeApi.Services
                 
                 await SendRemiderEmailForExpiredAccountsAsync();
                 await DeleteExpiredAccountsAsync();
+                await DeleteCompletedReportsAsync();
             }
         }
 
@@ -115,19 +116,26 @@ namespace FungEyeApi.Services
                         await emailService.SendEmailAsync(user.Email, Enums.SendEmailOptionsEnum.RemindOfExpiredAccount);
                     }
                 }
+            }
+        }
 
 
-                //var expiredUsers = await dbContext.Users
-                //    .Where(u => u.DateDeleted != null && u.DateDeleted <= now)
-                //    .ToListAsync();
+        private async Task DeleteCompletedReportsAsync()
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
 
-                //Console.WriteLine($"Current Time: {now}");
-                //foreach (var user in expiredUsers)
-                //{
-                //    Console.WriteLine($"User DateDeleted: {user.DateDeleted}");
-                //}
+                var date = DateTime.Now.AddDays(-30);
 
-                //var date = DateTime.UtcNow;
+                var completedReports = await dbContext.Reports
+                    .Where(u => u.Completed == true && u.ModifiedAt <= date)
+                    .ToListAsync();
+
+                if (completedReports.Count > 0)
+                {
+                    dbContext.RemoveRange(completedReports);
+                }
             }
         }
     }

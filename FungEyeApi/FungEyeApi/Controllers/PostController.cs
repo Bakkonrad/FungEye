@@ -291,21 +291,64 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpPost("reportPost")]
-        public async Task<IActionResult> ReportPost([FromForm] int userId, [FromForm] string commentJson)
+        [HttpPost("report")]
+        public async Task<IActionResult> Report([FromForm] int reporterId, [FromForm] int? postId = null, [FromForm] int? commentId = null)
         {
             try
             {
-                if (!ValidateUserId(userId))
+                if (!ValidateUserId(reporterId))
                 {
                     return Forbid();
                 }
 
-                var comment = JsonConvert.DeserializeObject<Comment>(commentJson) ?? throw new Exception("Cannot deserialize comment object");
+                var result = await _postsService.Report(reporterId, postId, commentId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
 
-                comment.User = new FollowUser { Id = userId };
+        [Authorize]
+        [HttpGet("getReports")]
+        public async Task<IActionResult> GetReports([FromBody] int userId)
+        {
+            try
+            {
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
+                var admin = await _userService.IsAdmin(userIdFromToken);
 
-                var result = await _postsService.AddComment(comment);
+                if (!ValidateUserId(userId) || !admin)
+                {
+                    return Forbid();
+                }
+
+                var result = await _postsService.GetReports();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [Authorize]
+        [Consumes("multipart/form-data")]
+        [HttpPost("markReportAsCompleted")]
+        public async Task<IActionResult> MarkReportAsCompleted([FromForm] int userId, [FromForm] int reportId)
+        {
+            try
+            {
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
+                var admin = await _userService.IsAdmin(userIdFromToken);
+
+                if (!ValidateUserId(userId) || !admin)
+                {
+                    return Forbid();
+                }
+
+                var result = await _postsService.MarkReportAsCompleted(reportId);
                 return Ok();
             }
             catch (Exception ex)

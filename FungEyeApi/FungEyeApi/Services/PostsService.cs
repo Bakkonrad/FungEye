@@ -5,6 +5,7 @@ using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using FungEyeApi.Models.Posts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace FungEyeApi.Services
 {
@@ -245,7 +246,7 @@ namespace FungEyeApi.Services
             {
                 var existingReaction = await db.Reactions.FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId);
 
-                if(existingReaction == null)
+                if (existingReaction == null)
                 {
                     throw new Exception("Reaction not found");
                 }
@@ -258,6 +259,66 @@ namespace FungEyeApi.Services
             catch (Exception ex)
             {
                 throw new Exception("Deleting post reaction failed. " + ex.Message);
+            }
+        }
+
+        public async Task<bool> Report(int reporterId, int? postId = null, int? commentId = null)
+        {
+            try
+            {
+                if (postId == null && commentId == null)
+                {
+                    throw new Exception("There is no data provided to create a report");
+                }
+
+                var reportEntity = ReportEntity.Create(reporterId, postId, commentId);
+                await db.Reports.AddAsync(reportEntity);
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during adding report: " + ex.Message);
+            }
+        }
+
+        public async Task<List<Report>> GetReports()
+        {
+            try
+            {
+                var reports = await db.Reports.Include(r => r.ReportedBy).ToListAsync();
+                var reportsToModel = reports.Select(r => new Report(r)).ToList();
+
+                return reportsToModel;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during retrieving reports: " + ex.Message);
+            }
+        }
+
+        public async Task<bool> MarkReportAsCompleted(int reportId)
+        {
+            try
+            {
+                var reportEntity = await db.Reports.FirstOrDefaultAsync(r => r.Id == reportId);
+
+                if (reportEntity == null)
+                {
+                    throw new Exception("Report not found");
+                }
+
+                reportEntity.Completed = true;
+                reportEntity.ModifiedAt = DateTime.Now;
+
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during marking report as completed: " + ex.Message);
             }
         }
 
@@ -275,5 +336,7 @@ namespace FungEyeApi.Services
 
             return posts;
         }
+
+        
     }
 }

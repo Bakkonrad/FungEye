@@ -46,5 +46,8 @@ namespace FungEyeApi.Models.Posts
 
         [JsonProperty("deletePhoto")]
         public bool? DeletePhoto { get; set; }
+
+        [JsonProperty("comments")]
+        public List<Comment>? Comments { get; set; }
     }
 }

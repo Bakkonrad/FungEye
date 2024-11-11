@@ -367,6 +367,7 @@ namespace FungEyeApi.Services
             post.LikeAmount = await reactions.CountAsync(r => r.PostId == post.Id);
             post.CommentsAmount = await comments.CountAsync(r => r.PostId == post.Id);
             post.LoggedUserReacted = await reactions.AnyAsync(r => r.PostId == post.Id && r.UserId == userId);
+            post.Comments = await comments.Where(c => c.PostId == post.Id).Include(c => c.User).Select(c => new Comment(c)).ToListAsync();
 
             return post;
         }

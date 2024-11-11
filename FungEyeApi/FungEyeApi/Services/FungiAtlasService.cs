@@ -11,12 +11,13 @@ namespace FungEyeApi.Services
 {
     public class FungiAtlasService : IFungiAtlasService
     {
-        //private readonly IConfiguration _configuration;
         private readonly DataContext db;
+        private readonly IBlobStorageService _blobStorageService;
 
-        public FungiAtlasService(DataContext db)
+        public FungiAtlasService(DataContext db, IBlobStorageService blobStorageService)
         {
             this.db = db;
+            _blobStorageService = blobStorageService;
         }
         
         public async Task<bool> AddFungi(Fungi fungi)
@@ -85,6 +86,11 @@ namespace FungEyeApi.Services
                 if (fungi == null)
                 {
                     return false;
+                }
+
+                foreach (var image in fungiImages)
+                {
+                    await _blobStorageService.DeleteFile(image.ImageUrl, BlobContainerEnum.Fungies);
                 }
 
                 db.FungiesImages.RemoveRange(fungiImages);

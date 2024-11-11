@@ -41,9 +41,12 @@ const predict = async (image) => {
   }
 };
 
-const getAllFungies = async (page, search) => {
+const getAllFungies = async (page, search, userId) => {
   try {
-    const userId = parseInt(localStorage.getItem("id"));
+    if (!userId) {
+      userId = parseInt(localStorage.getItem("id"));
+    }
+    // const userId = parseInt(localStorage.getItem("id"));
     // console.log("get users: ", page, search);
     const formData = new FormData();
     formData.append('userId', userId);
@@ -233,7 +236,8 @@ const editFungi = async (fungi, images) => {
     const userId = parseInt(localStorage.getItem("id"));
     const formData = new FormData();
     formData.append("userId", userId);
-    formData.append("fungiJson", JSON.stringify(fungi));
+    const fungiJson = JSON.stringify(reconvertAttributes(fungi));
+    formData.append("fungiJson", fungiJson);
     console.log(images);
     console.log(images.length);
     if (images.length > 0) {

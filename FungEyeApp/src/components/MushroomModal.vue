@@ -140,6 +140,7 @@ export default {
                 return;
             }
             const fungi = {
+                id: this.mushroomForm.id,
                 polishName: this.mushroomForm.polishName,
                 latinName: this.mushroomForm.latinName,
                 description: this.mushroomForm.description,

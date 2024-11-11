@@ -43,15 +43,8 @@
       </span>
     </div>
 
-    <div class="feedback mt-5">
-      <LoadingSpinner v-if="isLoading"></LoadingSpinner>
-      <div v-if="fetchMushroomsErrorMessage">
-        <p class="error-message">{{ fetchMushroomsErrorMessage }}</p>
-      </div>
-    </div>
-
     <div class="mushroom-list">
-      <div v-for="mushroom in mushrooms" :key="mushroom.id" class="mushroom-card"
+      <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card"
         @click="openMushroomView(mushroom.id)">
         <span class="left">
           <img v-if="mushroom.imagesUrl" :src="mushroom.imagesUrl[0]" alt="Mushroom Image" class="mushroom-image" />
@@ -82,6 +75,16 @@
             <font-awesome-icon icon="fa-solid fa-trash" />
           </button>
         </div>
+      </div>
+    </div>
+
+    <div class="feedback mt-5">
+      <LoadingSpinner v-if="isLoading"></LoadingSpinner>
+      <div v-if="fetchMushroomsErrorMessage">
+        <p class="error-message">{{ fetchMushroomsErrorMessage }}</p>
+      </div>
+      <div v-if="noMoreResults">
+        <p class="no-more-results">To już wszystkie wyniki.</p>
       </div>
     </div>
 
@@ -214,6 +217,7 @@ export default {
         attributes: ['jadalny', 'iglaste'],
         description: 'Mleczaj rydz to grzyb jadalny, często spotykany w lasach iglastych.'
       }],
+      filteredMushrooms: [],
       alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
       availableAttributes: ['iglaste', 'mieszane', 'liściaste', 'jadalny', 'niejadalny', 'trujący'],
       showAddMushroomModal: false,
@@ -239,6 +243,7 @@ export default {
       currentPage: 1,
       goToTheTopButton: null,
       fetchMushroomsErrorMessage: '',
+      noMoreResults: false,
     };
   },
   async mounted() {
@@ -247,17 +252,21 @@ export default {
     this.isAdmin = isAdmin;
     this.isLoggedIn = isLoggedIn;
     this.goToTheTopButton = this.$refs.goToTheTopButton;
-    this.filterMushrooms(this.currentPage);
+    this.getFungies();
     window.addEventListener("scroll", this.handleScroll);
   },
   beforeDestroy() {
     window.removeEventListener("scroll", this.handleScroll);
   },
   methods: {
-    async getFungies(page, search) {
-      this.isLoading = true;
+    async getFungies(page) {
       try {
-        const response = await FungiService.getAllFungies(page, search);
+        if (this.noMoreResults || this.isLoading) {
+          return;
+        }
+        this.isLoading = true;
+        const response = await FungiService.getAllFungies(page, this.searchQuery);
+        console.log(response.data);  
         if (response.success === false) {
           this.error = true;
           this.fetchMushroomsErrorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
@@ -269,12 +278,14 @@ export default {
           return;
         } else if (response.data.length === 0) {
           this.error = true;
-          this.fetchMushroomsErrorMessage = "To już wszystkie wyniki.";
+          this.noMoreResults = true;  
           return;
         }
+        this.noMoreResults = false;
         this.error = false;
         const newFungies = response.data;
         this.mushrooms = [...this.mushrooms, ...newFungies];
+        this.filterMushrooms();
         return newFungies;
       }
       catch (error) {
@@ -290,9 +301,9 @@ export default {
         return;
       }
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        if (!this.error) {
+        if (!this.error && !this.noMoreResults && !this.isLoading) {
           this.currentPage++;
-          this.filterMushrooms();
+          this.getFungies(this.currentPage);
         }
       }
       if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
@@ -305,12 +316,13 @@ export default {
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
     },
-    async filterMushrooms(page, search) {
-      let filtered = await this.getFungies(page, search);
+    async filterMushrooms() {
+      let filtered = [...this.mushrooms];
+      console.log('Filtrowanie grzybów:', filtered);
 
       if (this.searchQuery) {
         filtered = filtered.filter((mushroom) =>
-          mushroom.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+          mushroom.polishName.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
 
@@ -322,7 +334,7 @@ export default {
 
       if (this.activeLetter) {
         filtered = filtered.filter((mushroom) =>
-          mushroom.name.toLowerCase().startsWith(this.activeLetter.toLowerCase())
+          mushroom.polishName.toLowerCase().startsWith(this.activeLetter.toLowerCase())
         );
       }
 
@@ -330,12 +342,14 @@ export default {
         filtered = filtered.filter((mushroom) => mushroom.savedByUser === true);
       }
 
-      this.mushrooms = filtered;
-      console.log(this.mushrooms);
+      this.filteredMushrooms = filtered;
     },
     handleSearch(query) {
       this.searchQuery = query;
-      this.filterMushrooms(1, query);
+      this.currentPage = 1;
+      this.mushrooms = [];
+      this.noMoreResults = false;
+      this.getFungies(this.currentPage);
     },
     filterByLetter(letter) {
       if (this.activeLetter === letter) {
@@ -395,7 +409,7 @@ export default {
       }
       this.error = false;
       this.successMessage = 'Grzyb został usunięty.';
-      this.filterMushrooms();
+      this.getFungies();
     },
     async saveMushroomToCollection(mushroomId) {
       console.log(mushroomId);
@@ -407,7 +421,7 @@ export default {
         return;
       }
       this.error = false;
-      this.filterMushrooms();
+      this.getFungies();
     },
     async deleteMushroomFromCollection(mushroomId) {
       const id = parseInt(mushroomId);
@@ -418,7 +432,7 @@ export default {
         return;
       }
       this.error = false;
-      this.filterMushrooms();
+      this.getFungies();
     },
     closeModal() {
       this.showAddMushroomModal = false;

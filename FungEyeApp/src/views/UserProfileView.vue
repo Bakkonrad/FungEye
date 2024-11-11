@@ -26,7 +26,7 @@
           <button @click="goToMyProfile" class="btn fungeye-default-button">Przejdź do swojego profilu</button>
         </div>
       </div>
-      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" />
+      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" :showMoreMushrooms="showMoreMushrooms" />
     </div>
   </div>
 </template>
@@ -37,6 +37,7 @@ import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import UserService from "@/services/UserService";
 import FollowService from "@/services/FollowService";
+import FungiService from "@/services/FungiService";
 import { ref } from "vue";
 import { checkAdmin, isAdmin } from "@/services/AuthService";
 import UserBan from "@/components/BanUser.vue";
@@ -50,6 +51,7 @@ export default {
   },
   async created() {
     this.fetchUser();
+    this.fetchSavedMushrooms();
     this.checkIfFollowed();
     this.isLoggedUser = this.isThisUserLoggedIn();
   },
@@ -67,6 +69,7 @@ export default {
       isLoggedUser: false,
       isAdmin: false,
       isBanning: false,
+      showMoreMushrooms: false,
     };
   },
   setup() {
@@ -77,6 +80,9 @@ export default {
       follows: ref([]),
       followers: ref([]),
     };
+  },
+  mounted() {
+    this.fetchSavedMushrooms();
   },
   methods: {
     async fetchUser() {
@@ -97,6 +103,21 @@ export default {
       this.createdAt = response.data.createdAt;
       this.follows = followsResponse.data;
       this.followers = followersResponse.data;
+    },
+    async fetchSavedMushrooms() {
+      const page = null;
+      const search = "";
+      const response = await FungiService.getAllFungies(page, search, this.id);
+      if (response.success === false) {
+        console.log(response.message);
+        return;
+      }
+      this.mushrooms = response.data.filter((mushroom) => mushroom.savedByUser == true);
+      if (this.mushrooms.length > 5) {
+        this.mushrooms = this.mushrooms.slice(0, 4);
+        this.showMoreMushrooms = true;  
+      }
+      console.log(this.mushrooms);  
     },
     async checkIfFollowed() {
       const response = await FollowService.isFollowing(localStorage.getItem("id"), this.id);

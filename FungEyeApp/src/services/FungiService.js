@@ -44,22 +44,34 @@ const predict = async (image) => {
 const getAllFungies = async (page, search) => {
   try {
     const userId = parseInt(localStorage.getItem("id"));
-        // console.log("get users: ", page, search);
-        const formData = new FormData();
-        formData.append('userId', userId);
-        if (page) {
-            formData.append('page', page);
-        }
-        if (search) {
-            formData.append('search', search);
-        }
-        const response = await $http.post('api/Fungi/getFungies', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+    // console.log("get users: ", page, search);
+    const formData = new FormData();
+    formData.append('userId', userId);
+    if (page) {
+      formData.append('page', page);
+    }
+    if (search) {
+      formData.append('search', search);
+    }
+    const response = await $http.post('api/FungiAtlas/getFungies', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    // const response = {
+    //   status: 200, data: [{
+    //     id: 1,
+    //     name: 'Borowik szlachetny',
+    //     image: 'src/assets/images/mushrooms/ATLAS-borowik.jpg',
+    //     edibility: 'jadalny',
+    //     toxicity: 'nietrujący',
+    //     habitat: 'iglasty',
+    //     description: 'Borowik szlachetny to jeden z najbardziej cenionych grzybów jadalnych.'
+    //   }]
+    // };
     if (response.status === 200) {
-      const data = convertToAttributes(response.data);
+      // console.log("fungies: ", response.data);
+      const data = addAttributes(response.data);
       return { success: true, data: data };
     }
     return { success: false, message: "Nieznany błąd" };
@@ -70,28 +82,31 @@ const getAllFungies = async (page, search) => {
   }
 };
 
-const convertToAttributes = (fungi) => {
-  const newFungi = {
-    ...fungi,
-    attributes: [],
-  }
-  if (fungi.edibility === "jadalny") {
-    newFungi.attributes.push("jadalny");
-  } else if (fungi.edibility === "niejadalny") {
-    newFungi.attributes.push("niejadalny");
-  }
-  if (fungi.toxicity === "trujący") {
-    newFungi.attributes.push("trujący");
-  }
-  if (fungi.habitat === "iglasty") {
-    newFungi.attributes.push("iglaste");
-  } else if (fungi.habitat === "liściasty") {
-    newFungi.attributes.push("liściaste");
-  }
-  else if (fungi.habitat === "mieszany") {
-    newFungi.attributes.push("mieszane");
-  }
-  return newFungi;
+const addAttributes = (fungies) => {
+  const newFungies = fungies.map((fungi) => {
+    const newFungi = {
+      ...fungi,
+      attributes: [],
+    };
+    if (fungi.edibility === "jadalny") {
+      newFungi.attributes.push("jadalny");
+    } else if (fungi.edibility === "niejadalny") {
+      newFungi.attributes.push("niejadalny");
+    }
+    if (fungi.toxicity === "trujący") {
+      newFungi.attributes.push("trujący");
+    }
+    if (fungi.habitat === "iglasty") {
+      newFungi.attributes.push("iglaste");
+    } else if (fungi.habitat === "liściasty") {
+      newFungi.attributes.push("liściaste");
+    }
+    else if (fungi.habitat === "mieszany") {
+      newFungi.attributes.push("mieszane");
+    }
+    return newFungi;
+  });
+  return newFungies;
 }
 
 const getFungi = async (id) => {
@@ -119,7 +134,7 @@ const addFungi = async (fungi, images) => {
     //   formData.append("images", images[i]);
     // }
     formData.append("images", images);
-    const response = await $http.post("api/Fungi/addFungi", formData, { 
+    const response = await $http.post("api/FungiAtlas/addFungi", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -135,7 +150,7 @@ const addFungi = async (fungi, images) => {
   }
 };
 
-const editFungi = async (fungi, images) => { 
+const editFungi = async (fungi, images) => {
   try {
     const userId = parseInt(localStorage.getItem("id"));
     const formData = new FormData();
@@ -198,7 +213,7 @@ const saveFungiToCollection = async (fungiId) => {
   }
 }
 
-const deleteFungiFromCollecion = async (fungiId) => {
+const deleteFungiFromCollection = async (fungiId) => {
   try {
     const userId = parseInt(localStorage.getItem("id"));
     const formData = new FormData();
@@ -221,7 +236,7 @@ const deleteFungiFromCollecion = async (fungiId) => {
 }
 
 
-export default { 
+export default {
   predict,
   getAllFungies,
   getFungi,
@@ -229,5 +244,5 @@ export default {
   editFungi,
   deleteFungi,
   saveFungiToCollection,
-  deleteFungiFromCollecion
+  deleteFungiFromCollection
 };

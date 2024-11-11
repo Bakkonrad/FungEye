@@ -10,20 +10,24 @@
             <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
                 @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
                 <span v-if="!isDragging">
-                    <header v-if="!mushroomForm.image">Kliknij, aby wybrać zdjęcie grzyba</header>
+                    <header v-if="!mushroomForm.image">Kliknij, aby wybrać zdjęcia grzyba</header>
                     <header v-else>Kliknij, aby wybrać inne zdjęcie grzyba</header>
                     <span class="select">lub przeciągnij je tutaj</span>
                 </span>
                 <span v-else>
-                    <header>Upuść zdjęcie tutaj</header>
+                    <header>Upuść zdjęcia tutaj</header>
                 </span>
             </div>
-            <div >
-                <img v-if="mushroomForm.image" :src="mushroomForm.image" alt="Zdjęcie grzyba" class="uploaded-image" />
+            <div class="container uploaded-images">
+                <div v-for="(image, index) in mushroomForm.images" :key="index" class="image">
+                    <span class="delete" @click="deleteImage(index)">&times;</span>
+                    <img v-if="image" :src="image.url" alt="Zdjęcie grzyba" class="uploaded-image" />
+                </div>
             </div>
         </div>
 
-        <textarea v-model="mushroomForm.description" placeholder="Opis grzyba" class="edit-input form-control"></textarea>
+        <textarea v-model="mushroomForm.description" placeholder="Opis grzyba"
+            class="edit-input form-control"></textarea>
         <div class="attribute-selection">
             <span v-for="attribute in availableAttributes" :key="attribute" @click="toggleAttributeFilter(attribute)"
                 :class="['attribute', attributeClass(attribute), { 'active-attribute': isActiveAttribute(attribute) }]">
@@ -32,7 +36,8 @@
         </div>
         <hr>
         <span class="buttons">
-            <button class="btn fungeye-default-button" @click="saveChanges">{{ showEditMushroomModal ? 'Zapisz zmiany' : 'Dodaj grzyb' }}</button>
+            <button class="btn fungeye-default-button" @click="saveChanges">{{ showEditMushroomModal ? 'Zapisz zmiany' :
+                'Dodaj grzyb' }}</button>
             <button class="btn fungeye-red-button" @click="$emit('close')">Anuluj</button>
         </span>
     </div>
@@ -59,8 +64,11 @@ export default {
     },
     methods: {
         onFileChange(e) {
-            const file = e.target.files[0];
-            this.mushroomForm.image = URL.createObjectURL(file);
+            const files = Array.from(e.target.files);
+            this.mushroomForm.images = files.map(file => ({
+                id: file.name,
+                url: URL.createObjectURL(file)
+            }));
         },
         onDragOver(e) {
             e.preventDefault();
@@ -73,8 +81,14 @@ export default {
         onDrop(e) {
             e.preventDefault();
             this.isDragging = false;
-            const file = e.dataTransfer.files[0];
-            this.mushroomForm.image = URL.createObjectURL(file);
+            const files = Array.from(e.dataTransfer.files);
+            this.mushroomForm.images = files.map(file => ({
+                id: file.name,
+                url: URL.createObjectURL(file)
+            }));
+        },
+        deleteImage(index) {
+            this.mushroomForm.images.splice(index, 1);
         },
         toggleAttributeFilter(attribute) {
             if (this.selectedAttributes.includes(attribute)) {
@@ -177,12 +191,52 @@ export default {
     transition: 0.4s;
 }
 
-.uploaded-image {
+.uploaded-images {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-top: 10px;
-    width: 200px;
-    height: 200px;
+}
+
+.uploaded-image {
+    width: 100px;
+    height: 100px;
     object-fit: cover;
     border-radius: 10px;
+}
+
+.container .image {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.container .image .delete {
+    z-index: 999;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.container .image .delete:hover {
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .mushroom-actions {
@@ -269,5 +323,4 @@ export default {
 .buttons button {
     width: 100%;
 }
-
 </style>

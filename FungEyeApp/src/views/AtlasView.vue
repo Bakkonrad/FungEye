@@ -45,8 +45,8 @@
 
     <div class="feedback mt-5">
       <LoadingSpinner v-if="isLoading"></LoadingSpinner>
-      <div v-if="mushrooms.length === 0">
-        <p class="error-message">Nie znaleziono grzybów spełniających kryteria wyszukiwania.</p>
+      <div v-if="fetchMushroomsErrorMessage">
+        <p class="error-message">{{ fetchMushroomsErrorMessage }}</p>
       </div>
     </div>
 
@@ -237,6 +237,7 @@ export default {
       isLoading: false,
       currentPage: 1,
       goToTheTopButton: null,
+      fetchMushroomsErrorMessage: '',
     };
   },
   async mounted() {
@@ -253,26 +254,35 @@ export default {
   },
   methods: {
     async getFungies(page, search) {
-      // const response = await FungiService.getAllFungies(page, search);
-      const response = { success: true, data: this.localMushrooms };
-      if (response.success === false) {
-        this.error = true;
-        this.errorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
-        return;
+      this.isLoading = true;
+      try {
+        const response = await FungiService.getAllFungies(page, search);
+        if (response.success === false) {
+          this.error = true;
+          this.fetchMushroomsErrorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
+          return;
+        }
+        if (response.data.length === 0 && this.mushrooms.length === 0) {
+          this.error = true;
+          this.fetchMushroomsErrorMessage = "Nie znaleziono grzybów spełniających kryteria.";
+          return;
+        } else if (response.data.length === 0) {
+          this.error = true;
+          this.fetchMushroomsErrorMessage = "To już wszystkie wyniki.";
+          return;
+        }
+        this.error = false;
+        const newFungies = response.data;
+        this.mushrooms = [...this.mushrooms, ...newFungies];
+        return newFungies;
       }
-      if (response.data.length === 0 && this.users.length === 0) {
+      catch (error) {
         this.error = true;
-        this.errorMessage = "Nie znaleziono grzybów spełniających kryteria.";
-        return;
-      } else if (response.data.length === 0) {
-        this.error = true;
-        this.errorMessage = "To już wszystkie wyniki.";
-        return;
+        this.fetchMushroomsErrorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
       }
-      this.error = false;
-      const newFungies = response.data;
-      this.mushrooms = [...this.mushrooms, ...newFungies];
-      return newFungies;
+      finally {
+        this.isLoading = false;
+      }
     },
     handleScroll() {
       if (this.goToTheTopButton === null) {
@@ -295,9 +305,7 @@ export default {
       document.documentElement.scrollTop = 0;
     },
     async filterMushrooms(page, search) {
-      this.isLoading = true;
       let filtered = await this.getFungies(page, search);
-      this.isLoading = false;
 
       if (this.searchQuery) {
         filtered = filtered.filter((mushroom) =>
@@ -375,9 +383,7 @@ export default {
       this.showDeleteMushroomModal = true;
     },
     async deleteMushroom() {
-      // this.mushrooms = this.mushrooms.filter((m) => m.id !== this.mushroomToDelete.id);
-      // const response = await FungiService.deleteFungi(this.mushroomToDelete.id);
-      const response = { success: true }
+      const response = await FungiService.deleteFungi(this.mushroomToDelete.id);
       this.closeModal();
       if (response.success === true) {
         this.error = true;
@@ -389,8 +395,7 @@ export default {
     },
     async saveMushroomToCollection(mushroomId) {
       const id = parseInt(mushroomId);
-      // const response = await FungiService.saveFungiToCollection(id);
-      const response = { success: true } // temporary
+      const response = await FungiService.saveFungiToCollection(id);
       if (response.success === false) {
         this.error = true;
         this.errorMessage = 'Wystąpił błąd podczas zapisywania grzyba.';
@@ -401,8 +406,7 @@ export default {
     },
     async deleteMushroomFromCollection(mushroomId) {
       const id = parseInt(mushroomId);
-      // const response = await FungiService.deleteFungiFromCollection(id);
-      const response = { success: true } // temporary
+      const response = await FungiService.deleteFungiFromCollection(id);
       if (response.success === false) {
         this.error = true;
         this.errorMessage = 'Wystąpił błąd podczas usuwania grzyba.';

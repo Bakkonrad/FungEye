@@ -18,7 +18,7 @@ namespace FungEyeApi.Models
         }
 
         [JsonProperty("id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonProperty("latinName")]
         public string? LatinName { get; set; }

@@ -214,7 +214,29 @@ namespace FungEyeApi.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Error during retrieving users: " + ex.Message);
+                throw new Exception("Error during retrieving posts: " + ex.Message);
+            }
+        }
+
+        public async Task<Post> GetPost(int postId, int userId)
+        {
+            try
+            {
+                var post = await db.Posts.FirstOrDefaultAsync(r => r.Id == postId);
+
+                if(post == null)
+                {
+                    throw new Exception("Post not found");
+                }
+
+                var postToModel = new Post(post);
+                postToModel = await GetPostInfo(postToModel, userId);
+
+                return postToModel;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during retrieving post: " + ex.Message);
             }
         }
 
@@ -337,6 +359,16 @@ namespace FungEyeApi.Services
             return posts;
         }
 
-        
+        private async Task<Post> GetPostInfo(Post post, int userId)
+        {
+            var reactions = db.Reactions.AsQueryable();
+            var comments = db.Comments.AsQueryable();
+            
+            post.LikeAmount = await reactions.CountAsync(r => r.PostId == post.Id);
+            post.CommentsAmount = await comments.CountAsync(r => r.PostId == post.Id);
+            post.LoggedUserReacted = await reactions.AnyAsync(r => r.PostId == post.Id && r.UserId == userId);
+
+            return post;
+        }
     }
 }

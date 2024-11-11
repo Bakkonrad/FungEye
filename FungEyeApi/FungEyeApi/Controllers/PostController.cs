@@ -135,6 +135,27 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
+        [HttpPost("getPost")]
+        public async Task<IActionResult> GetPost([FromForm] int userId, [FromForm] int postId)
+        {
+            try
+            {
+                if (!ValidateUserId(userId))
+                {
+                    return Forbid();
+                }
+
+                var result = await _postsService.GetPost(postId, userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [Authorize]
+        [Consumes("multipart/form-data")]
         [HttpPost("getPosts")]
         public async Task<IActionResult> GetPosts([FromForm] int userId, [FromForm] int postsFilter, [FromForm] int? page = null)
         {

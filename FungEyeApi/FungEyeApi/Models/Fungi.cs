@@ -6,6 +6,10 @@ namespace FungEyeApi.Models
 {
     public class Fungi
     {
+        public Fungi()
+        {
+        }
+
         public Fungi(FungiEntity fungiEntity)
         {
             Id = fungiEntity.Id;
@@ -15,6 +19,7 @@ namespace FungEyeApi.Models
             Edibility = fungiEntity.Edibility;
             Toxicity = fungiEntity.Toxicity;
             Habitat = fungiEntity.Habitat;
+            ImagesUrl = fungiEntity.Images?.Select(i => i.ImageUrl).ToList();
         }
 
         [JsonProperty("id")]
@@ -38,8 +43,8 @@ namespace FungEyeApi.Models
         [JsonProperty("habitat")]
         public string? Habitat { get; set; }
 
-        [JsonProperty("loggedUserHasInCollection")]
-        public bool? LoggedUserHasInCollection { get; set; }
+        [JsonProperty("savedByUser")]
+        public bool? SavedByUser { get; set; }
 
         [JsonProperty("imagesUrl")]
         public List<string>? ImagesUrl { get; set; }

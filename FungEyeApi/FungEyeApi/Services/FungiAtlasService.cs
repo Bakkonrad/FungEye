@@ -54,6 +54,9 @@ namespace FungEyeApi.Services
                     throw new Exception("Error during editing fungi: fungi not found.");
                 }
 
+                //fungiEntity.Images = null;
+                //await db.SaveChangesAsync();
+
                 fungiEntity.Description = fungi.Description;
                 fungiEntity.LatinName = fungi.LatinName;
                 fungiEntity.PolishName = fungi.PolishName;
@@ -97,17 +100,19 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<Fungi> GetFungi(int fungiId)
+        public async Task<Fungi> GetFungi(int fungiId, int? userId = null)
         {
             try
             {
-                var fungiEntity = await db.Fungies.FirstOrDefaultAsync(u => u.Id == fungiId);
+                var fungiEntity = await db.Fungies.Include(f => f.Images).FirstOrDefaultAsync(u => u.Id == fungiId);
                 if (fungiEntity == null)
                 {
                     throw new Exception("Fungi not found");
                 }
 
-                return new Fungi(fungiEntity);
+                var result = await GetFungiInfo(new Fungi(fungiEntity), userId);
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -115,17 +120,19 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<Fungi> GetFungi(string fungiName)
+        public async Task<Fungi> GetFungi(string fungiName, int? userId = null)
         {
             try
             {
-                var fungiEntity = await db.Fungies.FirstOrDefaultAsync(f => f.LatinName == fungiName);
+                var fungiEntity = await db.Fungies.Include(f => f.Images).FirstOrDefaultAsync(f => f.LatinName == fungiName);
                 if (fungiEntity == null)
                 {
                     throw new Exception("Fungi not found");
                 }
 
-                return new Fungi(fungiEntity);
+                var result = await GetFungiInfo(new Fungi(fungiEntity), userId);
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -133,11 +140,12 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<List<Fungi>> GetFungies(int? page = null, string? search = null)
+        public async Task<List<Fungi>> GetFungies(int? userId = null, int? page = null, string? search = null)
         {
             try
             {
-                var query = db.Fungies.AsQueryable();
+                List<Fungi> result = new List<Fungi>();
+                var query = db.Fungies.Include(f => f.Images).AsQueryable();
 
                 if (!String.IsNullOrWhiteSpace(search))
                 {
@@ -151,7 +159,12 @@ namespace FungEyeApi.Services
 
                 var fungies = await query.ToListAsync();
 
-                return fungies.Select(u => new Fungi(u)).ToList();
+                foreach (var fungi in fungies)
+                {
+                    result.Add(await GetFungiInfo(new Fungi(fungi), userId));
+                }
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -201,6 +214,19 @@ namespace FungEyeApi.Services
             {
                 throw new Exception("Deleting fungi from user collection failed. " + ex.Message);
             }
+        }
+
+        private async Task<Fungi> GetFungiInfo(Fungi fungi, int? userId = null)
+        {
+            if(userId == null)
+            {
+                return fungi;
+            }
+            var collections = db.FungiesUserCollections.AsQueryable();
+
+            fungi.SavedByUser = await collections.AnyAsync(f => f.FungiId == fungi.Id && f.UserId == userId);
+
+            return fungi;
         }
     }
 }

@@ -10,9 +10,9 @@ namespace FungEyeApi.Interfaces
         Task<bool> EditFungi(Fungi fungi);
         
         Task<bool> DeleteFungi(int fungiId);
-        Task<Fungi> GetFungi(int fungiId);
-        Task<Fungi> GetFungi(string fungiName);
-        Task<List<Fungi>> GetFungies(int? page = null, string? search = null);
+        Task<Fungi> GetFungi(int fungiId, int? userId = null);
+        Task<Fungi> GetFungi(string fungiName, int? userId = null);
+        Task<List<Fungi>> GetFungies(int? userId = null, int? page = null, string? search = null);
         
         Task<bool> AddFungiToCollection(int userId, int fungiId);
         Task<bool> DeleteFungiFromCollection(int userId, int fungiId);

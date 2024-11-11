@@ -5,16 +5,6 @@ namespace FungEyeApi.Data.Entities
 {
     public class FungiEntity
     {
-        //public FungiEntity(Fungi fungi)
-        //{
-        //    LatinName = fungi.LatinName;
-        //    PolishName = fungi.PolishName;
-        //    Description = fungi.Description;
-        //    Edibility = fungi.Edibility;
-        //    Toxicity = fungi.Toxicity;
-        //    Habitat = fungi.Habitat;
-        //}
-
         public int Id { get; set; }
         public string? LatinName { get; set; }
         public string? PolishName { get; set; }

@@ -307,7 +307,7 @@ const deleteFungiFromCollection = async (fungiId) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiId", fungiId);
-    const response = await $http.delete("api/FungiAtlas/deleteFungiFromCollection", formData, {
+    const response = await $http.post("api/FungiAtlas/deleteFungiFromCollection", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

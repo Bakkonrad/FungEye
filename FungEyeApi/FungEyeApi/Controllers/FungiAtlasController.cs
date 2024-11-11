@@ -57,7 +57,7 @@ namespace FungEyeApi.Controllers
                     }
                 }
 
-                var result = _fungiAtlasService.AddFungi(fungi);
+                var result = await _fungiAtlasService.AddFungi(fungi);
                 return Ok();
             }
             catch (Exception ex)
@@ -109,7 +109,7 @@ namespace FungEyeApi.Controllers
                     }
                 }
 
-                var result = _fungiAtlasService.EditFungi(fungi);
+                var result = await  _fungiAtlasService.EditFungi(fungi);
                 return Ok();
             }
             catch (Exception ex)
@@ -144,11 +144,11 @@ namespace FungEyeApi.Controllers
         
         [Consumes("multipart/form-data")]
         [HttpPost("getFungies")]
-        public async Task<IActionResult> GetFungies([FromForm] int? page = null, [FromForm] string? search = null)
+        public async Task<IActionResult> GetFungies([FromForm] int? page = null, [FromForm] string? search = null, [FromForm] int? userId = null)
         {
             try
             {
-                var result = await _fungiAtlasService.GetFungies(page, search);
+                var result = await _fungiAtlasService.GetFungies(userId, page, search);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -158,11 +158,11 @@ namespace FungEyeApi.Controllers
         }
 
         [HttpGet("getFungi/{fungiId}")]
-        public async Task<IActionResult> GetFungi(int fungiId)
+        public async Task<IActionResult> GetFungi(int fungiId, [FromBody] int? userId = null)
         {
             try
             {
-                var result = await _fungiAtlasService.GetFungi(fungiId);
+                var result = await _fungiAtlasService.GetFungi(fungiId, userId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -172,11 +172,11 @@ namespace FungEyeApi.Controllers
         }
 
         [HttpGet("getFungiByName/{fungiName}")]
-        public async Task<IActionResult> GetFungiByName(string fungiName)
+        public async Task<IActionResult> GetFungiByName(string fungiName, [FromBody] int? userId = null)
         {
             try
             {
-                var result = await _fungiAtlasService.GetFungi(fungiName);
+                var result = await _fungiAtlasService.GetFungi(fungiName, userId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -206,7 +206,7 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpDelete("deleteFungiFromCollection")]
+        [HttpPost("deleteFungiFromCollection")]
         public async Task<IActionResult> DeleteFungiFromCollection([FromForm] int userId, [FromForm] int fungiId)
         {
             try

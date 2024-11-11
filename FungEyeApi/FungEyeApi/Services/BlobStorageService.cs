@@ -72,6 +72,7 @@ namespace FungEyeApi.Services
             {
                 BlobContainerEnum.Posts => "posts",
                 BlobContainerEnum.Users => "users",
+                BlobContainerEnum.Fungies => "fungi",
                 _ => throw new ArgumentException("Invalid blob container")
             };
         }

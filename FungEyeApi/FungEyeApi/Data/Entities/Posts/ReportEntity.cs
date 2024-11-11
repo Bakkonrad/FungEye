@@ -5,7 +5,7 @@ namespace FungEyeApi.Data.Entities
     {
         public int Id { get; set; }
         public required int ReportedById { get; set; }
-        public UserEntity ReportedBy { get; set; }
+        public UserEntity? ReportedBy { get; set; }
 
         public int? PostId { get; set; }
         public PostEntity? Post { get; set; }

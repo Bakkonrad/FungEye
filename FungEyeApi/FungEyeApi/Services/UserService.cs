@@ -33,7 +33,7 @@ namespace FungEyeApi.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Error during removing account :" + ex.Message);
+                throw new Exception("Error during retrieving profile :" + ex.Message);
             }
         }
 

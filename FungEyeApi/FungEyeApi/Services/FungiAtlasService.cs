@@ -27,6 +27,14 @@ namespace FungEyeApi.Services
                 await db.Fungies.AddAsync(fungiEntity);
                 await db.SaveChangesAsync();
 
+                var fungiId = fungiEntity.Id;
+
+                if (fungi.ImagesUrl != null)
+                {
+                    fungiEntity.Images = fungi.ImagesUrl.Select(i => new FungiImageEntity { ImageUrl = i, FungiEntityId = fungiId }).ToList();
+                    await db.SaveChangesAsync();
+                }
+
                 return true;
             }
             catch (Exception ex)
@@ -43,7 +51,7 @@ namespace FungEyeApi.Services
 
                 if (fungiEntity == null)
                 {
-                    return false;
+                    throw new Exception("Error during editing fungi: fungi not found.");
                 }
 
                 fungiEntity.Description = fungi.Description;
@@ -52,7 +60,7 @@ namespace FungEyeApi.Services
                 fungiEntity.Edibility = fungi.Edibility;
                 fungiEntity.Toxicity = fungi.Toxicity;
                 fungiEntity.Habitat = fungi.Habitat;
-                //fungiEntity.Images = 
+                fungiEntity.Images = fungi.ImagesUrl?.Select(i => new FungiImageEntity { ImageUrl = i, FungiEntityId = fungiEntity.Id }).ToList();
 
                 await db.SaveChangesAsync();
 
@@ -60,7 +68,7 @@ namespace FungEyeApi.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Error during editing comment: " + ex.Message);
+                throw new Exception("Error during editing fungi: " + ex.Message);
             }
         }
         
@@ -69,13 +77,16 @@ namespace FungEyeApi.Services
             try
             {
                 var fungi = await db.Fungies.FirstOrDefaultAsync(f => f.Id == fungiId);
+                var fungiImages = await db.FungiesImages.Where(i => i.FungiEntityId == fungiId).ToListAsync();
 
                 if (fungi == null)
                 {
                     return false;
                 }
 
+                db.FungiesImages.RemoveRange(fungiImages);
                 db.Fungies.Remove(fungi);
+
                 await db.SaveChangesAsync();
 
                 return true;

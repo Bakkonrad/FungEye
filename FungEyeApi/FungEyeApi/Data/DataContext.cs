@@ -177,6 +177,7 @@ namespace FungEyeApi.Data
         public DbSet<PostReactionEntity> Reactions { get; set; }
         public DbSet<FungiEntity> Fungies { get; set; }
         public DbSet<UserFungiCollectionEntity> FungiesUserCollections { get; set; }
+        public DbSet<FungiImageEntity> FungiesImages { get; set; }
         public DbSet<ReportEntity> Reports { get; set; }
     }
 }

@@ -13,9 +13,6 @@
         <button class="btn category-btn" :class="getActiveTable('reports')" @click="showReports">
           Zgłoszenia
         </button>
-        <button class="btn category-btn" :class="getActiveTable('mushrooms')" @click="showMushrooms">
-          Grzyby
-        </button>
       </div>
       <div v-if="activeTable === 'users'">
         <div v-if="!isEditing && !isBanning">
@@ -23,12 +20,12 @@
             @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
           <div class="admin-actions">
             <button class="btn fungeye-default-button" @click="addmin">
-              <font-awesome-icon icon="fa-solid fa-plus" class="button-icon"/>
+              <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
               Zarejestruj nowego admina
             </button>
             <SearchBar @search="handleSearch" />
           </div>
-          <UserTable :users="users"/>
+          <UserTable :users="users" />
           <LoadingSpinner v-if="isLoading"></LoadingSpinner>
           <div v-if="noUsersFound">
             <p class="no-users">{{ noUsersMessage }}</p>
@@ -42,14 +39,9 @@
       <div v-else-if="activeTable === 'reports'">
         <ReportsView />
       </div>
-
-      <!-- Nowy widok grzybów -->
-      <div v-else-if="activeTable === 'mushrooms'">
-        <AtlasView />
-      </div>
       <div v-else style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
+      </div>
     </div>
-  </div>
   </div>
 
   <!-- is not admin -->
@@ -69,7 +61,6 @@ import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import SearchBar from "@/components/SearchBar.vue";
 import UserBan from "@/components/BanUser.vue";
 import { RouterLink } from "vue-router";
-import AtlasView from "@/views/AtlasView.vue";
 import ReportsView from "@/views/ReportsView.vue";
 
 export default {
@@ -79,7 +70,6 @@ export default {
     LoadingSpinner,
     SearchBar,
     UserBan,
-    AtlasView,
     ReportsView,
   },
   data() {
@@ -193,11 +183,6 @@ export default {
       this.selectedUser = null;
       this.activeTable = "users";
     },
-    showMushrooms() {
-      this.isEditing = false;
-      this.selectedUser = null;
-      this.activeTable = "mushrooms";
-    },
     showReports() {
       this.isEditing = false;
       this.selectedUser = null;
@@ -283,8 +268,7 @@ export default {
   margin-bottom: 20px;
 }
 
-.panel-admin
-{
+.panel-admin {
   text-align: center;
 }
 

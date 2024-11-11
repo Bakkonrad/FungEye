@@ -18,13 +18,13 @@
       </div>
       <!-- Posty -->
       <div v-if="showFollowedPosts || showAllPosts" class="posts-content">
-        <AddPost @post-added="getPosts" />
+        <AddPost @post-added="addedNewPost" />
         <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton"
           @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
         <div class="posts">
           <div v-for="post in posts" :key="post.id" class="post-item">
             <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl"
-              :num-of-likes="post.likeAmount" :is-liked="post.loggedUserReacted" />
+              :num-of-likes="post.likeAmount" :num-of-comments="post.commentsAmount" :created-at="post.createdAt" :is-liked="post.loggedUserReacted" />
           </div>
         </div>
         <LoadingSpinner v-if="isLoading"></LoadingSpinner>
@@ -104,6 +104,7 @@ export default {
       errorMessage: "",
       users: [],
       currentPage: 1,
+      currentFilter: 1,
       goToTheTopButton: null,
       noPostsFound: false,
       noPostsMessage: "",
@@ -122,34 +123,45 @@ export default {
       this.handleSearch(this.searchQuery);
     }
     this.goToTheTopButton = this.$refs.goToTheTopButton;
-    window.addEventListener("scroll", this.handleScroll);
+    window.addEventListener("scroll", this.debounce(this.handleScroll, 200)); // Use debounce to limit the rate of handleScroll calls
   },
   beforeDestroy() {
-    window.removeEventListener("scroll", this.handleScroll);
+    window.removeEventListener("scroll", this.debounce(this.handleScroll, 200)); // Use debounce to limit the rate of handleScroll calls
   },
   methods: {
+    debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+      };
+    },
     async getPosts() {
-      const filter = this.showAllPosts ? 1 : 2;
+      if (this.isLoading) {
+        return;
+      }
       this.isLoading = true;
       try {
-        const response = await PostService.getPosts(filter, this.currentPage);
+        const response = await PostService.getPosts(this.currentFilter, this.currentPage);
         if (response.success === false) {
           console.error("Error while fetching posts data");
           return;
         }
-        if (response.data.length === 0 && this.posts.length === 0) {
+        if (response.data.length === 0) {
           this.noPostsFound = true;
-          this.noPostsMessage = "Nie znaleziono postów.";
-          return;
-        } else if (response.data.length === 0) {
-          this.noPostsFound = true;
-          this.noPostsMessage = "To już wszystkie wyniki.";
-          return;
+          if (this.posts.length === 0) {
+            this.noPostsMessage = "Nie znaleziono postów.";
+          }
+          else {
+            this.noPostsMessage = "To już wszystkie wyniki.";
+          }
         }
-        this.noPostsFound = false;
-        const newPosts = response.data;
-        this.posts = [...this.posts, ...newPosts];
-        console.log(this.posts);
+        else {
+          this.noPostsFound = false;
+          const newPosts = response.data;
+          this.posts = [...this.posts, ...newPosts];
+        }
       } catch (error) {
         console.error("Error while fetching posts data");
       }
@@ -164,13 +176,24 @@ export default {
 
       if (tab === 'all-posts') {
         this.showAllPosts = true;
+        this.posts = [];
+        this.currentFilter = 1;
+        this.currentPage = 1;
         this.getPosts();
       } else if (tab === 'followed-posts') {
         this.showFollowedPosts = true;
+        this.posts = [];
+        this.currentFilter = 2;
+        this.currentPage = 1;
         this.getPosts();
       } else if (tab === 'search') {
         this.searchUsers = true;
       }
+    },
+    addedNewPost() {
+      this.posts = [];
+      this.currentPage = 1;
+      this.getPosts();
     },
     handleScroll() {
       if (this.goToTheTopButton === null) {

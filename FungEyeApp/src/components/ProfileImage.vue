@@ -1,6 +1,6 @@
 <template>
   <div class="profile-img-container" :class="showBorderClass()" :style="{ width: `${width}px`, height: `${height}px` }">
-    <img class="profile-img" :src="getProfileImage()" alt="Profile Image" :key="imgSrc" />
+    <img class="profile-img" :src="imageSrc" alt="Profile Image" @error="handleImageError" />
   </div>
 </template>
 
@@ -14,6 +14,7 @@ export default {
       type: Boolean
     },
     imgSrc: {
+      String
     },
     width: {
       type: Number,
@@ -30,29 +31,42 @@ export default {
   },
   data() {
     return {
-      placeholderPath: placeholder
+      imageSrc: "",
+    }
+  },
+  watch: {
+    imgSrc: {
+      immediate: true,
+      handler(newVal) {
+        this.setImageSrc(newVal);
+      }
     }
   },
   mounted() {
     this.showBorderClass();
+    this.setImageSrc(this.imgSrc);
+  },
+  computed: {
+    placeholderPath() {
+      return placeholder;
+    }
   },
   methods: {
-    getProfileImage() {
-      // console.log('isPlaceholder:', this.isPlaceholder);
-      // console.log('imgSrc:', this.imgSrc);
-
-      if (this.isPlaceholder || !this.imgSrc || this.imgSrc === 'placeholder' || this.imgSrc === 'null' || this.imgSrc === null) {
-        // console.log('Returning placeholder:', this.placeholderPath);
-        return this.placeholderPath;
-      }
-
-      // console.log('Returning imgSrc:', this.imgSrc);
-      return this.imgSrc;
-    },
     showBorderClass() {
       if (this.showBorder == true) {
         return "profile-image-stroke";
       }
+    },
+    setImageSrc(src) {
+      if (src === "" || src === null || src === undefined || this.isPlaceholder || src == "placeholder" || src == "src/assets/images/profile-images/placeholder.png") {
+        this.imageSrc = this.placeholderPath;
+      } else {
+        this.imageSrc = src;
+      }
+    },
+    handleImageError() {
+      console.error("Image failed to load; switching to placeholder.");
+      this.imageSrc = this.placeholderPath; // Fallback to placeholder if error
     },
   },
 };
@@ -64,6 +78,7 @@ export default {
   height: 4em;
   min-width: 50px;
   border-radius: 50%;
+  overflow: hidden;
 }
 
 .profile-image-stroke {
@@ -74,6 +89,8 @@ export default {
 .profile-img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  object-position: center;
   border-radius: 50%;
 }
 </style>

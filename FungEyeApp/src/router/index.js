@@ -129,7 +129,7 @@ const router = createRouter({
       path: '/post/:id',
       name: 'post',
       component: PostView,
-      props: true,
+      props: route => ({ id: Number(route.params.id), reportedCommentId: Number(route.query.reportedCommentId) || null }),
     }
   ]
 })

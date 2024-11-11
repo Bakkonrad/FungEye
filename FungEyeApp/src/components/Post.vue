@@ -8,7 +8,8 @@
         </span>
         <span class="buttons">
           <button v-if="!isAuthor" class="btn" @click="report">
-            <font-awesome-icon icon="fa-solid fa-flag" :class="reportedPostId == id ? 'reported': ''"></font-awesome-icon>
+            <font-awesome-icon icon="fa-solid fa-flag"
+              :class="reportedPostId == id ? 'reported' : ''"></font-awesome-icon>
           </button>
           <button v-if="detailsView && isAuthor" class="btn" @click="$emit('edit')">
             <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
@@ -18,9 +19,9 @@
           </button>
         </span>
       </span>
-
+      <p class="card-date">{{ formatDate(createdAt) }}</p>
       <p class="card-text">{{ content }}</p>
-      <div v-if="image" :class="detailsView ? 'post-image' : 'uploaded-image'">
+      <div v-if="image" :class="detailsView ? 'post-image' : 'uploaded-image'" @click="viewPost">
         <img :src="image" alt="uploaded image" />
       </div>
       <div class="likes-and-comments">
@@ -32,7 +33,7 @@
           </span>
         </span>
         <span class="comments">
-          <span class="num-of-comments">
+          <span class="num-of-comments" :style="!detailsView ? 'cursor: pointer' : ''" @click="viewPost">
             <p class="comments-header">Komentarze: </p>
             <p class="num-of-comments">{{ numOfComments }}</p>
             <font-awesome-icon icon="fa-solid fa-comment"></font-awesome-icon>
@@ -91,6 +92,14 @@ export default {
       type: Number,
       required: true,
     },
+    numOfComments: {
+      type: Number,
+      default: 0,
+    },
+    createdAt: {
+      type: String,
+      required: true,
+    },
     isLiked: {
       type: Boolean,
       default: false,
@@ -112,7 +121,6 @@ export default {
       isAuthor: false,
       isAdmin: false,
       post: {},
-      numOfComments: 0,
       localIsLiked: this.isLiked,
       reportedPostId: this.reportedUserId,
     };
@@ -124,15 +132,6 @@ export default {
     };
   },
   mounted() {
-    this.post = {
-      id: this.id,
-      userId: this.userId,
-      content: this.content,
-      image: this.image,
-      numOfLikes: this.numOfLikes,
-      isLiked: this.isLiked,
-      userId: this.userId,
-    };
     this.localNumOfLikes = this.numOfLikes;
     this.localIsLiked = this.isLiked;
     this.getAuthorData();
@@ -140,6 +139,9 @@ export default {
   },
   methods: {
     async getAuthorData() {
+      if (!this.userId) {
+        return;
+      }
       const response = await UserService.getUserData(this.userId);
       if (response.success === false) {
         console.error("Error while fetching user data");
@@ -149,7 +151,7 @@ export default {
       this.username = response.data.username;
     },
     viewPost() {
-      this.$router.push({ name: 'post', params: { id: this.id }, query: { post: JSON.stringify(this.post) } });
+      this.$router.push({ name: 'post', params: { id: this.id } });
     },
     async addLike() {
       const response = await PostService.likePost(this.id);
@@ -190,6 +192,11 @@ export default {
     goToProfile() {
       this.$router.push({ name: 'userProfile', params: { id: this.userId } });
     },
+    formatDate(date) {
+      if (!date) return "";
+      // minus miliseconds
+      return new Date(date).toLocaleString().slice(0, -3);
+    },
   },
 };
 </script>
@@ -227,8 +234,17 @@ export default {
   margin-bottom: 1rem;
 }
 
+.card-date {
+  font-size: 0.9rem;
+  color: var(--gray);
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .card-text {
-  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .likes,
@@ -244,19 +260,23 @@ export default {
   margin-bottom: 1rem;
   border-radius: 10px;
   width: 100%;
-  max-height: 20rem;
+  max-height: 50rem;
   overflow: hidden;
+  cursor: pointer;
+  object-fit: cover;
+  object-position: bottom;
 }
 
 .uploaded-image img {
   width: 100%;
   object-fit: cover;
+  object-position: bottom;
 }
 
 .post-image {
   width: 100%;
   height: 100%;
-  max-height: 50rem;
+  max-height: 90rem;
   border-radius: 10px;
   margin-bottom: 1rem;
   overflow: hidden;

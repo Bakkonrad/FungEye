@@ -49,6 +49,30 @@ const getPosts = async (postsFilter, page) => {
     }
 }
 
+const getPost = async (postId) => {
+    try {
+        const userId = parseInt(localStorage.getItem("id"));
+        const formData = new FormData();
+        formData.append("userId", userId);
+        formData.append("postId", postId);
+        console.log(formData.get("postId"));
+        const response = await $http.post("api/Post/getPost", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: "Nieznany błąd" };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error("Error getting post:", errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
 const addPost = async (post, image) => {
     try {
         const formData = new FormData();
@@ -308,8 +332,7 @@ const report = async (postId, commentId) => {
 
 const getReports = async () => {
     try {
-        const userId = parseInt(localStorage.getItem("id"));
-        const response = await $http.get("api/Post/getReports", userId);
+        const response = await $http.get("api/Post/getReports");
         if (response.status === 200) {
             return { success: true, data: response.data };
         }
@@ -323,6 +346,8 @@ const getReports = async () => {
 const deleteReport = async (reportId) => {
     try {
         const formData = new FormData();
+        const userId = parseInt(localStorage.getItem("id"));
+        formData.append("userId", userId);
         formData.append("reportId", reportId);
         const response = await $http.post("api/Post/markReportAsCompleted", formData, {
             headers: {
@@ -341,6 +366,7 @@ const deleteReport = async (reportId) => {
 
 export default {
     getPosts,
+    getPost,
     addPost,
     editPost,
     deletePost,

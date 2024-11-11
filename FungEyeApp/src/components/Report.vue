@@ -1,17 +1,19 @@
 <template>
     <div class="container-md">
         <div class="card">
-            <h5 class="card-header">Zgłoszenie nr {{ report.id }}</h5>
+            <h5 class="card-header" :class="report.completed ? 'completed' : ''">Zgłoszenie nr {{ report.id }}
+                <span v-if="report.completed" class="completed-mark">- ROZWIĄZANE</span>
+            </h5>
             <div class="card-body">
-                <h5 class="card-title">Zgłoszono {{ postOrComment() }} użytkownika {{ report.reportedUser }}</h5>
-                <p class="card-text">Autor zgłoszenia: <strong>{{ report.reporter }}</strong></p>
-                <p class="card-text">Data zgłoszenia: <strong>{{ report.createdAt }}</strong></p>
+                <h5 class="card-title">Zgłoszono {{ postOrComment() }}</h5>
+                <p class="card-text">Autor zgłoszenia: <strong>{{ report.reportedBy.username }}</strong></p>
+                <p class="card-text">Data zgłoszenia: <strong>{{ formatDate(report.createdAt) }}</strong></p>
                 <div class="action-buttons">
                     <button class="btn fungeye-default-button" @click="goToPost">Zobacz zgłoszony {{
                         postOrComment()
                         }}</button>
-                    <button class="btn fungeye-red-button" @click="$emit('delete-report', report.id)">
-                        Usuń zgłoszenie
+                    <button v-if="report.completed === false" class="btn fungeye-secondary-black-button" @click="$emit('delete-report', report.id)">
+                        Oznacz jako rozwiązane
                     </button>
                 </div>
             </div>
@@ -34,11 +36,15 @@ export default {
         },
         goToPost() {
             if (this.report.commentId) {
-                this.$router.push({ name: "PostView", params: { id: this.report.postId, reportedCommentId: this.report.commentId } });
+                const reportedCommentId = parseInt(this.report.commentId);
+                this.$router.push({ name: "post", params: { id: this.report.postId }, query: { reportedCommentId: reportedCommentId } });
             } else {
-                this.$router.push({ name: "PostView", params: { id: this.report.postId } });
+                this.$router.push({ name: "post", params: { id: this.report.postId } });
             }
-        }
+        },
+        formatDate(date) {
+            return new Date(date).toLocaleString();
+        }   
     }
 };
 </script>
@@ -46,7 +52,7 @@ export default {
 <style scoped>
 .card {
     margin-top: 2em;
-    border-radius: 15px;
+    /* border-radius: 15px; */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     background-color: var(--beige);
 }
@@ -54,6 +60,14 @@ export default {
 .card-header {
     background-color: var(--red);
     color: white;
+}
+
+.completed {
+    background-color: var(--green);
+} 
+
+.completed-mark {
+    padding: 0.5em;
 }
 
 .card-body {

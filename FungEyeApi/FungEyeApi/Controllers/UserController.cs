@@ -214,12 +214,12 @@ namespace FungEyeApi.Controllers
 
             try
             {
-                var admin = await _userService.IsAdmin(userId);
-
-                if (admin == false)
-                {
-                    return Forbid();
-                }
+                // var admin = await _userService.IsAdmin(userId);
+                //
+                // if (admin == false)
+                // {
+                //     return Forbid();
+                // }
 
                 var user = await _userService.GetUsers(page, search);
                 if (user == null)

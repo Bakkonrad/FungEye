@@ -26,6 +26,7 @@
     </div>
   </div>
   <div class="post-actions">
+    <LoadingSpinner v-if="isLoading"></LoadingSpinner>
     <button class="btn fungeye-default-button publish-button" @click="publishPost">Opublikuj</button>
   </div>
   <div v-if="error" class="error-message">
@@ -38,10 +39,12 @@ import PostService from "@/services/PostService";
 import ProfileImage from "./ProfileImage.vue";
 import AuthService from "@/services/AuthService";
 import { profileImage } from "@/services/AuthService";
+import LoadingSpinner from "./LoadingSpinner.vue";
 
 export default {
   components: {
     ProfileImage,
+    LoadingSpinner,
   },
   emits: ['post-added'],
   data() {
@@ -56,6 +59,7 @@ export default {
       error: null,
       errorMessage: '',
       imgSrc: profileImage,
+      isLoading: false,
     };
   },
   methods: {
@@ -89,6 +93,7 @@ export default {
       this.image = '';
     },
     async publishPost() {
+      this.isLoading = true;
       if (this.content.trim() == '' && this.image.name == '') {
         alert('Nie można opublikować pustego posta');
         return;
@@ -117,6 +122,8 @@ export default {
         name: '',
         url: '',
       };
+      this.file = '';
+      this.isLoading = false;
     },
     autoResize(event) {
       const textarea = event.target;
@@ -238,6 +245,7 @@ export default {
 .post-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
   width: 100%;
 }
 

@@ -1,13 +1,17 @@
 <template>
-  <div class="container-md">
+  <div v-if="isLoading" class="loading">
+    <LoadingSpinner />
+  </div>
+  <div v-else class="container-md">
     <div class="button-container">
       <button class="btn fungeye-default-button" @click="goToPortal">
         <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon"></font-awesome-icon>
         Powrót do portalu</button>
     </div>
 
-    <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.image" :numOfLikes="post.numOfLikes"
-      :is-liked="post.isLiked" :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
+    <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl"
+      :num-of-likes="post.likeAmount" :num-of-comments="post.commentsAmount" :created-at="post.createdAt"
+      :is-liked="post.loggedUserReacted" :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
 
     <div class="card-footer comment-section">
       <div class="add-comment">
@@ -23,12 +27,13 @@
         <div class="comment" v-for="comment in comments" :key="comment.id">
           <span class="header">
             <div class="comment-author-info" @click="goToProfile(comment.user.id)">
-              <ProfileImage :imgSrc="comment.user.imgUrl" />
+              <ProfileImage :imgSrc="comment.user.imageUrl" />
               <p class="username">{{ comment.user.username }}</p>
             </div>
             <span class="buttons">
               <button v-if="!checkCommentAuthor(comment.user.id)" class="btn" @click="report(comment.id)">
-                <font-awesome-icon icon="fa-solid fa-flag" :class="reportedComment == comment.id ? 'reported': ''"></font-awesome-icon>
+                <font-awesome-icon icon="fa-solid fa-flag"
+                  :class="reportedComment == comment.id ? 'reported' : ''"></font-awesome-icon>
               </button>
               <button v-if="checkCommentAuthor(comment.user.id) || isAdmin" class="btn"
                 @click="deleteComment(comment.id)">
@@ -88,84 +93,86 @@
 
 <script>
 import ProfileImage from "../components/ProfileImage.vue";
-import UserService from "@/services/UserService";
 import PostService from "@/services/PostService";
 import Post from "../components/Post.vue";
-import { checkAdmin, isAdmin } from "@/services/AuthService";
+import { checkAdmin, isAdmin, profileImage } from "@/services/AuthService";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 export default {
   components: {
     ProfileImage,
     Post,
+    LoadingSpinner,
   },
   props: {
     reportedCommentId: {
       type: Number,
       default: null,
     },
+    id: {
+      type: Number,
+    },
   },
   data() {
     return {
       newCommentContent: "",
-      imgSrc: "",
-      username: "",
-      userId: 0,
       error: false,
       errorMessage: "",
       comments: [],
-      post: {},
+      post: {
+        id: 0,
+        userId: 0,
+        content: "",
+        imageUrl: "",
+        likeAmount: 0,
+        commentsAmount: 0,
+        createdAt: "",
+        loggedUserReacted: false,
+      },
       isDragging: false,
       showEditModal: false,
-      numOfComments: 0,
       isAuthor: false,
       isAdmin: false,
       commentToEdit: false,
       postContentToEdit: "",
       isAuthorOfComment: false,
       commentContentToEdit: "",
+      imgSrc: profileImage,
       file: "",
       postImageToEdit: {
         name: "",
         url: "",
       },
       reportedComment: this.reportedCommentId,
+      isLoading: false,
     };
   },
   mounted() {
-    this.getComments();
-    this.getAuthorData();
+    this.getPost();
     this.checkAuthor();
     checkAdmin();
     this.isAdmin = isAdmin;
-  },
-  created() {
-    if (this.$route.query.post) {
-      this.post = JSON.parse(this.$route.query.post);
-    }
+    // console.log(this.reportedComment)
   },
   methods: {
-    async getComments() {
-      const response = await PostService.getComments(this.post.id);
-      if (response.success === false) {
-        console.error("Error while fetching comments data");
-        return;
+    async getPost() {
+      this.isLoading = true;
+      try {
+        const response = await PostService.getPost(this.id);
+        if (response.success === false) {
+          console.error("Error while fetching post data");
+          return;
+        }
+        // console.log(response.data);
+        this.post = response.data;
+        if (response.data.comments) {
+          this.comments = response.data.comments;
+        }
       }
-      if (response.data.length === 0) {
-        this.comments = [];
-        return;
+      catch (error) {
+        console.error(error);
       }
-      console.log(response.data);
-      this.comments = response.data;
-      this.numOfComments = this.comments.length;
-    },
-    async getAuthorData() {
-      const response = await UserService.getUserData(this.post.userId);
-      if (response.success === false) {
-        console.error("Error while fetching user data");
-        return;
-      }
-      this.imgSrc = response.data.imageUrl;
-      this.username = response.data.username;
+      this.isLoading = false;
     },
     goToPortal() {
       this.$router.push({ name: 'portal' });
@@ -180,7 +187,7 @@ export default {
         content: this.newCommentContent,
         postId: this.post.id,
       };
-      console.log(comment);
+      // console.log(comment);
       const response = await PostService.addComment(comment);
       if (response.success === false) {
         console.error("Error while adding comment");
@@ -188,20 +195,20 @@ export default {
       }
       this.error = false;
       this.newCommentContent = "";
-      this.getComments();
+      this.getPost();
     },
     async deleteComment(commentId) {
-      console.log(commentId);
+      // console.log(commentId);
       const response = await PostService.deleteComment(commentId);
       if (response.success === false) {
         alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
         return;
       }
       alert("Usunięto komentarz");
-      this.getComments();
+      this.getPost();
     },
     async editComment(commentId) {
-      console.log(this.commentContentToEdit);
+      // console.log(this.commentContentToEdit);
       if (this.commentContentToEdit.trim() === "") {
         this.error = true;
         this.errorMessage = "Komentarz nie może być pusty";
@@ -219,12 +226,12 @@ export default {
       }
       alert("Edytowano komentarz");
       this.commentToEdit = '';
-      this.getComments();
+      this.getPost();
     },
     editPost() {
       this.showEditModal = true;
       this.postContentToEdit = this.post.content;
-      console.log(this.post.image);
+      // console.log(this.post.image);
       if (this.post.image == "" || this.post.image == null) {
         this.postImageToEdit = {
           name: "",
@@ -314,8 +321,8 @@ export default {
     },
     async report(commentId) {
       try {
-        const postId = null;
-        const response = await PostService.report(postId, commentId);
+        // console.log(this.id, commentId);
+        const response = await PostService.report(this.id, commentId);
         if (response.success === false) {
           console.error("Error while reporting comment");
           return;

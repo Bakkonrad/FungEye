@@ -1,82 +1,129 @@
 <template>
-    <div class="container">
-      <h1>Posty użytkownika: {{ id }}</h1>
-      <div v-if="loading">Ładowanie postów...</div>
-      <div v-else>
-        <div v-if="posts.length === 0">Brak postów do wyświetlenia.</div>
-        <ul>
-          <li v-for="post in posts" :key="post.id">
-            <h2>{{ post.title }}</h2>
-            <p>{{ post.body }}</p>
-          </li>
-        </ul>
-      </div>
-      <button class="btn btn-primary my-3" @click="goBackToAdmin">Powrót do zakładki admin</button>
+  <div class="container">
+    <h1>Posty użytkownika: {{ id }}</h1>
+    <button class="btn fungeye-default-button my-3" @click="goBackToAdmin">Powrót do zakładki admin</button>
+    <div v-if="loading">
+      <LoadingSpinner />
     </div>
-  </template>
-  
-  <script>
-  export default {
-    props: ['id'],
-    data() {
-      return {
-        posts: [],
-        loading: true
-      };
-    },
-    created() {
-      this.fetchPosts();
-    },
-    methods: {
-      async fetchPosts() {
-        try {
-          // Example URL do zastąpienia odpowiednim endpointem API
-          const response = await fetch(`https://api.example.com/posts?email=${this.id}`);
-          const data = await response.json();
-          this.posts = data;
-        } catch (error) {
-          console.error('Błąd podczas pobierania postów:', error);
-        } finally {
+    <div v-else>
+      <div v-if="error === true" class="error">{{ errorMessage }}</div>
+      <div v-else class="posts">
+        <div v-for="post in posts" :key="post.id" class="post">
+          <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl"
+            :num-of-likes="post.likeAmount" :num-of-comments="post.commentsAmount" :created-at="post.createdAt" />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import PostService from '@/services/PostService';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import Post from '@/components/Post.vue';
+
+export default {
+  components: {
+    LoadingSpinner,
+    Post
+  },
+  props: ['id'],
+  data() {
+    return {
+      posts: [],
+      loading: false,
+      error: false,
+      errorMessage: ''
+    };
+  },
+  mounted() {
+    this.fetchPosts();
+  },
+  methods: {
+    async fetchPosts() {
+      try {
+        this.loading = true;
+        const response = await PostService.getPosts();
+        if (response.success === false) {
+          this.error = true;
+          this.errorMessage = response.message;
           this.loading = false;
+          return;
         }
-      },
-      goBackToAdmin() {
-        this.$router.push('/admin');
+        if (response.data.length === 0 || response.data === null) {
+          this.loading = false;
+          this.error = true;
+          this.errorMessage = 'Brak postów do wyświetlenia.';
+          return;
+        }
+        console.log('Wszystkie posty:', response.data);
+        this.posts = response.data.filter(post => post.userId === parseInt(this.id));
+        if (this.posts.length === 0) {
+          this.error = true;
+          this.errorMessage = 'Brak postów użytkownika.';
+          return;
+        }
+        console.log('Posty użytkownika:', this.posts);
+      } catch (error) {
+        console.error('Błąd podczas pobierania postów:', error);
+      } finally {
+        this.loading = false;
       }
+    },
+    goBackToAdmin() {
+      this.$router.push('/admin');
     }
-  };
-  </script>
-  
-  <style scoped>
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
   }
-  
-  h1 {
-    margin-bottom: 20px;
-  }
-  
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  li {
-    margin-bottom: 20px;
-  }
-  
-  h2 {
-    margin: 0;
-  }
-  
-  p {
-    margin: 5px 0 0;
-  }
-  
-  .btn {
-    margin-top: 20px;
-  }
-  </style>
+};
+</script>
+
+<style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin: 0;
+}
+
+p {
+  margin: 5px 0 0;
+}
+
+.btn {
+  margin-top: 20px;
+}
+
+.posts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.post {
+  display: flex;
+  justify-content: flex-start;
+  width: 80%;
+}
+
+p.card-text {
+  margin: 0;
+}
+</style>

@@ -333,14 +333,14 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [HttpGet("getReports")]
-        public async Task<IActionResult> GetReports([FromBody] int userId)
+        public async Task<IActionResult> GetReports()
         {
             try
             {
                 var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (!ValidateUserId(userId) || !admin)
+                if (!admin)
                 {
                     return Forbid();
                 }

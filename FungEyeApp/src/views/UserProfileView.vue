@@ -6,6 +6,9 @@
       <button @click="goBack" class="btn fungeye-default-button">Powrót do poprzedniej strony</button>
     </div>
     <div v-else class="container-md">
+      <div class="ban-user">
+        <UserBan v-if="isBanning" :user="user" @cancel-ban="cancelBanning" @ban-successful="cancelBanning" />
+      </div>
       <div id="user-info">
         <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
         <div v-if="isLoggedUser == false" class="buttons">
@@ -14,6 +17,9 @@
           </button>
           <button v-if="followed == true" @click="unfollow" type="button" class="btn fungeye-red-button">
             Usuń z obserwowanych
+          </button>
+          <button v-if="isAdmin === true" @click="isBanning = true" type="button" class="btn fungeye-red-button">
+            Zbanuj
           </button>
         </div>
         <div v-else>
@@ -32,12 +38,15 @@ import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import UserService from "@/services/UserService";
 import FollowService from "@/services/FollowService";
 import { ref } from "vue";
+import { checkAdmin, isAdmin } from "@/services/AuthService";
+import UserBan from "@/components/BanUser.vue";
 
 export default {
   components: {
     ProfileImage,
     UserProfileCollections,
     UserProfileInfo,
+    UserBan,
   },
   async created() {
     this.fetchUser();
@@ -56,10 +65,14 @@ export default {
       createdAt: "",
       errorFindingUser: false,
       isLoggedUser: false,
+      isAdmin: false,
+      isBanning: false,
     };
   },
   setup() {
+    checkAdmin();
     return {
+      isAdmin: isAdmin,
       followed: ref(null),
       follows: ref([]),
       followers: ref([]),
@@ -68,10 +81,6 @@ export default {
   methods: {
     async fetchUser() {
       this.id = this.$route.params.id;
-      // if (this.id == localStorage.getItem("id")) {
-      //   this.$router.push({ name: "myProfile" });
-      //   return;
-      // }
       const response = await UserService.getUserData(this.id);
       const followsResponse = await FollowService.getFollowing(this.id);
       const followersResponse = await FollowService.getFollowers(this.id);
@@ -114,6 +123,9 @@ export default {
       }
       this.followed = false;
       this.fetchUser();
+    },
+    cancelBanning() {
+      this.isBanning = false;
     },
     goBack() {
       this.$router.go(-1);

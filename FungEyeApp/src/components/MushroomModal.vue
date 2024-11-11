@@ -19,9 +19,10 @@
                 </span>
             </div>
             <div class="container uploaded-images">
-                <div v-for="(image, index) in mushroomForm.images" :key="index" class="image">
+                <div v-for="(image, index) in images" :key="index" class="image">
                     <span class="delete" @click="deleteImage(index)">&times;</span>
-                    <img v-if="image" :src="image.url" alt="Zdjęcie grzyba" class="uploaded-image" />
+                    <img v-if="!image.url" :src="image" alt="Zdjęcie grzyba" class="uploaded-image" />
+                    <img v-if="image.url" :src="image.url" alt="Zdjęcie grzyba" class="uploaded-image" />
                 </div>
             </div>
         </div>
@@ -38,7 +39,7 @@
         <span class="buttons">
             <button class="btn fungeye-default-button" @click="saveChanges">{{ showEditMushroomModal ? 'Zapisz zmiany' :
                 'Dodaj grzyb' }}</button>
-            <button class="btn fungeye-red-button" @click="$emit('close')">Anuluj</button>
+            <button class="btn fungeye-red-button" @click="discardChanges()">Anuluj</button>
         </span>
     </div>
 </template>
@@ -61,15 +62,17 @@ export default {
             isDragging: false,
             selectedAttributes: this.mushroomForm.attributes || [],
             files: [],
+            images: this.mushroomForm.imagesUrl || [],
+            imagesUrlsToDelete: [],
         };
     },
     methods: {
         onFileChange(e) {
             this.files.push(...Array.from(e.target.files));
-            this.mushroomForm.images = this.files.map(file => ({
+            this.images.push(...this.files.map(file => ({
                 id: file.name,
                 url: URL.createObjectURL(file)
-            }));
+            })));
         },
         onDragOver(e) {
             e.preventDefault();
@@ -83,25 +86,36 @@ export default {
             e.preventDefault();
             this.isDragging = false;
             this.files.push(...Array.from(e.dataTransfer.files));
-            this.mushroomForm.images = this.files.map(file => ({
+            this.images.push(...this.files.map(file => ({
                 id: file.name,
                 url: URL.createObjectURL(file)
-            }));
+            })));
+
         },
         deleteImage(index) {
-            this.mushroomForm.images.splice(index, 1);
+            if (this.images[index].id) {
+                this.imagesUrlsToDelete.push(this.images[index].url);
+            }
+            else {
+                this.imagesUrlsToDelete.push(this.images[index]);
+            }
+            this.images.splice(index, 1);
             this.files.splice(index, 1);
         },
         toggleAttributeFilter(attribute) {
             if (this.selectedAttributes.includes(attribute)) {
                 this.selectedAttributes = this.selectedAttributes.filter((a) => a !== attribute);
             } else {
-                // if edible is selected, remove inedible and poisonous (and vice versa)
-                if (attribute === 'jadalny') {
-                    this.selectedAttributes = this.selectedAttributes.filter((a) => a !== 'niejadalny' && a !== 'trujący');
-                } else if (attribute === 'niejadalny' || attribute === 'trujący') {
-                    this.selectedAttributes = this.selectedAttributes.filter((a) => a !== 'jadalny');
-                }
+                const mutuallyExclusiveGroups = [
+                    ['jadalny', 'niejadalny', 'trujący'],
+                    ['iglaste', 'liściaste', 'mieszane']
+                ];
+
+                mutuallyExclusiveGroups.forEach(group => {
+                    if (group.includes(attribute)) {
+                        this.selectedAttributes = this.selectedAttributes.filter(a => !group.includes(a) || a === attribute);
+                    }
+                });
                 this.selectedAttributes.push(attribute);
             }
         },
@@ -139,6 +153,8 @@ export default {
             }
         },
         editMushroom(fungi, images) {
+            fungi = { ...fungi, imagesUrlsToDelete: this.imagesUrlsToDelete };
+            console.log(fungi);
             const response = FungiService.editFungi(fungi, images);
             if (response.success === false) {
                 alert('Nie udało się edytować grzyba');
@@ -147,8 +163,6 @@ export default {
             this.$emit('close');
         },
         addMushroom(fungi, images) {
-            // console.log(images);
-            // const response = {success: true};
             const response = FungiService.addFungi(fungi, images);
             if (response.success === false) {
                 alert('Nie udało się dodać grzyba');
@@ -156,6 +170,10 @@ export default {
             }
             this.$emit('close');
         },
+        discardChanges() {
+            this.imagesUrlsToDelete = [];
+            this.$emit('close');
+        }
     }
 }
 

@@ -164,7 +164,8 @@ const getFungi = async (id) => {
   try {
     const fungiId = parseInt(id);
     const userId = JSON.stringify(parseInt(localStorage.getItem("id")));
-    const response = await $http.get(`api/FungiAtlas/getFungi/${fungiId}`, { userId: userId });
+    // send post request to get fungi by id
+    const response = await $http.post(`api/FungiAtlas/getFungi/${fungiId}`, userId);
     if (response.status === 200) {
       const data = addAttributesToSingle(response.data);
       return { success: true, data: data };
@@ -233,11 +234,16 @@ const editFungi = async (fungi, images) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiJson", JSON.stringify(fungi));
-    // for (let i = 0; i < images.length; i++) {
-    //   formData.append("images", images[i]);
-    // }
-    formData.append("images", images);
-    const response = await $http.post(`api/Fungi/editFungi`, formData, {
+    console.log(images);
+    console.log(images.length);
+    if (images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        formData.append("images", images[i]);
+      }
+    }
+    console.log("addFungi: ", formData.get("fungiJson"));
+    console.log(formData.get("images"));
+    const response = await $http.post(`api/FungiAtlas/editFungi`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       }
@@ -268,7 +274,7 @@ const deleteFungi = async (id) => {
     });
     console.log(response)
     // const response = { status: 200, data: { id: id } };
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 201) {
       return { success: true };
     }
     return { success: false, message: "Nieznany błąd" };
@@ -290,7 +296,7 @@ const saveFungiToCollection = async (fungiId) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    if (response.status === 201) {
+    if (response.status === 201 || response.status === 200) {
       return { success: true, data: response.data };
     }
     return { success: false, message: "Nieznany błąd" };
@@ -312,7 +318,7 @@ const deleteFungiFromCollection = async (fungiId) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    if (response.status === 201) {
+    if (response.status === 201 || response.status === 200) {
       return { success: true, data: response.data };
     }
     return { success: false, message: "Nieznany błąd" };

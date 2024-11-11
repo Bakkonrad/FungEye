@@ -2,7 +2,7 @@
   <div class="container-md">
     <div class="return">
       <RouterLink to="/atlas" class="btn fungeye-default-button">
-        <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon"/>
+        <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
         Powrót
       </RouterLink>
     </div>
@@ -20,8 +20,8 @@
               <h2 class="latin-name">{{ latinName }}</h2>
             </div>
           </div>
-          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button" @click="saveMushroomToCollection">
-            <font-awesome-icon v-if="savedByUser" icon="fa-regular fa-bookmark" />
+          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button" @click="savedByUser ? deleteMushroomFromCollection() : saveMushroomToCollection()">
+            <font-awesome-icon v-if="savedByUser" icon="fa-solid fa-bookmark" />
             <font-awesome-icon v-else icon="fa-regular fa-bookmark" />
           </button>
         </div>
@@ -38,32 +38,10 @@
             <h3>Opis</h3>
             <p>{{ description }}</p>
           </div>
-          <div class="mushroom-view-photos">
-            <div v-if="myPhotos.length > 0" class="mushroom-view-photos-my">
-              <h4>Moje zdjęcia</h4>
-              <div class="mushroom-view-photos-my-images">
-                <span class="placeholder" v-for="photo in myPhotos" :key="photo">
-                </span>
-                <!-- <img
-                                v-for="photo in myPhotos"
-                                :key="photo"
-                                :src="photo.url"
-                                alt="My Photo"
-                                /> -->
-              </div>
-            </div>
-            <div v-if="userPhotos.length > 0" class="mushroom-view-photos-user">
-              <h4>Zdjęcia użytkowników</h4>
-              <div class="mushroom-view-photos-user-images">
-                <span class="placeholder" v-for="photo in userPhotos" :key="photo">
-                </span>
-                <!-- <img
-                                v-for="photo in userPhotos"
-                                :key="photo.id"
-                                :src="photo.url"
-                                alt="User Photo"
-                                /> -->
-              </div>
+          <div class="mushroom-view-photos-container">
+            <h4>Inne zdjęcia</h4>
+            <div v-if="imagesUrl" class="mushroom-view-photos">
+                <img v-for="photo in imagesUrl" :key="photo.id" :src="photo" class="mushroom-images" alt="User Photo"/>
             </div>
           </div>
         </div>
@@ -98,9 +76,10 @@ export default {
       polishName: "",
       latinName: "",
       mainImg: "",
+      imagesUrl: [],
       attributes: [],
       description: "",
-      savedByUser: false,
+      savedByUser: '',
       myPhotos: [
       ],
       userPhotos: [],
@@ -126,9 +105,8 @@ export default {
         console.log(response.data);
         this.polishName = response.data.polishName;
         this.latinName = response.data.latinName;
-        if (response.data.imagesUrl > 0) {
-          this.mainImg = response.data.imagesUrl[0].url;
-        }
+        this.mainImg = response.data.imagesUrl[0];
+        this.imagesUrl = response.data.imagesUrl;
         this.attributes = response.data.attributes;
         this.description = response.data.description;
         this.savedByUser = response.data.savedByUser;
@@ -149,10 +127,8 @@ export default {
         poisonous: attribute === "trujący",
       };
     },
-    async saveMushroomToCollection(mushroomId) {
-      const id = parseInt(mushroomId);
-      // const response = await FungiService.saveFungiToCollection(id);
-      const response = { success: true } // temporary
+    async saveMushroomToCollection() {
+      const response = await FungiService.saveFungiToCollection(this.id);
       if (response.success === false) {
         this.error = true;
         this.errorMessage = 'Wystąpił błąd podczas zapisywania grzyba.';
@@ -161,10 +137,8 @@ export default {
       this.error = false;
       this.fetchMushroomData();
     },
-    async deleteMushroomFromCollection(mushroomId) {
-      const id = parseInt(mushroomId);
-      // const response = await FungiService.deleteFungiFromCollection(id);
-      const response = { success: true } // temporary
+    async deleteMushroomFromCollection() {
+      const response = await FungiService.deleteFungiFromCollection(this.id);
       if (response.success === false) {
         this.error = true;
         this.errorMessage = 'Wystąpił błąd podczas usuwania grzyba.';
@@ -202,8 +176,8 @@ export default {
 }
 
 .mushroom-view-header-image {
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   object-fit: cover;
   border-radius: 10px;
 }
@@ -220,8 +194,6 @@ export default {
 
 .mushroom-view-content {
   margin-top: 20px;
-  display: grid;
-  grid-template-columns: 1fr 2fr;
   gap: 20px;
 }
 
@@ -235,29 +207,25 @@ export default {
 }
 
 .mushroom-view-description {
-  grid-column: 1 / 3;
+  width: 50%;
+}
+
+.mushroom-view-photos-container {
+  width: 100%;
 }
 
 .mushroom-view-photos {
-  grid-column: 1 / 3;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
-.mushroom-view-photos-my {
-  grid-column: 1 / 2;
-}
-
-.mushroom-view-photos-user {
-  grid-column: 2 / 3;
-}
-
-.mushroom-view-photos-my-images,
-.mushroom-view-photos-user-images {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px;
+.mushroom-images {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 .placeholder {

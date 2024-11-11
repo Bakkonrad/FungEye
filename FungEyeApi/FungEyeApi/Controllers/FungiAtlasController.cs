@@ -157,7 +157,7 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        [HttpGet("getFungi/{fungiId}")]
+        [HttpPost("getFungi/{fungiId}")]
         public async Task<IActionResult> GetFungi(int fungiId, [FromBody] int? userId = null)
         {
             try

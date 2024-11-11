@@ -395,6 +395,7 @@ export default {
       }
       this.error = false;
       this.successMessage = 'Grzyb został usunięty.';
+      this.filterMushrooms();
     },
     async saveMushroomToCollection(mushroomId) {
       console.log(mushroomId);
@@ -612,6 +613,8 @@ h1 {
   height: 80px;
   margin-right: 20px;
   border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .mushroom-card .left {

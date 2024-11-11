@@ -91,7 +91,6 @@ images_FasterRCNN/
 models/
 model_public/
 mushrooms_to_keep.txt
-mushrooms_names.txt
 list.txt
 
 # IPython

@@ -60,6 +60,7 @@ export default {
         return {
             isDragging: false,
             selectedAttributes: [],
+            files: [],
         };
     },
     methods: {
@@ -69,6 +70,7 @@ export default {
                 id: file.name,
                 url: URL.createObjectURL(file)
             }));
+            this.files = files;
         },
         onDragOver(e) {
             e.preventDefault();
@@ -86,6 +88,7 @@ export default {
                 id: file.name,
                 url: URL.createObjectURL(file)
             }));
+            this.files = files;
         },
         deleteImage(index) {
             this.mushroomForm.images.splice(index, 1);
@@ -123,27 +126,30 @@ export default {
                 return;
             }
             const fungi = {
-                name: this.mushroomForm.name,
-                image: this.mushroomForm.image,
+                polishName: this.mushroomForm.polishName,
+                latinName: this.mushroomForm.latinName,
                 description: this.mushroomForm.description,
                 attributes: this.selectedAttributes,
             };
+            const images = this.files;
             if (this.showEditMushroomModal) {
-                this.editMushroom(fungi);
+                this.editMushroom(fungi, images);
             } else {
-                this.addMushroom(fungi);
+                this.addMushroom(fungi, images);
             }
         },
-        editMushroom(fungi) {
-            const response = FungiService.editFungi(fungi);
+        editMushroom(fungi, images) {
+            const response = FungiService.editFungi(fungi, images);
             if (response.success === false) {
                 alert('Nie udało się edytować grzyba');
                 return;
             }
             this.$emit('close');
         },
-        addMushroom(fungi) {
-            const response = FungiService.addFungi(fungi);
+        addMushroom(fungi, images) {
+            // console.log(images);
+            // const response = {success: true};
+            const response = FungiService.addFungi(fungi, images);
             if (response.success === false) {
                 alert('Nie udało się dodać grzyba');
                 return;

@@ -109,11 +109,38 @@ const addAttributes = (fungies) => {
   return newFungies;
 }
 
+const reconvertAttributes = (fungi) => {
+  const newFungi = {
+    ...fungi,
+    edibility: "",
+    toxicity: "",
+    habitat: "",
+  };
+  if (fungi.attributes.includes("jadalny")) {
+    newFungi.edibility = "jadalny";
+  } else if (fungi.attributes.includes("niejadalny")) {
+    newFungi.edibility = "niejadalny";
+  }
+  if (fungi.attributes.includes("trujący")) {
+    newFungi.toxicity = "trujący";
+  } else if (fungi.attributes.includes("nietrujący")) {
+    newFungi.toxicity = "nietrujący";
+  }
+  if (fungi.attributes.includes("iglaste")) {
+    newFungi.habitat = "iglasty";
+  } else if (fungi.attributes.includes("liściaste")) {
+    newFungi.habitat = "liściasty";
+  } else if (fungi.attributes.includes("mieszane")) {
+    newFungi.habitat = "mieszany";
+  }
+  return newFungi;
+}
+
 const getFungi = async (id) => {
   try {
     const response = await $http.get(`api/Fungi/getFungi/${id}`);
     if (response.status === 200) {
-      const data = convertToAttributes(response.data);
+      const data = addAttributes(response.data);
       return { success: true, data: data };
     }
     return { success: false, message: "Nieznany błąd" };
@@ -129,16 +156,24 @@ const addFungi = async (fungi, images) => {
     const userId = parseInt(localStorage.getItem("id"));
     const formData = new FormData();
     formData.append("userId", userId);
-    formData.append("fungiJson", JSON.stringify(fungi));
-    // for (let i = 0; i < images.length; i++) {
-    //   formData.append("images", images[i]);
-    // }
-    formData.append("images", images);
+    const fungiJson = JSON.stringify(reconvertAttributes(fungi));
+    formData.append("fungiJson", fungiJson);
+    // formData.append("images", images);
+    console.log(images);
+    console.log(images.length);
+    if (images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        formData.append("images", images[i]);
+      }
+    }
+    console.log("addFungi: ", formData.get("fungiJson"));
+    console.log(formData.get("images"));
     const response = await $http.post("api/FungiAtlas/addFungi", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
+    // const response = {status: 201, data: fungi};
     if (response.status === 201) {
       return { success: true, data: response.data };
     }

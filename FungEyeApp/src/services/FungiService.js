@@ -109,6 +109,30 @@ const addAttributes = (fungies) => {
   return newFungies;
 }
 
+const addAttributesToSingle = (fungi) => {
+  const newFungi = {
+    ...fungi,
+    attributes: [],
+  };
+  if (fungi.edibility === "jadalny") {
+    newFungi.attributes.push("jadalny");
+  } else if (fungi.edibility === "niejadalny") {
+    newFungi.attributes.push("niejadalny");
+  }
+  if (fungi.toxicity === "trujący") {
+    newFungi.attributes.push("trujący");
+  }
+  if (fungi.habitat === "iglasty") {
+    newFungi.attributes.push("iglaste");
+  } else if (fungi.habitat === "liściasty") {
+    newFungi.attributes.push("liściaste");
+  }
+  else if (fungi.habitat === "mieszany") {
+    newFungi.attributes.push("mieszane");
+  }
+  return newFungi;
+}
+
 const reconvertAttributes = (fungi) => {
   const newFungi = {
     ...fungi,
@@ -138,9 +162,11 @@ const reconvertAttributes = (fungi) => {
 
 const getFungi = async (id) => {
   try {
-    const response = await $http.get(`api/Fungi/getFungi/${id}`);
+    const fungiId = parseInt(id);
+    const userId = JSON.stringify(parseInt(localStorage.getItem("id")));
+    const response = await $http.get(`api/FungiAtlas/getFungi/${fungiId}`, { userId: userId });
     if (response.status === 200) {
-      const data = addAttributes(response.data);
+      const data = addAttributesToSingle(response.data);
       return { success: true, data: data };
     }
     return { success: false, message: "Nieznany błąd" };
@@ -150,6 +176,22 @@ const getFungi = async (id) => {
     return { success: false, message: errorMessage };
   }
 };
+
+const getFungiByName = async (fungiName) => {
+  try {
+    const userId = JSON.stringify(parseInt(localStorage.getItem("id")));
+    const response = await $http.get(`api/FungiAtlas/getFungi/${fungiName}`, { userId: userId });
+    if (response.status === 200) {
+      const data = addAttributesToSingle(response.data);
+      return { success: true, data: data };
+    }
+    return { success: false, message: "Nieznany błąd" };
+  } catch (error) {
+    const errorMessage = ApiService.handleApiError(error);
+    console.error("Error getting fungi by id:", errorMessage);
+    return { success: false, message: errorMessage };
+  }
+}
 
 const addFungi = async (fungi, images) => {
   try {
@@ -286,6 +328,7 @@ export default {
   predict,
   getAllFungies,
   getFungi,
+  getFungiByName,
   addFungi,
   editFungi,
   deleteFungi,

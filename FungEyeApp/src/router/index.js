@@ -83,7 +83,7 @@ const router = createRouter({
       path: "/mushroom/:id",
       name: "MushroomView",
       component: MushroomView,
-      props: true,
+      props: (route) => ({ id: Number(route.params.id) }),
     },
     {
       path: "/admin",

@@ -1,72 +1,81 @@
 <template>
-  <div v-if="error === false" class="container-md">
-    <!-- <div class="breadcrumbs">
+  <div class="container-md">
+    <div class="return">
+      <RouterLink to="/atlas" class="btn fungeye-default-button">
+        <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon"/>
+        Powrót
+      </RouterLink>
+    </div>
+    <div v-if="error === false" class="container-md">
+      <!-- <div class="breadcrumbs">
       <RouterLink to="/recognize" class="r-link">Rozpoznawanie</RouterLink> / {{ name }}
     </div> -->
-    <div class="mushroom-view">
-      <div class="mushroom-view-header mb-3">
-        <div class="header">
-          <span class="placeholder main-image"></span>
-          <!-- <img class="mushroom-view-header-image" :src="mainImg" alt="Mushroom" /> -->
-          <div class="mushroom-names">
-            <h1>{{ polishName }}</h1>
-            <h2 class="latin-name">{{ latinName }}</h2>
+      <div class="mushroom-view">
+        <div class="mushroom-view-header mb-3">
+          <div class="header">
+            <!-- <span class="placeholder main-image"></span> -->
+            <img class="mushroom-view-header-image" :src="mainImg" alt="Mushroom" />
+            <div class="mushroom-names">
+              <h1>{{ polishName }}</h1>
+              <h2 class="latin-name">{{ latinName }}</h2>
+            </div>
           </div>
+          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button" @click="saveMushroomToCollection">
+            <font-awesome-icon v-if="savedByUser" icon="fa-regular fa-bookmark" />
+            <font-awesome-icon v-else icon="fa-regular fa-bookmark" />
+          </button>
         </div>
-        <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button" @click="saveMushroomToCollection">
-          <font-awesome-icon v-if="savedByUser" icon="fa-regular fa-bookmark" />
-          <font-awesome-icon v-else icon="fa-regular fa-bookmark" />
-        </button>
-      </div>
-      <div class="mushroom-view-attributes">
-        <ul class="attribute-list">
-          <li v-for="attribute in attributes" :key="attribute" class="attribute"
-            :class="changeAttributeClass(attribute)">
-            {{ attribute }}
-          </li>
-        </ul>
-      </div>
-      <div class="mushroom-view-content">
-        <div class="mushroom-view-description">
-          <h3>Opis</h3>
-          <p>{{ description }}</p>
+        <div class="mushroom-view-attributes">
+          <ul class="attribute-list">
+            <li v-for="attribute in attributes" :key="attribute" class="attribute"
+              :class="changeAttributeClass(attribute)">
+              {{ attribute }}
+            </li>
+          </ul>
         </div>
-        <div class="mushroom-view-photos">
-          <div v-if="myPhotos.length > 0" class="mushroom-view-photos-my">
-            <h4>Moje zdjęcia</h4>
-            <div class="mushroom-view-photos-my-images">
-              <span class="placeholder" v-for="photo in myPhotos" :key="photo">
-              </span>
-              <!-- <img
+        <div class="mushroom-view-content">
+          <div class="mushroom-view-description">
+            <h3>Opis</h3>
+            <p>{{ description }}</p>
+          </div>
+          <div class="mushroom-view-photos">
+            <div v-if="myPhotos.length > 0" class="mushroom-view-photos-my">
+              <h4>Moje zdjęcia</h4>
+              <div class="mushroom-view-photos-my-images">
+                <span class="placeholder" v-for="photo in myPhotos" :key="photo">
+                </span>
+                <!-- <img
                                 v-for="photo in myPhotos"
                                 :key="photo"
                                 :src="photo.url"
                                 alt="My Photo"
                                 /> -->
+              </div>
             </div>
-          </div>
-          <div class="mushroom-view-photos-user">
-            <h4>Zdjęcia użytkowników</h4>
-            <div class="mushroom-view-photos-user-images">
-              <span class="placeholder" v-for="photo in userPhotos" :key="photo">
-              </span>
-              <!-- <img
+            <div v-if="userPhotos.length > 0" class="mushroom-view-photos-user">
+              <h4>Zdjęcia użytkowników</h4>
+              <div class="mushroom-view-photos-user-images">
+                <span class="placeholder" v-for="photo in userPhotos" :key="photo">
+                </span>
+                <!-- <img
                                 v-for="photo in userPhotos"
                                 :key="photo.id"
                                 :src="photo.url"
                                 alt="User Photo"
                                 /> -->
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div v-else class="container-md">
-    <div class="error-message">
-      {{ errorMessage }}
+    <div v-else class="container-md">
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -86,25 +95,13 @@ export default {
   data() {
     return {
       isLoading: true,
-      name: "",
+      polishName: "",
       latinName: "",
       mainImg: "",
       attributes: [],
       description: "",
       savedByUser: false,
       myPhotos: [
-        {
-          id: 1,
-          url: "@/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
-        },
-        {
-          id: 2,
-          url: "@/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
-        },
-        {
-          id: 3,
-          url: "@/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
-        },
       ],
       userPhotos: [],
       error: false,
@@ -119,32 +116,22 @@ export default {
     async fetchMushroomData() {
       this.isLoading = true;
       try {
-        // const response = await FungiService.getFungi(this.id);
-        const response = { success: true };
+        const response = await FungiService.getFungi(this.id);
+        // const response = { success: true };
         if (response.success === false) {
           this.error = true;
           this.errorMessage = "Błąd podczas pobierania danych grzyba";
           return;
         }
-        this.polishName = "Borowik szlachetny";
-        this.latinName = "Boletus edulis";
-        this.attributes = ["mieszane", "trujący", "iglaste"];
-        this.description =
-          "Gatunek grzybów z rodziny borowikowatych, potocznie nazywany prawdziwkiem. Występuje w Ameryce Północnej i w Europie. Ponadto został zawleczony do Nowej Zelandii i południowej Afryki. W Polsce często spotykany zwłaszcza w górach, rzadziej na niżu, zwykle rzadki w okolicach wielkich miast.";
-        this.userPhotos = [
-          {
-            id: 1,
-            url: "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
-          },
-          {
-            id: 2,
-            url: "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
-          },
-          {
-            id: 3,
-            url: "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
-          },
-        ];
+        console.log(response.data);
+        this.polishName = response.data.polishName;
+        this.latinName = response.data.latinName;
+        if (response.data.imagesUrl > 0) {
+          this.mainImg = response.data.imagesUrl[0].url;
+        }
+        this.attributes = response.data.attributes;
+        this.description = response.data.description;
+        this.savedByUser = response.data.savedByUser;
       } catch (error) {
         console.error("Failed to fetch mushroom data:", error);
       } finally {
@@ -191,6 +178,10 @@ export default {
 </script>
 
 <style scoped>
+.return {
+  margin-top: 20px;
+}
+
 .mushroom-view {
   margin-top: 20px;
   padding: 20px;

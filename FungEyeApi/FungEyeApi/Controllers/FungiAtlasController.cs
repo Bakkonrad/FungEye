@@ -120,7 +120,7 @@ namespace FungEyeApi.Controllers
         
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpDelete("deleteFungi")]
+        [HttpPost("deleteFungi")]
         public async Task<IActionResult> DeleteFungi([FromForm] int userId, [FromForm] int fungiId)
         {
             try

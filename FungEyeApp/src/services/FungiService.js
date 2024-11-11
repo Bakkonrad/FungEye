@@ -214,9 +214,20 @@ const editFungi = async (fungi, images) => {
 
 const deleteFungi = async (id) => {
   try {
-    const response = await $http.delete(`api/Fungi/deleteFungi/${id}`);
+    const userId = parseInt(localStorage.getItem("id"));
+    const formData = new FormData();
+    formData.append("userId", userId);
+    formData.append("fungiId", id);
+    console.log("deleteFungi: ", formData.get("userId"), formData.get("fungiId"));
+    const response = await $http.post(`api/FungiAtlas/deleteFungi/`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    console.log(response)
+    // const response = { status: 200, data: { id: id } };
     if (response.status === 200) {
-      return { success: true, data: response.data };
+      return { success: true };
     }
     return { success: false, message: "Nieznany błąd" };
   } catch (error) {
@@ -232,7 +243,7 @@ const saveFungiToCollection = async (fungiId) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiId", fungiId);
-    const response = await $http.post("api/Fungi/saveFungiToCollection", formData, {
+    const response = await $http.post("api/FungiAtlas/addFungiToCollection", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -254,7 +265,7 @@ const deleteFungiFromCollection = async (fungiId) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiId", fungiId);
-    const response = await $http.delete("api/Fungi/deleteFungiFromCollection", formData, {
+    const response = await $http.delete("api/FungiAtlas/deleteFungiFromCollection", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

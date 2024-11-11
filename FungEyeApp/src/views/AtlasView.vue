@@ -54,9 +54,10 @@
       <div v-for="mushroom in mushrooms" :key="mushroom.id" class="mushroom-card"
         @click="openMushroomView(mushroom.id)">
         <span class="left">
-          <img :src="mushroom.image" alt="Mushroom Image" class="mushroom-image" />
+          <img v-if="mushroom.imagesUrl" :src="mushroom.imagesUrl[0]" alt="Mushroom Image" class="mushroom-image" />
           <div class="mushroom-info">
-            <h3>{{ mushroom.name }}</h3>
+            <h3 class="polish-name">{{ mushroom.polishName }}</h3>
+            <h4 class="latin-name">{{ mushroom.latinName }}</h4>
             <div class="attributes">
               <span v-for="attr in mushroom.attributes" :key="attr" class="mushroom-attribute"
                 @click.stop="toggleAttributeFilter(attr)"
@@ -69,7 +70,7 @@
         <!-- Przycisk edytowania i usuwania grzyba -->
         <div class="mushroom-actions">
           <button v-if="isLoggedIn" class="btn btn-mushroom fungeye-default-button"
-            @click.stop="mushroom.savedByUser ? deleteMushroomFromCollection() : saveMushroomToCollection()">
+            @click.stop="mushroom.savedByUser ? deleteMushroomFromCollection(mushroom.id) : saveMushroomToCollection(mushroom.id)">
             <font-awesome-icon v-if="!mushroom.savedByUser" icon="fa-regular fa-bookmark" />
             <font-awesome-icon v-else icon="fa-solid fa-bookmark" />
           </button>
@@ -214,7 +215,7 @@ export default {
         description: 'Mleczaj rydz to grzyb jadalny, często spotykany w lasach iglastych.'
       }],
       alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-      availableAttributes: ['iglaste', 'liściaste', 'jadalny', 'niejadalny', 'trujący'],
+      availableAttributes: ['iglaste', 'mieszane', 'liściaste', 'jadalny', 'niejadalny', 'trujący'],
       showAddMushroomModal: false,
       showEditMushroomModal: false,
       showDeleteMushroomModal: false,
@@ -368,6 +369,7 @@ export default {
       return {
         coniferous: attribute === 'iglaste',
         deciduous: attribute === 'liściaste',
+        mixed: attribute === 'mieszane',
         edible: attribute === 'jadalny',
         inedible: attribute === 'niejadalny',
         poisonous: attribute === 'trujący',
@@ -376,6 +378,7 @@ export default {
     editMushroom(mushroom) {
       this.editMushroomId = mushroom.id;
       this.mushroomForm = { ...mushroom };
+      console.log('Edytuję grzyba:', this.mushroomForm);
       this.showEditMushroomModal = true;
     },
     confirmDeleteMushroom(mushroom) {
@@ -385,7 +388,7 @@ export default {
     async deleteMushroom() {
       const response = await FungiService.deleteFungi(this.mushroomToDelete.id);
       this.closeModal();
-      if (response.success === true) {
+      if (response.success === false) {
         this.error = true;
         this.errorMessage = 'Wystąpił błąd podczas usuwania grzyba.';
         return;
@@ -394,6 +397,7 @@ export default {
       this.successMessage = 'Grzyb został usunięty.';
     },
     async saveMushroomToCollection(mushroomId) {
+      console.log(mushroomId);
       const id = parseInt(mushroomId);
       const response = await FungiService.saveFungiToCollection(id);
       if (response.success === false) {
@@ -422,7 +426,6 @@ export default {
       this.mushroomForm = {
         polishName: '',
         latinName: '',
-        images: [],
         attributes: [],
         description: ''
       };
@@ -625,6 +628,16 @@ h1 {
 .mushroom-info h3 {
   margin: 0;
   font-size: 22px;
+}
+
+.polish-name {
+  font-size: 1.2em;
+}
+
+.latin-name {
+  font-size: 1em;
+  font-style: italic;
+  font-weight: 300;
 }
 
 .mushroom-actions {

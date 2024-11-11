@@ -59,18 +59,17 @@ export default {
     data() {
         return {
             isDragging: false,
-            selectedAttributes: [],
+            selectedAttributes: this.mushroomForm.attributes || [],
             files: [],
         };
     },
     methods: {
         onFileChange(e) {
-            const files = Array.from(e.target.files);
-            this.mushroomForm.images = files.map(file => ({
+            this.files.push(...Array.from(e.target.files));
+            this.mushroomForm.images = this.files.map(file => ({
                 id: file.name,
                 url: URL.createObjectURL(file)
             }));
-            this.files = files;
         },
         onDragOver(e) {
             e.preventDefault();
@@ -83,15 +82,15 @@ export default {
         onDrop(e) {
             e.preventDefault();
             this.isDragging = false;
-            const files = Array.from(e.dataTransfer.files);
-            this.mushroomForm.images = files.map(file => ({
+            this.files.push(...Array.from(e.dataTransfer.files));
+            this.mushroomForm.images = this.files.map(file => ({
                 id: file.name,
                 url: URL.createObjectURL(file)
             }));
-            this.files = files;
         },
         deleteImage(index) {
             this.mushroomForm.images.splice(index, 1);
+            this.files.splice(index, 1);
         },
         toggleAttributeFilter(attribute) {
             if (this.selectedAttributes.includes(attribute)) {
@@ -114,6 +113,7 @@ export default {
                 coniferous: attribute === 'iglaste',
                 deciduous: attribute === 'liściaste',
                 edible: attribute === 'jadalny',
+                mixed: attribute === 'mieszane',
                 inedible: attribute === 'niejadalny',
                 poisonous: attribute === 'trujący',
             };

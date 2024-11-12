@@ -28,6 +28,9 @@
             <RouterLink to="/weather" :class="getActiveNavLink('weather')">Pogoda</RouterLink>
           </li>
           <li class="nav-item">
+            <RouterLink to="/map" :class="getActiveNavLink('map')">Mapa</RouterLink>
+          </li>
+          <li class="nav-item">
             <RouterLink to="/atlas" :class="getActiveNavLink('atlas')">Atlas</RouterLink>
           </li>
           <li v-if="isAdmin === true" class="nav-item">

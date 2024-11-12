@@ -91,6 +91,8 @@ images/
 images_FasterRCNN/
 models/
 model_public/
+mushrooms_to_keep.txt
+list.txt
 
 # IPython
 profile_default/

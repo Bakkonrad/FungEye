@@ -226,6 +226,7 @@ ul {
 input,
 textarea {
   /* color: white !important; */
+  color: white;
   /* width: 90% !important; */
 
   box-sizing: border-box;

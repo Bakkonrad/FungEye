@@ -57,11 +57,6 @@ namespace FungEyeApi.Data
             follow.HasKey(f => new { f.UserId, f.FollowedUserId });
             follow.HasIndex(f => f.UserId);
             follow.HasIndex(f => f.FollowedUserId);
-
-            //follow.HasOne(f => f.FollowedUser)
-            //    .WithMany()
-            //    .HasForeignKey(f => f.FollowedUserId)
-            //    .OnDelete(DeleteBehavior.Restrict);
         }
 
         private void ConfigurePost(EntityTypeBuilder<PostEntity> post)
@@ -74,7 +69,7 @@ namespace FungEyeApi.Data
                 .WithOne(c => c.Post)
                 .HasForeignKey(c => c.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             post.HasMany(p => p.Reactions)
                 .WithOne(r => r.Post)
                 .HasForeignKey(r => r.PostId)

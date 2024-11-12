@@ -5,8 +5,8 @@ namespace FungEyeApi.Models
 {
     public class Comment
     {
-        public Comment() {}
-        public Comment(CommentEntity commentEntity) 
+        public Comment() { }
+        public Comment(CommentEntity commentEntity)
         {
             Id = commentEntity.Id;
             Content = commentEntity.Content;

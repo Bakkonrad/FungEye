@@ -1,5 +1,4 @@
 ﻿using FungEyeApi.Data.Entities;
-using FungEyeApi.Data.Entities.Fungies;
 using Newtonsoft.Json;
 
 namespace FungEyeApi.Models

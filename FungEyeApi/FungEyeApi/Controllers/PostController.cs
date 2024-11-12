@@ -2,11 +2,9 @@
 using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using FungEyeApi.Models.Posts;
-using FungEyeApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using SixLabors.ImageSharp.Formats;
 using System.Security.Claims;
 
 namespace FungEyeApi.Controllers
@@ -19,7 +17,6 @@ namespace FungEyeApi.Controllers
         private readonly IUserService _userService;
         private readonly IBlobStorageService _blobStorageService;
         private readonly static BlobContainerEnum blobContainer = BlobContainerEnum.Posts;
-
 
         public PostController(IPostsService postsService, IUserService userService, IBlobStorageService blobStorageService)
         {
@@ -35,7 +32,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if (!ValidateUserId(userId))
+                if (!ValidateUserId(userId)) // only logged in users can add posts
                 {
                     return Forbid();
                 }
@@ -69,18 +66,18 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if (!ValidateUserId(userId))
+                if (!ValidateUserId(userId)) // only post author can edit post
                 {
                     return Forbid();
                 }
 
                 var post = JsonConvert.DeserializeObject<Post>(postJson) ?? throw new Exception("Cannot deserialize Post object");
 
-                if (image != null)
+                if (image != null) // if new image is uploaded delete old one and upload new one
                 {
                     if (image.Length > 0)
                     {
-                        if (!String.IsNullOrWhiteSpace(post.ImageUrl))
+                        if (!String.IsNullOrWhiteSpace(post.ImageUrl)) // if post has image delete it
                         {
                             await _blobStorageService.DeleteFile(post.ImageUrl, blobContainer);
                         }
@@ -88,15 +85,12 @@ namespace FungEyeApi.Controllers
                         post.ImageUrl = newImageUrl;
                     }
                 }
-                else
+                else // if no new image is uploaded check if user wants to delete old one
                 {
-                    if (post.DeletePhoto != null && post.ImageUrl != null)
+                    if (post.DeletePhoto != null && post.DeletePhoto is true && post.ImageUrl != null)
                     {
-                        if (post.DeletePhoto is true)
-                        {
-                            await _blobStorageService.DeleteFile(post.ImageUrl, blobContainer);
-                            post.ImageUrl = null;
-                        }
+                        await _blobStorageService.DeleteFile(post.ImageUrl, blobContainer);
+                        post.ImageUrl = null;
                     }
                 }
 
@@ -119,7 +113,7 @@ namespace FungEyeApi.Controllers
                 var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (!ValidateUserId(userId) && admin == false)
+                if (!ValidateUserId(userId) && admin == false) // only admin ant post authors can delete other users posts
                 {
                     return Forbid();
                 }
@@ -296,7 +290,7 @@ namespace FungEyeApi.Controllers
                 var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (!ValidateUserId(userId) && admin == false)
+                if (!ValidateUserId(userId) && admin == false) // only admin and comment authors can delete comments
                 {
                     return Forbid();
                 }
@@ -364,7 +358,7 @@ namespace FungEyeApi.Controllers
                 var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (!ValidateUserId(userId) || !admin)
+                if (!ValidateUserId(userId) || !admin) // only admin can mark reports as completed
                 {
                     return Forbid();
                 }

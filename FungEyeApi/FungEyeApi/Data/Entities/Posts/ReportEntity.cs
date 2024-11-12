@@ -6,12 +6,15 @@ namespace FungEyeApi.Data.Entities
         public int Id { get; set; }
         public required int ReportedById { get; set; }
         public UserEntity? ReportedBy { get; set; }
+        public bool Completed { get; set; }
 
+
+        // Post to which the report belongs
         public int? PostId { get; set; }
         public PostEntity? Post { get; set; }
 
+        // Comment to which the report belongs
         public int? CommentId { get; set; }
-        public bool Completed { get; set; }
         public CommentEntity? Comment { get; set; }
 
         public DateTime CreatedAt { get; set; }

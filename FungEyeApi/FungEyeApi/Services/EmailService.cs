@@ -1,8 +1,7 @@
-﻿using System.Net.Mail;
-using System.Net;
+﻿using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
-using FungEyeApi.Enums;
-using Newtonsoft.Json.Linq;
+using System.Net;
+using System.Net.Mail;
 
 namespace FungEyeApi.Services
 {
@@ -81,8 +80,8 @@ namespace FungEyeApi.Services
                 return result;
             }
             else
-            { 
-                throw new Exception("File not found"); 
+            {
+                throw new Exception("File not found");
             }
         }
     }

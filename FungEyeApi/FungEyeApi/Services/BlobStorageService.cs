@@ -1,5 +1,4 @@
 ﻿using Azure.Storage.Blobs;
-using FungEyeApi.Data;
 using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
 using Microsoft.EntityFrameworkCore;

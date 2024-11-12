@@ -1,6 +1,5 @@
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Enums;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Newtonsoft.Json;
 using System.Data;
 
@@ -61,14 +60,14 @@ namespace FungEyeApi.Models
 
         [JsonProperty("banExpirationDate")]
         public DateTime? BanExpirationDate { get; set; }
-        
+
         [JsonProperty("dateDeleted")]
         public DateTime? DateDeleted { get; set; }
 
         [JsonProperty("follows")]
         public List<User>? Follows { get; set; }
     }
-    
+
     public class LoginUser
     {
         public LoginUser() { }

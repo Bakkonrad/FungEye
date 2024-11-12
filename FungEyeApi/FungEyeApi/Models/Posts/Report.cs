@@ -5,8 +5,8 @@ namespace FungEyeApi.Models
 {
     public class Report
     {
-        public Report() {}
-        public Report(ReportEntity reportEntity) 
+        public Report() { }
+        public Report(ReportEntity reportEntity)
         {
             Id = reportEntity.Id;
             CreatedAt = reportEntity.CreatedAt;

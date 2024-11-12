@@ -1,12 +1,8 @@
 ﻿using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
-using FungEyeApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace FungEyeApi.Controllers
 {
@@ -60,7 +56,7 @@ namespace FungEyeApi.Controllers
                 {
                     return BadRequest("Username or email already in use.");
                 }
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (!admin)
@@ -71,7 +67,7 @@ namespace FungEyeApi.Controllers
                 bool result = await _authService.RegisterAdmin(user);
                 if (result)
                 {
-                    await _authService.SendSetAdminPasswordEmail(user.Email);
+                    await _authService.SendSetAdminPasswordEmail(user.Email ?? string.Empty);
                     return Ok("Admin registered successfully.");
                 }
                 else
@@ -98,17 +94,17 @@ namespace FungEyeApi.Controllers
                 var token = await _authService.Login(loginUser);
                 return token != null ? Ok(token) : BadRequest("User login failed");
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException ex) //Username or password is incorrect
             {
                 return StatusCode(400, ex.Message);
             }
-            catch (AccessViolationException ex)
+            catch (AccessViolationException ex) //User is banned
             {
                 return StatusCode(409, ex.Message);
             }
             catch (Exception ex)
             {
-                if(ex.Message.Equals("Account is deleted"))
+                if (ex.Message.Equals("Account is deleted"))
                 {
                     return StatusCode(410, ex.Message);
                 }
@@ -121,9 +117,9 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                if(!await _authService.IsUsernameOrEmailUsed(null, resetPasswordModel.Email))
+                if (!await _authService.IsUsernameOrEmailUsed(null, resetPasswordModel.Email))
                 {
-                    return StatusCode(501 ,"User not found");
+                    return StatusCode(501, "User not found");
                 }
 
                 if (string.IsNullOrWhiteSpace(resetPasswordModel.Email))
@@ -145,7 +141,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
 
                 if (!await _userService.IsAdmin(userIdFromToken))
                 {
@@ -154,7 +150,6 @@ namespace FungEyeApi.Controllers
                         return Forbid();
                     }
                 }
-                
 
                 var user = await _userService.GetUserProfile(userId);
                 if (user == null)
@@ -162,7 +157,7 @@ namespace FungEyeApi.Controllers
                     return BadRequest("Invalid token");
                 }
 
-                if(string.IsNullOrWhiteSpace(resetPasswordModel.Password))
+                if (string.IsNullOrWhiteSpace(resetPasswordModel.Password))
                 {
                     return BadRequest("Password is required");
                 }
@@ -173,7 +168,7 @@ namespace FungEyeApi.Controllers
             }
             catch (Exception ex)
             {
-                if(ex is ArgumentException)
+                if (ex is ArgumentException)
                 {
                     return StatusCode(400, "User not found" + ex.Message);
                 }
@@ -191,6 +186,11 @@ namespace FungEyeApi.Controllers
             }
 
             return true;
+        }
+
+        private string GetUserIdFromToken()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
         }
     }
 }

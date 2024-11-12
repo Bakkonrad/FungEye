@@ -4,7 +4,6 @@ using FungEyeApi.Data.Entities.Fungies;
 using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
-using FungEyeApi.Models.Posts;
 using Microsoft.EntityFrameworkCore;
 
 namespace FungEyeApi.Services
@@ -19,7 +18,7 @@ namespace FungEyeApi.Services
             this.db = db;
             _blobStorageService = blobStorageService;
         }
-        
+
         public async Task<bool> AddFungi(Fungi fungi)
         {
             try
@@ -43,7 +42,7 @@ namespace FungEyeApi.Services
                 throw new Exception("Error during adding fungi: " + ex.Message);
             }
         }
-        
+
         public async Task<bool> EditFungi(Fungi fungi)
         {
             try
@@ -75,7 +74,7 @@ namespace FungEyeApi.Services
                 throw new Exception("Error during editing fungi: " + ex.Message);
             }
         }
-        
+
         public async Task<bool> DeleteFungi(int fungiId)
         {
             try
@@ -224,7 +223,7 @@ namespace FungEyeApi.Services
 
         private async Task<Fungi> GetFungiInfo(Fungi fungi, int? userId = null)
         {
-            if(userId == null)
+            if (userId == null)
             {
                 return fungi;
             }

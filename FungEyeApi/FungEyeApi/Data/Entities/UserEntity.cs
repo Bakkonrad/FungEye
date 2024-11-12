@@ -1,7 +1,5 @@
 ﻿using FungEyeApi.Data.Entities.Fungies;
 using FungEyeApi.Enums;
-using FungEyeApi.Models;
-using System.Data;
 
 namespace FungEyeApi.Data.Entities
 {

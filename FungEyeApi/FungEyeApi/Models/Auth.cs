@@ -1,8 +1,4 @@
-using FungEyeApi.Data.Entities;
-using FungEyeApi.Enums;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Newtonsoft.Json;
-using System.Data;
 
 namespace FungEyeApi.Models
 {

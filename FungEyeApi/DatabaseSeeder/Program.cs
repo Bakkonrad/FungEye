@@ -1,9 +1,7 @@
 ﻿using FungEyeApi.Data;
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Enums;
-using FungEyeApi.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 class Program
 {

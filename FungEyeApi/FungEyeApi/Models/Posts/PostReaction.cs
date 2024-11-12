@@ -1,5 +1,4 @@
 ﻿using FungEyeApi.Data.Entities;
-using FungEyeApi.Enums;
 using Newtonsoft.Json;
 
 namespace FungEyeApi.Models.Posts
@@ -7,7 +6,7 @@ namespace FungEyeApi.Models.Posts
     public class PostReaction
     {
         public PostReaction() { }
-        public PostReaction(PostReactionEntity postReactionEntity) 
+        public PostReaction(PostReactionEntity postReactionEntity)
         {
             Id = postReactionEntity.Id;
             PostId = postReactionEntity.PostId;

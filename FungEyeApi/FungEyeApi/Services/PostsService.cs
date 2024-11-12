@@ -5,7 +5,6 @@ using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using FungEyeApi.Models.Posts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 namespace FungEyeApi.Services
 {
@@ -41,7 +40,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                if(post.Content == null)
+                if (post.Content == null)
                 {
                     throw new Exception("Post content cannot be null");
                 }
@@ -90,7 +89,7 @@ namespace FungEyeApi.Services
                     throw new Exception("Post not found");
                 }
 
-                if(post.ImageUrl != null)
+                if (post.ImageUrl != null)
                 {
                     await _blobStorageService.DeleteFile(post.ImageUrl, Enums.BlobContainerEnum.Posts);
                 }
@@ -116,7 +115,7 @@ namespace FungEyeApi.Services
                 {
                     throw new Exception("Comment not found");
                 }
-                else if(String.IsNullOrWhiteSpace(comment.Content))
+                else if (String.IsNullOrWhiteSpace(comment.Content))
                 {
                     throw new Exception("Content cannot be null");
                 }
@@ -166,7 +165,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var comments = await db.Comments.Where(c => c.PostId == postId).Include(c=>c.User).ToListAsync();
+                var comments = await db.Comments.Where(c => c.PostId == postId).Include(c => c.User).ToListAsync();
                 var commentsToModel = comments.Select(c => new Comment(c)).ToList();
 
                 return commentsToModel;
@@ -183,7 +182,7 @@ namespace FungEyeApi.Services
             {
                 var query = db.Posts.AsQueryable();
 
-                switch(filter)
+                switch (filter)
                 {
                     case PostsFilter.All:
                         query = query.OrderByDescending(p => p.CreatedAt);
@@ -224,7 +223,7 @@ namespace FungEyeApi.Services
             {
                 var post = await db.Posts.FirstOrDefaultAsync(r => r.Id == postId);
 
-                if(post == null)
+                if (post == null)
                 {
                     throw new Exception("Post not found");
                 }
@@ -244,7 +243,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                if(await db.Reactions.AnyAsync(r => r.PostId == postId && r.UserId == userId))
+                if (await db.Reactions.AnyAsync(r => r.PostId == postId && r.UserId == userId))
                 {
                     return false;
                 }
@@ -363,7 +362,7 @@ namespace FungEyeApi.Services
         {
             var reactions = db.Reactions.AsQueryable();
             var comments = db.Comments.AsQueryable();
-            
+
             post.LikeAmount = await reactions.CountAsync(r => r.PostId == post.Id);
             post.CommentsAmount = await comments.CountAsync(r => r.PostId == post.Id);
             post.LoggedUserReacted = await reactions.AnyAsync(r => r.PostId == post.Id && r.UserId == userId);

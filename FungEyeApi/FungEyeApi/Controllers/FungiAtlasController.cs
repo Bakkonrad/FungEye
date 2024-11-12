@@ -35,12 +35,12 @@ namespace FungEyeApi.Controllers
             {
                 var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
-                
+
                 if (!ValidateUserId(userId) && admin == false)
                 {
                     return Forbid("Only admin can perform this action");
                 }
-                
+
                 var fungi = JsonConvert.DeserializeObject<Fungi>(fungiJson) ?? throw new Exception("Cannot deserialize Fungi object");
 
                 if (images != null && images.Count > 0)
@@ -65,7 +65,7 @@ namespace FungEyeApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-        
+
         [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("editFungi")]
@@ -75,19 +75,19 @@ namespace FungEyeApi.Controllers
             {
                 var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
-                
+
                 if (!ValidateUserId(userId) && admin == false)
                 {
                     return Forbid("Only admin can perform this action");
                 }
-                
+
                 var fungi = JsonConvert.DeserializeObject<Fungi>(fungiJson) ?? throw new Exception("Cannot deserialize Fungi object");
 
-                if(fungi.ImagesUrlsToDelete != null && fungi.ImagesUrlsToDelete.Count > 0)
+                if (fungi.ImagesUrlsToDelete != null && fungi.ImagesUrlsToDelete.Count > 0)
                 {
                     foreach (var imageUrl in fungi.ImagesUrlsToDelete)
                     {
-                        if(fungi.ImagesUrl != null && fungi.ImagesUrl.Contains(imageUrl))
+                        if (fungi.ImagesUrl != null && fungi.ImagesUrl.Contains(imageUrl))
                         {
                             fungi.ImagesUrl.Remove(imageUrl);
                         }
@@ -109,7 +109,7 @@ namespace FungEyeApi.Controllers
                     }
                 }
 
-                var result = await  _fungiAtlasService.EditFungi(fungi);
+                var result = await _fungiAtlasService.EditFungi(fungi);
                 return Ok();
             }
             catch (Exception ex)
@@ -117,7 +117,7 @@ namespace FungEyeApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-        
+
         [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("deleteFungi")]
@@ -141,7 +141,7 @@ namespace FungEyeApi.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-        
+
         [Consumes("multipart/form-data")]
         [HttpPost("getFungies")]
         public async Task<IActionResult> GetFungies([FromForm] int? page = null, [FromForm] string? search = null, [FromForm] int? userId = null)

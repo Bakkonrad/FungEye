@@ -20,7 +20,7 @@ namespace FungEyeApi.Services
                 // Run tasks every 24 hours
                 await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
 
-                
+
                 await SendRemiderEmailForExpiredAccountsAsync();
                 await DeleteExpiredAccountsAsync();
                 await DeleteCompletedReportsAsync();
@@ -58,7 +58,7 @@ namespace FungEyeApi.Services
                         var postsWithImages = await dbContext.Posts
                                                 .Where(p => p.UserId == user.Id && !string.IsNullOrWhiteSpace(p.ImageUrl))
                                                 .ToListAsync();
-                        
+
                         foreach (var post in postsWithImages)
                         {
                             await blobService.DeleteFile(post.ImageUrl, Enums.BlobContainerEnum.Posts);

@@ -8,7 +8,7 @@
         public DateTime? ModifiedAt { get; set; }
         public string? ImageUrl { get; set; }
 
-        // Użytkownik, który stworzył post
+        // User who created the post
         public required int UserId { get; set; }
         public UserEntity? User { get; set; }
 

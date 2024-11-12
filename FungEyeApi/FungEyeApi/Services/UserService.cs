@@ -52,7 +52,7 @@ namespace FungEyeApi.Services
 
                 return true;
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 throw new Exception("Error during removing account :" + ex.Message);
             }
@@ -88,7 +88,7 @@ namespace FungEyeApi.Services
         public async Task<bool> IsAdmin(int userId)
         {
             var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
-            if((RoleEnum)userEntity.Role != RoleEnum.Admin)
+            if ((RoleEnum)userEntity.Role != RoleEnum.Admin)
             {
                 return false;
             }
@@ -124,13 +124,13 @@ namespace FungEyeApi.Services
             }
         }
 
-        
+
 
         public async Task<string> GetUserImage(int userId)
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
 
-            if(user.ImageUrl == null)
+            if (user.ImageUrl == null)
             {
                 throw new Exception("User doesn't have an avatar");
             }
@@ -148,7 +148,7 @@ namespace FungEyeApi.Services
                     throw new Exception("User doesn't exist");
                 }
 
-                switch(banOption)
+                switch (banOption)
                 {
                     case BanOptionEnum.Week:
                         userEntity.BanExpirationDate = DateTime.Now.AddDays(7);
@@ -234,7 +234,7 @@ namespace FungEyeApi.Services
 
                 var result = await _blobStorageService.DeleteFile(userEntity.ImageUrl, BlobContainerEnum.Users);
 
-                if(result)
+                if (result)
                 {
                     userEntity.ImageUrl = null;
                     await db.SaveChangesAsync();

@@ -33,7 +33,7 @@ namespace FungEyeApi.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Error during removing account :" + ex.Message);
+                throw new Exception("Error during retrieving profile :" + ex.Message);
             }
         }
 
@@ -52,7 +52,7 @@ namespace FungEyeApi.Services
 
                 return true;
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 throw new Exception("Error during removing account :" + ex.Message);
             }
@@ -62,8 +62,8 @@ namespace FungEyeApi.Services
         {
             var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == user.Id) ?? throw new Exception("User not found in the database");
 
-            userEntity.Username = user.Username;
-            userEntity.Email = user.Email;
+            userEntity.Username = user.Username ?? throw new Exception("Username cannot be null");
+            userEntity.Email = user.Email ?? "";
             userEntity.FirstName = user.FirstName;
             userEntity.LastName = user.LastName;
             userEntity.ImageUrl = user.ImageUrl;
@@ -88,7 +88,7 @@ namespace FungEyeApi.Services
         public async Task<bool> IsAdmin(int userId)
         {
             var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
-            if((RoleEnum)userEntity.Role != RoleEnum.Admin)
+            if ((RoleEnum)userEntity.Role != RoleEnum.Admin)
             {
                 return false;
             }
@@ -104,7 +104,10 @@ namespace FungEyeApi.Services
 
                 if (!String.IsNullOrWhiteSpace(search))
                 {
-                    query = query.Where(u => u.Username.Contains(search.ToString()) || u.Email.Contains(search.ToString()) || u.FirstName.Contains(search.ToString()));
+                    //query = query.Where(u => u.Username.Contains(search.ToString()) || u.Email.Contains(search.ToString()) || u.FirstName.Contains(search.ToString()));
+                    query = query.Where(u => u.Username != null && u.Username.Contains(search) ||
+                                             u.Email != null && u.Email.Contains(search) ||
+                                             u.FirstName != null && u.FirstName.Contains(search));
                 }
 
                 int pageSize = 5;
@@ -121,11 +124,17 @@ namespace FungEyeApi.Services
             }
         }
 
-        
+
 
         public async Task<string> GetUserImage(int userId)
         {
             var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
+
+            if (user.ImageUrl == null)
+            {
+                throw new Exception("User doesn't have an avatar");
+            }
+
             return user.ImageUrl;
         }
 
@@ -139,7 +148,7 @@ namespace FungEyeApi.Services
                     throw new Exception("User doesn't exist");
                 }
 
-                switch(banOption)
+                switch (banOption)
                 {
                     case BanOptionEnum.Week:
                         userEntity.BanExpirationDate = DateTime.Now.AddDays(7);
@@ -202,7 +211,7 @@ namespace FungEyeApi.Services
                 await db.SaveChangesAsync();
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -217,10 +226,15 @@ namespace FungEyeApi.Services
                 {
                     throw new Exception("User not found");
                 }
+                else if (userEntity.ImageUrl == null)
+                {
+                    throw new Exception("User doesn't have an avatar");
+                }
+
 
                 var result = await _blobStorageService.DeleteFile(userEntity.ImageUrl, BlobContainerEnum.Users);
 
-                if(result)
+                if (result)
                 {
                     userEntity.ImageUrl = null;
                     await db.SaveChangesAsync();
@@ -232,7 +246,7 @@ namespace FungEyeApi.Services
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

@@ -29,7 +29,7 @@
             </button>
           </div>
         </div>
-        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" />
+        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" :showMoreMushrooms="showMoreMushrooms" />
       </div>
     </div>
     <div class="settings container-md" v-if="isEditing">
@@ -94,6 +94,7 @@ import ProfileImage from "@/components/ProfileImage.vue";
 import UserService from "@/services/UserService";
 import AuthService from "@/services/AuthService";
 import FollowService from "@/services/FollowService";
+import FungiService from "@/services/FungiService";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
@@ -119,14 +120,12 @@ export default {
       errorLoadingData: false,
       error: false,
       mushrooms: [
-        "src/assets/images/mushrooms/ATLAS-borowik.jpg",
-        "src/assets/images/mushrooms/ATLAS-muchomor.jpg",
-        "src/assets/images/mushrooms/ATLAS-kurka.jpg",
-        "src/assets/images/mushrooms/ATLAS-podgrzybek.jpg",
-        "src/assets/images/mushrooms/ATLAS-borowik.jpg",
-        "src/assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
       ],
+      showMoreMushrooms: false,
     };
+  },
+  mounted() {
+    this.fetchSavedMushrooms();
   },
   methods: {
     logOut() {
@@ -167,6 +166,21 @@ export default {
       }
       this.logOut();
       this.$router.push("/log-in");
+    },
+    async fetchSavedMushrooms() {
+      const page = null;
+      const search = "";
+      const response = await FungiService.getAllFungies(page, search);
+      if (response.success === false) {
+        console.log(response.message);
+        return;
+      }
+      this.mushrooms = response.data.filter((mushroom) => mushroom.savedByUser == true);
+      if (this.mushrooms.length > 5) {
+        this.mushrooms = this.mushrooms.slice(0, 4);
+        this.showMoreMushrooms = true;  
+      }
+      console.log(this.mushrooms);  
     },
   },
   setup() {

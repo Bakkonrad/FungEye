@@ -226,6 +226,7 @@ ul {
 input,
 textarea {
   /* color: white !important; */
+  color: white;
   /* width: 90% !important; */
 
   box-sizing: border-box;
@@ -334,6 +335,13 @@ input.validInput {
 /* trujący */
 .attribute.poisonous {
   background-color: var(--red);
+}
+
+/* mieszane */
+.attribute.mixed {
+  background-color: var(--beige);
+  border: 1px solid var(--dark-green);
+  color: var(--dark-green);
 }
 
 .unauthorized {

@@ -4,9 +4,7 @@ using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -48,7 +46,7 @@ namespace FungEyeApi.Services
                 throw new Exception("Username or email is required");
             }
 
-            if(userId != null && existingUser != null) // if user is updating his profile and not changing username or email
+            if (userId != null && existingUser != null) // if user is updating his profile and not changing username or email
             {
                 return existingUser.Id != userId ? true : false;
             }
@@ -114,7 +112,7 @@ namespace FungEyeApi.Services
                     throw new AccessViolationException(checkUser.BanExpirationDate.ToString());
                 }
 
-                if(checkUser.DateDeleted != null)
+                if (checkUser.DateDeleted != null)
                 {
                     throw new Exception("Account is deleted");
                 }
@@ -122,11 +120,11 @@ namespace FungEyeApi.Services
                 string token = await CreateToken(new User(checkUser), CreateTokenEnum.Login);
                 return token;
             }
-            catch(Exception ex)
+            catch (Exception)
             {
                 throw;
             }
-            
+
         }
 
         public async Task<bool> ChangePassword(int userId, string newPassword)
@@ -135,7 +133,7 @@ namespace FungEyeApi.Services
             {
                 var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
-                if(userEntity == null)
+                if (userEntity == null)
                 {
                     throw new ArgumentException("User not found in the database");
                 }
@@ -144,7 +142,7 @@ namespace FungEyeApi.Services
                 await db.SaveChangesAsync();
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -153,13 +151,13 @@ namespace FungEyeApi.Services
         public async Task<bool> SendResetPasswordEmail(string userEmail)
         {
             var user = GetUser(userEmail);
-            
+
             var token = user.Result != null ? CreateToken(user.Result, CreateTokenEnum.ResetPassword) : throw new Exception("User not found");
             var resetLink = $"http://localhost:5173/resetPassword?token={token.Result}";
 
             var result = await _emailService.SendEmailAsync(userEmail, SendEmailOptionsEnum.ResetPassword, resetLink);
 
-            if(result)
+            if (result)
             {
                 return true;
             }
@@ -171,6 +169,10 @@ namespace FungEyeApi.Services
 
         public async Task<bool> SendSetAdminPasswordEmail(string userEmail)
         {
+            if (userEmail == null)
+            {
+                throw new Exception("Email is required");
+            }
             var user = GetUser(userEmail);
 
             var token = user.Result != null ? CreateToken(user.Result, CreateTokenEnum.ResetPassword) : throw new Exception("User not found");
@@ -214,7 +216,7 @@ namespace FungEyeApi.Services
                                 );
                     var resetPasswordJwt = new JwtSecurityTokenHandler().WriteToken(resetPasswordToken);
                     return Task.FromResult(resetPasswordJwt);
-                
+
                 case CreateTokenEnum.Login:
                     var loginToken = new JwtSecurityToken(
                         claims: claims,
@@ -232,7 +234,7 @@ namespace FungEyeApi.Services
         {
             UserEntity? existingUser = null;
 
-            if ( email != null)
+            if (email != null)
             {
                 existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == email);
             }

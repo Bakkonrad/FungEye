@@ -18,7 +18,7 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpGet("predict")]
+        [HttpPost("predict")]
         public async Task<IActionResult> Predict([FromForm] IFormFile image)
         {
             try

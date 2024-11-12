@@ -15,6 +15,7 @@ import UserProfileAdminView from "@/views/UserProfile-AdminView.vue";
 import ForgotPassword from "@/views/ForgotPasswordView.vue";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import PostView from "@/views/PostView.vue";
+import MapView from "@/views/MapView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,10 +81,15 @@ const router = createRouter({
       component: WeatherView,
     },
     {
+      path: "/map",
+      name: "map",
+      component: MapView,
+    },
+    {
       path: "/mushroom/:id",
       name: "MushroomView",
       component: MushroomView,
-      props: true,
+      props: (route) => ({ id: Number(route.params.id) }),
     },
     {
       path: "/admin",
@@ -128,7 +134,8 @@ const router = createRouter({
     {
       path: '/post/:id',
       name: 'post',
-      component: PostView
+      component: PostView,
+      props: route => ({ id: Number(route.params.id), reportedCommentId: Number(route.query.reportedCommentId) || null }),
     }
   ]
 })

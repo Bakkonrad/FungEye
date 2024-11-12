@@ -29,10 +29,10 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (!ValidateUserId(userId) && admin == false)
+                if (!ValidateUserId(userId) && admin == false) // if user is not admin and userId is not the same as the one in token
                 {
                     return Forbid();
                 }
@@ -59,7 +59,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (admin == false)
@@ -79,7 +79,7 @@ namespace FungEyeApi.Controllers
             }
             catch (Exception ex)
             {
-                if(ex.Message.Equals("User not found"))
+                if (ex.Message.Equals("User not found"))
                 {
                     return NotFound(ex.Message);
                 }
@@ -94,7 +94,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (!ValidateUserId(userId) && admin == false)
@@ -106,10 +106,10 @@ namespace FungEyeApi.Controllers
                 {
                     return BadRequest("No file selected.");
                 }
-                
+
                 var oldUrl = await _userService.GetUserImage(userId);
 
-                if (!IsPlaceholder(oldUrl))
+                if (!IsPlaceholder(oldUrl)) // if old image is not placeholder then delete it
                 {
                     bool deleteResult = await _blobStorageService.DeleteFile(oldUrl, blobContainer);
                 }
@@ -153,36 +153,36 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var user = JsonConvert.DeserializeObject<User>(userJson);
+                var user = JsonConvert.DeserializeObject<User>(userJson) ?? throw new Exception("Error during deserializing User object");
 
                 if (await _authService.IsUsernameOrEmailUsed(user.Username, user.Email, user.Id))
                 {
                     return BadRequest("Username or email already in use.");
                 }
 
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (!ValidateUserId(user.Id) && admin == false)
+                if (!ValidateUserId(user.Id) && admin == false) // if user is not admin and userId is not the same as the one in token
                 {
                     return Forbid();
                 }
 
-                if (image != null)
+                if (image != null) // if image is uploaded
                 {
                     if (image.Length > 0)
                     {
-                        if (!IsPlaceholder(user.ImageUrl))
+                        if (!String.IsNullOrWhiteSpace(user.ImageUrl) && !IsPlaceholder(user.ImageUrl)) // if user has image and it is not placeholder then delete it
                         {
                             await _blobStorageService.DeleteFile(user.ImageUrl, blobContainer);
                         }
                         var newImageUrl = await _blobStorageService.UploadFile(image, blobContainer);
                         user.ImageUrl = newImageUrl;
-                        
+
                     }
                 }
-                
-                if(user.ImageUrl != null && user.ImageUrl.Equals("changeToPlaceholder"))
+
+                if (user.ImageUrl != null && user.ImageUrl.Equals("changeToPlaceholder")) // if user wants to delete image then delete it and set to placeholder
                 {
                     await _blobStorageService.DeleteFile(user.ImageUrl, blobContainer);
                     user.ImageUrl = "placeholder";
@@ -191,7 +191,7 @@ namespace FungEyeApi.Controllers
                 var updateUser = await _userService.UpdateUser(user);
                 return Ok();
             }
-            catch(ArgumentException)
+            catch (ArgumentException) // if username or email is already in use
             {
                 return StatusCode(405, "Username or email already in use");
             }
@@ -206,16 +206,9 @@ namespace FungEyeApi.Controllers
         [HttpPost("getUsers")]
         public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null, [FromForm] string? search = null)
         {
-            if (!ValidateUserId(userId))
-            {
-                return Forbid();
-            }
-
             try
             {
-                var admin = await _userService.IsAdmin(userId);
-
-                if (admin == false)
+                if (!ValidateUserId(userId))
                 {
                     return Forbid();
                 }
@@ -234,7 +227,7 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        
+
 
         [Authorize]
         [HttpPost("banUser/{userId}/{banOption}")]
@@ -242,10 +235,10 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (admin == false)
+                if (admin == false) // if user is not admin then forbid
                 {
                     return Forbid();
                 }
@@ -268,7 +261,7 @@ namespace FungEyeApi.Controllers
 
         private bool ValidateUserId(int userId)
         {
-            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdFromToken = GetUserIdFromToken();
             if (userIdFromToken == null || userIdFromToken != userId.ToString())
             {
                 return false;
@@ -281,6 +274,11 @@ namespace FungEyeApi.Controllers
         private static bool IsPlaceholder(string? imageurl)
         {
             return imageurl == "placeholder" ? true : false;
+        }
+
+        private string GetUserIdFromToken()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
         }
     }
 }

@@ -26,6 +26,7 @@
     </div>
   </div>
   <div class="post-actions">
+    <LoadingSpinner v-if="isLoading"></LoadingSpinner>
     <button class="btn fungeye-default-button publish-button" @click="publishPost">Opublikuj</button>
   </div>
   <div v-if="error" class="error-message">
@@ -38,10 +39,12 @@ import PostService from "@/services/PostService";
 import ProfileImage from "./ProfileImage.vue";
 import AuthService from "@/services/AuthService";
 import { profileImage } from "@/services/AuthService";
+import LoadingSpinner from "./LoadingSpinner.vue";
 
 export default {
   components: {
     ProfileImage,
+    LoadingSpinner,
   },
   emits: ['post-added'],
   data() {
@@ -51,10 +54,12 @@ export default {
         name: '',
         url: '',
       },
+      file: '',
       isDragging: false,
       error: null,
       errorMessage: '',
       imgSrc: profileImage,
+      isLoading: false,
     };
   },
   methods: {
@@ -69,10 +74,12 @@ export default {
       this.isDragging = false;
       const file = event.dataTransfer.files[0];
       this.handleFileSelection(file);
+      this.file = file;
     },
     onFileChange(event) {
       const file = event.target.files[0];
       this.handleFileSelection(file);
+      this.file = file;
     },
     handleFileSelection(file) {
       if (this.image.name !== file.name) {
@@ -86,6 +93,7 @@ export default {
       this.image = '';
     },
     async publishPost() {
+      this.isLoading = true;
       if (this.content.trim() == '' && this.image.name == '') {
         alert('Nie można opublikować pustego posta');
         return;
@@ -94,12 +102,14 @@ export default {
       const post = {
         id: 0,
         content: this.content,
-        image: this.image,
+        // image: this.image,
         userId: parseInt(localStorage.getItem("id")),
       };
 
-      // const response = await PostService.addPost(post);
-      const response = { success: true };
+      console.log(post);
+      console.log(this.file);
+      const response = await PostService.addPost(post, this.file);
+      // const response = { success: true };
       if (response.success == false) {
         this.error = true;
         this.errorMessage = response.message;
@@ -112,6 +122,8 @@ export default {
         name: '',
         url: '',
       };
+      this.file = '';
+      this.isLoading = false;
     },
     autoResize(event) {
       const textarea = event.target;
@@ -233,6 +245,7 @@ export default {
 .post-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
   width: 100%;
 }
 

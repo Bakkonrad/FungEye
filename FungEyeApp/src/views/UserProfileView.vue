@@ -6,18 +6,27 @@
       <button @click="goBack" class="btn fungeye-default-button">Powrót do poprzedniej strony</button>
     </div>
     <div v-else class="container-md">
+      <div class="ban-user">
+        <UserBan v-if="isBanning" :user="user" @cancel-ban="cancelBanning" @ban-successful="cancelBanning" />
+      </div>
       <div id="user-info">
         <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
-        <div class="buttons">
+        <div v-if="isLoggedUser == false" class="buttons">
           <button v-if="followed == false" @click="follow" type="button" class="btn fungeye-default-button">
             &plus; Obserwuj
           </button>
           <button v-if="followed == true" @click="unfollow" type="button" class="btn fungeye-red-button">
             Usuń z obserwowanych
           </button>
+          <button v-if="isAdmin === true" @click="isBanning = true" type="button" class="btn fungeye-red-button">
+            Zbanuj
+          </button>
+        </div>
+        <div v-else>
+          <button @click="goToMyProfile" class="btn fungeye-default-button">Przejdź do swojego profilu</button>
         </div>
       </div>
-      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" />
+      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" :showMoreMushrooms="showMoreMushrooms" />
     </div>
   </div>
 </template>
@@ -28,17 +37,23 @@ import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import UserService from "@/services/UserService";
 import FollowService from "@/services/FollowService";
+import FungiService from "@/services/FungiService";
 import { ref } from "vue";
+import { checkAdmin, isAdmin } from "@/services/AuthService";
+import UserBan from "@/components/BanUser.vue";
 
 export default {
   components: {
     ProfileImage,
     UserProfileCollections,
     UserProfileInfo,
+    UserBan,
   },
   async created() {
     this.fetchUser();
+    this.fetchSavedMushrooms();
     this.checkIfFollowed();
+    this.isLoggedUser = this.isThisUserLoggedIn();
   },
   data() {
     return {
@@ -51,22 +66,27 @@ export default {
       mushrooms: [],
       createdAt: "",
       errorFindingUser: false,
+      isLoggedUser: false,
+      isAdmin: false,
+      isBanning: false,
+      showMoreMushrooms: false,
     };
   },
   setup() {
+    checkAdmin();
     return {
+      isAdmin: isAdmin,
       followed: ref(null),
       follows: ref([]),
       followers: ref([]),
     };
   },
+  mounted() {
+    this.fetchSavedMushrooms();
+  },
   methods: {
     async fetchUser() {
       this.id = this.$route.params.id;
-      if (this.id == localStorage.getItem("id")) {
-        this.$router.push({ name: "myProfile" });
-        return;
-      }
       const response = await UserService.getUserData(this.id);
       const followsResponse = await FollowService.getFollowing(this.id);
       const followersResponse = await FollowService.getFollowers(this.id);
@@ -83,6 +103,21 @@ export default {
       this.createdAt = response.data.createdAt;
       this.follows = followsResponse.data;
       this.followers = followersResponse.data;
+    },
+    async fetchSavedMushrooms() {
+      const page = null;
+      const search = "";
+      const response = await FungiService.getAllFungies(page, search, this.id);
+      if (response.success === false) {
+        console.log(response.message);
+        return;
+      }
+      this.mushrooms = response.data.filter((mushroom) => mushroom.savedByUser == true);
+      if (this.mushrooms.length > 5) {
+        this.mushrooms = this.mushrooms.slice(0, 4);
+        this.showMoreMushrooms = true;  
+      }
+      console.log(this.mushrooms);  
     },
     async checkIfFollowed() {
       const response = await FollowService.isFollowing(localStorage.getItem("id"), this.id);
@@ -110,8 +145,17 @@ export default {
       this.followed = false;
       this.fetchUser();
     },
+    cancelBanning() {
+      this.isBanning = false;
+    },
     goBack() {
       this.$router.go(-1);
+    },
+    isThisUserLoggedIn() {
+      return this.id == localStorage.getItem("id");
+    },
+    goToMyProfile() {
+      this.$router.push({ name: "myProfile" });
     },
   },
 };

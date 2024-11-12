@@ -2,25 +2,27 @@
   <div class="card">
     <div class="card-body">
       <span class="header">
-        <span class="username-data">
+        <span class="username-data" @click="goToProfile">
           <ProfileImage :imgSrc="imgSrc" />
           <p class="username">{{ username }}</p>
         </span>
         <span class="buttons">
-          <button class="btn" @click="reportUser">
-            <font-awesome-icon icon="fa-solid fa-flag" class="button-icon"></font-awesome-icon>
-            Zgłoś
+          <button v-if="!isAuthor" class="btn" @click="report">
+            <font-awesome-icon icon="fa-solid fa-flag"
+              :class="reportedPostId == id ? 'reported' : ''"></font-awesome-icon>
           </button>
-          <button v-if="detailsView && isAuthor" class="btn" @click="editPost">
-            <font-awesome-icon icon="fa-solid fa-pen" class="button-icon"></font-awesome-icon>
-            Edytuj
+          <button v-if="detailsView && isAuthor" class="btn" @click="$emit('edit')">
+            <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
+          </button>
+          <button v-if="detailsView && (isAuthor || isAdmin)" class="btn" @click="$emit('delete')">
+            <font-awesome-icon icon="fa-solid fa-trash"></font-awesome-icon>
           </button>
         </span>
       </span>
-
+      <p class="card-date">{{ formatDate(createdAt) }}</p>
       <p class="card-text">{{ content }}</p>
-      <div v-if="image && image.name != ''" :class="detailsView ? 'post-image' : 'uploaded-image'">
-        <img :src="image.url" alt="uploaded image" />
+      <div v-if="image" :class="detailsView ? 'post-image' : 'uploaded-image'" @click="viewPost">
+        <img :src="image" alt="uploaded image" />
       </div>
       <div class="likes-and-comments">
         <span class="likes">
@@ -31,7 +33,7 @@
           </span>
         </span>
         <span class="comments">
-          <span class="num-of-comments">
+          <span class="num-of-comments" :style="!detailsView ? 'cursor: pointer' : ''" @click="viewPost">
             <p class="comments-header">Komentarze: </p>
             <p class="num-of-comments">{{ numOfComments }}</p>
             <font-awesome-icon icon="fa-solid fa-comment"></font-awesome-icon>
@@ -39,14 +41,15 @@
         </span>
       </div>
       <div class="card-footer">
-        <button class="btn like-button" :class="isLiked ? 'dislike' : ''" @click.stop="toggleLike">
-          <div v-if="!isLiked">
+        <button class="btn like-button" :class="localIsLiked ? 'liked' : ''"
+          @click.stop="localIsLiked ? deleteLike() : addLike()">
+          <div v-if="!localIsLiked">
             <font-awesome-icon icon="fa-solid fa-thumbs-up" class="button-icon"></font-awesome-icon>
             Lubię to
           </div>
           <div v-else>
-            <font-awesome-icon icon="fa-solid fa-thumbs-down" class="button-icon"></font-awesome-icon>
-            Nie lubię tego
+            <font-awesome-icon icon="fa-solid fa-thumbs-up" class="button-icon liked-button"></font-awesome-icon>
+            Polubiono
           </div>
         </button>
         <button v-if="!detailsView" class="btn" @click="viewPost">
@@ -61,10 +64,14 @@
 <script>
 import UserService from "@/services/UserService";
 import ProfileImage from "./ProfileImage.vue";
+import { checkAdmin, isAdmin } from "@/services/AuthService";
+import BaseInput from "./BaseInput.vue";
+import PostService from "@/services/PostService";
 
 export default {
   components: {
     ProfileImage,
+    BaseInput,
   },
   props: {
     id: {
@@ -73,47 +80,68 @@ export default {
     },
     userId: {
       type: Number,
-      default: 0,
+      required: true,
     },
     content: {
       type: String,
       required: true,
     },
     image: {
-      type: Object,
-      default: () => ({}),
     },
     numOfLikes: {
       type: Number,
-      default: 0,
+      required: true,
     },
     numOfComments: {
       type: Number,
       default: 0,
     },
+    createdAt: {
+      type: String,
+      required: true,
+    },
+    isLiked: {
+      type: Boolean,
+      default: false,
+    },
     detailsView: {
       type: Boolean,
       default: false,
     },
+    reportedUserId: {
+      type: Number,
+    },
   },
   data() {
     return {
-      isLiked: false,
       imgSrc: "",
       username: "",
       isImageVisible: false,
       localNumOfLikes: this.numOfLikes,
-      isAuthor: this.userId === 2,
+      isAuthor: false,
+      isAdmin: false,
+      post: {},
+      localIsLiked: this.isLiked,
+      reportedPostId: this.reportedUserId,
+    };
+  },
+  setup() {
+    checkAdmin();
+    return {
+      isAdmin: isAdmin
     };
   },
   mounted() {
+    this.localNumOfLikes = this.numOfLikes;
+    this.localIsLiked = this.isLiked;
     this.getAuthorData();
+    this.checkAuthor();
   },
   methods: {
-    toggleLike() {
-      this.isLiked = !this.isLiked;
-    },
     async getAuthorData() {
+      if (!this.userId) {
+        return;
+      }
       const response = await UserService.getUserData(this.userId);
       if (response.success === false) {
         console.error("Error while fetching user data");
@@ -125,16 +153,49 @@ export default {
     viewPost() {
       this.$router.push({ name: 'post', params: { id: this.id } });
     },
-    toggleLike() {
-      this.isLiked = !this.isLiked;
-      if (this.isLiked) {
-        this.localNumOfLikes++;
-      } else {
-        this.localNumOfLikes--;
+    async addLike() {
+      const response = await PostService.likePost(this.id);
+      if (response.success === false) {
+        console.error("Error while adding like");
+        return;
+      }
+      this.localNumOfLikes++;
+      this.localIsLiked = true;
+    },
+    async deleteLike() {
+      const response = await PostService.unlikePost(this.id);
+      if (response.success === false) {
+        console.error("Error while deleting like");
+        return;
+      }
+      this.localNumOfLikes--;
+      this.localIsLiked = false;
+    },
+    async report() {
+      try {
+        const commentId = null;
+        const response = await PostService.report(this.id, commentId);
+        if (response.success === false) {
+          console.error("Error while reporting user");
+          return;
+        }
+        this.reportedPostId = this.id;
+        alert("Zgłoszono post");
+      }
+      catch (error) {
+        console.error(error);
       }
     },
-    reportUser() {
-      alert("Zgłoszono użytkownika");
+    checkAuthor() {
+      this.isAuthor = this.userId == localStorage.getItem("id");
+    },
+    goToProfile() {
+      this.$router.push({ name: 'userProfile', params: { id: this.userId } });
+    },
+    formatDate(date) {
+      if (!date) return "";
+      // minus miliseconds
+      return new Date(date).toLocaleString().slice(0, -3);
     },
   },
 };
@@ -163,6 +224,7 @@ export default {
   display: flex;
   align-items: last baseline;
   gap: 10px;
+  cursor: pointer;
 }
 
 .post-image {
@@ -172,8 +234,17 @@ export default {
   margin-bottom: 1rem;
 }
 
+.card-date {
+  font-size: 0.9rem;
+  color: var(--gray);
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .card-text {
-  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .likes,
@@ -189,19 +260,23 @@ export default {
   margin-bottom: 1rem;
   border-radius: 10px;
   width: 100%;
-  max-height: 20rem;
+  max-height: 50rem;
   overflow: hidden;
+  cursor: pointer;
+  object-fit: cover;
+  object-position: bottom;
 }
 
 .uploaded-image img {
   width: 100%;
   object-fit: cover;
+  object-position: bottom;
 }
 
 .post-image {
   width: 100%;
   height: 100%;
-  max-height: 50rem;
+  max-height: 90rem;
   border-radius: 10px;
   margin-bottom: 1rem;
   overflow: hidden;
@@ -227,8 +302,13 @@ export default {
   gap: 0.5rem;
 }
 
-.like-button.dislike {
-  color: var(--red);
+.like-button.liked {
+  color: var(--dark-green);
+  font-weight: bold;
+}
+
+.liked-button {
+  color: var(--dark-green);
 }
 
 .card-footer {
@@ -243,6 +323,10 @@ export default {
   justify-content: space-around;
   align-items: center;
   gap: 1rem;
+}
+
+.reported {
+  color: var(--red);
 }
 
 @media screen and (max-width: 556px) {

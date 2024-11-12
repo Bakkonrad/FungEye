@@ -1,5 +1,4 @@
 ﻿using FungEyeApi.Enums;
-using FungEyeApi.Models;
 
 namespace FungEyeApi.Interfaces
 {

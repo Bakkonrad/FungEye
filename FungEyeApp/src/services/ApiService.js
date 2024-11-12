@@ -46,7 +46,6 @@ const validateToken = async () => {
             AuthService.logout();
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        // console.log('Token is valid');
         return { success: true };
     } catch (error) {
         console.error('Error validating token:', error);

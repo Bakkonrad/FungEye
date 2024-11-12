@@ -25,7 +25,7 @@
                         <li v-if="isDeleted"><b>Konto usunięte dnia:</b> {{ dateDeleted }}</li>
                     </ul>
                 </div>
-                <div class="admin-actions">
+                <div v-if="isThisUserLoggedIn == false" class="admin-actions">
                     <button class="btn fungeye-default-button action-button" id="btn-retrieveAccount"
                         @click="retrieveAccount()" v-if="isDeleted">
                         <font-awesome-icon icon="fa-solid fa-undo" class="button-icon"></font-awesome-icon>
@@ -51,6 +51,11 @@
                         <font-awesome-icon icon="fa-solid fa-trash" class="button-icon"></font-awesome-icon>
                         Usuń użytkownika
                     </button>
+                </div>
+                <div v-else class="admin-actions">
+                    <h2>
+                        Aby zarządzać swoim kontem, przejdź do swojego profilu.
+                    </h2>
                 </div>
             </div>
         </div>
@@ -91,6 +96,7 @@ export default {
             errorFindingUser: false,
             isEditing: false,
             isBanning: false,
+            isThisUserLoggedIn: false,
         };
     },
     methods: {
@@ -179,10 +185,10 @@ export default {
         },
         async fetchUser() {
             this.id = this.$route.params.id;
-            if (this.id == localStorage.getItem("id")) {
-                this.$router.push({ name: "myProfile" });
-                return;
-            }
+            // if (this.id == localStorage.getItem("id")) {
+            //     this.$router.push({ name: "myProfile" });
+            //     return;
+            // }
             const response = await UserService.getUserData(this.id);
             if (response.success === false) {
                 this.errorFindingUser = true;
@@ -201,10 +207,14 @@ export default {
             this.name_surname = response.data.firstName + " " + response.data.lastName;
             this.email = response.data.email;
             this.createdAt = response.data.createdAt;
-        }
+        },
+        checkLoggedUser() {
+            this.isThisUserLoggedIn = this.id == localStorage.getItem("id");
+        },
     },
     async created() {
         this.fetchUser();
+        this.checkLoggedUser();
     },
 };
 </script>
@@ -233,7 +243,7 @@ export default {
     align-items: flex-start;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 7em;
+    gap: 3em;
     margin-bottom: 2em;
 }
 
@@ -242,18 +252,29 @@ export default {
     flex-direction: column;
     align-items: center;
     gap: 1em;
+    background-color: var(--beige);
+    padding: 1.5em 3em;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-admin-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
 }
 
 .admin-content {
     display: flex;
     flex-direction: row;
-    gap: 4em;
+    gap: 3em;
 }
 
 .admin-actions {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    max-width: 300px;
 }
 
 .infos {

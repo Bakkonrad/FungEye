@@ -2,10 +2,18 @@
   <div class="atlas-view">
     <h1>Atlas grzybów</h1>
 
-    <div v-if="isAdmin" class="button-center">
-      <button @click="showAddMushroomModal = true" class="btn fungeye-default-button">
-        <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
-        Dodaj nowego grzyba</button>
+    <div class="upper-buttons">
+      <div v-if="isAdmin" class="button-center">
+        <button @click="showAddMushroomModal = true" class="btn fungeye-default-button">
+          <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
+          Nowy grzyb</button>
+      </div>
+      <div class="button-center">
+        <button v-if="isLoggedIn" class="btn fungeye-default-button" @click="toggleSavedTab">
+          <font-awesome-icon v-if="!showSaved" icon="fa-solid fa-bookmark" class="button-icon" />
+          {{ showSaved === true ? 'Pokaż wszystkie' : 'Pokaż tylko zapisane' }}
+        </button>
+      </div>
     </div>
 
     <div class="feedback">
@@ -16,6 +24,9 @@
         <p v-if="successMessage">{{ successMessage }}</p>
       </div>
     </div>
+
+    <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton"
+      @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
 
     <SearchBar @search="handleSearch" />
     <div class="alphabet-filter">
@@ -33,13 +44,16 @@
     </div>
 
     <div class="mushroom-list">
-      <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card" @click="openMushroomView(mushroom.id)">
+      <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card"
+        @click="openMushroomView(mushroom.id)">
         <span class="left">
-          <img :src="mushroom.image" alt="Mushroom Image" class="mushroom-image" />
+          <img v-if="mushroom.imagesUrl" :src="mushroom.imagesUrl[0]" alt="Mushroom Image" class="mushroom-image" />
           <div class="mushroom-info">
-            <h3>{{ mushroom.name }}</h3>
+            <h3 class="polish-name">{{ mushroom.polishName }}</h3>
+            <h4 class="latin-name">{{ mushroom.latinName }}</h4>
             <div class="attributes">
-              <span v-for="attr in mushroom.attributes" :key="attr" class="mushroom-attribute" @click.stop="toggleAttributeFilter(attr)"
+              <span v-for="attr in mushroom.attributes" :key="attr" class="mushroom-attribute"
+                @click.stop="toggleAttributeFilter(attr)"
                 :class="['attribute', attributeClass(attr), { 'active-attribute': isActiveAttribute(attr) }]">
                 {{ attr }}
               </span>
@@ -48,17 +62,29 @@
         </span>
         <!-- Przycisk edytowania i usuwania grzyba -->
         <div class="mushroom-actions">
-          <button class="btn btn-mushroom fungeye-default-button">
-            <font-awesome-icon v-if="!mushroomSaved" icon="fa-regular fa-bookmark" @click.stop="saveMushroom"/>
-            <font-awesome-icon v-else icon="fa-solid fa-bookmark" @click.stop="unsaveMushroom"/>
+          <button v-if="isLoggedIn" class="btn btn-mushroom fungeye-default-button"
+            @click.stop="mushroom.savedByUser ? deleteMushroomFromCollection(mushroom.id) : saveMushroomToCollection(mushroom.id)">
+            <font-awesome-icon v-if="!mushroom.savedByUser" icon="fa-regular fa-bookmark" />
+            <font-awesome-icon v-else icon="fa-solid fa-bookmark" />
           </button>
           <button v-if="isAdmin" @click.stop="editMushroom(mushroom)" class="btn btn-mushroom fungeye-default-button">
             <font-awesome-icon icon="fa-solid fa-pen" />
           </button>
-          <button v-if="isAdmin" @click.stop="confirmDeleteMushroom(mushroom)" class="btn btn-mushroom fungeye-red-button">
+          <button v-if="isAdmin" @click.stop="confirmDeleteMushroom(mushroom)"
+            class="btn btn-mushroom fungeye-red-button">
             <font-awesome-icon icon="fa-solid fa-trash" />
           </button>
         </div>
+      </div>
+    </div>
+
+    <div class="feedback mt-5">
+      <LoadingSpinner v-if="isLoading"></LoadingSpinner>
+      <div v-if="fetchMushroomsErrorMessage">
+        <p class="error-message">{{ fetchMushroomsErrorMessage }}</p>
+      </div>
+      <div v-if="noMoreResults">
+        <p class="no-more-results">To już wszystkie wyniki.</p>
       </div>
     </div>
 
@@ -72,7 +98,7 @@
     <div v-if="showDeleteMushroomModal" class="modal">
       <div class="modal-content">
         <h2>Potwierdź działanie</h2>
-        <p>Czy na pewno chcesz usunąć grzyba <b>{{ mushroomToDelete.name }}</b> z bazy danych?</p>
+        <p>Czy na pewno chcesz usunąć grzyb <b>{{ mushroomToDelete.name }}</b> z bazy danych?</p>
         <p class="warning"><strong>Uwaga!</strong> To działanie jest nieodwracalne.</p>
         <span class="buttons">
           <button class="btn fungeye-red-button" @click="deleteMushroom">Usuń</button>
@@ -87,52 +113,124 @@
 import SearchBar from '@/components/SearchBar.vue';
 import BaseInput from '@/components/BaseInput.vue';
 import MushroomModal from '@/components/MushroomModal.vue';
-import { checkAdmin, isAdmin } from '@/services/AuthService';
+import FungiService from '@/services/FungiService';
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import { checkAdmin, checkAuth, isAdmin, isLoggedIn } from '@/services/AuthService';
 
 export default {
   components: {
     SearchBar,
     BaseInput,
     MushroomModal,
-  },
-  mounted() {
-    checkAdmin();
-    this.isAdmin = isAdmin;
+    LoadingSpinner,
   },
   data() {
     return {
       isAdmin: false,
+      isLoggedIn: isLoggedIn,
       searchQuery: '',
       activeLetter: '',
       selectedAttributes: [],
       addMushroomSelectedAttributes: [],
-      mushrooms: [
-        {
-          id: 1,
-          name: 'Borowik szlachetny',
-          image: 'src/assets/images/mushrooms/ATLAS-borowik.jpg',
-          attributes: ['iglaste', 'liściaste', 'jadalny'],
-          description: 'Borowik szlachetny to jeden z najbardziej cenionych grzybów jadalnych.'
-        },
-        {
-          id: 2,
-          name: 'Muchomor czerwony',
-          image: 'src/assets/images/mushrooms/ATLAS-muchomor.jpg',
-          attributes: ['iglaste', 'liściaste', 'trujący', 'niejadalny'],
-          description: 'Muchomor czerwony to grzyb trujący, znany ze swojego charakterystycznego wyglądu.'
-        },
-      ],
+      mushrooms: [],
+      localMushrooms: [{
+        id: 1,
+        name: 'Borowik szlachetny',
+        image: 'src/assets/images/mushrooms/ATLAS-borowik.jpg',
+        attributes: ['iglaste', 'liściaste', 'jadalny'],
+        description: 'Borowik szlachetny to jeden z najbardziej cenionych grzybów jadalnych.'
+      },
+      {
+        id: 2,
+        name: 'Muchomor czerwony',
+        image: 'src/assets/images/mushrooms/ATLAS-muchomor.jpg',
+        attributes: ['iglaste', 'liściaste', 'trujący', 'niejadalny'],
+        description: 'Muchomor czerwony to grzyb trujący, znany ze swojego charakterystycznego wyglądu.'
+      },
+      {
+        id: 3,
+        name: 'Pieczarka polna',
+        image: 'src/assets/images/mushrooms/ATLAS-pieczarka.jpg',
+        attributes: ['jadalny', 'łąkowy'],
+        description: 'Pieczarka polna to popularny grzyb jadalny, często spotykany na łąkach.'
+      },
+      {
+        id: 4,
+        name: 'Kurka',
+        image: 'src/assets/images/mushrooms/ATLAS-kurka.jpg',
+        attributes: ['jadalny', 'iglaste'],
+        description: 'Kurka to smaczny grzyb jadalny, często spotykany w lasach iglastych.'
+      },
+      {
+        id: 5,
+        name: 'Maślak zwyczajny',
+        image: 'src/assets/images/mushrooms/ATLAS-maslak.jpg',
+        attributes: ['jadalny', 'iglaste'],
+        description: 'Maślak zwyczajny to grzyb jadalny, często spotykany w lasach iglastych.'
+      },
+      {
+        id: 6,
+        name: 'Opieńka miodowa',
+        image: 'src/assets/images/mushrooms/ATLAS-opienka.jpg',
+        attributes: ['jadalny', 'liściaste'],
+        description: 'Opieńka miodowa to grzyb jadalny, często spotykany w lasach liściastych.'
+      },
+      {
+        id: 7,
+        name: 'Gąska zielonka',
+        image: 'src/assets/images/mushrooms/ATLAS-gaska.jpg',
+        attributes: ['jadalny', 'iglaste'],
+        description: 'Gąska zielonka to grzyb jadalny, często spotykany w lasach iglastych.'
+      },
+      {
+        id: 8,
+        name: 'Koźlarz babka',
+        image: 'src/assets/images/mushrooms/ATLAS-kozlarz.jpg',
+        attributes: ['jadalny', 'liściaste'],
+        description: 'Koźlarz babka to grzyb jadalny, często spotykany w lasach liściastych.'
+      },
+      {
+        id: 9,
+        name: 'Rydz',
+        image: 'src/assets/images/mushrooms/ATLAS-rydz.jpg',
+        attributes: ['jadalny', 'iglaste'],
+        description: 'Rydz to grzyb jadalny, często spotykany w lasach iglastych.'
+      },
+      {
+        id: 10,
+        name: 'Sromotnik bezwstydny',
+        image: 'src/assets/images/mushrooms/ATLAS-sromotnik.jpg',
+        attributes: ['niejadalny', 'liściaste'],
+        description: 'Sromotnik bezwstydny to grzyb niejadalny, często spotykany w lasach liściastych.'
+      },
+      {
+        id: 11,
+        name: 'Trufla czarna',
+        image: 'src/assets/images/mushrooms/ATLAS-trufla.jpg',
+        attributes: ['jadalny', 'liściaste'],
+        description: 'Trufla czarna to grzyb jadalny, ceniony za swój wyjątkowy smak.'
+      },
+      {
+        id: 12,
+        name: 'Mleczaj rydz',
+        image: 'src/assets/images/mushrooms/ATLAS-mleczaj.jpg',
+        attributes: ['jadalny', 'iglaste'],
+        description: 'Mleczaj rydz to grzyb jadalny, często spotykany w lasach iglastych.'
+      }],
+      filteredMushrooms: [],
       alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-      availableAttributes: ['iglaste', 'liściaste', 'jadalny', 'niejadalny', 'trujący'],
+      availableAttributes: ['iglaste', 'mieszane', 'liściaste', 'jadalny', 'niejadalny', 'trujący'],
       showAddMushroomModal: false,
       showEditMushroomModal: false,
       showDeleteMushroomModal: false,
 
       mushroomForm: {
-        name: '',
-        image: '',
+        polishName: '',
+        latinName: '',
+        images: [],
         attributes: [],
-        description: ''
+        description: '',
+        savedByUser: false,
       },
       mushroomToDelete: null,
       editMushroomId: null,
@@ -140,20 +238,91 @@ export default {
       error: false,
       errorMessage: '',
       successMessage: '',
-      mushroomSaved: false,
+      showSaved: false,
+      isLoading: false,
+      currentPage: 1,
+      goToTheTopButton: null,
+      fetchMushroomsErrorMessage: '',
+      noMoreResults: false,
     };
   },
-  computed: {
-    filteredMushrooms() {
-      let filtered = this.mushrooms;
-
-      if (this.activeLetter) {
-        filtered = filtered.filter((mushroom) => mushroom.name.startsWith(this.activeLetter));
+  async mounted() {
+    checkAuth();
+    checkAdmin();
+    this.isAdmin = isAdmin;
+    this.isLoggedIn = isLoggedIn;
+    this.goToTheTopButton = this.$refs.goToTheTopButton;
+    this.getFungies();
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  beforeDestroy() {
+    window.removeEventListener("scroll", this.handleScroll);
+  },
+  methods: {
+    async getFungies(page) {
+      try {
+        if (this.noMoreResults || this.isLoading) {
+          return;
+        }
+        this.isLoading = true;
+        const response = await FungiService.getAllFungies(page, this.searchQuery);
+        console.log(response.data);  
+        if (response.success === false) {
+          this.error = true;
+          this.fetchMushroomsErrorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
+          return;
+        }
+        if (response.data.length === 0 && this.mushrooms.length === 0) {
+          this.error = true;
+          this.fetchMushroomsErrorMessage = "Nie znaleziono grzybów spełniających kryteria.";
+          return;
+        } else if (response.data.length === 0) {
+          this.error = true;
+          this.noMoreResults = true;  
+          return;
+        }
+        this.noMoreResults = false;
+        this.error = false;
+        const newFungies = response.data;
+        this.mushrooms = [...this.mushrooms, ...newFungies];
+        this.filterMushrooms();
+        return newFungies;
       }
+      catch (error) {
+        this.error = true;
+        this.fetchMushroomsErrorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
+      }
+      finally {
+        this.isLoading = false;
+      }
+    },
+    handleScroll() {
+      if (this.goToTheTopButton === null) {
+        return;
+      }
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        if (!this.error && !this.noMoreResults && !this.isLoading) {
+          this.currentPage++;
+          this.getFungies(this.currentPage);
+        }
+      }
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        this.goToTheTopButton.style.display = "block";
+      } else {
+        this.goToTheTopButton.style.display = "none";
+      }
+    },
+    goToTheTop() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+    },
+    async filterMushrooms() {
+      let filtered = [...this.mushrooms];
+      console.log('Filtrowanie grzybów:', filtered);
 
       if (this.searchQuery) {
         filtered = filtered.filter((mushroom) =>
-          mushroom.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+          mushroom.polishName.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
 
@@ -163,19 +332,32 @@ export default {
         );
       }
 
-      return filtered;
+      if (this.activeLetter) {
+        filtered = filtered.filter((mushroom) =>
+          mushroom.polishName.toLowerCase().startsWith(this.activeLetter.toLowerCase())
+        );
+      }
+
+      if (this.showSaved) {
+        filtered = filtered.filter((mushroom) => mushroom.savedByUser === true);
+      }
+
+      this.filteredMushrooms = filtered;
     },
-  },
-  methods: {
     handleSearch(query) {
       this.searchQuery = query;
+      this.currentPage = 1;
+      this.mushrooms = [];
+      this.noMoreResults = false;
+      this.getFungies(this.currentPage);
     },
     filterByLetter(letter) {
       if (this.activeLetter === letter) {
-        this.activeLetter = null;
+        this.resetActiveLetter();
       } else {
         this.activeLetter = letter;
       }
+      this.filterMushrooms();
     },
     resetActiveLetter() {
       this.activeLetter = '';
@@ -192,6 +374,7 @@ export default {
       } else {
         this.selectedAttributes.push(attribute);
       }
+      this.filterMushrooms();
     },
     isActiveAttribute(attribute) {
       return this.selectedAttributes.includes(attribute);
@@ -200,75 +383,72 @@ export default {
       return {
         coniferous: attribute === 'iglaste',
         deciduous: attribute === 'liściaste',
+        mixed: attribute === 'mieszane',
         edible: attribute === 'jadalny',
         inedible: attribute === 'niejadalny',
         poisonous: attribute === 'trujący',
       };
     },
-    addMushroom() {
-      this.showAddMushroomModal = true;
-    },
     editMushroom(mushroom) {
       this.editMushroomId = mushroom.id;
       this.mushroomForm = { ...mushroom };
+      console.log('Edytuję grzyba:', this.mushroomForm);
       this.showEditMushroomModal = true;
     },
     confirmDeleteMushroom(mushroom) {
       this.mushroomToDelete = mushroom;
       this.showDeleteMushroomModal = true;
     },
-    deleteMushroom() {
-      this.mushrooms = this.mushrooms.filter((m) => m.id !== this.mushroomToDelete.id);
-      const response = { success: true }
+    async deleteMushroom() {
+      const response = await FungiService.deleteFungi(this.mushroomToDelete.id);
       this.closeModal();
-      if (response.success === true) {
+      if (response.success === false) {
         this.error = true;
         this.errorMessage = 'Wystąpił błąd podczas usuwania grzyba.';
         return;
       }
       this.error = false;
       this.successMessage = 'Grzyb został usunięty.';
+      this.getFungies();
     },
-    saveMushroom() {
-      this.mushroomSaved = true;
+    async saveMushroomToCollection(mushroomId) {
+      console.log(mushroomId);
+      const id = parseInt(mushroomId);
+      const response = await FungiService.saveFungiToCollection(id);
+      if (response.success === false) {
+        this.error = true;
+        this.errorMessage = 'Wystąpił błąd podczas zapisywania grzyba.';
+        return;
+      }
+      this.error = false;
+      this.getFungies();
     },
-    unsaveMushroom() {
-      this.mushroomSaved = false;
+    async deleteMushroomFromCollection(mushroomId) {
+      const id = parseInt(mushroomId);
+      const response = await FungiService.deleteFungiFromCollection(id);
+      if (response.success === false) {
+        this.error = true;
+        this.errorMessage = 'Wystąpił błąd podczas usuwania grzyba.';
+        return;
+      }
+      this.error = false;
+      this.getFungies();
     },
     closeModal() {
       this.showAddMushroomModal = false;
       this.showEditMushroomModal = false;
       this.showDeleteMushroomModal = false;
       this.mushroomForm = {
-        name: '',
-        image: '',
+        polishName: '',
+        latinName: '',
         attributes: [],
         description: ''
       };
       this.mushroomToDelete = null;
     },
-    // Obsługa przesyłania zdjęcia
-    onFileChange(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.mushroomForm.image = URL.createObjectURL(file);
-      }
-    },
-    onDragOver(event) {
-      event.preventDefault();
-      this.isDragging = true;
-    },
-    onDragLeave(event) {
-      event.preventDefault();
-      this.isDragging = false;
-    },
-    onDrop(event) {
-      event.preventDefault();
-      this.isDragging = false;
-      const file = event.dataTransfer.files[0];
-      if (file) {
-        this.mushroomForm.image = URL.createObjectURL(file);
-      }
+    toggleSavedTab() {
+      this.showSaved = !this.showSaved;
+      this.filterMushrooms();
     },
   },
 };
@@ -285,18 +465,26 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 100;
 }
 
 .modal-content {
-    background-color: var(--beige);
-    padding: 20px;
-    border-radius: 10px;
-    width: 450px;
+  background-color: var(--beige);
+  padding: 20px;
+  border-radius: 10px;
+  width: 450px;
 }
 
 .feedback {
   display: flex;
   justify-content: center;
+}
+
+.upper-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1rem;
 }
 
 .success-message {
@@ -439,6 +627,8 @@ h1 {
   height: 80px;
   margin-right: 20px;
   border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .mushroom-card .left {
@@ -455,6 +645,16 @@ h1 {
 .mushroom-info h3 {
   margin: 0;
   font-size: 22px;
+}
+
+.polish-name {
+  font-size: 1.2em;
+}
+
+.latin-name {
+  font-size: 1em;
+  font-style: italic;
+  font-weight: 300;
 }
 
 .mushroom-actions {
@@ -488,7 +688,7 @@ h1 {
   color: var(--red);
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 955px) {
   .mushroom-card {
     align-items: flex-start;
     flex-direction: column-reverse;
@@ -509,12 +709,26 @@ h1 {
 }
 
 .buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .buttons button {
-    width: 100%;
+  width: 100%;
+}
+
+#goToTheTopButton {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  border: none;
+  outline: none;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  height: auto;
 }
 </style>

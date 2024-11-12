@@ -10,8 +10,8 @@
         <button class="btn category-btn" :class="getActiveTable('users')" @click="showUsers">
           Użytkownicy
         </button>
-        <button class="btn category-btn" :class="getActiveTable('mushrooms')" @click="showMushrooms">
-          Grzyby
+        <button class="btn category-btn" :class="getActiveTable('reports')" @click="showReports">
+          Zgłoszenia
         </button>
       </div>
       <div v-if="activeTable === 'users'">
@@ -20,12 +20,12 @@
             @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
           <div class="admin-actions">
             <button class="btn fungeye-default-button" @click="addmin">
-              <font-awesome-icon icon="fa-solid fa-plus" class="button-icon"/>
+              <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
               Zarejestruj nowego admina
             </button>
             <SearchBar @search="handleSearch" />
           </div>
-          <UserTable :users="users"/>
+          <UserTable :users="users" />
           <LoadingSpinner v-if="isLoading"></LoadingSpinner>
           <div v-if="noUsersFound">
             <p class="no-users">{{ noUsersMessage }}</p>
@@ -35,13 +35,13 @@
         <UserBan v-if="isBanning" :user="selectedUser" @cancel-ban="cancelBanning" @ban-user="banUser" />
       </div>
 
-      <!-- Nowy widok grzybów -->
-      <div v-else-if="activeTable === 'mushrooms'">
-        <AtlasView />
+      <!-- Widok zgłoszeń -->
+      <div v-else-if="activeTable === 'reports'">
+        <ReportsView />
       </div>
       <div v-else style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
+      </div>
     </div>
-  </div>
   </div>
 
   <!-- is not admin -->
@@ -61,7 +61,7 @@ import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import SearchBar from "@/components/SearchBar.vue";
 import UserBan from "@/components/BanUser.vue";
 import { RouterLink } from "vue-router";
-import AtlasView from "@/views/AtlasView.vue";
+import ReportsView from "@/views/ReportsView.vue";
 
 export default {
   components: {
@@ -70,7 +70,7 @@ export default {
     LoadingSpinner,
     SearchBar,
     UserBan,
-    AtlasView,
+    ReportsView,
   },
   data() {
     return {
@@ -183,10 +183,10 @@ export default {
       this.selectedUser = null;
       this.activeTable = "users";
     },
-    showMushrooms() {
+    showReports() {
       this.isEditing = false;
       this.selectedUser = null;
-      this.activeTable = "mushrooms";
+      this.activeTable = "reports";
     },
   },
 };
@@ -201,10 +201,12 @@ export default {
 
 .buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   width: 23%;
   margin: 0 auto;
   margin-bottom: 30px;
+  gap: 30px;
 }
 
 .category-btn {
@@ -266,8 +268,7 @@ export default {
   margin-bottom: 20px;
 }
 
-.panel-admin
-{
+.panel-admin {
   text-align: center;
 }
 

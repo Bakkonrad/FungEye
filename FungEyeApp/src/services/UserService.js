@@ -27,7 +27,7 @@ const getUserData = async (userId) => {
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        console.log("token: ", localStorage.getItem('token'));
+        // console.log("token: ", localStorage.getItem('token'));
         // const userId = localStorage.getItem('id');
         const response = await $http.get(`api/User/getProfile/${userId}`);
 
@@ -54,9 +54,6 @@ const getAllUsers = async (page, search) => {
         if (search) {
             formData.append('search', search);
         }
-        console.log("formData: ", formData.getAll('userId'));
-        console.log("formData: ", formData.getAll('page'));
-        console.log("formData: ", formData.getAll('search'));
         const response = await $http.post('api/User/getUsers', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'

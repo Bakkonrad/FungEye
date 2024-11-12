@@ -9,17 +9,32 @@
     <div v-else class="content">
       <!-- Przyciski -->
       <div class="buttons">
-        <router-link :to="'/portal/all-posts'" class="btn fungeye-default-button" @click="toggleTab('all-posts')">Wyświetl wszystkie posty</router-link>
-        <router-link :to="'/portal/followed-posts'" class="btn fungeye-default-button" @click="toggleTab('posts')">Wyświetl posty obserwowanych</router-link>
-        <router-link :to="'/portal/search-users?q=' + searchQuery" class="btn fungeye-default-button" @click="toggleTab('search')">Szukaj użytkowników</router-link>
+        <router-link :to="'/portal/all-posts'" class="btn fungeye-default-button"
+          @click="toggleTab('all-posts')">Wyświetl wszystkie posty</router-link>
+        <router-link :to="'/portal/followed-posts'" class="btn fungeye-default-button"
+          @click="toggleTab('followed-posts')">Wyświetl posty obserwowanych</router-link>
+        <router-link :to="'/portal/search-users?q=' + searchQuery" class="btn fungeye-default-button"
+          @click="toggleTab('search')">Szukaj użytkowników</router-link>
       </div>
       <!-- Posty -->
-      <div v-if="showPosts || showAllPosts" class="posts-content">
-        <AddPost @post-added="getPosts" />
+      <div v-if="showFollowedPosts || showAllPosts" class="posts-content">
+        <AddPost @post-added="addedNewPost" />
+        <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton"
+          @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
         <div class="posts">
           <div v-for="post in posts" :key="post.id" class="post-item">
-            <Post :id="post.id" :content="post.content" :image="post.image" :userId="post.userId" />
+            <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl"
+              :num-of-likes="post.likeAmount" :num-of-comments="post.commentsAmount" :created-at="post.createdAt" :is-liked="post.loggedUserReacted" />
           </div>
+        </div>
+        <LoadingSpinner v-if="isLoading"></LoadingSpinner>
+        <div v-if="error || noPostsFound" class="message-container">
+          <p class="error-message">
+            {{ errorMessage }}
+          </p>
+          <p>
+            {{ noPostsMessage }}
+          </p>
         </div>
       </div>
       <!-- Wyszukiwanie użytkowników -->
@@ -55,6 +70,7 @@ import SearchBar from "../components/SearchBar.vue";
 import { isLoggedIn, checkAuth } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import UserService from "@/services/UserService";
+import PostService from "@/services/PostService";
 import ProfileImage from "@/components/ProfileImage.vue";
 
 export default {
@@ -80,13 +96,18 @@ export default {
       posts: [],
       loggedIn: false,
       showAllPosts: true,
-      showPosts: false,
+      showFollowedPosts: false,
       searchUsers: false,
       searchQuery: this.query,
       isLoading: false,
       error: false,
       errorMessage: "",
       users: [],
+      currentPage: 1,
+      currentFilter: 1,
+      goToTheTopButton: null,
+      noPostsFound: false,
+      noPostsMessage: "",
     };
   },
   setup() {
@@ -96,29 +117,103 @@ export default {
     };
   },
   mounted() {
-    // this.getPosts();
     this.toggleTab(this.defaultTab);
     this.searchQuery = this.query;
     if (this.defaultTab === 'search' && this.searchQuery !== '') {
       this.handleSearch(this.searchQuery);
     }
+    this.goToTheTopButton = this.$refs.goToTheTopButton;
+    window.addEventListener("scroll", this.debounce(this.handleScroll, 200)); // Use debounce to limit the rate of handleScroll calls
+  },
+  beforeDestroy() {
+    window.removeEventListener("scroll", this.debounce(this.handleScroll, 200)); // Use debounce to limit the rate of handleScroll calls
   },
   methods: {
-    getPosts(post) {
-      this.posts.push(post);
+    debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+      };
+    },
+    async getPosts() {
+      if (this.isLoading) {
+        return;
+      }
+      this.isLoading = true;
+      try {
+        const response = await PostService.getPosts(this.currentFilter, this.currentPage);
+        if (response.success === false) {
+          console.error("Error while fetching posts data");
+          return;
+        }
+        if (response.data.length === 0) {
+          this.noPostsFound = true;
+          if (this.posts.length === 0) {
+            this.noPostsMessage = "Nie znaleziono postów.";
+          }
+          else {
+            this.noPostsMessage = "To już wszystkie wyniki.";
+          }
+        }
+        else {
+          this.noPostsFound = false;
+          const newPosts = response.data;
+          this.posts = [...this.posts, ...newPosts];
+        }
+      } catch (error) {
+        console.error("Error while fetching posts data");
+      }
+      finally {
+        this.isLoading = false;
+      }
     },
     toggleTab(tab) {
-      this.showPosts = false;
+      this.showFollowedPosts = false;
       this.showAllPosts = false;
       this.searchUsers = false;
 
       if (tab === 'all-posts') {
         this.showAllPosts = true;
-      } else if (tab === 'posts') {
-        this.showPosts = true;
+        this.posts = [];
+        this.currentFilter = 1;
+        this.currentPage = 1;
+        this.getPosts();
+      } else if (tab === 'followed-posts') {
+        this.showFollowedPosts = true;
+        this.posts = [];
+        this.currentFilter = 2;
+        this.currentPage = 1;
+        this.getPosts();
       } else if (tab === 'search') {
         this.searchUsers = true;
       }
+    },
+    addedNewPost() {
+      this.posts = [];
+      this.currentPage = 1;
+      this.getPosts();
+    },
+    handleScroll() {
+      if (this.goToTheTopButton === null) {
+        return;
+      }
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        if (!this.noPostsFound) {
+          this.currentPage++;
+          this.getPosts();
+        }
+      }
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        this.goToTheTopButton.style.display = "block";
+      } else {
+        this.goToTheTopButton.style.display = "none";
+      }
+    },
+    goToTheTop() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
     },
     async handleSearch(query) {
       if (query.trim() === '' || query.length < 3) {
@@ -234,6 +329,28 @@ export default {
 #searchBar {
   width: 100%;
   max-width: 600px;
+}
+
+#goToTheTopButton {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  border: none;
+  outline: none;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  height: auto;
+}
+
+.message-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
 }
 
 @media screen and (max-width: 768px) {

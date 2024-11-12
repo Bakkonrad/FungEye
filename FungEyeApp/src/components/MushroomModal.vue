@@ -1,28 +1,34 @@
 <template>
     <div class="modal-content">
-        <h2>{{ showEditMushroomModal ? 'Edytuj grzyba' : 'Dodaj nowego grzyba' }}</h2>
-        <BaseInput v-model="mushroomForm.name" placeholder="Nazwa grzyba" color="black" />
+        <h2>{{ showEditMushroomModal ? 'Edytuj grzyb' : 'Dodaj nowy grzyb' }}</h2>
+        <BaseInput v-model="mushroomForm.polishName" placeholder="Nazwa polska grzyba" color="black" />
+        <BaseInput v-model="mushroomForm.latinName" placeholder="Nazwa łacińska grzyba" color="black" />
 
         <!-- Dodaj zdjęcie grzyba -->
         <div class="photo-upload">
-            <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" />
+            <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" multiple />
             <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
                 @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
                 <span v-if="!isDragging">
-                    <header v-if="!mushroomForm.image">Kliknij, aby wybrać zdjęcie grzyba</header>
+                    <header v-if="!mushroomForm.image">Kliknij, aby wybrać zdjęcia grzyba</header>
                     <header v-else>Kliknij, aby wybrać inne zdjęcie grzyba</header>
                     <span class="select">lub przeciągnij je tutaj</span>
                 </span>
                 <span v-else>
-                    <header>Upuść zdjęcie tutaj</header>
+                    <header>Upuść zdjęcia tutaj</header>
                 </span>
             </div>
-            <div >
-                <img v-if="mushroomForm.image" :src="mushroomForm.image" alt="Zdjęcie grzyba" class="uploaded-image" />
+            <div class="container uploaded-images">
+                <div v-for="(image, index) in images" :key="index" class="image">
+                    <span class="delete" @click="deleteImage(index)">&times;</span>
+                    <img v-if="!image.url" :src="image" alt="Zdjęcie grzyba" class="uploaded-image" />
+                    <img v-if="image.url" :src="image.url" alt="Zdjęcie grzyba" class="uploaded-image" />
+                </div>
             </div>
         </div>
 
-        <textarea v-model="mushroomForm.description" placeholder="Opis grzyba" class="edit-input form-control"></textarea>
+        <textarea v-model="mushroomForm.description" placeholder="Opis grzyba"
+            class="edit-input form-control"></textarea>
         <div class="attribute-selection">
             <span v-for="attribute in availableAttributes" :key="attribute" @click="toggleAttributeFilter(attribute)"
                 :class="['attribute', attributeClass(attribute), { 'active-attribute': isActiveAttribute(attribute) }]">
@@ -31,14 +37,16 @@
         </div>
         <hr>
         <span class="buttons">
-            <button class="btn fungeye-default-button" @click="showEditMushroomModal ? saveChanges() : addMushroom()">{{ showEditMushroomModal ? 'Zapisz zmiany' : 'Dodaj grzyba' }}</button>
-            <button class="btn fungeye-red-button" @click="$emit('close')">Anuluj</button>
+            <button class="btn fungeye-default-button" @click="saveChanges">{{ showEditMushroomModal ? 'Zapisz zmiany' :
+                'Dodaj grzyb' }}</button>
+            <button class="btn fungeye-red-button" @click="discardChanges()">Anuluj</button>
         </span>
     </div>
 </template>
 
 <script>
 import BaseInput from "@/components/BaseInput.vue";
+import FungiService from "@/services/FungiService";
 
 export default {
     components: {
@@ -52,13 +60,19 @@ export default {
     data() {
         return {
             isDragging: false,
-            selectedAttributes: [],
+            selectedAttributes: this.mushroomForm.attributes || [],
+            files: [],
+            images: this.mushroomForm.imagesUrl || [],
+            imagesUrlsToDelete: [],
         };
     },
     methods: {
         onFileChange(e) {
-            const file = e.target.files[0];
-            this.mushroomForm.image = URL.createObjectURL(file);
+            this.files.push(...Array.from(e.target.files));
+            this.images.push(...this.files.map(file => ({
+                id: file.name,
+                url: URL.createObjectURL(file)
+            })));
         },
         onDragOver(e) {
             e.preventDefault();
@@ -71,19 +85,37 @@ export default {
         onDrop(e) {
             e.preventDefault();
             this.isDragging = false;
-            const file = e.dataTransfer.files[0];
-            this.mushroomForm.image = URL.createObjectURL(file);
+            this.files.push(...Array.from(e.dataTransfer.files));
+            this.images.push(...this.files.map(file => ({
+                id: file.name,
+                url: URL.createObjectURL(file)
+            })));
+
+        },
+        deleteImage(index) {
+            if (this.images[index].id) {
+                this.imagesUrlsToDelete.push(this.images[index].url);
+            }
+            else {
+                this.imagesUrlsToDelete.push(this.images[index]);
+            }
+            this.images.splice(index, 1);
+            this.files.splice(index, 1);
         },
         toggleAttributeFilter(attribute) {
             if (this.selectedAttributes.includes(attribute)) {
                 this.selectedAttributes = this.selectedAttributes.filter((a) => a !== attribute);
             } else {
-                // if edible is selected, remove inedible and poisonous (and vice versa)
-                if (attribute === 'jadalny') {
-                    this.selectedAttributes = this.selectedAttributes.filter((a) => a !== 'niejadalny' && a !== 'trujący');
-                } else if (attribute === 'niejadalny' || attribute === 'trujący') {
-                    this.selectedAttributes = this.selectedAttributes.filter((a) => a !== 'jadalny');
-                }
+                const mutuallyExclusiveGroups = [
+                    ['jadalny', 'niejadalny', 'trujący'],
+                    ['iglaste', 'liściaste', 'mieszane']
+                ];
+
+                mutuallyExclusiveGroups.forEach(group => {
+                    if (group.includes(attribute)) {
+                        this.selectedAttributes = this.selectedAttributes.filter(a => !group.includes(a) || a === attribute);
+                    }
+                });
                 this.selectedAttributes.push(attribute);
             }
         },
@@ -95,25 +127,54 @@ export default {
                 coniferous: attribute === 'iglaste',
                 deciduous: attribute === 'liściaste',
                 edible: attribute === 'jadalny',
+                mixed: attribute === 'mieszane',
                 inedible: attribute === 'niejadalny',
                 poisonous: attribute === 'trujący',
             };
         },
-        saveChanges(mushroom) {
-            this.editMushroomId = mushroom.id;
-            this.mushroomForm = { ...mushroom };
-            this.showEditMushroomModal = true;
-        },
-        saveMushroom() {
+        saveChanges() {
             console.log(this.mushroomForm);
             console.log(this.selectedAttributes);
-            if (this.mushroomForm.name === '' || this.mushroomForm.image === '' || this.mushroomForm.description === '' || this.selectedAttributes.length === 0) {
+            if (this.mushroomForm.polishName === '' || this.mushroomForm.latinName === '' || this.mushroomForm.image === '' || this.mushroomForm.description === '' || this.selectedAttributes.length === 0) {
                 alert('Wypełnij wszystkie pola');
                 return;
             }
-            // addMushroom 
+            const fungi = {
+                id: this.mushroomForm.id,
+                polishName: this.mushroomForm.polishName,
+                latinName: this.mushroomForm.latinName,
+                description: this.mushroomForm.description,
+                attributes: this.selectedAttributes,
+            };
+            const images = this.files;
+            if (this.showEditMushroomModal) {
+                this.editMushroom(fungi, images);
+            } else {
+                this.addMushroom(fungi, images);
+            }
+        },
+        editMushroom(fungi, images) {
+            fungi = { ...fungi, imagesUrlsToDelete: this.imagesUrlsToDelete };
+            console.log(fungi);
+            const response = FungiService.editFungi(fungi, images);
+            if (response.success === false) {
+                alert('Nie udało się edytować grzyba');
+                return;
+            }
             this.$emit('close');
         },
+        addMushroom(fungi, images) {
+            const response = FungiService.addFungi(fungi, images);
+            if (response.success === false) {
+                alert('Nie udało się dodać grzyba');
+                return;
+            }
+            this.$emit('close');
+        },
+        discardChanges() {
+            this.imagesUrlsToDelete = [];
+            this.$emit('close');
+        }
     }
 }
 
@@ -155,12 +216,52 @@ export default {
     transition: 0.4s;
 }
 
-.uploaded-image {
+.uploaded-images {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-top: 10px;
-    width: 200px;
-    height: 200px;
+}
+
+.uploaded-image {
+    width: 100px;
+    height: 100px;
     object-fit: cover;
     border-radius: 10px;
+}
+
+.container .image {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.container .image .delete {
+    z-index: 999;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.container .image .delete:hover {
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .mushroom-actions {
@@ -247,5 +348,4 @@ export default {
 .buttons button {
     width: 100%;
 }
-
 </style>

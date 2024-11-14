@@ -439,6 +439,7 @@ export default {
         return;
       }
       this.error = false;
+      this.mushrooms = [];
       this.getFungies(1);
     },
     async deleteMushroomFromCollection(mushroomId) {
@@ -450,6 +451,7 @@ export default {
         return;
       }
       this.error = false;
+      this.mushrooms = [];
       this.getFungies(1);
     },
     closeModal() {

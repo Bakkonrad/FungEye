@@ -136,13 +136,41 @@ namespace FungEyeApi.Controllers
         [HttpGet("getProfile/{userId}")]
         public async Task<IActionResult> GetProfile(int userId)
         {
-            var user = await _userService.GetUserProfile(userId);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _userService.GetUserProfile(userId);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
             }
 
-            return Ok(user);
+        }
+
+        [Authorize]
+        [HttpGet("getSmallProfile/{userId}")]
+        public async Task<IActionResult> GetSmallProfile(int userId) //Endpoint for getting user profile with less data (for example for posts)
+        {
+            try
+            {
+                var user = await _userService.GetSmallUserProfile(userId);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPut("updateUser")]

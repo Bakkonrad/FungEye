@@ -83,18 +83,6 @@ namespace FungEyeApi.Controllers
 
                 var fungi = JsonConvert.DeserializeObject<Fungi>(fungiJson) ?? throw new Exception("Cannot deserialize Fungi object");
 
-                if (fungi.ImagesUrlsToDelete != null && fungi.ImagesUrlsToDelete.Count > 0)
-                {
-                    foreach (var imageUrl in fungi.ImagesUrlsToDelete)
-                    {
-                        if (fungi.ImagesUrl != null && fungi.ImagesUrl.Contains(imageUrl))
-                        {
-                            fungi.ImagesUrl.Remove(imageUrl);
-                        }
-                        await _blobStorageService.DeleteFile(imageUrl, blobContainer);
-                    }
-                }
-
                 if (images != null && images.Count > 0)
                 {
                     fungi.ImagesUrl ??= new List<string>();

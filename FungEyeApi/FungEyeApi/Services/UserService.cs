@@ -19,11 +19,37 @@ namespace FungEyeApi.Services
             _blobStorageService = blobStorageService;
         }
 
-        public async Task<User> GetUserProfile(int userId) // Zwraca dane u�ytkownika do okna profilu
+        public async Task<User> GetUserProfile(int userId)
+        {
+            try
+            {
+                var userEntity = await db.Users
+                                            .Include(u => u.Follows!)
+                                                .ThenInclude(f => f.FollowedUser!)
+                                            .Include(u => u.FungiCollection!)
+                                                .ThenInclude(fc => fc.Fungi!)
+                                                .ThenInclude(fc => fc.Images)
+                                            .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (userEntity == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                return new User(userEntity);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during retrieving profile :" + ex.Message);
+            }
+        }
+        
+        public async Task<User> GetSmallUserProfile(int userId)
         {
             try
             {
                 var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
                 if (userEntity == null)
                 {
                     throw new Exception("User not found");
@@ -104,7 +130,6 @@ namespace FungEyeApi.Services
 
                 if (!String.IsNullOrWhiteSpace(search))
                 {
-                    //query = query.Where(u => u.Username.Contains(search.ToString()) || u.Email.Contains(search.ToString()) || u.FirstName.Contains(search.ToString()));
                     query = query.Where(u => u.Username != null && u.Username.Contains(search) ||
                                              u.Email != null && u.Email.Contains(search) ||
                                              u.FirstName != null && u.FirstName.Contains(search));

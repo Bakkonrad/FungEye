@@ -48,14 +48,30 @@ namespace FungEyeApi.Services
             try
             {
                 var fungiEntity = await db.Fungies.FirstOrDefaultAsync(f => f.Id == fungi.Id);
+                var fungiImages = await db.FungiesImages.Where(i => i.FungiEntityId == fungi.Id).ToListAsync();
 
                 if (fungiEntity == null)
                 {
                     throw new Exception("Error during editing fungi: fungi not found.");
                 }
 
-                //fungiEntity.Images = null;
-                //await db.SaveChangesAsync();
+                if (fungi.ImagesUrlsToDelete != null && fungi.ImagesUrlsToDelete.Count > 0)
+                {
+                    foreach (var imageUrl in fungi.ImagesUrlsToDelete)
+                    {
+                        if (fungi.ImagesUrl != null && fungi.ImagesUrl.Contains(imageUrl))
+                        {
+                            // delete image entity from database and blob storage
+                            var imageEntity = fungiImages.FirstOrDefault(i => i.ImageUrl == imageUrl);
+                            if (imageEntity != null)
+                            {
+                                await _blobStorageService.DeleteFile(imageEntity.ImageUrl, BlobContainerEnum.Fungies);
+                                db.FungiesImages.Remove(imageEntity);
+                            }
+
+                        }
+                    }
+                }
 
                 fungiEntity.Description = fungi.Description;
                 fungiEntity.LatinName = fungi.LatinName;

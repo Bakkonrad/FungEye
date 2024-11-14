@@ -47,7 +47,7 @@
       <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card"
         @click="openMushroomView(mushroom.id)">
         <span class="left">
-          <img v-if="mushroom.imagesUrl" :src="mushroom.imagesUrl[0]" alt="Mushroom Image" class="mushroom-image" />
+          <img v-if="mushroom.imagesUrl" :src="setMushroomImage(mushroom.id)" alt="Mushroom Image" class="mushroom-image" @error="handleImageError(mushroom.id)" />
           <div class="mushroom-info">
             <h3 class="polish-name">{{ mushroom.polishName }}</h3>
             <h4 class="latin-name">{{ mushroom.latinName }}</h4>
@@ -344,6 +344,24 @@ export default {
 
       this.filteredMushrooms = filtered;
     },
+    handleImageError(id) {
+      const mushroom = this.mushrooms.find((mushroom) => mushroom.id === id);
+      if (mushroom.imagesUrl.length > 0) {
+        mushroom.imagesUrl.shift();
+      } else {
+        mushroom.imagesUrl.push('src/assets/images/no-image.svg');
+      }
+    },
+    setMushroomImage(id) {
+      const mushroom = this.mushrooms.find((mushroom) => mushroom.id === id);
+      if (!mushroom) {
+        return;
+      }
+      if (mushroom.imagesUrl.length === 0) {
+        return 'src/assets/images/no-image.svg';
+      }
+      return mushroom.imagesUrl[0];
+    },
     handleSearch(query) {
       this.searchQuery = query;
       this.currentPage = 1;
@@ -409,7 +427,7 @@ export default {
       }
       this.error = false;
       this.successMessage = 'Grzyb został usunięty.';
-      this.getFungies();
+      this.getFungies(1);
     },
     async saveMushroomToCollection(mushroomId) {
       console.log(mushroomId);
@@ -421,7 +439,7 @@ export default {
         return;
       }
       this.error = false;
-      this.getFungies();
+      this.getFungies(1);
     },
     async deleteMushroomFromCollection(mushroomId) {
       const id = parseInt(mushroomId);
@@ -432,7 +450,7 @@ export default {
         return;
       }
       this.error = false;
-      this.getFungies();
+      this.getFungies(1);
     },
     closeModal() {
       this.showAddMushroomModal = false;
@@ -445,6 +463,8 @@ export default {
         description: ''
       };
       this.mushroomToDelete = null;
+      this.mushrooms = [];
+      this.getFungies(1);
     },
     toggleSavedTab() {
       this.showSaved = !this.showSaved;

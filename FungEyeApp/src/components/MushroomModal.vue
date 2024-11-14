@@ -19,10 +19,13 @@
                 </span>
             </div>
             <div class="container uploaded-images">
-                <div v-for="(image, index) in images" :key="index" class="image">
-                    <span class="delete" @click="deleteImage(index)">&times;</span>
-                    <img v-if="!image.url" :src="image" alt="Zdjęcie grzyba" class="uploaded-image" />
-                    <img v-if="image.url" :src="image.url" alt="Zdjęcie grzyba" class="uploaded-image" />
+                <div v-for="(image, index) in oldImages" class="image old-images">
+                    <span class="delete" @click="deleteOldImage(index)">&times;</span>
+                    <img v-if="image" :src="image" alt="Zdjęcie grzyba" class="uploaded-image" @error="handleImageError(index)" />
+                </div>
+                <div v-for="(image, index) in newImagesUrls" :key="index" class="image new-images">
+                    <span class="delete" @click="deleteNewImage(index)">&times;</span>
+                    <img v-if="image" :src="image" alt="Zdjęcie grzyba" class="uploaded-image" />
                 </div>
             </div>
         </div>
@@ -61,18 +64,20 @@ export default {
         return {
             isDragging: false,
             selectedAttributes: this.mushroomForm.attributes || [],
-            files: [],
-            images: this.mushroomForm.imagesUrl || [],
+            oldImages: this.mushroomForm.imagesUrl,
+            newImages: [],
+            newImagesUrls: [],
             imagesUrlsToDelete: [],
         };
     },
     methods: {
         onFileChange(e) {
-            this.files.push(...Array.from(e.target.files));
-            this.images.push(...this.files.map(file => ({
-                id: file.name,
-                url: URL.createObjectURL(file)
-            })));
+            this.newImages.push(...Array.from(e.target.files));
+            this.newImagesUrls.push(...Array.from(e.target.files).map(file => URL.createObjectURL(file)));
+            console.log("---- newImages");
+            console.log(this.newImages);
+            console.log("---- newImagesUrls");
+            console.log(this.newImagesUrls);
         },
         onDragOver(e) {
             e.preventDefault();
@@ -83,24 +88,36 @@ export default {
             this.isDragging = false;
         },
         onDrop(e) {
-            e.preventDefault();
-            this.isDragging = false;
-            this.files.push(...Array.from(e.dataTransfer.files));
-            this.images.push(...this.files.map(file => ({
-                id: file.name,
-                url: URL.createObjectURL(file)
-            })));
-
+            this.onDragLeave(e);
+            this.newImages.push(...Array.from(e.dataTransfer.files));
+            this.newImagesUrls.push(...Array.from(e.dataTransfer.files).map(file => URL.createObjectURL(file)));
+            console.log("---- newImages");
+            console.log(this.newImages);
+            console.log("---- newImagesUrls");
+            console.log(this.newImagesUrls);
         },
-        deleteImage(index) {
-            if (this.images[index].id) {
-                this.imagesUrlsToDelete.push(this.images[index].url);
+        deleteOldImage(index) {
+            this.imagesUrlsToDelete.push(this.oldImages[index]);
+            this.oldImages.splice(index, 1);
+            console.log("---- oldImages");
+            console.log(this.oldImages);
+            console.log("---- imagesUrlsToDelete");
+            console.log(this.imagesUrlsToDelete);
+        },
+        deleteNewImage(index) {
+            this.newImages.splice(index, 1);
+            console.log("---- newImages");
+            console.log(this.newImages);
+            this.newImagesUrls.splice(index, 1);
+            console.log("---- newImagesUrls");
+            console.log(this.newImagesUrls);
+        },
+        handleImageError(index) {
+            if (this.oldImages.length > 0) {
+                this.oldImages.splice(index, 1);
+            } else {
+                this.oldImages.push('src/assets/images/no-image.svg');
             }
-            else {
-                this.imagesUrlsToDelete.push(this.images[index]);
-            }
-            this.images.splice(index, 1);
-            this.files.splice(index, 1);
         },
         toggleAttributeFilter(attribute) {
             if (this.selectedAttributes.includes(attribute)) {
@@ -146,7 +163,7 @@ export default {
                 description: this.mushroomForm.description,
                 attributes: this.selectedAttributes,
             };
-            const images = this.files;
+            const images = this.newImages;
             if (this.showEditMushroomModal) {
                 this.editMushroom(fungi, images);
             } else {

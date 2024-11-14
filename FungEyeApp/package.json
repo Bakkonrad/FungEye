@@ -8,7 +8,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fawmi/vue-google-maps": "^0.9.79",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
@@ -27,8 +26,7 @@
     "maplibre-gl": "^4.7.1",
     "register-service-worker": "^1.7.2",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0",
-    "vue3-google-map": "^0.21.0"
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

@@ -9,6 +9,7 @@
         <h1 id="fungeye">FungEye</h1>
         <p>
           Odkryj fascynujący świat grzybów dzięki naszej innowacyjnej aplikacji FungEye! Co możesz z nią zrobić?
+        </p>
         <ul>
           <li><b>Przeglądaj grzyby:</b> Eksploruj bogatą bazę danych grzybów i poznawaj nowe gatunki.</li>
           <li><b>Obserwuj pogodę:</b> Sprawdzaj prognozy pogody, aby zaplanować idealny wypad na grzybobranie.</li>
@@ -19,7 +20,6 @@
             zidentyfikować znalezione okazy.</li>
         </ul>
 
-        </p>
         <p>Dołącz do nas i zacznij swoją przygodę z grzybobraniem na nowo – z FungEye!</p>
         <router-link to="/recognize" class="btn fungeye-default-button">Rozpoznaj grzyby</router-link>
       </div>

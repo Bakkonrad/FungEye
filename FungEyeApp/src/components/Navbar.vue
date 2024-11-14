@@ -201,7 +201,7 @@ export default {
   text-decoration: none;
 }
 
-@media screen and (max-width: 1158px) {
+@media screen and (max-width: 1248px) {
   .navbar-nav {
     flex-direction: column;
     justify-content: center;

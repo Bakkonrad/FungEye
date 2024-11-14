@@ -14,13 +14,14 @@
         <div class="mushroom-view-header mb-3">
           <div class="header">
             <!-- <span class="placeholder main-image"></span> -->
-            <img class="mushroom-view-header-image" :src="mainImg" alt="Mushroom" />
+            <img class="mushroom-view-header-image" :src="setMainImage()" alt="Mushroom" @error="handleMainImageError()" />
             <div class="mushroom-names">
               <h1>{{ polishName }}</h1>
               <h2 class="latin-name">{{ latinName }}</h2>
             </div>
           </div>
-          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button" @click="savedByUser ? deleteMushroomFromCollection() : saveMushroomToCollection()">
+          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button"
+            @click="savedByUser ? deleteMushroomFromCollection() : saveMushroomToCollection()">
             <font-awesome-icon v-if="savedByUser" icon="fa-solid fa-bookmark" />
             <font-awesome-icon v-else icon="fa-regular fa-bookmark" />
           </button>
@@ -38,10 +39,10 @@
             <h3>Opis</h3>
             <p>{{ description }}</p>
           </div>
-          <div class="mushroom-view-photos-container">
+          <div v-if="imagesUrl" class="mushroom-view-photos-container">
             <h4>Inne zdjęcia</h4>
-            <div v-if="imagesUrl" class="mushroom-view-photos">
-                <img v-for="photo in imagesUrl" :key="photo.id" :src="photo" class="mushroom-images" alt="User Photo"/>
+            <div class="mushroom-view-photos">
+              <img v-for="photo in imagesUrl" :key="photo.id" :src="photo" class="mushroom-images" alt="User Photo" @error="handleImageError(photo)"/>
             </div>
           </div>
         </div>
@@ -59,6 +60,8 @@
 <script>
 import { checkAuth, isLoggedIn } from '@/services/AuthService';
 import FungiService from '@/services/FungiService';
+import noImage from '@/assets/images/no-image.svg';
+
 export default {
   props: {
     id: {
@@ -105,16 +108,42 @@ export default {
         console.log(response.data);
         this.polishName = response.data.polishName;
         this.latinName = response.data.latinName;
-        this.mainImg = response.data.imagesUrl[0];
-        this.imagesUrl = response.data.imagesUrl;
+        if (response.data.imagesUrl.length > 0) {
+          this.mainImg = response.data.imagesUrl[0];
+          this.imagesUrl = response.data.imagesUrl;
+        }
         this.attributes = response.data.attributes;
         this.description = response.data.description;
         this.savedByUser = response.data.savedByUser;
       } catch (error) {
         console.error("Failed to fetch mushroom data:", error);
       } finally {
-        this.isLoading = false; // Ensure loading state is updated regardless of success or failure
+        this.isLoading = false;
       }
+    },
+    handleImageError(image) {
+      // console.log("Error loading image with id:", image);
+      if (this.imagesUrl.length > 0) {
+        this.imagesUrl = this.imagesUrl.filter((photo) => photo !== image);
+        return;
+      }
+      this.imagesUrl = [];
+    },
+    handleMainImageError() {
+      console.log("Error loading main image");
+      if (this.imagesUrl.length > 0) {
+        this.mainImg = this.imagesUrl[0];
+        this.imagesUrl = this.imagesUrl.slice(1);
+        return;
+      }
+      this.mainImg = noImage;
+    },
+    setMainImage() {
+      console.log("Setting main image");
+      if (this.imagesUrl.length > 0) {
+        return this.imagesUrl[0];
+      }
+      return noImage;
     },
     changeAttributeClass(attribute) {
       return {

@@ -29,7 +29,7 @@
             </button>
           </div>
         </div>
-        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" :showMoreMushrooms="showMoreMushrooms" />
+        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" :showMoreMushrooms="true" />
       </div>
     </div>
     <div class="settings container-md" v-if="isEditing">
@@ -118,7 +118,6 @@ export default {
       submitted: false,
       errorLoadingData: false,
       error: false,
-      showMoreMushrooms: false,
     };
   },
   methods: {

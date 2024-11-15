@@ -37,10 +37,12 @@
 
         <!-- Filtry atrybutów -->
         <div class="attribute-selection">
-            <span v-for="attribute in availableAttributes" :key="attribute" @click="toggleAttributeFilter(attribute)"
+            <span v-for="category in availableAttributes" class="attribute-categories">
+                <span v-for="attribute in category" :key="attribute" @click="toggleAttributeFilter(attribute)"
                 :class="['attribute', attributeClass(attribute), { 'active-attribute': isActiveAttribute(attribute) }]">
                 {{ attribute }}
             </span>
+        </span>
         </div>
         <hr>
 
@@ -302,7 +304,7 @@ export default {
     font-weight: bold;
 }
 
-.attribute-selection {
+.attribute-categories {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;

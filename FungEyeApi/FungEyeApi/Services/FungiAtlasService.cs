@@ -59,17 +59,14 @@ namespace FungEyeApi.Services
                 {
                     foreach (var imageUrl in fungi.ImagesUrlsToDelete)
                     {
-                        if (fungi.ImagesUrl != null && fungi.ImagesUrl.Contains(imageUrl))
+                        var imageEntity = fungiImages.FirstOrDefault(i => i.ImageUrl == imageUrl);
+                        if (imageEntity == null)
                         {
-                            // delete image entity from database and blob storage
-                            var imageEntity = fungiImages.FirstOrDefault(i => i.ImageUrl == imageUrl);
-                            if (imageEntity != null)
-                            {
-                                await _blobStorageService.DeleteFile(imageEntity.ImageUrl, BlobContainerEnum.Fungies);
-                                db.FungiesImages.Remove(imageEntity);
-                            }
-
+                            continue;
                         }
+                        // delete image entity from database and blob storage
+                        await _blobStorageService.DeleteFile(imageEntity.ImageUrl, BlobContainerEnum.Fungies);
+                        db.FungiesImages.Remove(imageEntity);
                     }
                 }
 
@@ -79,7 +76,16 @@ namespace FungEyeApi.Services
                 fungiEntity.Edibility = fungi.Edibility;
                 fungiEntity.Toxicity = fungi.Toxicity;
                 fungiEntity.Habitat = fungi.Habitat;
-                fungiEntity.Images = fungi.ImagesUrl?.Select(i => new FungiImageEntity { ImageUrl = i, FungiEntityId = fungiEntity.Id }).ToList();
+                if(fungi.ImagesUrl != null)
+                {
+                    var imageEntities = fungi.ImagesUrl?.Select(i => new FungiImageEntity { ImageUrl = i, FungiEntityId = fungiEntity.Id }).ToList();
+                    
+                    foreach(var image in imageEntities!)
+                    {
+                        fungiEntity.Images!.Add(image);
+
+                    }
+                }
 
                 await db.SaveChangesAsync();
 
@@ -141,7 +147,7 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<Fungi> GetFungi(string fungiName, int? userId = null)
+        public async Task<Fungi> GetFungiByName(string fungiName, int? userId = null)
         {
             try
             {
@@ -166,7 +172,7 @@ namespace FungEyeApi.Services
             try
             {
                 List<Fungi> result = new List<Fungi>();
-                var query = db.Fungies.Include(f => f.Images).AsQueryable();
+                var query = db.Fungies.Include(f => f.Images).OrderBy(f => f.PolishName).AsQueryable();
 
                 if (!String.IsNullOrWhiteSpace(search))
                 {
@@ -174,7 +180,7 @@ namespace FungEyeApi.Services
                                              f.PolishName != null && f.PolishName.Contains(search));
                 }
 
-                int pageSize = 5;
+                int pageSize = 20;
                 int pageNumber = page ?? 1;
                 query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 

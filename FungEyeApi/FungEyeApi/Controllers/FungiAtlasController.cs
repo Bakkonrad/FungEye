@@ -164,7 +164,7 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var result = await _fungiAtlasService.GetFungi(fungiName, userId);
+                var result = await _fungiAtlasService.GetFungiByName(fungiName, userId);
                 return Ok(result);
             }
             catch (Exception ex)

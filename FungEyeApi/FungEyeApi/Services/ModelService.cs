@@ -25,7 +25,7 @@ namespace FungEyeApi.Services
                 await file.CopyToAsync(memoryStream);
 
                 // Resize the image to 299x299
-                using var image = System.Drawing.Image.FromStream(memoryStream);
+                using var image = Image.FromStream(memoryStream);
                 using var resizedImage = new Bitmap(image, new Size(299, 299));
 
                 // Normalize the image data to [0, 1] and reshape it into [1, 299, 299, 3]
@@ -66,12 +66,16 @@ namespace FungEyeApi.Services
 
                 var objec = JsonConvert.SerializeObject(batchJson).ToString();
 
-                response.EnsureSuccessStatusCode(); // Ensure we throw if response is not successful
+                response.EnsureSuccessStatusCode(); // Ensure we throw exception if response is not successful
 
                 var responseContent = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Response: {responseContent}");
 
-                var predictions = JsonConvert.DeserializeObject<dynamic>(responseContent).predictions;
+                var predictions = JsonConvert.DeserializeObject<dynamic>(responseContent)?.predictions;
+                if (predictions == null)
+                {
+                    throw new InvalidOperationException("Predictions of AI model could not be retrieved from the response.");
+                }
 
                 // Make the predictions more readable
                 var predictionList = new List<(string, double)>();

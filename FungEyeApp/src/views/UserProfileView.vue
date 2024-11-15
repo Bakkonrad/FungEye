@@ -26,7 +26,7 @@
           <button @click="goToMyProfile" class="btn fungeye-default-button">Przejdź do swojego profilu</button>
         </div>
       </div>
-      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" :showMoreMushrooms="showMoreMushrooms" />
+      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" />
     </div>
   </div>
 </template>
@@ -37,7 +37,6 @@ import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import UserService from "@/services/UserService";
 import FollowService from "@/services/FollowService";
-import FungiService from "@/services/FungiService";
 import { ref } from "vue";
 import { checkAdmin, isAdmin } from "@/services/AuthService";
 import UserBan from "@/components/BanUser.vue";
@@ -65,16 +64,13 @@ export default {
       mushrooms: [],
       createdAt: "",
       errorFindingUser: false,
-      // isLoggedUser: false,
       isAdmin: false,
       isBanning: false,
-      showMoreMushrooms: false,
     };
   },
   setup() {
     const followed = ref(null);
     const isLoggedUser = ref(false);
-    console.log(followed);
     checkAdmin();
     return {
       isAdmin: isAdmin,
@@ -92,7 +88,6 @@ export default {
       const followersResponse = await FollowService.getFollowers(this.id);
       if (response.success === false) {
         this.errorFindingUser = true;
-        console.log(response.message);
         return;
       }
       this.user = response.data;
@@ -109,9 +104,7 @@ export default {
     },
     async checkIfFollowed() {
       const response = await FollowService.isFollowing(localStorage.getItem("id"), this.id);
-      console.log(response.data);
       if (response.success === false) {
-        console.log(response.message);
         return;
       }
       this.followed = response.data;
@@ -119,7 +112,6 @@ export default {
     follow() {
       const response = FollowService.followUser(this.id);
       if (response.success === false) {
-        console.log(response.message);
         return;
       }
       this.followed = true;
@@ -128,7 +120,6 @@ export default {
     unfollow() {
       const response = FollowService.unfollowUser(this.id);
       if (response.success === false) {
-        console.log(response.message);
         return;
       }
       this.followed = false;

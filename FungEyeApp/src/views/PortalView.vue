@@ -123,12 +123,13 @@ export default {
       this.handleSearch(this.searchQuery);
     }
     this.goToTheTopButton = this.$refs.goToTheTopButton;
-    window.addEventListener("scroll", this.debounce(this.handleScroll, 200)); // Use debounce to limit the rate of handleScroll calls
+    window.addEventListener("scroll", this.debounce(this.handleScroll, 200)); 
   },
   beforeDestroy() {
-    window.removeEventListener("scroll", this.debounce(this.handleScroll, 200)); // Use debounce to limit the rate of handleScroll calls
+    window.removeEventListener("scroll", this.debounce(this.handleScroll, 200));
   },
   methods: {
+    // function to limit the rate of handleScroll calls
     debounce(func, wait) {
       let timeout;
       return function (...args) {

@@ -66,7 +66,6 @@ export default {
       0,
       0,
       0.6);
-  /* Półprzezroczyste tło dla czytelności tekstu */
   padding: 0.5em 1em 0.5em 1em;
   border-radius: 1rem;
   color: white;

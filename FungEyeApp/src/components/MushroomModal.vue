@@ -1,10 +1,11 @@
 <template>
     <div class="modal-content">
         <h2>{{ showEditMushroomModal ? 'Edytuj grzyb' : 'Dodaj nowy grzyb' }}</h2>
+        <!-- Nazwy grzyba -->
         <BaseInput v-model="mushroomForm.polishName" placeholder="Nazwa polska grzyba" color="black" />
         <BaseInput v-model="mushroomForm.latinName" placeholder="Nazwa łacińska grzyba" color="black" />
 
-        <!-- Dodaj zdjęcie grzyba -->
+        <!-- Zdjęcie grzyba -->
         <div class="photo-upload">
             <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" multiple />
             <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
@@ -30,8 +31,11 @@
             </div>
         </div>
 
+        <!-- Opis grzyba -->
         <textarea v-model="mushroomForm.description" placeholder="Opis grzyba"
             class="edit-input form-control"></textarea>
+
+        <!-- Filtry atrybutów -->
         <div class="attribute-selection">
             <span v-for="attribute in availableAttributes" :key="attribute" @click="toggleAttributeFilter(attribute)"
                 :class="['attribute', attributeClass(attribute), { 'active-attribute': isActiveAttribute(attribute) }]">
@@ -39,6 +43,7 @@
             </span>
         </div>
         <hr>
+
         <span class="buttons">
             <button class="btn fungeye-default-button" @click="saveChanges">{{ showEditMushroomModal ? 'Zapisz zmiany' :
                 'Dodaj grzyb' }}</button>
@@ -71,13 +76,10 @@ export default {
         };
     },
     methods: {
+        // handling images
         onFileChange(e) {
             this.newImages.push(...Array.from(e.target.files));
             this.newImagesUrls.push(...Array.from(e.target.files).map(file => URL.createObjectURL(file)));
-            console.log("---- newImages");
-            console.log(this.newImages);
-            console.log("---- newImagesUrls");
-            console.log(this.newImagesUrls);
         },
         onDragOver(e) {
             e.preventDefault();
@@ -107,6 +109,7 @@ export default {
                 this.oldImages.push('src/assets/images/no-image.svg');
             }
         },
+        // handling attributes
         toggleAttributeFilter(attribute) {
             if (this.selectedAttributes.includes(attribute)) {
                 this.selectedAttributes = this.selectedAttributes.filter((a) => a !== attribute);
@@ -137,9 +140,8 @@ export default {
                 poisonous: attribute === 'trujący',
             };
         },
+        // saving form
         saveChanges() {
-            console.log(this.mushroomForm);
-            console.log(this.selectedAttributes);
             if (this.mushroomForm.polishName === '' || this.mushroomForm.latinName === '' || this.mushroomForm.image === '' || this.mushroomForm.description === '' || this.selectedAttributes.length === 0) {
                 alert('Wypełnij wszystkie pola');
                 return;
@@ -160,7 +162,6 @@ export default {
         },
         editMushroom(fungi, images) {
             fungi = { ...fungi, imagesUrlsToDelete: this.imagesUrlsToDelete };
-            console.log(fungi);
             const response = FungiService.editFungi(fungi, images);
             if (response.success === false) {
                 alert('Nie udało się edytować grzyba');
@@ -286,14 +287,13 @@ export default {
     gap: 5px;
 }
 
-/* css dla filtrów atrybutów */
+/* attributes as filters */
 .attribute-filter span {
     margin: 0 7px;
     cursor: pointer;
     font-size: 17px;
     padding: 1px 10px;
     border-radius: 15px;
-    /* background-color: #f0f0f0; */
     transition: font-weight 0.3s, background-color 0.3s;
     user-select: none;
 }
@@ -310,7 +310,7 @@ export default {
     margin: 1rem 0
 }
 
-/* css dla atrybutów w kartach grzybów */
+/* attributes in mushroom cards */
 .attributes span {
     padding: 2px 15px;
     border-radius: 15px;
@@ -319,7 +319,7 @@ export default {
     user-select: none;
 }
 
-/* pogrubienie dla aktywnych atrybutów */
+/* bolder for chosen attributes */
 .active-attribute.coniferous,
 .attribute-filter span.coniferous.active-attribute,
 .active-attribute.deciduous,

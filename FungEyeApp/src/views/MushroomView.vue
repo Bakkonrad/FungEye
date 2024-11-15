@@ -7,13 +7,9 @@
       </RouterLink>
     </div>
     <div v-if="error === false" class="container-md">
-      <!-- <div class="breadcrumbs">
-      <RouterLink to="/recognize" class="r-link">Rozpoznawanie</RouterLink> / {{ name }}
-    </div> -->
       <div class="mushroom-view">
         <div class="mushroom-view-header mb-3">
           <div class="header">
-            <!-- <span class="placeholder main-image"></span> -->
             <img class="mushroom-view-header-image" :src="setMainImage()" alt="Mushroom" @error="handleMainImageError()" />
             <div class="mushroom-names">
               <h1>{{ polishName }}</h1>
@@ -99,13 +95,11 @@ export default {
       this.isLoading = true;
       try {
         const response = await FungiService.getFungi(this.id);
-        // const response = { success: true };
         if (response.success === false) {
           this.error = true;
           this.errorMessage = "Błąd podczas pobierania danych grzyba";
           return;
         }
-        console.log(response.data);
         this.polishName = response.data.polishName;
         this.latinName = response.data.latinName;
         if (response.data.imagesUrl.length > 0) {
@@ -122,7 +116,6 @@ export default {
       }
     },
     handleImageError(image) {
-      // console.log("Error loading image with id:", image);
       if (this.imagesUrl.length > 0) {
         this.imagesUrl = this.imagesUrl.filter((photo) => photo !== image);
         return;
@@ -130,7 +123,6 @@ export default {
       this.imagesUrl = [];
     },
     handleMainImageError() {
-      console.log("Error loading main image");
       if (this.imagesUrl.length > 0) {
         this.mainImg = this.imagesUrl[0];
         this.imagesUrl = this.imagesUrl.slice(1);
@@ -139,7 +131,6 @@ export default {
       this.mainImg = noImage;
     },
     setMainImage() {
-      console.log("Setting main image");
       if (this.imagesUrl.length > 0) {
         return this.imagesUrl[0];
       }

@@ -44,7 +44,6 @@ export default {
         async deleteReport(reportId) {
             try {
                 await PostService.deleteReport(reportId);
-                console.log("Report deleted");
                 this.getReports();
             } catch (error) {
                 console.error(error);

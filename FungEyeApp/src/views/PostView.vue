@@ -9,10 +9,12 @@
         Powrót do portalu</button>
     </div>
 
+    <!-- Post -->
     <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl"
       :num-of-likes="post.likeAmount" :num-of-comments="post.commentsAmount" :created-at="post.createdAt"
       :is-liked="post.loggedUserReacted" :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
 
+    <!-- Comments -->
     <div class="card-footer comment-section">
       <div class="add-comment">
         <ProfileImage :imgSrc="imgSrc" class="profile-image" />
@@ -55,6 +57,8 @@
         <p>Brak komentarzy</p>
       </div>
     </div>
+
+    <!-- Edit post modal -->
     <div v-if="showEditModal" class="modal">
       <div class="modal-content">
         <h2>Edytuj post</h2>
@@ -152,7 +156,6 @@ export default {
     this.checkAuthor();
     checkAdmin();
     this.isAdmin = isAdmin;
-    // console.log(this.reportedComment)
   },
   methods: {
     async getPost() {
@@ -163,7 +166,6 @@ export default {
           console.error("Error while fetching post data");
           return;
         }
-        // console.log(response.data);
         this.post = response.data;
         if (response.data.comments) {
           this.comments = response.data.comments;
@@ -187,7 +189,6 @@ export default {
         content: this.newCommentContent,
         postId: this.post.id,
       };
-      // console.log(comment);
       const response = await PostService.addComment(comment);
       if (response.success === false) {
         console.error("Error while adding comment");
@@ -198,7 +199,6 @@ export default {
       this.getPost();
     },
     async deleteComment(commentId) {
-      // console.log(commentId);
       const response = await PostService.deleteComment(commentId);
       if (response.success === false) {
         alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
@@ -208,7 +208,6 @@ export default {
       this.getPost();
     },
     async editComment(commentId) {
-      // console.log(this.commentContentToEdit);
       if (this.commentContentToEdit.trim() === "") {
         this.error = true;
         this.errorMessage = "Komentarz nie może być pusty";
@@ -231,7 +230,6 @@ export default {
     editPost() {
       this.showEditModal = true;
       this.postContentToEdit = this.post.content;
-      // console.log(this.post.image);
       if (this.post.image == "" || this.post.image == null) {
         this.postImageToEdit = {
           name: "",
@@ -265,7 +263,6 @@ export default {
         id: this.post.id,
         content: this.postContentToEdit,
       };
-      console.log(this.file)
       const response = await PostService.editPost(editedPost, this.file);
       if (response.success === false) {
         alert("Nie udało się zapisać zmian");
@@ -321,7 +318,6 @@ export default {
     },
     async report(commentId) {
       try {
-        // console.log(this.id, commentId);
         const response = await PostService.report(this.id, commentId);
         if (response.success === false) {
           console.error("Error while reporting comment");

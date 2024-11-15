@@ -138,90 +138,6 @@ export default {
       selectedAttributes: [],
       addMushroomSelectedAttributes: [],
       mushrooms: [],
-      localMushrooms: [{
-        id: 1,
-        name: 'Borowik szlachetny',
-        image: 'src/assets/images/mushrooms/ATLAS-borowik.jpg',
-        attributes: ['iglaste', 'liściaste', 'jadalny'],
-        description: 'Borowik szlachetny to jeden z najbardziej cenionych grzybów jadalnych.'
-      },
-      {
-        id: 2,
-        name: 'Muchomor czerwony',
-        image: 'src/assets/images/mushrooms/ATLAS-muchomor.jpg',
-        attributes: ['iglaste', 'liściaste', 'trujący', 'niejadalny'],
-        description: 'Muchomor czerwony to grzyb trujący, znany ze swojego charakterystycznego wyglądu.'
-      },
-      {
-        id: 3,
-        name: 'Pieczarka polna',
-        image: 'src/assets/images/mushrooms/ATLAS-pieczarka.jpg',
-        attributes: ['jadalny', 'łąkowy'],
-        description: 'Pieczarka polna to popularny grzyb jadalny, często spotykany na łąkach.'
-      },
-      {
-        id: 4,
-        name: 'Kurka',
-        image: 'src/assets/images/mushrooms/ATLAS-kurka.jpg',
-        attributes: ['jadalny', 'iglaste'],
-        description: 'Kurka to smaczny grzyb jadalny, często spotykany w lasach iglastych.'
-      },
-      {
-        id: 5,
-        name: 'Maślak zwyczajny',
-        image: 'src/assets/images/mushrooms/ATLAS-maslak.jpg',
-        attributes: ['jadalny', 'iglaste'],
-        description: 'Maślak zwyczajny to grzyb jadalny, często spotykany w lasach iglastych.'
-      },
-      {
-        id: 6,
-        name: 'Opieńka miodowa',
-        image: 'src/assets/images/mushrooms/ATLAS-opienka.jpg',
-        attributes: ['jadalny', 'liściaste'],
-        description: 'Opieńka miodowa to grzyb jadalny, często spotykany w lasach liściastych.'
-      },
-      {
-        id: 7,
-        name: 'Gąska zielonka',
-        image: 'src/assets/images/mushrooms/ATLAS-gaska.jpg',
-        attributes: ['jadalny', 'iglaste'],
-        description: 'Gąska zielonka to grzyb jadalny, często spotykany w lasach iglastych.'
-      },
-      {
-        id: 8,
-        name: 'Koźlarz babka',
-        image: 'src/assets/images/mushrooms/ATLAS-kozlarz.jpg',
-        attributes: ['jadalny', 'liściaste'],
-        description: 'Koźlarz babka to grzyb jadalny, często spotykany w lasach liściastych.'
-      },
-      {
-        id: 9,
-        name: 'Rydz',
-        image: 'src/assets/images/mushrooms/ATLAS-rydz.jpg',
-        attributes: ['jadalny', 'iglaste'],
-        description: 'Rydz to grzyb jadalny, często spotykany w lasach iglastych.'
-      },
-      {
-        id: 10,
-        name: 'Sromotnik bezwstydny',
-        image: 'src/assets/images/mushrooms/ATLAS-sromotnik.jpg',
-        attributes: ['niejadalny', 'liściaste'],
-        description: 'Sromotnik bezwstydny to grzyb niejadalny, często spotykany w lasach liściastych.'
-      },
-      {
-        id: 11,
-        name: 'Trufla czarna',
-        image: 'src/assets/images/mushrooms/ATLAS-trufla.jpg',
-        attributes: ['jadalny', 'liściaste'],
-        description: 'Trufla czarna to grzyb jadalny, ceniony za swój wyjątkowy smak.'
-      },
-      {
-        id: 12,
-        name: 'Mleczaj rydz',
-        image: 'src/assets/images/mushrooms/ATLAS-mleczaj.jpg',
-        attributes: ['jadalny', 'iglaste'],
-        description: 'Mleczaj rydz to grzyb jadalny, często spotykany w lasach iglastych.'
-      }],
       filteredMushrooms: [],
       alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
       availableAttributes: [['iglaste', 'mieszane', 'liściaste'], ['jadalny', 'niejadalny', 'trujący']],
@@ -271,7 +187,6 @@ export default {
         }
         this.isLoading = true;
         const response = await FungiService.getAllFungies(page, this.searchQuery);
-        console.log(response.data);
         if (response.success === false) {
           this.error = true;
           this.fetchMushroomsErrorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
@@ -323,7 +238,6 @@ export default {
     },
     async filterMushrooms() {
       let filtered = [...this.mushrooms];
-      console.log('Filtrowanie grzybów:', filtered);
 
       if (this.searchQuery) {
         filtered = filtered.filter((mushroom) =>
@@ -434,9 +348,9 @@ export default {
     },
     openMushroomView(id) {
       const mushroomId = parseInt(id);
-      console.log('Otwieram kartę grzyba:', mushroomId);
       this.$router.push({ name: 'MushroomView', params: { id: mushroomId } });
     },
+    // handling the attribute filter
     toggleAttributeFilter(attribute) {
       if (this.selectedAttributes.includes(attribute)) {
         this.selectedAttributes = this.selectedAttributes.filter((a) => a !== attribute);
@@ -468,10 +382,10 @@ export default {
         poisonous: attribute === 'trujący',
       };
     },
+    // actions on mushrooms
     editMushroom(mushroom) {
       this.editMushroomId = mushroom.id;
       this.mushroomForm = { ...mushroom };
-      console.log('Edytuję grzyba:', this.mushroomForm);
       this.showEditMushroomModal = true;
     },
     confirmDeleteMushroom(mushroom) {
@@ -491,7 +405,6 @@ export default {
       this.getFungies(1);
     },
     async saveMushroomToCollection(mushroomId) {
-      console.log(mushroomId);
       const id = parseInt(mushroomId);
       const response = await FungiService.saveFungiToCollection(id);
       if (response.success === false) {
@@ -638,14 +551,12 @@ h1 {
   gap: 5px;
 }
 
-/* css dla filtrów atrybutów */
 .attribute-filter span {
   margin: 0 7px;
   cursor: pointer;
   font-size: 17px;
   padding: 1px 10px;
   border-radius: 15px;
-  /* background-color: #f0f0f0; */
   transition: font-weight 0.3s, background-color 0.3s;
   user-select: none;
 }
@@ -654,7 +565,6 @@ h1 {
   font-weight: bold;
 }
 
-/* css dla atrybutów w kartach grzybów */
 .attributes span {
   padding: 2px 15px;
   border-radius: 15px;
@@ -663,7 +573,6 @@ h1 {
   user-select: none;
 }
 
-/* pogrubienie dla aktywnych atrybutów */
 .active-attribute.coniferous,
 .attribute-filter span.coniferous.active-attribute,
 .active-attribute.deciduous,
@@ -757,7 +666,6 @@ h1 {
   gap: 10px;
 }
 
-/* wyłączenie kliku gdy karty grzyba gdy najeżdża się na atrybut (nie działa) */
 .attributes span:hover {
   cursor: pointer;
 }

@@ -42,7 +42,7 @@
       </div>
       <div class="settings-content">
         <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
-        <!-- zmiana hasła z użyciem komponentów -->
+        <!-- zmiana hasła -->
         <div class="settings-content-right">
           <div class="edit-container">
             <div class="edit-form">

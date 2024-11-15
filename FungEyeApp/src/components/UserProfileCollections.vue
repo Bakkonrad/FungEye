@@ -136,10 +136,6 @@ export default {
   .upper-collection {
     width: 80vw;
   }
-
-  /* .bottom-collections {
-    width: 80vw;
-  } */
 }
 
 @media screen and (max-width: 768px) {

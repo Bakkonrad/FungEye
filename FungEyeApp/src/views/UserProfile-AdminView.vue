@@ -160,13 +160,12 @@ export default {
                 try {
                     const response = await UserService.deleteAccount(this.id);
                     if (response.success === false) {
-                        console.log(response.message);
                         return;
                     }
                     alert("Konto użytkownika zostało usunięte.");
                     this.fetchUser();
                 } catch (error) {
-                    console.log(error);
+                    console.error(error);
                 }
             }
         },
@@ -174,25 +173,19 @@ export default {
             try {
                 const response = await UserService.retrieveAccount(this.id);
                 if (response.success === false) {
-                    console.log(response.message);
                     return;
                 }
                 alert("Konto użytkownika zostało przywrócone.");
                 this.fetchUser();
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         },
         async fetchUser() {
             this.id = this.$route.params.id;
-            // if (this.id == localStorage.getItem("id")) {
-            //     this.$router.push({ name: "myProfile" });
-            //     return;
-            // }
             const response = await UserService.getUserData(this.id);
             if (response.success === false) {
                 this.errorFindingUser = true;
-                console.log(response.message);
                 return;
             }
             this.user = response.data;

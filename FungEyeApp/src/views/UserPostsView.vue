@@ -56,14 +56,12 @@ export default {
           this.errorMessage = 'Brak postów do wyświetlenia.';
           return;
         }
-        console.log('Wszystkie posty:', response.data);
         this.posts = response.data.filter(post => post.userId === parseInt(this.id));
         if (this.posts.length === 0) {
           this.error = true;
           this.errorMessage = 'Brak postów użytkownika.';
           return;
         }
-        console.log('Posty użytkownika:', this.posts);
       } catch (error) {
         console.error('Błąd podczas pobierania postów:', error);
       } finally {

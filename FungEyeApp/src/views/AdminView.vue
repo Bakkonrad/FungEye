@@ -4,17 +4,17 @@
     <div v-if="error" class="error-loading-data">
       {{ errorMessage }}
     </div>
-    <!-- search bar and table for users -->
+    <!-- search bar and Tab for users -->
     <div v-else>
       <div class="buttons my-3">
-        <button class="btn category-btn" :class="getActiveTable('users')" @click="showUsers">
+        <button class="btn category-btn" :class="getActiveTab('users')" @click="showUsers">
           Użytkownicy
         </button>
-        <button class="btn category-btn" :class="getActiveTable('reports')" @click="showReports">
+        <button class="btn category-btn" :class="getActiveTab('reports')" @click="showReports">
           Zgłoszenia
         </button>
       </div>
-      <div v-if="activeTable === 'users'">
+      <div v-if="activeTab === 'users'">
         <div v-if="!isEditing && !isBanning">
           <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton"
             @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
@@ -35,8 +35,8 @@
         <UserBan v-if="isBanning" :user="selectedUser" @cancel-ban="cancelBanning" @ban-user="banUser" />
       </div>
 
-      <!-- Widok zgłoszeń -->
-      <div v-else-if="activeTable === 'reports'">
+      <!-- reports -->
+      <div v-else-if="activeTab === 'reports'">
         <ReportsView />
       </div>
       <div v-else style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
@@ -88,7 +88,7 @@ export default {
       errorMessage: "",
       noUsersFound: false,
       noUsersMessage: "",
-      activeTable: "users",
+      activeTab: "users",
       goToTheTopButton: null,
     };
   },
@@ -103,7 +103,8 @@ export default {
     if (localStorage.getItem("token") && this.isAdmin == true) {
       this.fetchUsers(this.currentPage);
     } else {
-      console.log("No token or no admin rights");
+      this.error = true;
+      this.errorMessage = "Brak dostępu!";
     }
     window.addEventListener("scroll", this.handleScroll);
   },
@@ -164,6 +165,7 @@ export default {
       this.currentPage = 1;
       this.fetchUsers();
     },
+    // register admin
     addmin() {
       this.$router.push("/register/admin");
     },
@@ -171,9 +173,9 @@ export default {
       this.searchQuery = query;
       this.cleanUsers();
     },
-    getActiveTable(table) {
+    getActiveTab(tab) {
       let classString = "category-btn";
-      if (this.activeTable === table) {
+      if (this.activeTab === tab) {
         classString += " active";
       }
       return classString;
@@ -181,12 +183,12 @@ export default {
     showUsers() {
       this.isEditing = false;
       this.selectedUser = null;
-      this.activeTable = "users";
+      this.activeTab = "users";
     },
     showReports() {
       this.isEditing = false;
       this.selectedUser = null;
-      this.activeTable = "reports";
+      this.activeTab = "reports";
     },
   },
 };

@@ -31,7 +31,6 @@
         </div>
       </div>
     </div>
-    <!-- <div class="recognize-content"> -->
     <div class="container-md content">
       <div class="photo-upload">
         <div class="card">
@@ -82,7 +81,6 @@
       </RecognizeResult>
     </div>
   </div>
-  <!-- </div> -->
 </template>
 
 <script>
@@ -128,7 +126,6 @@ export default {
       }
       this.file = files[0];
       this.imagesUploaded = true;
-      console.log(this.images);
     },
     checkFileSize(file) {
       if (file.size > this.maxFileSize) {
@@ -172,7 +169,6 @@ export default {
         }
       }
       this.file = files[0];
-      console.log(this.images);
     },
     async recognize() {
       if (this.images.length === 0) {
@@ -180,15 +176,12 @@ export default {
         return;
       }
       this.isLoading = true;
-      console.log(this.file);
       const response = await FungiService.predict(this.file);
       if (response.success == false || response.data.length === 0) {
-        console.log(response.message);
         this.errorRecognizing = true;
         this.isLoading = false;
         return;
       }
-      console.log(response.data);
       this.predictingResults = response.data.slice(0, 3);
       this.showResult = true;
       this.isLoading = false;

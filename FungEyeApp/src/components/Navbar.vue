@@ -109,7 +109,7 @@ export default {
 
     const router = useRouter();
     router.beforeEach((to, from, next) => {
-      hideNavbar();  // Ukryj navbar przed zmianą trasy
+      hideNavbar(); // hiding navbar on route change
       next();
     });
 
@@ -138,9 +138,7 @@ export default {
   -webkit-user-select: none;
   /* Safari */
   -ms-user-select: none;
-  /* IE 10 and IE 11 */
   user-select: none;
-  /* Standard syntax */
 }
 
 .container-fluid {

@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
+import { RouterView } from "vue-router";
 </script>
 
 <script>
@@ -23,9 +23,8 @@ export default {
 </template>
 
 <style>
-/* body */
+
 body {
-  /* zmienne css, przykładowe użycie: color: var(--dark-green); */
   /* --dark-green: #386641; */
   --dark-green: #355f3d;
   /* --green: #6a994e; */
@@ -54,9 +53,7 @@ input {
   -webkit-user-select: none;
   /* Safari */
   -ms-user-select: none;
-  /* IE 10 and IE 11 */
   user-select: none;
-  /* Standard syntax */
 }
 
 b {
@@ -178,7 +175,6 @@ ul {
 }
 
 .fungeye-secondary-button {
-  /* transparent background */
   background: transparent;
   border: 1px solid white;
   color: white;
@@ -225,15 +221,12 @@ ul {
 
 input,
 textarea {
-  /* color: white !important; */
   color: white;
-  /* width: 90% !important; */
 
   box-sizing: border-box;
   height: 50px;
 
   background: rgba(255, 255, 255, 0.3) !important;
-  /* input-stroke */
   border: 1px solid rgba(56, 102, 65, 0.2) !important;
   border-radius: 15px !important;
 }

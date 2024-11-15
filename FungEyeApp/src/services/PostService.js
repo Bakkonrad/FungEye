@@ -55,7 +55,6 @@ const getPost = async (postId) => {
         const formData = new FormData();
         formData.append("userId", userId);
         formData.append("postId", postId);
-        console.log(formData.get("postId"));
         const response = await $http.post("api/Post/getPost", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
@@ -238,7 +237,6 @@ const addComment = async (comment) => {
         const formData = new FormData();
         formData.append("userId", userId);
         formData.append("commentJson", JSON.stringify(comment));
-        console.log("commentJson", JSON.stringify(comment));
         const response = await $http.post("api/Post/addComment", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
@@ -262,7 +260,6 @@ const editComment = async (comment) => {
         const formData = new FormData();
         formData.append("userId", userId);
         formData.append("commentJson", JSON.stringify(comment));
-        console.log("commentJson", JSON.stringify(comment));
         const response = await $http.put("api/Post/editComment", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
@@ -285,7 +282,6 @@ const deleteComment = async (commentId) => {
         const userId = parseInt(localStorage.getItem("id"));
         formData.append("userId", userId);
         formData.append("commentId", commentId);
-        console.log("commentId", commentId);
         const response = await $http.post(`api/Post/deleteComment`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",

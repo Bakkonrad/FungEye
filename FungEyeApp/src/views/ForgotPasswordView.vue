@@ -30,7 +30,6 @@
 </template>
 
 <script>
-import { RouterLink } from "vue-router";
 import BaseInput from "../components/BaseInput.vue";
 import { useVuelidate } from "@vuelidate/core";
 import {
@@ -91,7 +90,6 @@ export default {
                 return;
             }
             this.emailSent = true;
-            console.log("Email sent");
         },
     },
 };

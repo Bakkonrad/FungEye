@@ -159,8 +159,9 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        [HttpGet("getFungiByName/{fungiName}")]
-        public async Task<IActionResult> GetFungiByName(string fungiName, [FromBody] int? userId = null)
+        [Consumes("multipart/form-data")]
+        [HttpPost("getFungiByName")]
+        public async Task<IActionResult> GetFungiByName([FromForm] string fungiName, [FromForm] int? userId = null)
         {
             try
             {

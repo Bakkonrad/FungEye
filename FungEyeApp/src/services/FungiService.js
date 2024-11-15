@@ -51,7 +51,7 @@ const predict = async (image) => {
       const fungiResults = predictResponse.data.map(async (result) => {
         const latinName = formatName(result.Item1);
         const probability = parseFloat((result.Item2 * 100).toFixed(0));
-        const getFungiByNameResponse = await this.getFungiByName(latinName);
+        const getFungiByNameResponse = await getFungiByName(latinName);
         if (getFungiByNameResponse.status === 200) {
           const id = getFungiByNameResponse.data.id;
           const polishName = getFungiByNameResponse.data.polishName;
@@ -80,7 +80,7 @@ const predict = async (image) => {
 };
 
 const formatName = (name) => {
-  const formattedName = name.split('_')[0] + ' ' + name.split('_')[1];
+  const formattedName = name.split("_")[0] + " " + name.split("_")[1];
   return formattedName;
 };
 
@@ -90,17 +90,17 @@ const getAllFungies = async (page, search, userId) => {
       userId = parseInt(localStorage.getItem("id"));
     }
     const formData = new FormData();
-    formData.append('userId', userId);
+    formData.append("userId", userId);
     if (page) {
-      formData.append('page', page);
+      formData.append("page", page);
     }
     if (search) {
-      formData.append('search', search);
+      formData.append("search", search);
     }
-    const response = await $http.post('api/FungiAtlas/getFungies', formData, {
+    const response = await $http.post("api/FungiAtlas/getFungies", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        "Content-Type": "multipart/form-data",
+      },
     });
     if (response.status === 200) {
       const data = addAttributes(response.data);
@@ -114,31 +114,41 @@ const getAllFungies = async (page, search, userId) => {
   }
 };
 
-const getFilteredFungies = async (edibility, toxicity, habitat, letter, savedByUser) => {
+const getFilteredFungies = async (
+  edibility,
+  toxicity,
+  habitat,
+  letter,
+  savedByUser
+) => {
   try {
     const userId = parseInt(localStorage.getItem("id"));
     const formData = new FormData();
-    formData.append('userId', userId);
+    formData.append("userId", userId);
     if (edibility) {
-      formData.append('edibility', edibility);
+      formData.append("edibility", edibility);
     }
     if (toxicity) {
-      formData.append('toxicity', toxicity);
+      formData.append("toxicity", toxicity);
     }
     if (habitat) {
-      formData.append('habitat', habitat);
+      formData.append("habitat", habitat);
     }
     if (letter) {
-      formData.append('letter', letter);
+      formData.append("letter", letter);
     }
     if (savedByUser) {
-      formData.append('savedByUser', savedByUser);
+      formData.append("savedByUser", savedByUser);
     }
-    const response = await $http.post('api/FungiAtlas/getFilteredFungies', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+    const response = await $http.post(
+      "api/FungiAtlas/getFilteredFungies",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       }
-    });
+    );
     if (response.status === 200) {
       const data = addAttributes(response.data);
       return { success: true, data: data };
@@ -159,25 +169,22 @@ const addAttributes = (fungies) => {
     };
     if (fungi.edibility === "jadalny") {
       newFungi.attributes.push("jadalny");
-    }
-    else if (fungi.toxicity === "trujący") {
+    } else if (fungi.toxicity === "trujący") {
       newFungi.attributes.push("trujący");
-    }
-    else if (fungi.edibility === "niejadalny") {
+    } else if (fungi.edibility === "niejadalny") {
       newFungi.attributes.push("niejadalny");
     }
     if (fungi.habitat === "iglasty") {
       newFungi.attributes.push("iglaste");
     } else if (fungi.habitat === "liściasty") {
       newFungi.attributes.push("liściaste");
-    }
-    else if (fungi.habitat === "mieszany") {
+    } else if (fungi.habitat === "mieszany") {
       newFungi.attributes.push("mieszane");
     }
     return newFungi;
   });
   return newFungies;
-}
+};
 
 const addAttributesToSingle = (fungi) => {
   const newFungi = {
@@ -186,23 +193,20 @@ const addAttributesToSingle = (fungi) => {
   };
   if (fungi.edibility === "jadalny") {
     newFungi.attributes.push("jadalny");
-  }
-  else if (fungi.toxicity === "trujący") {
+  } else if (fungi.toxicity === "trujący") {
     newFungi.attributes.push("trujący");
-  }
-  else if (fungi.edibility === "niejadalny") {
+  } else if (fungi.edibility === "niejadalny") {
     newFungi.attributes.push("niejadalny");
   }
   if (fungi.habitat === "iglasty") {
     newFungi.attributes.push("iglaste");
   } else if (fungi.habitat === "liściasty") {
     newFungi.attributes.push("liściaste");
-  }
-  else if (fungi.habitat === "mieszany") {
+  } else if (fungi.habitat === "mieszany") {
     newFungi.attributes.push("mieszane");
   }
   return newFungi;
-}
+};
 
 const reconvertAttributes = (fungi) => {
   const newFungi = {
@@ -229,13 +233,16 @@ const reconvertAttributes = (fungi) => {
     newFungi.habitat = "mieszany";
   }
   return newFungi;
-}
+};
 
 const getFungi = async (id) => {
   try {
     const fungiId = parseInt(id);
     const userId = JSON.stringify(parseInt(localStorage.getItem("id")));
-    const response = await $http.post(`api/FungiAtlas/getFungi/${fungiId}`, userId);
+    const response = await $http.post(
+      `api/FungiAtlas/getFungi/${fungiId}`,
+      userId
+    );
     if (response.status === 200) {
       const data = addAttributesToSingle(response.data);
       return { success: true, data: data };
@@ -250,8 +257,15 @@ const getFungi = async (id) => {
 
 const getFungiByName = async (fungiName) => {
   try {
-    const userId = JSON.stringify(parseInt(localStorage.getItem("id")));
-    const response = await $http.get(`api/FungiAtlas/getFungi/${fungiName}`, { userId: userId });
+    const userId = parseInt(localStorage.getItem("id"));
+    const data = new FormData();
+    data.append("userId", userId);
+    data.append("fungiName", fungiName);
+    const response = await $http.post(`api/FungiAtlas/getFungiByName`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     if (response.status === 200) {
       const data = addAttributesToSingle(response.data);
       return { success: true, data: data };
@@ -259,10 +273,10 @@ const getFungiByName = async (fungiName) => {
     return { success: false, message: "Nieznany błąd" };
   } catch (error) {
     const errorMessage = ApiService.handleApiError(error);
-    console.error("Error getting fungi by id:", errorMessage);
+    console.error("Error getting fungi by name:", errorMessage);
     return { success: false, message: errorMessage };
   }
-}
+};
 
 const addFungi = async (fungi, images) => {
   try {
@@ -307,9 +321,8 @@ const editFungi = async (fungi, images) => {
     const response = await $http.post(`api/FungiAtlas/editFungi`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-      }
-    }
-    );
+      },
+    });
     if (response.status === 200) {
       return { success: true, data: response.data };
     }
@@ -349,11 +362,15 @@ const saveFungiToCollection = async (fungiId) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiId", fungiId);
-    const response = await $http.post("api/FungiAtlas/addFungiToCollection", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await $http.post(
+      "api/FungiAtlas/addFungiToCollection",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     if (response.status === 201 || response.status === 200) {
       return { success: true, data: response.data };
     }
@@ -363,7 +380,7 @@ const saveFungiToCollection = async (fungiId) => {
     console.error("Error saving fungi to collection:", errorMessage);
     return { success: false, message: errorMessage };
   }
-}
+};
 
 const deleteFungiFromCollection = async (fungiId) => {
   try {
@@ -371,11 +388,15 @@ const deleteFungiFromCollection = async (fungiId) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiId", fungiId);
-    const response = await $http.post("api/FungiAtlas/deleteFungiFromCollection", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await $http.post(
+      "api/FungiAtlas/deleteFungiFromCollection",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     if (response.status === 201 || response.status === 200) {
       return { success: true, data: response.data };
     }
@@ -385,8 +406,7 @@ const deleteFungiFromCollection = async (fungiId) => {
     console.error("Error saving fungi to collection:", errorMessage);
     return { success: false, message: errorMessage };
   }
-}
-
+};
 
 export default {
   predict,
@@ -398,5 +418,5 @@ export default {
   editFungi,
   deleteFungi,
   saveFungiToCollection,
-  deleteFungiFromCollection
+  deleteFungiFromCollection,
 };

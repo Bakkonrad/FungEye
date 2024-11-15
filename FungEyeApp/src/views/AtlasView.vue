@@ -37,17 +37,22 @@
     </div>
 
     <div class="attribute-filter">
-      <span v-for="attribute in availableAttributes" :key="attribute" @click="toggleAttributeFilter(attribute)"
-        :class="['attribute', attributeClass(attribute), { 'active-attribute': isActiveAttribute(attribute) }]">
-        {{ attribute }}
-      </span>
+      <div v-for="category in availableAttributes" class="attributes-categories">
+        {{ category[0] === 'iglaste' ? 'Siedlisko:' : 'Jadalność:' }}
+        <span v-for="attribute in category" :key="attribute" @click="toggleAttributeFilter(attribute)"
+          :class="['attribute', attributeClass(attribute), { 'active-attribute': isActiveAttribute(attribute) }]">
+          {{ attribute }}
+        </span>
+        <span v-if="category[0] === 'iglaste'" class="separator">|</span>
+      </div>
     </div>
 
     <div class="mushroom-list">
       <div v-for="mushroom in filteredMushrooms" :key="mushroom.id" class="mushroom-card"
         @click="openMushroomView(mushroom.id)">
         <span class="left">
-          <img v-if="mushroom.imagesUrl" :src="setMushroomImage(mushroom.id)" alt="Mushroom Image" class="mushroom-image" @error="handleImageError(mushroom.id)" />
+          <img v-if="mushroom.imagesUrl" :src="setMushroomImage(mushroom.id)" alt="Mushroom Image"
+            class="mushroom-image" @error="handleImageError(mushroom.id)" />
           <div class="mushroom-info">
             <h3 class="polish-name">{{ mushroom.polishName }}</h3>
             <h4 class="latin-name">{{ mushroom.latinName }}</h4>
@@ -219,7 +224,7 @@ export default {
       }],
       filteredMushrooms: [],
       alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-      availableAttributes: ['iglaste', 'mieszane', 'liściaste', 'jadalny', 'niejadalny', 'trujący'],
+      availableAttributes: [['iglaste', 'mieszane', 'liściaste'], ['jadalny', 'niejadalny', 'trujący']],
       showAddMushroomModal: false,
       showEditMushroomModal: false,
       showDeleteMushroomModal: false,
@@ -266,7 +271,7 @@ export default {
         }
         this.isLoading = true;
         const response = await FungiService.getAllFungies(page, this.searchQuery);
-        console.log(response.data);  
+        console.log(response.data);
         if (response.success === false) {
           this.error = true;
           this.fetchMushroomsErrorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
@@ -278,7 +283,7 @@ export default {
           return;
         } else if (response.data.length === 0) {
           this.error = true;
-          this.noMoreResults = true;  
+          this.noMoreResults = true;
           return;
         }
         this.noMoreResults = false;
@@ -344,6 +349,53 @@ export default {
 
       this.filteredMushrooms = filtered;
     },
+    async filteredMushroomsAPI() {
+      if (this.noMoreResults || this.isLoading) {
+        return;
+      }
+      let edibility = '';
+      let habitat = '';
+      let toxicity = '';
+      let letter = '';
+      let savedByUser = '';
+      if (this.selectedAttributes.length > 0) {
+        if (this.selectedAttributes.includes('jadalny')) {
+          edibility = 'jadalny';
+        } else if (this.selectedAttributes.includes('trujący')) {
+          toxicity = 'trujący';
+        } else if (this.selectedAttributes.includes('niejadalny')) {
+          toxicity = 'niejadalny';
+        }
+        if (this.selectedAttributes.includes('iglaste')) {
+          habitat = 'iglasty';
+        } else if (this.selectedAttributes.includes('liściaste')) {
+          habitat = 'liściasty';
+        } else if (this.selectedAttributes.includes('mieszane')) {
+          habitat = 'mieszany';
+        }
+      }
+      if (this.activeLetter) {
+        letter = this.activeLetter;
+      }
+      if (this.showSaved) {
+        savedByUser = true;
+      }
+      this.isLoading = true;
+
+      try {
+        const response = await FungiService.getFilteredFungies(edibility, habitat, toxicity, letter, savedByUser);
+        if (response.success === false) {
+          this.error = true;
+          this.errorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
+          return;
+        }
+        this.error = false;
+        this.mushrooms = response.data;
+      }
+      catch (error) {
+        console.error(error);
+      }
+    },
     handleImageError(id) {
       const mushroom = this.mushrooms.find((mushroom) => mushroom.id === id);
       if (mushroom.imagesUrl.length > 0) {
@@ -386,10 +438,19 @@ export default {
       this.$router.push({ name: 'MushroomView', params: { id: mushroomId } });
     },
     toggleAttributeFilter(attribute) {
-      const index = this.selectedAttributes.indexOf(attribute);
-      if (index > -1) {
-        this.selectedAttributes.splice(index, 1);
+      if (this.selectedAttributes.includes(attribute)) {
+        this.selectedAttributes = this.selectedAttributes.filter((a) => a !== attribute);
       } else {
+        const mutuallyExclusiveGroups = [
+          ['jadalny', 'niejadalny', 'trujący'],
+          ['iglaste', 'liściaste', 'mieszane']
+        ];
+
+        mutuallyExclusiveGroups.forEach(group => {
+          if (group.includes(attribute)) {
+            this.selectedAttributes = this.selectedAttributes.filter(a => !group.includes(a) || a === attribute);
+          }
+        });
         this.selectedAttributes.push(attribute);
       }
       this.filterMushrooms();

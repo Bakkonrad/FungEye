@@ -78,7 +78,7 @@
         </div>
       </div>
       <LoadingSpinner v-if="isLoading"></LoadingSpinner>
-      <RecognizeResult v-if="showResult && images.length > 0" :image="images[0].url" :results="results">
+      <RecognizeResult v-if="showResult && images.length > 0" :image="images[0].url" :results="predictingResults">
       </RecognizeResult>
     </div>
   </div>
@@ -104,7 +104,7 @@ export default {
       imagesUploaded: null,
       id: 2,
       isLoading: false,
-      results: [],
+      predictingResults: [],
       directionsState: "Pokaż instrukcję",
       maxFileSize: 10 * 1024 * 1024, // 10MB
       fileSizeError: false,
@@ -189,7 +189,7 @@ export default {
         return;
       }
       console.log(response.data);
-      this.results = response.data.slice(0, 3);
+      this.predictingResults = response.data.slice(0, 3);
       this.showResult = true;
       this.isLoading = false;
     },
@@ -199,7 +199,7 @@ export default {
     clearImages() {
       this.images = [];
       this.imagesUploaded = null;
-      this.results = [];
+      this.predictingResults = [];
       this.showResult = false;
     },
   },

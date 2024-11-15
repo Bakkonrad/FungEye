@@ -142,7 +142,7 @@ export default {
       if (!this.userId) {
         return;
       }
-      const response = await UserService.getUserData(this.userId);
+      const response = await UserService.getSmallUserData(this.userId);
       if (response.success === false) {
         console.error("Error while fetching user data");
         return;

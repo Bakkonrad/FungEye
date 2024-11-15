@@ -1,11 +1,11 @@
 <template>
-  <div v-if="probability > 0" class="possible-mushroom" @click="copyName">
-    <!-- <RouterLink v-if="probability > 0" :to="'/mushroom/' + id" class="possible-mushroom"> -->
+  <div v-if="probability > 0" class="possible-mushroom" >
+    <RouterLink :to="'/mushroom/' + id" class="possible-mushroom">
     <div class="left-side">
-      <img src="../assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg" alt="" class="album-photo" />
+      <img :src="image" alt="" class="album-photo" />
       <div class="mushroom-names">
-        <h2 class="mushroom-name">{{ mushroomName }}</h2>
-        <p class="mushroom-latin">{{ formattedMushroomLatin() }}</p>
+        <h2 class="mushroom-name">{{ polishName }}</h2>
+        <p class="mushroom-latin">{{ latinName }}</p>
       </div>
     </div>
     <div class="right-side">
@@ -17,7 +17,7 @@
         &#10095;
       </div>
     </div>
-  <!-- </RouterLink> -->
+  </RouterLink>
   </div>
 </template>
 
@@ -25,20 +25,24 @@
 export default {
   props: {
     id: {
-      type: String,
-      default: "0",
+      type: Number,
+      default: 0,
     },
-    mushroomName: {
+    polishName: {
       type: String,
       default: "Nieznany gatunek",
     },
-    mushroomLatin: {
+    latinName: {
       type: String,
       default: "Nieznana łacińska nazwa",
     },
     probability: {
       type: Number,
       default: 0,
+    },
+    image: {
+      type: String,
+      default: "../assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
     },
   },
   // change color of probability depending on its value
@@ -51,13 +55,6 @@ export default {
       } else {
         return "green";
       }
-    },
-    formattedMushroomLatin() {
-      return this.mushroomLatin.split('_')[0] + ' ' + this.mushroomLatin.split('_')[1];
-    },
-    copyName() {
-      console.log('copying: ' + this.formattedMushroomLatin());
-      navigator.clipboard.writeText(this.formattedMushroomLatin());
     },
   }
 };

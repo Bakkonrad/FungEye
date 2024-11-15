@@ -51,7 +51,6 @@ export default {
   },
   async created() {
     this.fetchUser();
-    this.fetchSavedMushrooms();
     this.checkIfFollowed();
     this.isLoggedUser = this.isThisUserLoggedIn();
   },
@@ -66,23 +65,24 @@ export default {
       mushrooms: [],
       createdAt: "",
       errorFindingUser: false,
-      isLoggedUser: false,
+      // isLoggedUser: false,
       isAdmin: false,
       isBanning: false,
       showMoreMushrooms: false,
     };
   },
   setup() {
+    const followed = ref(null);
+    const isLoggedUser = ref(false);
+    console.log(followed);
     checkAdmin();
     return {
       isAdmin: isAdmin,
-      followed: ref(null),
+      followed,
+      isLoggedUser,
       follows: ref([]),
       followers: ref([]),
     };
-  },
-  mounted() {
-    this.fetchSavedMushrooms();
   },
   methods: {
     async fetchUser() {
@@ -101,26 +101,15 @@ export default {
       this.name_surname = response.data.firstName + " " + response.data.lastName;
       this.email = response.data.email;
       this.createdAt = response.data.createdAt;
+      this.mushrooms = response.data.collectedFungies;
       this.follows = followsResponse.data;
       this.followers = followersResponse.data;
-    },
-    async fetchSavedMushrooms() {
-      const page = null;
-      const search = "";
-      const response = await FungiService.getAllFungies(page, search, this.id);
-      if (response.success === false) {
-        console.log(response.message);
-        return;
-      }
-      this.mushrooms = response.data.filter((mushroom) => mushroom.savedByUser == true);
-      if (this.mushrooms.length > 5) {
-        this.mushrooms = this.mushrooms.slice(0, 4);
-        this.showMoreMushrooms = true;  
-      }
-      console.log(this.mushrooms);  
+      this.checkIfFollowed();
+      this.isLoggedUser = this.isThisUserLoggedIn();
     },
     async checkIfFollowed() {
       const response = await FollowService.isFollowing(localStorage.getItem("id"), this.id);
+      console.log(response.data);
       if (response.success === false) {
         console.log(response.message);
         return;

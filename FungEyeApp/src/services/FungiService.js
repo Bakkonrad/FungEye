@@ -25,13 +25,29 @@ const predict = async (image) => {
   try {
     const formData = new FormData();
     formData.append("image", image);
-    const response = await $http.post("api/Model/predict", formData, {
+    const predictResponse = await $http.post("api/Model/predict", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    if (response.status === 200) {
-      return { success: true, data: response.data };
+    if (predictResponse.status === 200) {
+      const latinName = formatName(predictResponse.data.Item1);
+      const probability = parseFloat((predictResponse.data.Item2 * 100).toFixed(0));
+      const getFungiByNameResponse = await this.getFungiByName(latinName);
+      if (getFungiByNameResponse.status === 200) {
+        const id = getFungiByNameResponse.data.id;
+        const polishName = getFungiByNameResponse.data.polishName;
+        const image = getFungiByNameResponse.data.imageUrl;
+        const fungiData = {
+          id: id,
+          polishName: polishName,
+          latinName: latinName,
+          image: image,
+          probability: probability,
+        };
+        return { success: true, data: fungiData };
+      }
+      return { success: false, message: "Nieznany błąd" };
     }
     return { success: false, message: "Nieznany błąd" };
   } catch (error) {
@@ -39,6 +55,11 @@ const predict = async (image) => {
     console.error("Error predicting:", errorMessage);
     return { success: false, message: errorMessage };
   }
+};
+
+const formatName = (name) => {
+  const formattedName = name.split('_')[0] + ' ' + name.split('_')[1];
+  return formattedName;
 };
 
 const getAllFungies = async (page, search, userId) => {
@@ -85,6 +106,43 @@ const getAllFungies = async (page, search, userId) => {
   }
 };
 
+const getFilteredFungies = async (edibility, toxicity, habitat, letter, savedByUser) => {
+  try {
+    const userId = parseInt(localStorage.getItem("id"));
+    const formData = new FormData();
+    formData.append('userId', userId);
+    if (edibility) {
+      formData.append('edibility', edibility);
+    }
+    if (toxicity) {
+      formData.append('toxicity', toxicity);
+    }
+    if (habitat) {
+      formData.append('habitat', habitat);
+    }
+    if (letter) {
+      formData.append('letter', letter);
+    }
+    if (savedByUser) {
+      formData.append('savedByUser', savedByUser);
+    }
+    const response = await $http.post('api/FungiAtlas/getFilteredFungies', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    if (response.status === 200) {
+      const data = addAttributes(response.data);
+      return { success: true, data: data };
+    }
+    return { success: false, message: "Nieznany błąd" };
+  } catch (error) {
+    const errorMessage = ApiService.handleApiError(error);
+    console.error("Error getting fungis by attributes:", errorMessage);
+    return { success: false, message: errorMessage };
+  }
+};
+
 const addAttributes = (fungies) => {
   const newFungies = fungies.map((fungi) => {
     const newFungi = {
@@ -93,11 +151,12 @@ const addAttributes = (fungies) => {
     };
     if (fungi.edibility === "jadalny") {
       newFungi.attributes.push("jadalny");
-    } else if (fungi.edibility === "niejadalny") {
-      newFungi.attributes.push("niejadalny");
     }
-    if (fungi.toxicity === "trujący") {
+    else if (fungi.toxicity === "trujący") {
       newFungi.attributes.push("trujący");
+    }
+    else if (fungi.edibility === "niejadalny") {
+      newFungi.attributes.push("niejadalny");
     }
     if (fungi.habitat === "iglasty") {
       newFungi.attributes.push("iglaste");
@@ -119,11 +178,12 @@ const addAttributesToSingle = (fungi) => {
   };
   if (fungi.edibility === "jadalny") {
     newFungi.attributes.push("jadalny");
-  } else if (fungi.edibility === "niejadalny") {
-    newFungi.attributes.push("niejadalny");
   }
-  if (fungi.toxicity === "trujący") {
+  else if (fungi.toxicity === "trujący") {
     newFungi.attributes.push("trujący");
+  }
+  else if (fungi.edibility === "niejadalny") {
+    newFungi.attributes.push("niejadalny");
   }
   if (fungi.habitat === "iglasty") {
     newFungi.attributes.push("iglaste");
@@ -337,6 +397,7 @@ const deleteFungiFromCollection = async (fungiId) => {
 export default {
   predict,
   getAllFungies,
+  getFilteredFungies,
   getFungi,
   getFungiByName,
   addFungi,

@@ -42,6 +42,25 @@ const getUserData = async (userId) => {
     }
 }
 
+const getSmallUserData = async (userId) => {
+    try {
+        const isTokenValid = await ApiService.validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
+        }
+        const response = await $http.get(`api/User/getSmallProfile/${userId}`);
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error loading data:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
 const getAllUsers = async (page, search) => {
     try {
         const userId = parseInt(localStorage.getItem("id"));
@@ -123,34 +142,6 @@ const updateUser = async (user, image) => {
     }
 }
 
-// const updateImage = async (image) => {
-//     try {
-//         const isTokenValid = await validateToken();
-//         if (isTokenValid.success == false) {
-//             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
-//         }
-
-//         const userId = localStorage.getItem('id');
-
-//         const formData = new FormData();
-//         formData.append('image', image);
-
-//         const response = await $http.post(`/api/User/UpdateUserImage/${userId}`, formData, {
-//             headers: {
-//                 'Content-Type': 'multipart/form-data'
-//             }
-//         });
-//         if (response.status === 200) {
-//             return { success: true, data: response.data };
-//         }
-//         return { success: false, message: 'Nieznany błąd' };
-//     } catch (error) {
-//         const errorMessage = handleApiError(error);
-//         console.error('Error updating image:', errorMessage);
-//         return { success: false, message: errorMessage };
-//     }
-// }
-
 const banUser = async (userId, ban) => {
     try {
         console.log("ban: ", userId, ban);
@@ -223,8 +214,8 @@ const unfollowUser = async (follow) => {
 
 export default {
     getUserData,
+    getSmallUserData,
     getAllUsers,
-    // updateImage,
     updateUser,
     deleteAccount,
     banUser,

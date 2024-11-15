@@ -94,13 +94,12 @@ import ProfileImage from "@/components/ProfileImage.vue";
 import UserService from "@/services/UserService";
 import AuthService from "@/services/AuthService";
 import FollowService from "@/services/FollowService";
-import FungiService from "@/services/FungiService";
 import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
 import BaseInput from "@/components/BaseInput.vue";
 import { onMounted, reactive, ref, computed } from "vue";
-import { isLoggedIn, profileImage, setProfileImage } from "@/services/AuthService";
+import { profileImage, setProfileImage } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minLength, helpers, sameAs } from "@vuelidate/validators";
@@ -119,13 +118,8 @@ export default {
       submitted: false,
       errorLoadingData: false,
       error: false,
-      mushrooms: [
-      ],
       showMoreMushrooms: false,
     };
-  },
-  mounted() {
-    this.fetchSavedMushrooms();
   },
   methods: {
     logOut() {
@@ -167,21 +161,6 @@ export default {
       this.logOut();
       this.$router.push("/log-in");
     },
-    async fetchSavedMushrooms() {
-      const page = null;
-      const search = "";
-      const response = await FungiService.getAllFungies(page, search);
-      if (response.success === false) {
-        console.log(response.message);
-        return;
-      }
-      this.mushrooms = response.data.filter((mushroom) => mushroom.savedByUser == true);
-      if (this.mushrooms.length > 5) {
-        this.mushrooms = this.mushrooms.slice(0, 4);
-        this.showMoreMushrooms = true;  
-      }
-      console.log(this.mushrooms);  
-    },
   },
   setup() {
     const imgSrc = reactive(profileImage);
@@ -195,6 +174,7 @@ export default {
     const name_surname = ref('');
     const email = ref('');
     const createdAt = ref('');
+    const mushrooms = ref([]);
     const follows = ref([]);
     const followers = ref([]);
 
@@ -228,6 +208,7 @@ export default {
           name_surname.value = userData.data.firstName + " " + userData.data.lastName;
         }
         email.value = userData.data.email;
+        mushrooms.value = userData.data.collectedFungies;
         follows.value = userFollows.data;
         followers.value = userFollowers.data;
 
@@ -297,6 +278,7 @@ export default {
       name_surname,
       email,
       createdAt,
+      mushrooms,
       follows,
       followers,
       errorLoadingData,

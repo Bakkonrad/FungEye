@@ -3,7 +3,7 @@
     <div class="return">
       <RouterLink to="/atlas" class="btn fungeye-default-button">
         <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
-        Powrót
+        Przejdź do atlasu
       </RouterLink>
     </div>
     <div v-if="error === false" class="container-md">

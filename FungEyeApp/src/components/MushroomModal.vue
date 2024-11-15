@@ -91,26 +91,14 @@ export default {
             this.onDragLeave(e);
             this.newImages.push(...Array.from(e.dataTransfer.files));
             this.newImagesUrls.push(...Array.from(e.dataTransfer.files).map(file => URL.createObjectURL(file)));
-            console.log("---- newImages");
-            console.log(this.newImages);
-            console.log("---- newImagesUrls");
-            console.log(this.newImagesUrls);
         },
         deleteOldImage(index) {
             this.imagesUrlsToDelete.push(this.oldImages[index]);
             this.oldImages.splice(index, 1);
-            console.log("---- oldImages");
-            console.log(this.oldImages);
-            console.log("---- imagesUrlsToDelete");
-            console.log(this.imagesUrlsToDelete);
         },
         deleteNewImage(index) {
             this.newImages.splice(index, 1);
-            console.log("---- newImages");
-            console.log(this.newImages);
             this.newImagesUrls.splice(index, 1);
-            console.log("---- newImagesUrls");
-            console.log(this.newImagesUrls);
         },
         handleImageError(index) {
             if (this.oldImages.length > 0) {

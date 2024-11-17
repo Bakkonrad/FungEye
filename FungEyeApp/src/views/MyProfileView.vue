@@ -29,7 +29,7 @@
             </button>
           </div>
         </div>
-        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" :showMoreMushrooms="true" />
+        <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" />
       </div>
     </div>
     <div class="settings container-md" v-if="isEditing">

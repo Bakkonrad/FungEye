@@ -2,16 +2,13 @@
   <div id="collections">
     <div class="bottom-collections">
       <div class="collection">
-        <h3>Zapisane grzyby</h3>
+        <h3>Ostatnio zapisane grzyby</h3>
         <div v-if="mushrooms.length > 0" class="mushrooms">
           <div class="hstack gap-3 mushroom-collection">
             <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
               <img class="mushroom" :src="mushroom.imagesUrl[0]" :alt="mushroom.polishName"
                 @click="goToMushroom(mushroom.id)" />
             </div>
-          </div>
-          <div class="showMore">
-            <router-link to="/atlas" v-if="showMoreMushrooms" class="r-link">Pokaż więcej</router-link>
           </div>
         </div>
         <div v-else>

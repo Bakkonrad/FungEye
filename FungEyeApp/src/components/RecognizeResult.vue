@@ -1,7 +1,7 @@
 <template>
   <div class="result" :style="{ backgroundImage: 'url(' + image + ')' }">
     <PossibleMushroom
-      v-for="r in result"
+      v-for="r in results"
       :key="r.id"
       :id="r.id"
       :polishName="r.polishName"

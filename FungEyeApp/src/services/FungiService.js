@@ -30,45 +30,34 @@ const predict = async (image) => {
         "Content-Type": "multipart/form-data",
       },
     });
+    // const predictResponse = {success: true, data: [{"Item1":"Cystoderma_aureum","Item2":0.999986172},{"Item1":"Fomitopsis_betulina","Item2":4.32633169E-06},{"Item1":"Lactifluus_volemus","Item2":2.91573E-06},{"Item1":"Gyroporus_castaneus","Item2":9.88494207E-07},{"Item1":"Amanita_junquillea","Item2":9.47643855E-07}]};
     if (predictResponse.status === 200) {
-      // do lines 35-48 for every result in predictResponse.data
-      // const latinName = formatName(predictResponse.data.Item1);
-      // const probability = parseFloat((predictResponse.data.Item2 * 100).toFixed(0));
-      // const getFungiByNameResponse = await this.getFungiByName(latinName);
-      // if (getFungiByNameResponse.status === 200) {
-      //   const id = getFungiByNameResponse.data.id;
-      //   const polishName = getFungiByNameResponse.data.polishName;
-      //   const image = getFungiByNameResponse.data.imageUrl;
-      //   const fungiData = {
-      //     id: id,
-      //     polishName: polishName,
-      //     latinName: latinName,
-      //     image: image,
-      //     probability: probability,
-      //   };
-      //   return { success: true, data: fungiData };
-      // }
-      const fungiResults = predictResponse.data.map(async (result) => {
+      let fungiData = [];
+      const fungiResults = await Promise.all(predictResponse.data.map(async (result) => {
         const latinName = formatName(result.Item1);
         const probability = parseFloat((result.Item2 * 100).toFixed(0));
         const getFungiByNameResponse = await getFungiByName(latinName);
-        if (getFungiByNameResponse.status === 200) {
+        if (getFungiByNameResponse.success === true) {
           const id = getFungiByNameResponse.data.id;
           const polishName = getFungiByNameResponse.data.polishName;
-          const image = getFungiByNameResponse.data.imageUrl;
-          return {
+          const image = getFungiByNameResponse.data.imagesUrl[0];
+          console.log(id, polishName, image);
+          const fungi = {
             id: id,
             polishName: polishName,
             latinName: latinName,
             image: image,
             probability: probability,
           };
+          fungiData.push(fungi);
+          return fungi;
         }
         return null;
-      });
-
-      const fungiData = await Promise.all(fungiResults);
-      return { success: true, data: fungiData.filter((data) => data !== null) };
+      }));
+      console.log(fungiData);
+      if (fungiResults.length === fungiData.length) {
+        return { success: true, data: fungiData};
+      }
       return { success: false, message: "Nieznany błąd" };
     }
     return { success: false, message: "Nieznany błąd" };

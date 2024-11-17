@@ -130,7 +130,7 @@ export default {
 }
 
 .mushroom-name {
-  font-size: 1.5em;
+  font-size: 1.2em;
 }
 
 .mushroom-latin {

@@ -32,12 +32,12 @@
       </div>
     </div>
     <div class="container-md content">
-      <div class="photo-upload">
+      <div class="photo-upload" :class="showResult ? 'result-chosen-files' : ''">
         <div class="card">
           <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" multiple />
           <div v-if="showResult" class="back-to-file-upload">
             <button type="button" class="btn fungeye-secondary-button" @click="clearImages">Wybierz inne
-              zdjęcia</button>
+              zdjęcie</button>
           </div>
           <div v-if="!showResult" class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
             @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
@@ -56,7 +56,7 @@
             </span>
           </div>
           <h3 v-if="images.length > 0" class="chosen-files-header">
-            Wybrane zdjęcia:
+            Wybrane zdjęcie:
           </h3>
           <div class="container uploaded-images" :class="images.length > 0 ? 'images-uploaded' : ''">
             <div class="image" v-for="(image, index) in images" :key="index">
@@ -67,10 +67,12 @@
         </div>
         <div class="error mt-2">
           <span v-if="imagesUploaded === false" class="error-message">Nie wybrano zdjęcia</span>
-          <span v-if="errorRecognizing === true" class="error-message">Błąd podczas rozpoznawania. Spróbuj ponownie.</span>
-          <span v-if="fileSizeError === true" class="error-message">Przesłano za duży plik. Maksymalny rozmiar to 10MB.</span>
+          <span v-if="errorRecognizing === true" class="error-message">Błąd podczas rozpoznawania. Spróbuj
+            ponownie.</span>
+          <span v-if="fileSizeError === true" class="error-message">Przesłano za duży plik. Maksymalny rozmiar to
+            10MB.</span>
         </div>
-        <div class="recognize-button">
+        <div v-if="!showResult" class="recognize-button">
           <button @click="recognize" class="btn fungeye-default-button" id="upload-button">
             Rozpoznaj
           </button>
@@ -140,7 +142,7 @@ export default {
       this.images.splice(index, 1);
       if (this.images.length === 0) {
         this.showResult = false;
-        this.errorRecognizing = false;  
+        this.errorRecognizing = false;
       }
     },
     onDragOver(event) {
@@ -185,6 +187,7 @@ export default {
       this.predictingResults = response.data.slice(0, 3);
       this.showResult = true;
       this.isLoading = false;
+
     },
     toggleDirections() {
       this.directionsState = this.directionsState === "Pokaż instrukcję" ? "Zwiń instrukcję" : "Pokaż instrukcję";
@@ -252,8 +255,7 @@ export default {
 .card {
   background: radial-gradient(135.63% 132.41% at 149.88% 23.51%,
       var(--green) 50%,
-      var(--dark-green) 100%)
-  ;
+      var(--dark-green) 100%);
   width: 100%;
   height: 400px;
   border-radius: 10px;
@@ -262,6 +264,11 @@ export default {
   margin-top: 20px;
   color: white;
   overflow: hidden;
+}
+
+.result-chosen-files {
+  height: 25rem;
+  width: 20rem;
 }
 
 .mobile-photo-upload {
@@ -378,12 +385,21 @@ export default {
   .photo-upload {
     width: 70%;
   }
+  .result-chosen-files {
+    height: 20rem;
+    width: 15rem;
+  }
 }
 
 @media screen and (max-width: 992px) {
 
   .photo-upload {
     width: 90%;
+  }
+
+  .result-chosen-files {
+    height: 20rem;
+    width: 15rem;
   }
 
 }

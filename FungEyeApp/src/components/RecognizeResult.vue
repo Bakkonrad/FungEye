@@ -58,9 +58,18 @@ export default {
 
 @media screen and (max-width: 768px) {
   .result {
-
+    margin-top: 2em;
+    width: 100%;
     height: 25em;
   }
+}
 
+@media screen and (max-width: 480px) {
+  .result {
+    width: 100%;
+    padding: 1em 0.5em;
+    justify-content: flex-start;
+  }
+  
 }
 </style>

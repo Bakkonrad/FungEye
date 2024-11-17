@@ -2,8 +2,12 @@
   <div class="container-md">
     <div class="return">
       <RouterLink to="/atlas" class="btn fungeye-default-button">
-        <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
-        Przejdź do atlasu
+        <font-awesome-icon icon="fa-solid fa-book-atlas" class="button-icon" />
+        Atlas
+      </RouterLink>
+      <RouterLink to="/recognize" class="btn fungeye-default-button">
+        <font-awesome-icon icon="fa-solid fa-eye" class="button-icon" />
+        Rozpoznawanie
       </RouterLink>
     </div>
     <div v-if="error === false" class="container-md">
@@ -174,6 +178,10 @@ export default {
 <style scoped>
 .return {
   margin-top: 20px;
+  display: flex;
+  justify-content: flex-start;
+  /* flex-direction: column; */
+  gap: 10px;
 }
 
 .mushroom-view {
@@ -227,7 +235,7 @@ export default {
 }
 
 .mushroom-view-description {
-  width: 50%;
+  width: 100%;
 }
 
 .mushroom-view-photos-container {

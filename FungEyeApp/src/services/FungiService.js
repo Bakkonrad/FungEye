@@ -25,12 +25,12 @@ const predict = async (image) => {
   try {
     const formData = new FormData();
     formData.append("image", image);
-    const predictResponse = await $http.post("api/Model/predict", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    // const predictResponse = {success: true, data: [{"Item1":"Cystoderma_aureum","Item2":0.999986172},{"Item1":"Fomitopsis_betulina","Item2":4.32633169E-06},{"Item1":"Lactifluus_volemus","Item2":2.91573E-06},{"Item1":"Gyroporus_castaneus","Item2":9.88494207E-07},{"Item1":"Amanita_junquillea","Item2":9.47643855E-07}]};
+    // const predictResponse = await $http.post("api/Model/predict", formData, {
+    //   headers: {
+    //     "Content-Type": "multipart/form-data",
+    //   },
+    // });
+    const predictResponse = {status: 200, data: [{"Item1":"Boletus_edulis","Item2":0.864475548},{"Item1":"Imleria_badia","Item2":0.0371585973},{"Item1":"Boletus_pinophilus","Item2":0.0329410769},{"Item1":"Boletus_reticulatus","Item2":0.0282462705},{"Item1":"Suillus_variegatus","Item2":0.0259523895}]};
     if (predictResponse.status === 200) {
       let fungiData = [];
       const fungiResults = await Promise.all(predictResponse.data.map(async (result) => {
@@ -41,7 +41,6 @@ const predict = async (image) => {
           const id = getFungiByNameResponse.data.id;
           const polishName = getFungiByNameResponse.data.polishName;
           const image = getFungiByNameResponse.data.imagesUrl[0];
-          console.log(id, polishName, image);
           const fungi = {
             id: id,
             polishName: polishName,
@@ -54,8 +53,8 @@ const predict = async (image) => {
         }
         return null;
       }));
-      console.log(fungiData);
       if (fungiResults.length === fungiData.length) {
+        fungiData = fungiData.sort((a, b) => b.probability - a.probability);
         return { success: true, data: fungiData};
       }
       return { success: false, message: "Nieznany błąd" };

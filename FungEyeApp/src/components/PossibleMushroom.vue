@@ -1,5 +1,5 @@
 <template>
-  <div v-if="probability > 0" class="possible-mushroom" >
+  <div v-if="probability > 0" class="possible-mushroom-container" >
     <RouterLink :to="'/mushroom/' + id" class="possible-mushroom">
     <div class="left-side">
       <img :src="image" alt="" class="album-photo" />

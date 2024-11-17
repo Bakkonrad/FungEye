@@ -1,6 +1,6 @@
 <template>
   <div class="result" :style="{ backgroundImage: 'url(' + image + ')' }">
-    <PossibleMushroom
+      <PossibleMushroom
       v-for="r in results"
       :key="r.id"
       :id="r.id"
@@ -8,8 +8,8 @@
       :latinName="r.latinName"
       :probability="r.probability"
       :image="r.image"
-    ></PossibleMushroom>
-  </div>
+      ></PossibleMushroom>
+    </div>
 </template>
 
 <script>

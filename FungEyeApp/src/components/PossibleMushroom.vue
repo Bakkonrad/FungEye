@@ -1,23 +1,23 @@
 <template>
-  <div v-if="probability > 0" class="possible-mushroom-container" >
+  <div v-if="probability > 0" class="possible-mushroom-container">
     <RouterLink :to="'/mushroom/' + id" class="possible-mushroom">
-    <div class="left-side">
-      <img :src="image" alt="" class="album-photo" />
-      <div class="mushroom-names">
-        <h2 class="mushroom-name">{{ polishName }}</h2>
-        <p class="mushroom-latin">{{ latinName }}</p>
+      <div class="left-side">
+        <img :src="image" alt="" class="album-photo" />
+        <div class="mushroom-names">
+          <h2 class="mushroom-name">{{ polishName }}</h2>
+          <p class="mushroom-latin">{{ latinName }}</p>
+        </div>
       </div>
-    </div>
-    <div class="right-side">
-      <div class="probability" :class="probabilityColor()">
-        <p>{{ probability }}</p>
-        <p>%</p>
+      <div class="right-side">
+        <div class="probability" :class="probabilityColor()">
+          <p>{{ probability }}</p>
+          <p>%</p>
+        </div>
+        <div class="arrow">
+          &#10095;
+        </div>
       </div>
-      <div class="arrow">
-        &#10095;
-      </div>
-    </div>
-  </RouterLink>
+    </RouterLink>
   </div>
 </template>
 
@@ -61,6 +61,10 @@ export default {
 </script>
 
 <style scoped>
+.possible-mushroom-container {
+  width: 100%;
+}
+
 .possible-mushroom {
   background: rgba(0,
       0,
@@ -75,6 +79,7 @@ export default {
   align-items: center;
   gap: 1.5em;
   width: 100%;
+  min-width: 18rem;
   text-decoration: none;
   cursor: pointer;
 }
@@ -138,11 +143,35 @@ export default {
   font-style: italic;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   .possible-mushroom {
     flex-direction: column;
     align-items: flex-start;
     gap: 1em;
+    min-width: 5rem;
+  }
+
+  .mushroom-names {
+    flex-wrap: wrap;
+  }
+
+  .right-side {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+  }
+  
+}
+
+@media screen and (max-width: 768px) {
+  .possible-mushroom-container {
+    width: 100%;
+  }
+  .possible-mushroom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1em;
+    min-width: 5rem;
   }
 
   .mushroom-names {

@@ -1,6 +1,7 @@
 using FungEyeApi.Data;
 using FungEyeApi.Interfaces;
 using Newtonsoft.Json;
+using SixLabors.ImageSharp.ColorSpaces;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -11,14 +12,12 @@ namespace FungEyeApi.Services
         private readonly DataContext db;
         private readonly HttpClient httpClient;
         private readonly IConfiguration configuration;
-        private readonly ILogger<ModelService> logger;
 
         public ModelService(DataContext db, IConfiguration configuration, ILogger<ModelService> logger)
         {
             this.db = db;
             this.httpClient = new HttpClient();
             this.configuration = configuration;
-            this.logger = logger;
         }
 
         public async Task<List<(string, double)>> Predict(IFormFile file)
@@ -31,10 +30,9 @@ namespace FungEyeApi.Services
 
                 return predictionList;
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogError(ex, "An error occurred during prediction.");
-                return new List<(string, double)>();
+                throw;
             }
         }
 
@@ -70,44 +68,58 @@ namespace FungEyeApi.Services
 
         private async Task<dynamic> GetPredictions(float[,,] imageArray)
         {
-            var batchJson = new
+            try
             {
-                signature_name = "serving_default",
-                instances = new[] { imageArray }
-            };
+                var batchJson = new
+                {
+                    signature_name = "serving_default",
+                    instances = new[] { imageArray }
+                };
 
-            var endpoint = configuration["ModelEndpoint"];
-            var response = await httpClient.PostAsync(endpoint, new StringContent(JsonConvert.SerializeObject(batchJson), System.Text.Encoding.UTF8, "application/json"));
+                var endpoint = configuration["ModelEndpoint"];
+                var response = await httpClient.PostAsync(endpoint, new StringContent(JsonConvert.SerializeObject(batchJson), System.Text.Encoding.UTF8, "application/json"));
 
-            response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode();
 
-            var responseContent = await response.Content.ReadAsStringAsync();
-            logger.LogInformation($"Response: {responseContent}");
+                var responseContent = await response.Content.ReadAsStringAsync();
 
-            var predictions = JsonConvert.DeserializeObject<dynamic>(responseContent)?.predictions;
-            if (predictions == null)
-            {
-                throw new InvalidOperationException("Predictions of AI model could not be retrieved from the response.");
+                var predictions = JsonConvert.DeserializeObject<dynamic>(responseContent)?.predictions;
+                if (predictions == null)
+                {
+                    throw new InvalidOperationException("Predictions of AI model could not be retrieved from the response.");
+                }
+
+                return predictions;
             }
-
-            return predictions;
+            catch
+            {
+                throw;
+            }
+            
         }
 
         private async Task<List<(string, double)>> ParsePredictions(dynamic predictions)
         {
-            var predictionList = new List<(string, double)>();
-
-            using (var fileReader = new StreamReader(@"Resources\mushroom_names.txt"))
+            try
             {
-                var classNames = (await fileReader.ReadToEndAsync()).Split('\n').Select(x => x.Trim()).ToList();
-                for (int i = 0; i < predictions[0].Count; i++)
-                {
-                    predictionList.Add((classNames[i], (double)predictions[0][i]));
-                }
-            }
+                var predictionList = new List<(string, double)>();
 
-            predictionList.Sort((x, y) => y.Item2.CompareTo(x.Item2));
-            return predictionList.Take(5).ToList();
+                using (var fileReader = new StreamReader(@"Resources\mushroom_names.txt"))
+                {
+                    var classNames = (await fileReader.ReadToEndAsync()).Split('\n').Select(x => x.Trim()).ToList();
+                    for (int i = 0; i < predictions[0].Count; i++)
+                    {
+                        predictionList.Add((classNames[i], (double)predictions[0][i]));
+                    }
+                }
+
+                predictionList.Sort((x, y) => y.Item2.CompareTo(x.Item2));
+                return predictionList.Take(5).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during parsing predictions: " + ex.Message);
+            }
         }
     }
 }

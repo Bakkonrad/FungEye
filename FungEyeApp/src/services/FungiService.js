@@ -25,12 +25,12 @@ const predict = async (image) => {
   try {
     const formData = new FormData();
     formData.append("image", image);
-    // const predictResponse = await $http.post("api/Model/predict", formData, {
-    //   headers: {
-    //     "Content-Type": "multipart/form-data",
-    //   },
-    // });
-    const predictResponse = {status: 200, data: [{"Item1":"Boletus_edulis","Item2":0.864475548},{"Item1":"Imleria_badia","Item2":0.0371585973},{"Item1":"Boletus_pinophilus","Item2":0.0329410769},{"Item1":"Boletus_reticulatus","Item2":0.0282462705},{"Item1":"Suillus_variegatus","Item2":0.0259523895}]};
+    const predictResponse = await $http.post("api/Model/predict", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    // const predictResponse = {status: 200, data: [{"Item1":"Boletus_edulis","Item2":0.864475548},{"Item1":"Imleria_badia","Item2":0.0371585973},{"Item1":"Boletus_pinophilus","Item2":0.0329410769},{"Item1":"Boletus_reticulatus","Item2":0.0282462705},{"Item1":"Suillus_variegatus","Item2":0.0259523895}]};
     if (predictResponse.status === 200) {
       let fungiData = [];
       const fungiResults = await Promise.all(predictResponse.data.map(async (result) => {

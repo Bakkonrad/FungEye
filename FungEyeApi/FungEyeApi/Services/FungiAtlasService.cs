@@ -167,28 +167,53 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<List<Fungi>> GetFungies(int? userId = null, int? page = null, string? search = null)
+        public async Task<List<Fungi>> GetFungies(GetFungiParams getFungiParams)
         {
             try
             {
-                List<Fungi> result = new List<Fungi>();
-                var query = db.Fungies.Include(f => f.Images).OrderBy(f => f.PolishName).AsQueryable();
 
-                if (!String.IsNullOrWhiteSpace(search))
+                if (getFungiParams.SavedByUser != null && getFungiParams.SavedByUser is true)
                 {
-                    query = query.Where(f => f.LatinName != null && f.LatinName.Contains(search) ||
-                                             f.PolishName != null && f.PolishName.Contains(search));
+                    return await GetFungiesSavedByUser((int)getFungiParams.UserId!);
                 }
 
-                int pageSize = 20;
-                int pageNumber = page ?? 1;
+                var query = db.Fungies.Include(f => f.Images).OrderBy(f => f.PolishName).AsQueryable();
+
+
+                List<Fungi> result = new List<Fungi>();
+
+                //if search parameter is provided, filter fungies by search parameter but if Letter parameter is provided, filter fungies by first letter of PolishName
+                if (!String.IsNullOrWhiteSpace(getFungiParams.Letter))
+                {
+                    query = query.Where(f => f.PolishName != null && f.PolishName.StartsWith(getFungiParams.Letter));
+                }
+                else if(!String.IsNullOrWhiteSpace(getFungiParams.Search))
+                {
+                    query = query.Where(f => f.LatinName != null && f.LatinName.Contains(getFungiParams.Search) ||
+                                             f.PolishName != null && f.PolishName.Contains(getFungiParams.Search));
+                }
+                else if(!String.IsNullOrWhiteSpace(getFungiParams.Edibility)) 
+                {
+                    query = query.Where(f => f.Edibility != null && f.Edibility.Contains(getFungiParams.Edibility));
+                }
+                else if (!String.IsNullOrWhiteSpace(getFungiParams.Toxicity))
+                {
+                    query = query.Where(f => f.Toxicity != null && f.Toxicity.Contains(getFungiParams.Toxicity));
+                }
+                else if (!String.IsNullOrWhiteSpace(getFungiParams.Habitat))
+                {
+                    query = query.Where(f => f.Habitat != null && f.Habitat.Contains(getFungiParams.Habitat));
+                }
+
+                int pageSize = getFungiParams.PageSize ?? 20;
+                int pageNumber = getFungiParams.Page ?? 1;
                 query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
                 var fungies = await query.ToListAsync();
 
                 foreach (var fungi in fungies)
                 {
-                    result.Add(await GetFungiInfo(new Fungi(fungi), userId));
+                    result.Add(await GetFungiInfo(new Fungi(fungi), getFungiParams.UserId));
                 }
 
                 return result;
@@ -254,6 +279,24 @@ namespace FungEyeApi.Services
             fungi.SavedByUser = await collections.AnyAsync(f => f.FungiId == fungi.Id && f.UserId == userId);
 
             return fungi;
+        }
+
+        private async Task<List<Fungi>> GetFungiesSavedByUser(int userId)
+        {
+            var collections = db.FungiesUserCollections.AsQueryable();
+
+            var fungiIds = await collections.Where(f => f.UserId == userId).Select(f => f.FungiId).ToListAsync();
+
+            var fungies = await db.Fungies.Include(f => f.Images).Where(f => fungiIds.Contains(f.Id)).ToListAsync();
+
+            var result = new List<Fungi>();
+
+            foreach (var fungi in fungies)
+            {
+                result.Add(await GetFungiInfo(new Fungi(fungi), userId));
+            }
+
+            return result;
         }
     }
 }

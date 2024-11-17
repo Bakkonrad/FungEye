@@ -132,11 +132,11 @@ namespace FungEyeApi.Controllers
 
         [Consumes("multipart/form-data")]
         [HttpPost("getFungies")]
-        public async Task<IActionResult> GetFungies([FromForm] int? page = null, [FromForm] string? search = null, [FromForm] int? userId = null)
+        public async Task<IActionResult> GetFungies([FromForm] GetFungiParams getFungiParams)
         {
             try
             {
-                var result = await _fungiAtlasService.GetFungies(userId, page, search);
+                var result = await _fungiAtlasService.GetFungies(getFungiParams);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -12,6 +12,8 @@ services:
       - ./FungEyeApi:/app/data
     depends_on:
       - tfserving
+    networks:
+      - default
 
   app:
     build:
@@ -30,6 +32,38 @@ services:
       - ./inception_v3_mushroomsv1_3_8:/models/inception/1
     environment:
       - MODEL_NAME=inception
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - default
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Grafana/provisioning:/etc/grafana/provisioning
+      - ./Grafana/dashboards:/etc/grafana/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - default
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    volumes:
+      - ./Blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+    ports:
+      - "9115:9115"
+    networks:
+      - default
 
 networks:
   default:

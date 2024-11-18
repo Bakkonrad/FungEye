@@ -29,7 +29,7 @@ services:
     ports:
       - "8501:8501"
     volumes:
-      - ./inception_v3_mushroomsv1_3_8:/models/inception/1
+      - ./inception_v3_mushroomsv1_5_5:/models/inception/1
     environment:
       - MODEL_NAME=inception
 

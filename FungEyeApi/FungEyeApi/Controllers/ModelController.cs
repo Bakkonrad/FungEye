@@ -16,7 +16,6 @@ namespace FungEyeApi.Controllers
             this._modelService = modelService;
         }
 
-        [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("predict")]
         public async Task<IActionResult> Predict([FromForm] IFormFile image)

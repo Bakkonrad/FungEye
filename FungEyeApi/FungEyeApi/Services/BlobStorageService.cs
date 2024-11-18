@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Blobs;
-using FungEyeApi.Data;
+using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,28 +8,20 @@ namespace FungEyeApi.Services
     public class BlobStorageService : IBlobStorageService
     {
         private readonly BlobServiceClient _blobServiceClient;
-        private readonly DataContext db;
-        private readonly string _containerName = "users";
-
         private readonly string _connectionString;
 
         public BlobStorageService(IConfiguration config)
         {
-            _connectionString = config.GetConnectionString("AzureBlobStorageConnection");
+            _connectionString = config.GetConnectionString("AzureBlobStorageConnection") ?? string.Empty;
 
             _blobServiceClient = new BlobServiceClient(_connectionString);
         }
 
-        //public BlobStorageService(BlobServiceClient blobServiceClient, DataContext db)
-        //{
-        //    _blobServiceClient = blobServiceClient;
-        //    this.db = db;
-        //}
-
-        public async Task<string> UploadFile(IFormFile file)
+        public async Task<string> UploadFile(IFormFile file, BlobContainerEnum blobContainer)
         {
             try
             {
+                string _containerName = GetContainerName(blobContainer);
                 var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
 
                 var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
@@ -50,7 +42,7 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<bool> DeleteFile(string fileUrl)
+        public async Task<bool> DeleteFile(string fileUrl, BlobContainerEnum blobContainer)
         {
             try
             {
@@ -58,7 +50,7 @@ namespace FungEyeApi.Services
                 {
                     return true;
                 }
-
+                string _containerName = GetContainerName(blobContainer);
                 var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
                 var fileName = Path.GetFileName(fileUrl);
 
@@ -71,6 +63,17 @@ namespace FungEyeApi.Services
             {
                 throw;
             }
+        }
+
+        private static string GetContainerName(BlobContainerEnum blobContainer)
+        {
+            return blobContainer switch
+            {
+                BlobContainerEnum.Posts => "posts",
+                BlobContainerEnum.Users => "users",
+                BlobContainerEnum.Fungies => "fungi",
+                _ => throw new ArgumentException("Invalid blob container")
+            };
         }
     }
 }

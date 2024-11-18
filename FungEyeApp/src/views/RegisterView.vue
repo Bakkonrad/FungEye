@@ -21,6 +21,7 @@
       </div>
       <div class="form-content">
         <form @submit.prevent="submitForm">
+          <!-- Email -->
           <div class="mb-3">
             <BaseInput
               autofocus
@@ -41,6 +42,7 @@
               {{ error.$message }}
             </span>
           </div>
+          <!-- First and last name -->
           <div class="row mb-3">
             <div class="col">
               <BaseInput
@@ -82,6 +84,7 @@
               </span>
             </div>
           </div>
+          <!-- Username -->
           <div class="mb-3">
             <BaseInput
               v-model="registerFormData.username"
@@ -101,6 +104,7 @@
               {{ error.$message }}
             </span>
           </div>
+          <!-- Password -->
           <div class="mb-3">
             <BaseInput
               v-model="registerFormData.password"
@@ -120,6 +124,7 @@
               {{ error.$message }}
             </span>
           </div>
+          <!-- Confirm password -->
           <div class="mb-3">
             <BaseInput
               v-model="registerFormData.confirmPassword"
@@ -139,6 +144,7 @@
               {{ error.$message }}
             </span>
           </div>
+          <!-- Date of birth -->
           <div class="mb-3">
             <BaseInput
               v-model="registerFormData.dateOfBirth"
@@ -218,10 +224,6 @@ export default {
     };
   },
   methods: {
-    // randomNumber generator from 1 to 99
-    randomNumber() {
-      return Math.floor(Math.random() * 99) + 1;
-    },
     async submitForm() {
       const result = await this.v$.$validate();
       this.submitted = true;
@@ -240,15 +242,12 @@ export default {
         try {
           const response = await AuthService.register(this.admin, exportedData);
           if (response === true) {
-            console.log("Form submitted!");
             if (this.admin) {
               this.$router.push("/admin");
             } else {
               this.$router.push("/log-in");
             }
-            // this.$router.push("/log-in");
           } else {
-            console.log("Form not submitted!");
             this.error = true;
             this.apiErrorMessage = response.message;
           }
@@ -322,11 +321,11 @@ export default {
           betweenDates: helpers.withMessage(
             "Data urodzenia musi być pomiędzy 1900-01-01 a " + today + ". ",
             (value) => {
-              // First, check if the date is valid. If not, skip this validation.
+              // checking if the date is valid
               if (isNaN(new Date(value).getTime())) {
-                return true; // Return true to not trigger this validation message when the date is invalid.
+                return true;
               }
-              // If the date is valid, proceed with the betweenDates validation.
+              // if the date is valid, proceed with the betweenDates validation
               return betweenDates(value);
             }
           ),

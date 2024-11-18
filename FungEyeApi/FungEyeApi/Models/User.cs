@@ -1,6 +1,6 @@
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Enums;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Data;
 
@@ -23,7 +23,16 @@ namespace FungEyeApi.Models
             DateOfBirth = user.DateOfBirth;
             BanExpirationDate = user.BanExpirationDate;
             DateDeleted = user.DateDeleted;
-            Follows = user.Follows != null ? user.Follows.Select(u => new User(u.FollowedUser)).ToList() : null;
+
+            if(user.Follows != null)
+            {
+                Follows = user.Follows.Where(u => u.FollowedUser is not null).Select(u => new User(u.FollowedUser!)).ToList();
+            }
+
+            if(user.FungiCollection != null)
+            {
+                CollectedFungies = user.FungiCollection.Where(f => f.Fungi is not null).Select(f => new Fungi(f.Fungi!)).ToList();
+            }
         }
 
         [JsonProperty("id")]
@@ -61,14 +70,17 @@ namespace FungEyeApi.Models
 
         [JsonProperty("banExpirationDate")]
         public DateTime? BanExpirationDate { get; set; }
-        
+
         [JsonProperty("dateDeleted")]
         public DateTime? DateDeleted { get; set; }
 
         [JsonProperty("follows")]
         public List<User>? Follows { get; set; }
+
+        [JsonProperty("collectedFungies")]
+        public List<Fungi>? CollectedFungies { get; set; }
     }
-    
+
     public class LoginUser
     {
         public LoginUser() { }

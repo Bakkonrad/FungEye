@@ -1,5 +1,5 @@
-﻿using FungEyeApi.Enums;
-using FungEyeApi.Models;
+﻿using FungEyeApi.Data.Entities.Fungies;
+using FungEyeApi.Enums;
 
 namespace FungEyeApi.Data.Entities
 {
@@ -19,6 +19,10 @@ namespace FungEyeApi.Data.Entities
         public DateTime? BanExpirationDate { get; set; }
         public DateTime? DateDeleted { get; set; }
         public ICollection<FollowEntity>? Follows { get; set; }
+        public ICollection<PostReactionEntity>? Reactions { get; set; }
+        public ICollection<CommentEntity>? Comments { get; set; }
+        public ICollection<UserFungiCollectionEntity>? FungiCollection { get; set; }
+        public ICollection<ReportEntity>? Reports { get; set; }
 
         public static UserEntity Create(RoleEnum role, string username, string email, string password, DateTime? dateOfBirth, string? firstname, string? lastname, string? imageUrl)
         {

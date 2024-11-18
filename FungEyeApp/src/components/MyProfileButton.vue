@@ -23,11 +23,6 @@ export default {
       imgSrc: profileImage,
     };
   },
-  setup() {
-    return {
-      imgSrc: profileImage,
-    };
-  },
 };
 </script>
 

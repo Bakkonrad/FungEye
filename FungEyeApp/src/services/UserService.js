@@ -27,8 +27,26 @@ const getUserData = async (userId) => {
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        // const userId = localStorage.getItem('id');
-        const response = await $http.post(`api/User/getProfile/${userId}`);
+        const response = await $http.get(`api/User/getProfile/${userId}`);
+
+        if (response.status === 200) {
+            return { success: true, data: response.data };
+        }
+        return { success: false, message: 'Nieznany błąd' };
+    } catch (error) {
+        const errorMessage = ApiService.handleApiError(error);
+        console.error('Error loading data:', errorMessage);
+        return { success: false, message: errorMessage };
+    }
+}
+
+const getSmallUserData = async (userId) => {
+    try {
+        const isTokenValid = await ApiService.validateToken();
+        if (isTokenValid.success == false) {
+            return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
+        }
+        const response = await $http.get(`api/User/getSmallProfile/${userId}`);
 
         if (response.status === 200) {
             return { success: true, data: response.data };
@@ -44,7 +62,6 @@ const getUserData = async (userId) => {
 const getAllUsers = async (page, search) => {
     try {
         const userId = parseInt(localStorage.getItem("id"));
-        // console.log("get users: ", page, search);
         const formData = new FormData();
         formData.append('userId', userId);
         if (page) {
@@ -74,7 +91,7 @@ const deleteAccount = async (userId) => {
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        const response = await $http.post(`/api/User/removeAccount/${userId}`);
+        const response = await $http.delete(`/api/User/removeAccount/${userId}`);
         if (response.status === 200) {
             return { success: true }
         }
@@ -95,15 +112,11 @@ const updateUser = async (user, image) => {
 
         const token = localStorage.getItem('token');
 
-        // console.log("user: ", user);
-
         const formData = new FormData();
-        formData.append('user', JSON.stringify(user));
+        formData.append('userJson', JSON.stringify(user));
         if (image) {
             formData.append('image', image);
         }
-
-        // console.log("formData: ", formData.getAll('image'));
 
         const response = await $http.put('/api/User/updateUser', formData, {
             headers: {
@@ -122,44 +135,14 @@ const updateUser = async (user, image) => {
     }
 }
 
-// const updateImage = async (image) => {
-//     try {
-//         const isTokenValid = await validateToken();
-//         if (isTokenValid.success == false) {
-//             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
-//         }
-
-//         const userId = localStorage.getItem('id');
-
-//         const formData = new FormData();
-//         formData.append('image', image);
-
-//         const response = await $http.post(`/api/User/UpdateUserImage/${userId}`, formData, {
-//             headers: {
-//                 'Content-Type': 'multipart/form-data'
-//             }
-//         });
-//         if (response.status === 200) {
-//             return { success: true, data: response.data };
-//         }
-//         return { success: false, message: 'Nieznany błąd' };
-//     } catch (error) {
-//         const errorMessage = handleApiError(error);
-//         console.error('Error updating image:', errorMessage);
-//         return { success: false, message: errorMessage };
-//     }
-// }
-
 const banUser = async (userId, ban) => {
     try {
-        console.log("ban: ", userId, ban);
         const isTokenValid = await ApiService.validateToken();
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
         const banInt = parseInt(ban);
         const response = await $http.post(`/api/User/banUser/${userId}/${banInt}`);
-        // const response = { status: 200 };
         if (response.status === 200) {
             alert('Użytkownik zbanowany!');
             return { success: true, message: 'Użytkownik zbanowany', data: response.data };
@@ -174,7 +157,7 @@ const banUser = async (userId, ban) => {
 
 const retrieveAccount = async (userId) => {
     try {
-        const response = await $http.post(`/api/User/retrieveAccount/${userId}`);
+        const response = await $http.get(`/api/User/retrieveAccount/${userId}`);
         if (response.status === 200) {
             return { success: true, message: 'Konto odzyskane' };
         }
@@ -189,8 +172,6 @@ const retrieveAccount = async (userId) => {
 const followUser = async (follow) => {
     try {
         const userId = parseInt(localStorage.getItem('id'));
-        console.log("follow: ", follow);
-        console.log("userId: ", userId);
         const response = await $http.post(`/api/User/addFollow/${userId}/${follow}`);
         if (response.status === 200) {
             return { success: true, message: 'Użytkownik obserwowany' };
@@ -206,9 +187,7 @@ const followUser = async (follow) => {
 const unfollowUser = async (follow) => {
     try {
         const userId = parseInt(localStorage.getItem('id'));
-        console.log("follow: ", follow);
-        console.log("userId: ", userId);
-        const response = await $http.post(`/api/User/removeFollow/${userId}/${follow}`);
+        const response = await $http.delete(`/api/User/removeFollow/${userId}/${follow}`);
         if (response.status === 200) {
             return { success: true, message: 'Użytkownik przestał być obserwowany' };
         }
@@ -222,8 +201,8 @@ const unfollowUser = async (follow) => {
 
 export default {
     getUserData,
+    getSmallUserData,
     getAllUsers,
-    // updateImage,
     updateUser,
     deleteAccount,
     banUser,

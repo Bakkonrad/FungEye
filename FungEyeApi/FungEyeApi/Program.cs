@@ -34,12 +34,13 @@ builder.Services.AddSwaggerGen(options =>
     });
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         ValidateLifetime = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:Token").Value)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:Token").Value!)),
         ValidateIssuer = false,
         ValidateAudience = false
     };
@@ -47,10 +48,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    //options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.UseSqlite(@"Data Source=data/mydatabase.db");
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING"), sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorNumbersToAdd: null);
+    });
+
+    //options.UseSqlite(@"Data Source=../mydatabase.db");
 });
-builder.Services.AddHostedService<DeleteExpiredAccountsService>();
+
+
+builder.Services.AddHostedService<FungEyeBackgroundService>();
 builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -58,11 +68,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IModelService, ModelService>();
 builder.Services.AddScoped<IFollowService, FollowService>();
 builder.Services.AddScoped<IFungiAtlasService, FungiAtlasService>();
-//builder.Services.AddAzureClients(clientBuilder =>
-//{
-//    clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnectionString:blob"]!, preferMsi: true);
-//    clientBuilder.AddQueueServiceClient(builder.Configuration["StorageConnectionString:queue"]!, preferMsi: true);
-//});
+builder.Services.AddScoped<IPostsService, PostsService>();
 
 var app = builder.Build();
 
@@ -73,7 +79,7 @@ app.UseHttpMetrics();
 app.UseCors();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

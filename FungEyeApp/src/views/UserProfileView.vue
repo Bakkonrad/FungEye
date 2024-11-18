@@ -6,15 +6,24 @@
       <button @click="goBack" class="btn fungeye-default-button">Powrót do poprzedniej strony</button>
     </div>
     <div v-else class="container-md">
+      <div class="ban-user">
+        <UserBan v-if="isBanning" :user="user" @cancel-ban="cancelBanning" @ban-successful="cancelBanning" />
+      </div>
       <div id="user-info">
         <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :createdAt="createdAt" />
-        <div class="buttons">
+        <div v-if="isLoggedUser == false" class="buttons">
           <button v-if="followed == false" @click="follow" type="button" class="btn fungeye-default-button">
             &plus; Obserwuj
           </button>
           <button v-if="followed == true" @click="unfollow" type="button" class="btn fungeye-red-button">
             Usuń z obserwowanych
           </button>
+          <button v-if="isAdmin === true" @click="isBanning = true" type="button" class="btn fungeye-red-button">
+            Zbanuj
+          </button>
+        </div>
+        <div v-else>
+          <button @click="goToMyProfile" class="btn fungeye-default-button">Przejdź do swojego profilu</button>
         </div>
       </div>
       <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" />
@@ -28,47 +37,57 @@ import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import UserService from "@/services/UserService";
 import FollowService from "@/services/FollowService";
+import { ref } from "vue";
+import { checkAdmin, isAdmin } from "@/services/AuthService";
+import UserBan from "@/components/BanUser.vue";
 
 export default {
   components: {
     ProfileImage,
     UserProfileCollections,
     UserProfileInfo,
+    UserBan,
   },
   async created() {
     this.fetchUser();
     this.checkIfFollowed();
+    this.isLoggedUser = this.isThisUserLoggedIn();
   },
   data() {
     return {
       id: null,
       imgSrc: "",
       user: null,
-      followed: null,
       username: "",
       name_surname: "",
       email: "",
       mushrooms: [],
-      follows: [],
-      followers: [],
       createdAt: "",
       errorFindingUser: false,
+      isAdmin: false,
+      isBanning: false,
+    };
+  },
+  setup() {
+    const followed = ref(null);
+    const isLoggedUser = ref(false);
+    checkAdmin();
+    return {
+      isAdmin: isAdmin,
+      followed,
+      isLoggedUser,
+      follows: ref([]),
+      followers: ref([]),
     };
   },
   methods: {
     async fetchUser() {
       this.id = this.$route.params.id;
-      if (this.id == localStorage.getItem("id")) {
-        this.$router.push({ name: "myProfile" });
-        return;
-      }
-      console.log(this.id);
       const response = await UserService.getUserData(this.id);
       const followsResponse = await FollowService.getFollowing(this.id);
       const followersResponse = await FollowService.getFollowers(this.id);
       if (response.success === false) {
         this.errorFindingUser = true;
-        console.log(response.message);
         return;
       }
       this.user = response.data;
@@ -77,14 +96,15 @@ export default {
       this.name_surname = response.data.firstName + " " + response.data.lastName;
       this.email = response.data.email;
       this.createdAt = response.data.createdAt;
+      this.mushrooms = response.data.collectedFungies;
       this.follows = followsResponse.data;
       this.followers = followersResponse.data;
+      this.checkIfFollowed();
+      this.isLoggedUser = this.isThisUserLoggedIn();
     },
     async checkIfFollowed() {
       const response = await FollowService.isFollowing(localStorage.getItem("id"), this.id);
-      console.log(localStorage.getItem("id") + " is following " + this.id + "? " + response.data);
       if (response.success === false) {
-        console.log(response.message);
         return;
       }
       this.followed = response.data;
@@ -92,25 +112,30 @@ export default {
     follow() {
       const response = FollowService.followUser(this.id);
       if (response.success === false) {
-        console.log(response.message);
         return;
       }
-      console.log(response);
       this.followed = true;
       this.fetchUser();
     },
     unfollow() {
       const response = FollowService.unfollowUser(this.id);
       if (response.success === false) {
-        console.log(response.message);
         return;
       }
-      console.log(response);
       this.followed = false;
       this.fetchUser();
     },
+    cancelBanning() {
+      this.isBanning = false;
+    },
     goBack() {
       this.$router.go(-1);
+    },
+    isThisUserLoggedIn() {
+      return this.id == localStorage.getItem("id");
+    },
+    goToMyProfile() {
+      this.$router.push({ name: "myProfile" });
     },
   },
 };

@@ -22,19 +22,15 @@ $http.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-// register, register admin, login, logout
+
 const login = async (user) => {
     try {
-        // console.log(user);
         const response = await $http.post('api/Auth/loginUser', user);
         if (response.status === 200) {
             localStorage.setItem('token', response.data);
             isLoggedIn.value = true;
-            // console.log(isLoggedIn.value);
-            // console.log(response.data);
             setUser();
             $http.defaults.headers.common['Authorization'] = `Bearer ${response.data}`;
-            // alert('Zalogowano!');
             return { success: true };
         }
         return { success: false, message: 'Nieznany błąd' };
@@ -46,8 +42,6 @@ const login = async (user) => {
 
 const register = async (admin, user) => {
     try {
-        console.log(admin);
-        // const response = await $http.post('api/Auth/registerUser', user);
         const response = await $http.post(admin ? 'api/Auth/registerAdmin' : 'api/Auth/registerUser', user);
         
         if (response.status === 200) {
@@ -67,7 +61,6 @@ const register = async (admin, user) => {
 
 const logout = () => {
     localStorage.removeItem('token');
-    // localStorage.removeItem('user');
     localStorage.removeItem('id');
     localStorage.removeItem('username');
     localStorage.removeItem('role');
@@ -81,7 +74,6 @@ const setUser = () => {
     var token = localStorage.getItem('token');
     if (token) {
         var decodedToken = jwtDecode(token);
-        // console.log(decodedToken);
         var userId = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
         var username = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
         var role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
@@ -90,17 +82,15 @@ const setUser = () => {
         localStorage.setItem('role', role);
         checkAdmin();
     }
-    else
-        console.log('token not found');
+    else {
+        console.error('token not found');
+    }
 }
 
 const sendResetPasswordEmail = async (email) => {
     try {
-        console.log(email);
         const response = await $http.post(`api/Auth/sendResetPasswordEmail`, {email: email});
         if (response.status === 200) {
-            // alert('Sprawdź swoją skrzynkę mailową!');
-            console.log('Sprawdź swoją skrzynkę mailową!');
             return { success: true };
         }
         return { success: false, message: 'Nieznany błąd' };
@@ -113,14 +103,11 @@ const sendResetPasswordEmail = async (email) => {
 const resetPassword = async (token, password) => {
     try {
         var decodedToken = jwtDecode(token);
-        // console.log(decodedToken);
         var userId = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
 
-        console.log(userId);
-        console.log(typeof userId);
-        const response = await $http.post(`api/Auth/resetPassword/${userId}`, {password: password}, {headers: {Authorization: `Bearer ${token}`}});
+        const response = await $http.post(`api/Auth/resetPassword/${parseInt(userId)}`, {password: password}, {headers: {Authorization: `Bearer ${token}`}});
         if (response.status === 200) {
-            alert('Hasło zostało zresetowane!');
+            alert('Hasło zostało zresetowane! Zaloguj się.');
             return { success: true };
         }
         return { success: false, message: 'Nieznany błąd' };
@@ -128,7 +115,6 @@ const resetPassword = async (token, password) => {
         const errorMessage = ApiService.handleApiError(error);
         return { success: false, message: errorMessage };
     }
-
 }
 
 export default {
@@ -153,7 +139,7 @@ export function checkAuth() {
 }
 
 export function checkAdmin() {
-    if (localStorage.getItem("role") == "Admin") { 
+    if (localStorage.getItem("token") && localStorage.getItem("role") == "Admin" ) { 
         isAdmin.value = true;
     } else {
         isAdmin.value = false;

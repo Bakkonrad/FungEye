@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
+import { RouterView } from "vue-router";
 </script>
 
 <script>
@@ -23,9 +23,8 @@ export default {
 </template>
 
 <style>
-/* body */
+
 body {
-  /* zmienne css, przykładowe użycie: color: var(--dark-green); */
   /* --dark-green: #386641; */
   --dark-green: #355f3d;
   /* --green: #6a994e; */
@@ -54,9 +53,7 @@ input {
   -webkit-user-select: none;
   /* Safari */
   -ms-user-select: none;
-  /* IE 10 and IE 11 */
   user-select: none;
-  /* Standard syntax */
 }
 
 b {
@@ -119,7 +116,8 @@ ul {
 /* buttons */
 .fungeye-default-button,
 .fungeye-red-button,
-.fungeye-secondary-button {
+.fungeye-secondary-button,
+.fungeye-secondary-black-button {
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -177,7 +175,6 @@ ul {
 }
 
 .fungeye-secondary-button {
-  /* transparent background */
   background: transparent;
   border: 1px solid white;
   color: white;
@@ -195,6 +192,24 @@ ul {
   color: var(--black) !important;
 }
 
+.fungeye-secondary-black-button {
+  background: var(--beige);
+  color: var(--black);
+  border: 1px solid var(--black);
+}
+
+.fungeye-secondary-black-button:hover {
+  background: #4b4b4b;
+  color: white;
+}
+
+.fungeye-secondary-black-button:focus,
+.fungeye-secondary-black-button:active,
+.fungeye-secondary-black-button:active:focus {
+  background: #1f1f1f;
+  color: white;
+}
+
 .button-icon {
   margin-right: 10px;
 }
@@ -204,24 +219,25 @@ ul {
   color: var(--red);
 }
 
-input {
-  color: white !important;
-  /* width: 90% !important; */
+input,
+textarea {
+  color: white;
 
   box-sizing: border-box;
   height: 50px;
 
   background: rgba(255, 255, 255, 0.3) !important;
-  /* input-stroke */
   border: 1px solid rgba(56, 102, 65, 0.2) !important;
   border-radius: 15px !important;
 }
 
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: rgba(0, 0, 0, 0.572) !important;
 }
 
-input:focus {
+input:focus,
+textarea:focus {
   background: rgba(255, 255, 255, 0.5) !important;
   border-color: var(--dark-green) !important;
   box-shadow: 0 0 0 0.15rem rgba(56, 102, 65, 0.25) !important;
@@ -312,5 +328,19 @@ input.validInput {
 /* trujący */
 .attribute.poisonous {
   background-color: var(--red);
+}
+
+/* mieszane */
+.attribute.mixed {
+  background-color: var(--beige);
+  border: 1px solid var(--dark-green);
+  color: var(--dark-green);
+}
+
+.unauthorized {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

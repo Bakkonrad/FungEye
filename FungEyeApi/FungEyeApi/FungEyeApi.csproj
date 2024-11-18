@@ -6,9 +6,9 @@
     <UserSecretsId>1dc794fd-e21a-4ad7-9ef4-39ab7cff5aa0</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
-    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.1.0" />
-    <PackageReference Include="Azure.Storage.Queues" Version="12.11.1" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.21.0" />
+    <PackageReference Include="Azure.Storage.Queues" Version="12.21.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
@@ -24,7 +24,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
@@ -38,5 +38,13 @@
     <None Update="Resources\mushroom_names.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+	<None Update="Resources\**\*.html">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 </Project>

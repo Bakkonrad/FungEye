@@ -9,13 +9,6 @@
           <th scope="col" class="table-cell">Imię</th>
           <th scope="col" class="table-cell">Nazwisko</th>
           <th scope="col" class="table-cell">Szczegóły</th>
-          <!-- <th scope="col" class="table-cell">Zbanowany do dnia</th>
-          <th scope="col" class="table-cell">Usunięto dnia</th>
-          <th scope="col" class="table-cell">Odzyskaj</th>
-          <th scope="col" class="table-cell">Posty</th>
-          <th scope="col" class="table-cell">Edytuj</th>
-          <th scope="col" class="table-cell">Banuj</th>
-          <th scope="col" class="table-cell">Usuń</th> -->
         </tr>
       </thead>
       <tbody class="table-body">
@@ -34,43 +27,6 @@
               <font-awesome-icon icon="fa-solid fa-angles-right"></font-awesome-icon>
             </button>
           </td>
-
-          <!-- <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDate(user.banExpirationDate)
-            }}
-          </td>
-          <td class="table-cell" :class="user.dateDeleted ? 'deleted-user' : ''">{{ formatDeletedDate(user.dateDeleted)
-            }}
-          </td>
-          <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-retrieveAccount" @click="$emit('retrieve-account', user)"
-              v-if="user.dateDeleted !== null">
-              <font-awesome-icon icon="fa-solid fa-undo"></font-awesome-icon>
-            </button>
-          </td>
-          <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-viewPosts" @click="viewPosts(user.email)"
-              :disabled="user.dateDeleted !== null">
-              <font-awesome-icon icon="fa-solid fa-list"></font-awesome-icon>
-            </button>
-          </td>
-          <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-editUser" @click="$emit('edit-user', user)"
-              :disabled="user.dateDeleted !== null">
-              <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
-            </button>
-          </td>
-          <td class="table-cell">
-            <button class="btn fungeye-default-button" id="btn-banUser" @click="$emit('ban-user', user)"
-              :disabled="user.dateDeleted !== null">
-              <font-awesome-icon icon="fa-solid fa-ban"></font-awesome-icon>
-            </button>
-          </td>
-          <td class="table-cell">
-            <button class="btn fungeye-red-button" id="btn-deleteUser" @click="$emit('delete-user', user)"
-              :disabled="user.dateDeleted !== null">
-              <font-awesome-icon icon="fa-solid fa-trash" />
-            </button>
-          </td> -->
         </tr>
       </tbody>
     </table>
@@ -90,7 +46,6 @@ export default {
       this.$router.push({ name: "UserPosts", params: { email: email } });
     },
     formatDate(date) {
-      // console.log(date);
       if (date === null || new Date(date) < new Date()) {
         return "";
       }
@@ -123,13 +78,10 @@ export default {
   color: var(--black) !important;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   border-collapse: separate;
-  /* Ensure border-radius is applied */
   border-spacing: 0;
-  /* Remove spacing between cells */
   background-color: var(--beige) !important;
   border-radius: 10px;
   overflow: hidden;
-  /* Ensures content respects the border-radius */
 }
 
 thead {
@@ -137,7 +89,6 @@ thead {
   border-radius: 10px;
 }
 
-/* Ensure header respects the border-radius */
 thead tr:first-child th:first-child {
   border-top-left-radius: 10px;
 }
@@ -173,8 +124,6 @@ thead tr:last-child th:last-child {
 }
 
 .table-hover>tbody>tr {
-  /* border: 0.5px solid #d9d3c7; */
-  /* border: hidden; */
   border: none;
 }
 
@@ -193,6 +142,10 @@ thead tr:last-child th:last-child {
   width: 25px;
   height: 25px;
   border-radius: 50%;
+}
+
+.profile-img-container {
+  min-width: auto !important;
 }
 
 #btn-viewPosts {

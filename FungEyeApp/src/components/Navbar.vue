@@ -14,16 +14,21 @@
         id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <RouterLink to="/" :class="getActiveNavLink('home')" aria-current="page">Strona główna</RouterLink>
+            <RouterLink to="/" :class="getActiveNavLink('home')" aria-current="page">Strona główna
+            </RouterLink>
           </li>
           <li class="nav-item">
-            <RouterLink to="/recognize" :class="getActiveNavLink('recognize')">Rozpoznawanie grzybów</RouterLink>
+            <RouterLink to="/recognize" :class="getActiveNavLink('recognize')">Rozpoznawanie grzybów
+            </RouterLink>
           </li>
-          <li class="nav-item">
+          <li v-if="loggedIn === true" class="nav-item">
             <RouterLink to="/portal" :class="getActiveNavLink('portal')">Portal</RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink to="/weather" :class="getActiveNavLink('weather')">Pogoda</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink to="/map" :class="getActiveNavLink('map')">Mapa</RouterLink>
           </li>
           <li class="nav-item">
             <RouterLink to="/atlas" :class="getActiveNavLink('atlas')">Atlas</RouterLink>
@@ -54,7 +59,6 @@
 </template>
 
 <script>
-// import ProfileImage from "./ProfileImage.vue";
 import LogInRegisterButton from "./LogInRegisterButton.vue";
 import {
   isLoggedIn,
@@ -65,6 +69,7 @@ import {
 import Logo from "./Logo.vue";
 import MyProfileButton from "./MyProfileButton.vue";
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   name: "Navbar",
@@ -83,6 +88,7 @@ export default {
     checkAuth();
     checkAdmin();
     this.isAdmin = isAdmin;
+    this.loggedIn = isLoggedIn;
   },
   setup() {
     const isNavbarCollapsed = ref(false);
@@ -96,6 +102,16 @@ export default {
     const toggleNavbar = () => {
       isNavbarCollapsed.value = !isNavbarCollapsed.value;
     };
+
+    const hideNavbar = () => {
+      isNavbarCollapsed.value = false;
+    };
+
+    const router = useRouter();
+    router.beforeEach((to, from, next) => {
+      hideNavbar(); // hiding navbar on route change
+      next();
+    });
 
     return {
       loggedIn: isLoggedIn,
@@ -122,9 +138,7 @@ export default {
   -webkit-user-select: none;
   /* Safari */
   -ms-user-select: none;
-  /* IE 10 and IE 11 */
   user-select: none;
-  /* Standard syntax */
 }
 
 .container-fluid {
@@ -185,7 +199,7 @@ export default {
   text-decoration: none;
 }
 
-@media screen and (max-width: 1158px) {
+@media screen and (max-width: 1248px) {
   .navbar-nav {
     flex-direction: column;
     justify-content: center;

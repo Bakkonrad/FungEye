@@ -15,7 +15,7 @@ namespace FungEyeApi.Controllers
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
         private readonly IBlobStorageService _blobStorageService;
-
+        private readonly static BlobContainerEnum blobContainer = BlobContainerEnum.Users;
         public UserController(IUserService userService, IBlobStorageService blobStorageService, IAuthService authService)
         {
             _userService = userService;
@@ -24,15 +24,15 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("removeAccount/{userId}")]
+        [HttpDelete("removeAccount/{userId}")]
         public async Task<IActionResult> RemoveAccount(int userId)
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (!ValidateUserId(userId) && admin == false)
+                if (!ValidateUserId(userId) && admin == false) // if user is not admin and userId is not the same as the one in token
                 {
                     return Forbid();
                 }
@@ -54,12 +54,12 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("retrieveAccount/{userId}")]
+        [HttpGet("retrieveAccount/{userId}")]
         public async Task<IActionResult> RetrieveAccount(int userId)
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (admin == false)
@@ -79,7 +79,7 @@ namespace FungEyeApi.Controllers
             }
             catch (Exception ex)
             {
-                if(ex.Message.Equals("User not found"))
+                if (ex.Message.Equals("User not found"))
                 {
                     return NotFound(ex.Message);
                 }
@@ -89,12 +89,12 @@ namespace FungEyeApi.Controllers
 
         [Authorize]
         [Consumes("multipart/form-data")]
-        [HttpPost("updateUserImage/{userId}")]
+        [HttpPut("updateUserImage/{userId}")]
         public async Task<IActionResult> UpdateUserImage(int userId, [FromForm] IFormFile? image = null)
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
                 if (!ValidateUserId(userId) && admin == false)
@@ -106,14 +106,14 @@ namespace FungEyeApi.Controllers
                 {
                     return BadRequest("No file selected.");
                 }
-                
+
                 var oldUrl = await _userService.GetUserImage(userId);
 
-                if (!IsPlaceholder(oldUrl))
+                if (!IsPlaceholder(oldUrl)) // if old image is not placeholder then delete it
                 {
-                    bool deleteResult = await _blobStorageService.DeleteFile(oldUrl);
+                    bool deleteResult = await _blobStorageService.DeleteFile(oldUrl, blobContainer);
                 }
-                var newImageUrl = await _blobStorageService.UploadFile(image);
+                var newImageUrl = await _blobStorageService.UploadFile(image, blobContainer);
 
                 bool result = await _userService.UpdateUserImage(userId, newImageUrl);
 
@@ -133,67 +133,93 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("getProfile/{userId}")]
+        [HttpGet("getProfile/{userId}")]
         public async Task<IActionResult> GetProfile(int userId)
         {
-            var user = await _userService.GetUserProfile(userId);
-            if (user == null)
+            try
             {
-                return NotFound();
+                var user = await _userService.GetUserProfile(userId);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
             }
 
-            return Ok(user);
+        }
+
+        [Authorize]
+        [HttpGet("getSmallProfile/{userId}")]
+        public async Task<IActionResult> GetSmallProfile(int userId) //Endpoint for getting user profile with less data (for example for posts)
+        {
+            try
+            {
+                var user = await _userService.GetSmallUserProfile(userId);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPut("updateUser")]
         [Consumes("multipart/form-data")]
         [Authorize]
-        public async Task<IActionResult> UpdateUser([FromForm] string user,
+        public async Task<IActionResult> UpdateUser([FromForm] string userJson,
             [FromForm] IFormFile? image = null)
         {
             try
             {
-                var userJson = JsonConvert.DeserializeObject<User>(user);
+                var user = JsonConvert.DeserializeObject<User>(userJson) ?? throw new Exception("Error during deserializing User object");
 
-                if (await _authService.IsUsernameOrEmailUsed(userJson.Username, userJson.Email, userJson.Id))
+                if (await _authService.IsUsernameOrEmailUsed(user.Username, user.Email, user.Id))
                 {
                     return BadRequest("Username or email already in use.");
                 }
 
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (!ValidateUserId(userJson.Id) && admin == false)
+                if (!ValidateUserId(user.Id) && admin == false) // if user is not admin and userId is not the same as the one in token
                 {
                     return Forbid();
                 }
 
-                if (image != null)
+                if (image != null) // if image is uploaded
                 {
                     if (image.Length > 0)
                     {
-                        if (!IsPlaceholder(userJson.ImageUrl))
+                        if (!String.IsNullOrWhiteSpace(user.ImageUrl) && !IsPlaceholder(user.ImageUrl)) // if user has image and it is not placeholder then delete it
                         {
-                            await _blobStorageService.DeleteFile(userJson.ImageUrl);
+                            await _blobStorageService.DeleteFile(user.ImageUrl, blobContainer);
                         }
-                        var newImageUrl = await _blobStorageService.UploadFile(image);
-                        userJson.ImageUrl = newImageUrl;
-                        
+                        var newImageUrl = await _blobStorageService.UploadFile(image, blobContainer);
+                        user.ImageUrl = newImageUrl;
+
                     }
                 }
-                
-                if(userJson.ImageUrl.Equals("changeToPlaceholder"))
+
+                if (user.ImageUrl != null && user.ImageUrl.Equals("changeToPlaceholder")) // if user wants to delete image then delete it and set to placeholder
                 {
-                    await _blobStorageService.DeleteFile(userJson.ImageUrl);
-                    userJson.ImageUrl = "placeholder";
+                    await _blobStorageService.DeleteFile(user.ImageUrl, blobContainer);
+                    user.ImageUrl = "placeholder";
                 }
 
-
-
-                var updateUser = _userService.UpdateUser(userJson);
+                var updateUser = await _userService.UpdateUser(user);
                 return Ok();
             }
-            catch(ArgumentException)
+            catch (ArgumentException) // if username or email is already in use
             {
                 return StatusCode(405, "Username or email already in use");
             }
@@ -206,19 +232,11 @@ namespace FungEyeApi.Controllers
         [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("getUsers")]
-        public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null,
-            [FromForm] string? search = null)
+        public async Task<IActionResult> GetUsers([FromForm] int userId, [FromForm] int? page = null, [FromForm] string? search = null)
         {
-            if (!ValidateUserId(userId))
-            {
-                return Forbid();
-            }
-
             try
             {
-                var admin = await _userService.IsAdmin(userId);
-
-                if (admin == false)
+                if (!ValidateUserId(userId))
                 {
                     return Forbid();
                 }
@@ -237,7 +255,7 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        
+
 
         [Authorize]
         [HttpPost("banUser/{userId}/{banOption}")]
@@ -245,10 +263,10 @@ namespace FungEyeApi.Controllers
         {
             try
             {
-                var userIdFromToken = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+                var userIdFromToken = int.Parse(GetUserIdFromToken());
                 var admin = await _userService.IsAdmin(userIdFromToken);
 
-                if (admin == false)
+                if (admin == false) // if user is not admin then forbid
                 {
                     return Forbid();
                 }
@@ -271,7 +289,7 @@ namespace FungEyeApi.Controllers
 
         private bool ValidateUserId(int userId)
         {
-            var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userIdFromToken = GetUserIdFromToken();
             if (userIdFromToken == null || userIdFromToken != userId.ToString())
             {
                 return false;
@@ -284,6 +302,11 @@ namespace FungEyeApi.Controllers
         private static bool IsPlaceholder(string? imageurl)
         {
             return imageurl == "placeholder" ? true : false;
+        }
+
+        private string GetUserIdFromToken()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
         }
     }
 }

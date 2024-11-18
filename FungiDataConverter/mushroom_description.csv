@@ -1,0 +1,362 @@
+LatinName;PolishName;Description;Edibility;Toxicity;Habitat
+Agaricus arvensis;pieczarka biaława;Okazały grzyb o białym, później żółknącym kapeluszu średnicy 5 do 15 cm. Charakteryzuje się przyjemnym anyżowym zapachem i mięsistym miąższem. Blaszki początkowo różowe, później ciemnobrązowe. Trzon posiada wyraźny, podwójny pierścień. Występuje od wiosny do późnej jesieni na łąkach, pastwiskach i w parkach, często tworząc tzw. czarcie kręgi. Ceniony grzyb jadalny, jednak należy uważać by nie pomylić go z trującymi pieczarkami żółknącymi;jadalny;nietrujący;"mieszany
+"
+Agaricus campestris;pieczarka łąkowa;Popularny grzyb o białym, jedwabistym kapeluszu średnicy 5 do 12 cm. Blaszki początkowo różowe, później czekoladowobrązowe. Miąższ biały, po przekrojeniu lekko różowieje. Zapach przyjemny, grzybowy. Trzon posiada delikatny pierścień. Występuje od wczesnej wiosny do późnej jesieni na łąkach, pastwiskach i trawnikach. Jeden z najsmaczniejszych i najczęściej zbieranych grzybów jadalnych;jadalny;nietrujący;"mieszany
+"
+Agaricus hondensis;pieczarka dwuzarodnikowa;Grzyb o białawym kapeluszu pokrytym drobnymi, brązowawymi łuskami, średnica 5 do 10 cm. Charakterystyczną cechą jest posiadanie tylko dwóch zarodników w podstawkach (większość grzybów ma cztery). Blaszki różowe, później ciemnobrązowe. Występuje w parkach, ogrodach i na trawnikach. Mimo że jest jadalna, rzadko zbierana ze względu na podobieństwo do trujących gatunków;jadalny;nietrujący;"liściasty
+"
+Agaricus moelleri;pieczarka szarołuskowa;Grzyb o białawym kapeluszu pokrytym szarymi łuskami, średnica 5 do 12 cm. Po dotknięciu żółknie, szczególnie u podstawy trzonu. Charakterystyczny nieprzyjemny zapach fenolu/karbolu. Blaszki różowe, później ciemnobrązowe. Występuje w lasach liściastych i parkach. Grzyb trujący, powodujący zaburzenia żołądkowo-jelitowe;niejadalny;trujący;"liściasty
+"
+Agaricus placomyces;pieczarka płaska;Grzyb o płaskim, białawym kapeluszu pokrytym brązowymi łuskami, średnica 5 do 15 cm. Charakterystyczne żółknięcie miąższu po uszkodzeniu i nieprzyjemny zapach fenolu. Blaszki różowe, później ciemnobrązowe. Występuje w lasach liściastych i parkach. Grzyb trujący, często mylony z jadalnymi pieczarkami;niejadalny;trujący;"liściasty
+"
+Agaricus silvaticus;pieczarka leśna;Grzyb o brązowawym kapeluszu pokrytym włóknistymi łuskami, średnica 5 do 12 cm. Miąższ po przekrojeniu szybko czerwienieje, szczególnie w kapeluszu. Blaszki początkowo różowe, później ciemnobrązowe. Zapach przyjemny, grzybowy. Występuje w lasach iglastych i mieszanych od czerwca do listopada, często w grupach. Dobry grzyb jadalny, jednak należy zbierać tylko młode owocniki;jadalny;nietrujący;"mieszany
+"
+Agaricus xanthodermus;pieczarka karbolowa;Grzyb o białym kapeluszu średnicy 5 do 15 cm, charakterystycznie żółkniejący po dotknięciu, szczególnie u podstawy trzonu. Wydziela silny, nieprzyjemny zapach fenolu/karbolu. Blaszki różowe, później ciemnobrązowe. Występuje w parkach, ogrodach i na trawnikach. Grzyb trujący powodujący poważne dolegliwości żołądkowo-jelitowe;niejadalny;trujący;"liściasty
+"
+Albatrellus ovinus;naziemek białawy;Grzyb o białawym, później żółtawym kapeluszu średnicy 5 do 15 cm. Miąższ białawy, nie zmieniający barwy po przekrojeniu, o przyjemnym, łagodnym smaku. Hymenofor rurkowaty, biały. Występuje w lasach iglastych, szczególnie pod świerkami, często w grupach. Dobry grzyb jadalny, szczególnie ceniony w krajach skandynawskich;jadalny;nietrujący;"iglasty
+"
+Amanita battarrae;muchomor oliwkowy;Grzyb o oliwkowoszarym kapeluszu pokrytym białymi pozostałościami osłony, średnica 5 do 12 cm. Posiada charakterystyczną pochwę u podstawy trzonu i wyraźny pierścień. Występuje w lasach liściastych, szczególnie pod dębami i bukami. Grzyb trujący, zawierający substancje psychoaktywne;niejadalny;trujący;"liściasty
+"
+Amanita caesarea;muchomor cesarski;Jeden z najpiękniejszych grzybów o pomarańczowoczerwonym kapeluszu z białymi pozostałościami osłony, średnica 8 do 20 cm. Blaszki, trzon i pierścień intensywnie żółte. Posiada białą pochwę u podstawy. Występuje głównie w południowej Europie w ciepłych lasach liściastych. Uznawany za jeden z najsmaczniejszych grzybów jadalnych, nazywany królem grzybów. W Polsce pod ścisłą ochroną;jadalny;nietrujący;"liściasty
+"
+Amanita franchetii;muchomor szorstki;Grzyb o żółtobrązowym kapeluszu pokrytym żółtawymi brodawkami, średnica 5 do 12 cm. Charakterystyczny pierścień na trzonie i bulwiasta podstawa. Występuje w lasach liściastych i mieszanych, szczególnie pod dębami. Grzyb trujący, zawierający substancje psychoaktywne;niejadalny;trujący;"mieszany
+"
+Amanita fulva;muchomor rdzawobrązowy;Grzyb o rdzawobrązowym kapeluszu bez pozostałości osłony, średnica 4 do 8 cm. Posiada charakterystyczną białą pochwę u podstawy trzonu. Blaszki białe, gęste. Występuje w lasach liściastych i iglastych od lata do jesieni. Grzyb jadalny, jednak niezalecany do spożycia ze względu na możliwość pomylenia z trującymi muchomorami;jadalny;nietrujący;"mieszany
+"
+Amanita junquillea;muchomor narcyzowy;Grzyb o żółtawym kapeluszu z białymi płatami osłony, średnica 5 do 10 cm. Charakterystyczny pierścień na trzonie i bulwiasta podstawa. Występuje w lasach liściastych, szczególnie pod dębami i bukami. Grzyb trujący, zawierający substancje halucynogenne;niejadalny;trujący;"liściasty
+"
+Amanita muscaria;muchomor czerwony;Jeden z najbardziej rozpoznawalnych grzybów o jaskrawoczerwonym kapeluszu pokrytym białymi brodawkami, średnica 8 do 20 cm. Trzon biały z charakterystycznym zwisającym pierścieniem. U podstawy trzonu bulwa z koncentrycznymi pierścieniami. Występuje we wszystkich typach lasów od lata do późnej jesieni. Zawiera substancje psychoaktywne (muskarynę i kwas ibotenowy). Grzyb trujący, jednak rzadko powoduje śmiertelne zatrucia;niejadalny;trujący;"mieszany
+"
+Amanita nivalis;muchomor alpejski;Grzyb o białawym do kremowego kapeluszu, średnica 3 do 8 cm. Charakterystyczny dla wysokich gór, występuje powyżej granicy lasu, często w towarzystwie wierzby zielnej. Kapelusz pokryty drobnymi, białymi pozostałościami osłony. Mimo niewielkich rozmiarów zawiera substancje trujące;niejadalny;trujący;"mieszany
+"
+Amanita pantherina;muchomor plamisty;Grzyb o brązowym kapeluszu regularnie pokrytym białymi płatkami, średnica 5 do 12 cm. Charakterystyczny prążkowany brzeg kapelusza i bulwiasta podstawa trzonu. Występuje w różnych typach lasów, szczególnie pod brzozami i dębami. Zawiera silne neurotoksyny, powodujące zatrucia o typie muskarynowym;niejadalny;trujący;"mieszany
+"
+Amanita phalloides;muchomor sromotnikowy;Najbardziej niebezpieczny grzyb Europy o oliwkowozielonawym kapeluszu, często z białawymi pozostałościami osłony, średnica 5 do 15 cm. Charakterystyczna pochwa u podstawy trzonu i zwisający pierścień. Występuje w lasach liściastych, szczególnie pod dębami. Zawiera śmiertelnie trujące amatoksyny, powodujące nieodwracalne uszkodzenie wątroby. Odpowiedzialny za większość śmiertelnych zatruć grzybami;niejadalny;trujący;"liściasty
+"
+Amanita porphyria;muchomor porfirowy;Grzyb o szarofioletowym kapeluszu z charakterystycznym metalicznym połyskiem, średnica 4 do 10 cm. Trzon z wyraźnym pierścieniem i bulwiastą podstawą. Występuje głównie w lasach iglastych pod świerkami. Zawiera substancje trujące, może powodować poważne zatrucia;niejadalny;trujący;"iglasty
+"
+Amanita regalis;muchomor królewski;Masywny grzyb o brązowożółtym kapeluszu z białymi płatkami, średnica 8 do 20 cm. Można go uznać za większą i masywniejszą odmianę muchomora czerwonego. Występuje głównie w górskich lasach świerkowych. Zawiera podobne substancje trujące jak muchomor czerwony;niejadalny;trujący;"iglasty
+"
+Amanita rubescens;muchomor czerwieniejący;Grzyb o brązowawym kapeluszu z szarawymi brodawkami, średnica 5 do 15 cm. Charakterystyczne czerwienienie miąższu po uszkodzeniu. Trzon z pierścieniem i bulwiastą podstawą. Występuje we wszystkich typach lasów. Jadalny po dokładnej obróbce termicznej, jednak niezalecany ze względu na możliwość pomylenia z trującymi gatunkami;jadalny;nietrujący;"mieszany
+"
+Amanita virosa;muchomor jadowity;Śnieżnobiały grzyb o jedwabistym kapeluszu, średnica 5 do 12 cm. Charakterystyczna biała pochwa u podstawy trzonu i zwisający pierścień. Występuje głównie w lasach iglastych. Zawiera te same śmiertelnie trujące amatoksyny co muchomor sromotnikowy. Szczególnie niebezpieczny ze względu na możliwość pomylenia z młodymi pieczarkami;niejadalny;trujący;"iglasty
+"
+Armillaria mellea;opieńka miodowa;Grzyb o miodowożółtym kapeluszu pokrytym ciemnymi łuskami, średnica 3 do 15 cm. Rośnie w gęstych kępach na martwym i żywym drewnie. Charakterystyczny pierścień na trzonie i czarne sznury grzybniowe. Pasożyt drzew powodujący białą zgniliznę drewna. Jadalny po dokładnej obróbce termicznej, surowy jest trujący. Jeden z najczęściej zbieranych grzybów jesiennych;jadalny;nietrujący;"mieszany
+"
+Auricularia auricula judae;ucho bzowe;Grzyb o galaretowatej konsystencji przypominający kształtem małżowinę uszną, wielkość 3 do 8 cm. Kolor od brązowego do czarnego. Rośnie na starych pniach i gałęziach drzew liściastych, szczególnie na bzie czarnym. Ceniony w kuchni azjatyckiej, gdzie znany jest jako grzyb mun. Posiada właściwości przeciwzakrzepowe;jadalny;nietrujący;"liściasty
+"
+Boletus edulis;borowik szlachetny;Jeden z najbardziej cenionych grzybów jadalnych o brązowym kapeluszu, średnica 5 do 25 cm. Charakterystyczna siateczka na trzonie i biały miąższ nie zmieniający barwy po przekrojeniu. Hymenofor rurkowaty, początkowo biały, później oliwkowozielony. Występuje we wszystkich typach lasów od lata do późnej jesieni. Doskonały smak i aromat, nadaje się do wszystkich form przetwarzania;jadalny;nietrujący;"mieszany
+"
+Boletus luridellus;borowik ponury;Grzyb o oliwkowobrązowym kapeluszu, średnica 5 do 15 cm. Charakterystyczne czerwone rurki i czerwona siateczka na trzonie. Miąższ po przekrojeniu intensywnie sinieje. Występuje w lasach liściastych, szczególnie pod dębami. Grzyb trujący, powodujący zaburzenia żołądkowo-jelitowe;niejadalny;trujący;"liściasty
+"
+Boletus pinophilus;borowik sosnowy;Masywny grzyb o kasztanowobrązowym kapeluszu, średnica 8 do 30 cm. Trzon z delikatną jasną siateczką, często beczułkowaty. Miąższ biały, nie zmieniający barwy. Występuje głównie w starych lasach sosnowych. Jeden z najsmaczniejszych grzybów jadalnych, ceniony ze względu na intensywny aromat i smak;jadalny;nietrujący;"iglasty
+"
+Boletus radicans;borowik korzeniasty;Grzyb o szarobeżowym kapeluszu, średnica 5 do 20 cm. Charakterystyczny korzeniowaty trzon z wyraźną siateczką. Miąższ po przekrojeniu żółknie, a następnie sinieje. Występuje w lasach liściastych, szczególnie pod dębami. Gorzki smak, powoduje dolegliwości żołądkowo-jelitowe;niejadalny;trujący;"liściasty
+"
+Boletus reticulatus;borowik usiatkowany;Grzyb o jasnobrązowym kapeluszu z charakterystyczną siateczką, średnica 5 do 25 cm. Pojawia się wcześniej niż borowik szlachetny, już od maja. Trzon z wyraźną jasną siateczką. Miąższ biały, nie zmieniający barwy. Występuje głównie w lasach liściastych. Bardzo smaczny grzyb jadalny, jednak szybko robaczywiejący;jadalny;nietrujący;"liściasty
+"
+Butyriboletus appendiculatus;borowik żółtobrązowy;Okazały grzyb o żółtobrązowym kapeluszu, średnica 5 do 15 cm. Charakterystyczna żółta siateczka na trzonie i żółtawy miąższ. Rurki początkowo żółte, później oliwkowe. Występuje w ciepłych lasach liściastych, szczególnie pod dębami. Doskonały grzyb jadalny, ceniony ze względu na łagodny smak;jadalny;nietrujący;"liściasty
+"
+Caloboletus calopus;borowik żółtopory;Grzyb o szarobrązowym kapeluszu, średnica 5 do 15 cm. Charakterystyczny czerwony trzon z żółtą siateczką. Miąższ po przekrojeniu lekko sinieje. Występuje w lasach iglastych i liściastych. Bardzo gorzki smak, niejadalny. Może powodować dolegliwości żołądkowe;niejadalny;trujący;"mieszany
+"
+Calocybe gambosa;majówka wiosenna;Grzyb o kremowobiałym kapeluszu, średnica 4 do 10 cm. Charakterystyczny silny mączny zapach i smak. Pojawia się wczesną wiosną, często w kręgach na łąkach i w sadach. Jeden z pierwszych grzybów jadalnych w sezonie. Ceniony w kuchni, szczególnie w południowej Europie;jadalny;nietrujący;"mieszany
+"
+Calvatia gigantea;purchawica olbrzymia;Jeden z największych grzybów, osiągający średnicę do 50 cm. Młode owocniki białe, kuliste, później żółkniejące i brązowiejące. Miąższ młodych owocników biały, jędrny. Występuje na łąkach, pastwiskach i w parkach. Jadalna tylko w młodym stadium, gdy miąższ jest jeszcze biały. Zawiera substancje przeciwnowotworowe;jadalny;nietrujący;"mieszany
+"
+Cantharellus cibarius;pieprznik jadalny (kurka);Jeden z najpopularniejszych grzybów jadalnych o żółtym, lejkowatym kapeluszu, średnica 3 do 10 cm. Charakterystyczny morelowy zapach i pieprznie ostry smak. Listewki pod kapeluszem widlasto rozgałęzione, zbiegające na trzon. Występuje we wszystkich typach lasów od czerwca do listopada. Rzadko robaczywieje, świetnie nadaje się do wszystkich form przetwarzania. Zawiera znaczne ilości witaminy D;jadalny;nietrujący;"mieszany
+"
+Catathelasma imperiale;dwupierścieniak cesarski;Masywny grzyb o szarobrązowym kapeluszu, średnica 10 do 30 cm. Charakterystyczny podwójny pierścień na trzonie i korzeniasta podstawa. Występuje w górskich lasach świerkowych. Mimo imponujących rozmiarów, rzadko zbierany ze względu na twardy miąższ. Wymaga długiej obróbki termicznej;jadalny;nietrujący;"iglasty
+"
+Cerioporus squamosus;żagiew łuskowata;Efektowny grzyb o wachlarzowatym, żółtawym kapeluszu pokrytym ciemnymi łuskami, średnica 10 do 50 cm. Rośnie na pniach drzew liściastych, szczególnie na klonach i jesionach. Jadalny tylko młody, później staje się zbyt twardy. Znany również jako grzyb skrzydlaty ze względu na charakterystyczny kształt;jadalny;nietrujący;"liściasty
+"
+Cerioporus varius;żagiew zmienna;Grzyb o wachlarzowatym kapeluszu, zmienny w kolorze od żółtawego do brązowego, średnica 3 do 12 cm. Trzon czarnieje u podstawy. Rośnie na martwym drewnie drzew liściastych. Mimo że nie jest trujący, ze względu na twardą konsystencję nie nadaje się do spożycia;niejadalny;nietrujący;"liściasty
+"
+Chlorophyllum molybdites;sinoblaszek trujący;Okazały grzyb o białawym kapeluszu z brązowymi łuskami, średnica 10 do 20 cm. Charakterystyczne zielonkawe blaszki u dojrzałych okazów. Występuje w ciepłych regionach, w Polsce rzadki. Najbardziej trujący grzyb Ameryki Północnej, powoduje silne zatrucia pokarmowe;niejadalny;trujący;"mieszany
+"
+Chlorophyllum rhacodes;czubajka czerwieniejąca;Grzyb o białawym kapeluszu pokrytym brązowymi łuskami, średnica 8 do 15 cm. Charakterystyczne czerwienienie miąższu po przekrojeniu. Występuje w lasach, parkach i ogrodach. Jadalny po obróbce termicznej, jednak należy uważać, by nie pomylić go z podobnymi trującymi gatunkami;jadalny;nietrujący;"mieszany
+"
+Clitocybe nebularis;lejkówka szarawa;Grzyb o szarym, mięsistym kapeluszu o średnicy 8 do 20 cm. Charakterystyczny mączny zapach i lejkowaty kształt. Występuje późną jesienią, często w dużych grupach tworzących czarcie kręgi. Mimo że przez niektórych uznawany za jadalny, może powodować dolegliwości żołądkowe, szczególnie w stanie surowym;niejadalny;trujący;"mieszany
+"
+Clitopilus prunulus;bruzdniczek największy;Grzyb o białawym, później szarawym kapeluszu, średnica 4 do 12 cm. Charakterystyczny mocny zapach świeżej mąki. Blaszki zbiegające na trzon, różowawe. Występuje w lasach liściastych i mieszanych od lata do jesieni. Jadalny, ceniony ze względu na intensywny aromat;jadalny;nietrujący;"mieszany
+"
+Collybia phyllophila;lejkówka liściowa;Grzyb o białawym, płaskim kapeluszu, średnica 3 do 8 cm. Rośnie na opadłych liściach w lasach liściastych. Charakterystyczny mączny zapach. Mimo że nie jest trujący, nie przedstawia wartości kulinarnej ze względu na niewielkie rozmiary i cienki miąższ;niejadalny;nietrujący;"liściasty
+"
+Collybiopsis confluens;łysostopek pozrastany;Grzyb rosnący w gęstych skupieniach, o brązowawym kapeluszu średnicy 2 do 4 cm. Charakterystyczne zrośnięte trzony. Występuje na ściółce w lasach liściastych. Mimo że niejadalny, jest interesujący ze względu na sposób wzrostu;niejadalny;nietrujący;"liściasty
+"
+Coprinellus micaceus;czernidłak błyszczący;Grzyb o ochrowym kapeluszu pokrytym błyszczącymi ziarnkami, średnica 2 do 4 cm. Rośnie kępkowo na martwym drewnie. Charakterystyczne rozpływanie się w czarną ciecz podczas dojrzewania. Jadalny w młodym stadium, jednak nie można go łączyć z alkoholem;jadalny;nietrujący;"liściasty
+"
+Cortinarius camphoratus;zasłonak odrażający;Grzyb o brązowym kapeluszu, średnica 4 do 10 cm. Charakterystyczny nieprzyjemny zapach przypominający zgniłe ziemniaki. Występuje w lasach iglastych. Ze względu na zapach i możliwość pomylenia z innymi trującymi zasłonakami nie nadaje się do spożycia;niejadalny;trujący;"iglasty
+"
+Cortinarius caperatus;płachetka zwyczajna;Grzyb o żółtawym kapeluszu z białawą osłoną, średnica 5 do 12 cm. Charakterystyczny pierścień na trzonie i delikatnie pomarszczona powierzchnia kapelusza. Występuje w lasach iglastych i mieszanych. Ceniony grzyb jadalny, szczególnie w krajach skandynawskich. Mięsisty miąższ o przyjemnym smaku;jadalny;nietrujący;"mieszany
+"
+Cortinarius cinnamomeus;zasłonak cynamonowy;Grzyb o cynamowobrązowym kapeluszu, średnica 2 do 6 cm. Charakterystyczne rdzawobrązowe blaszki i zasnówka. Występuje w lasach iglastych, szczególnie pod sosnami. Mimo że nie jest silnie trujący, nie nadaje się do spożycia ze względu na możliwość pomylenia z innymi zasłonakami;niejadalny;nietrujący;"iglasty
+"
+Cortinarius mucosus;zasłonak kleisty;Grzyb o śluzowatym, brązowym kapeluszu, średnica 4 do 10 cm. Charakterystyczna lepka powierzchnia i rdzawe blaszki. Występuje w lasach iglastych, głównie pod sosnami. Ze względu na śluzowatą konsystencję i ryzyko pomylenia z trującymi gatunkami nie jest zbierany;niejadalny;nietrujący;"iglasty
+"
+Cortinarius orellanus;zasłonak rudy;Grzyb o rdzawopomarańczowym kapeluszu, średnica 3 do 8 cm. Jeden z najbardziej niebezpiecznych grzybów trujących. Zawiera orellaninę, która powoduje nieodwracalne uszkodzenie nerek. Objawy zatrucia pojawiają się dopiero po kilku dniach. Występuje w lasach liściastych, szczególnie pod dębami;niejadalny;trujący;"liściasty
+"
+Cortinarius uliginosus;zasłonak bagienny;Grzyb o brązowym kapeluszu, średnica 3 do 7 cm. Występuje na podmokłych terenach, głównie pod brzozami. Zawiera substancje trujące podobne do tych w zasłonaku rudym. Szczególnie niebezpieczny ze względu na możliwość pomylenia z innymi grzybami występującymi w podobnych siedliskach;niejadalny;trujący;"liściasty
+"
+Cortinarius violaceus;zasłonak fioletowy;Efektowny grzyb o ciemnofioletowym kapeluszu pokrytym łuskami, średnica 5 do 15 cm. Cały owocnik ma intensywnie fioletowe zabarwienie. Występuje w lasach liściastych i mieszanych. Mimo atrakcyjnego wyglądu nie jest zbierany ze względu na możliwość pomylenia z innymi zasłonakami;niejadalny;nietrujący;"mieszany
+"
+Cyanoboletus pulverulentus;borowik omglony;Grzyb o brązowym kapeluszu, średnica 4 do 12 cm. Charakterystyczne błękitnienie wszystkich części owocnika po dotknięciu. Rurki żółte, po uszkodzeniu również błękitniejące. Występuje w lasach liściastych, szczególnie pod dębami. Mimo że nie jest trujący, nie jest zbierany ze względu na silne przebarwianie się miąższu;niejadalny;nietrujący;"liściasty
+"
+Cystoderma aureum;aksamitkówka złota;Niewielki grzyb o złocistożółtym kapeluszu, średnica 2 do 6 cm. Charakterystyczny ziarnisty trzon i delikatna struktura kapelusza. Występuje w lasach iglastych, szczególnie w górach. Ze względu na małe rozmiary i delikatną budowę nie przedstawia wartości kulinarnej;niejadalny;nietrujący;"iglasty
+"
+Daedalopsis confragosa;gmatwica chropowata;Grzyb o półkolistym, twardym kapeluszu, średnica 5 do 15 cm. Charakterystyczny labiryntowaty hymenofor. Rośnie na martwym drewnie drzew liściastych, szczególnie na wierzbach. Grzyb wieloletni, ze względu na twardą konsystencję niejadalny;niejadalny;nietrujący;"liściasty
+"
+Echinoderma asperum;czubajka ostrołuskowata;Grzyb o białawym kapeluszu pokrytym brązowymi, ostrymi łuskami, średnica 5 do 12 cm. Charakterystyczny nieprzyjemny zapach. Występuje w lasach liściastych i parkach. Grzyb trujący, powodujący zaburzenia żołądkowo-jelitowe;niejadalny;trujący;"liściasty
+"
+Entoloma sinuatum;dzwonkówka trująca;Okazały grzyb o szarobeżowym kapeluszu, średnica 5 do 15 cm. Charakterystyczny mączny zapach i różowawe blaszki. Występuje w lasach liściastych, szczególnie pod dębami. Jeden z najbardziej niebezpiecznych grzybów trujących, powodujący silne zatrucia gastryczne. Szczególnie niebezpieczny ze względu na możliwość pomylenia z gąskami;niejadalny;trujący;"liściasty
+"
+Fistulina hepatica;ozorek dębowy;Charakterystyczny grzyb o czerwonobrązowym, mięsistym kapeluszu przypominającym wątrobę, średnica 10 do 30 cm. Rośnie na pniach żywych i martwych dębów. Młode owocniki są jadalne, mają kwaśny smak przypominający mięso. Zawiera substancje przeciwbakteryjne. W przeszłości używany w medycynie ludowej;jadalny;nietrujący;"liściasty
+"
+Flammulina velutipes;zimówka aksamitnotrzonowa;Grzyb o miodowożółtym kapeluszu i charakterystycznym aksamitnym, ciemnym trzonie, średnica 2 do 8 cm. Występuje zimą na martwym drewnie drzew liściastych, często w dużych skupieniach. Jeden z niewielu grzybów owocnikujących w okresie zimowym. Ceniony w kuchni azjatyckiej, gdzie znany jest jako enoki;jadalny;nietrujący;"liściasty
+"
+Fomes fomentarius;hubiak pospolity;Grzyb o kopytowatym, szarym owocniku, średnica 5 do 30 cm. Wieloletni grzyb nadrzewny o twardej konsystencji. Historycznie używany do rozniecania ognia i jako materiał do tamowania krwawień. Zawiera substancje przeciwbakteryjne i przeciwnowotworowe;niejadalny;nietrujący;"liściasty
+"
+Fomitiporia robusta;czyreń dębowy;Grzyb o twardym, kopytowatym owocniku, średnica 10 do 40 cm. Występuje głównie na starych dębach, powodując białą zgniliznę drewna. Może żyć kilkadziesiąt lat, co roku powiększając swoje rozmiary. Ze względu na twardą konsystencję niejadalny;niejadalny;nietrujący;"liściasty
+"
+Fomitopsis betulina;białoporek brzozowy;Grzyb o półkolistym, białawym owocniku, średnica 5 do 25 cm. Charakterystyczna biała, porowata powierzchnia. Rośnie wyłącznie na brzozach. Zawiera substancje przeciwnowotworowe i przeciwzapalne. W przeszłości używany do ostrzenia brzytew;niejadalny;nietrujący;"liściasty
+"
+Fomitopsis pinicola;pniarek obrzeżony;Grzyb o twardym, kopytowatym owocniku z charakterystycznym czerwonawym obrzeżeniem, średnica 5 do 30 cm. Występuje głównie na drzewach iglastych, powodując brunatną zgniliznę drewna. Grzyb wieloletni, może żyć kilkadziesiąt lat. Zawiera substancje przeciwbakteryjne;niejadalny;nietrujący;"iglasty
+"
+Galerina marginata;hełmówka jadowita;Niewielki grzyb o miodowożółtym kapeluszu, średnica 2 do 5 cm. Jeden z najbardziej niebezpiecznych grzybów trujących, zawiera te same amatoksyny co muchomor sromotnikowy. Rośnie na martwym drewnie, często w skupiskach. Szczególnie niebezpieczny ze względu na możliwość pomylenia z łysiczką lancetowatą;niejadalny;trujący;"mieszany
+"
+Gymnopilus junonius;łysak wspaniały;Okazały grzyb o pomarańczowożółtym kapeluszu, średnica 5 do 15 cm. Rośnie kępkami na martwym drewnie. Charakterystyczny gorzki smak i rdzawobrązowe zarodniki. Zawiera substancje psychoaktywne. Ze względu na gorzki smak i właściwości halucynogenne nie nadaje się do spożycia;niejadalny;nietrujący;"liściasty
+"
+Gyromitra esculenta;piestrzenica kasztanowata;Grzyb o mózgowato pofałdowanym, brązowym kapeluszu, średnica 5 do 15 cm. Pojawia się wczesną wiosną w lasach iglastych. Zawiera śmiertelnie trujący gyromitrin, który rozkłada się częściowo podczas gotowania. Mimo nazwy gatunkowej esculenta (jadalna) jest bardzo niebezpieczna;niejadalny;trujący;"iglasty
+"
+Gyromitra gigas;piestrzenica olbrzymia;Grzyb o dużym, pofałdowanym, jasnobrązowym kapeluszu, średnica 10 do 30 cm. Występuje wczesną wiosną w lasach liściastych i mieszanych. Podobnie jak piestrzenica kasztanowata zawiera trujący gyromitrin, choć w mniejszych ilościach;niejadalny;trujący;"mieszany
+"
+Gyroporus castaneus;piaskowiec kasztanowaty;Grzyb o kasztanowobrązowym kapeluszu, średnica 4 do 10 cm. Charakterystyczny pusty trzon i białe rurki. Występuje w lasach liściastych, szczególnie pod dębami. Jadalny grzyb o przyjemnym orzechowym smaku, jednak rzadko zbierany ze względu na niezbyt częste występowanie;jadalny;nietrujący;"liściasty
+"
+Gyroporus cyanescens;piaskowiec modrzak;Grzyb o słomkowożółtym kapeluszu, średnica 5 do 12 cm. Charakterystyczne intensywne niebieskie przebarwienie po uszkodzeniu. Występuje w lasach liściastych. Jadalny, jednak rzadko zbierany ze względu na silne sinienie miąższu;jadalny;nietrujący;"liściasty
+"
+Hemileccinum impolitum;borowik płowy;Grzyb o jasnobrązowym kapeluszu, średnica 5 do 15 cm. Charakterystyczny zapach jodoformu, szczególnie u podstawy trzonu. Występuje pod dębami. Jadalny, ale ze względu na specyficzny zapach rzadko zbierany;jadalny;nietrujący;"liściasty
+"
+Hydnum repandum;kolczak obłączasty;Grzyb o kremowym kapeluszu z kolcami zamiast blaszek lub rurek, średnica 4 do 15 cm. Miąższ białawy, kruchy, o łagodnym smaku. Występuje we wszystkich typach lasów od lata do późnej jesieni. Dobry grzyb jadalny, szczególnie ceniony w kuchni francuskiej. Nadaje się do marynowania;jadalny;nietrujący;"mieszany
+"
+Hygrocybe conica;wilgotnica czerniejąca;Grzyb o stożkowatym, jaskrawoczerwonym kapeluszu, średnica 2 do 6 cm. Charakterystyczne czernienie wszystkich części owocnika po uszkodzeniu lub z wiekiem. Występuje na łąkach i pastwiskach. Mimo że nie jest trujący, nie nadaje się do spożycia ze względu na czernienie;niejadalny;nietrujący;"mieszany
+"
+Hygrophoropsis aurantiaca;lisówka pomarańczowa;Grzyb o pomarańczowym kapeluszu przypominający kurkę, średnica 3 do 8 cm. Charakterystyczne rozwidlone blaszki. Występuje w lasach iglastych. Mimo że jest jadalny, często mylony z kurką i uważany za jej fałszywą wersję. Ma gorszy smak i konsystencję;niejadalny;nietrujący;"iglasty
+"
+Hygrophorus hypothejus;wodnicha późna;Grzyb o oliwkowobrązowym, śliskim kapeluszu, średnica 3 do 8 cm. Występuje późną jesienią w lasach sosnowych, często po pierwszych przymrozkach. Jadalny, ale rzadko zbierany ze względu na śluzowatą konsystencję;jadalny;nietrujący;"iglasty
+"
+Hygrophorus russula;wodnicha gołąbkowa;Grzyb o różowawym kapeluszu przypominający gołąbka, średnica 5 do 12 cm. Charakterystyczne białe blaszki i mączny zapach. Występuje w lasach liściastych, szczególnie pod dębami. Jadalny grzyb o łagodnym smaku;jadalny;nietrujący;"liściasty
+"
+Hypholoma fasciculare;maślanka wiązkowa;Grzyb o żółtym kapeluszu rosnący w gęstych kępkach na martwym drewnie, średnica 2 do 6 cm. Charakterystyczne zielonkawe blaszki u młodych okazów. Grzyb trujący o bardzo gorzkim smaku, powodujący zaburzenia żołądkowo-jelitowe;niejadalny;trujący;"mieszany
+"
+Imleria badia;podgrzybek brunatny;Popularny grzyb o brązowym kapeluszu, średnica 5 do 15 cm. Charakterystyczne sinienie miąższu po przekrojeniu. Rurki białawe, później oliwkowe. Występuje we wszystkich typach lasów od lata do późnej jesieni. Jeden z najczęściej zbieranych grzybów jadalnych, doskonały do suszenia i marynowania;jadalny;nietrujący;"mieszany
+"
+Inocybe geophylla;strzępiak ziemistoblaszkowy;Niewielki grzyb o białawym, stożkowatym kapeluszu, średnica 2 do 4 cm. Zawiera muskarynę, może powodować zatrucia. Występuje w różnych typach lasów. Szczególnie niebezpieczny ze względu na małe rozmiary i niepozorny wygląd;niejadalny;trujący;"mieszany
+"
+Inosperma erubescens;strzępiak ceglasty;Grzyb o czerwonawobrązowym kapeluszu, średnica 3 do 8 cm. Po dotknięciu czerwienieje. Zawiera muskarynę i inne toksyny. Występuje w lasach liściastych, szczególnie pod lipami. Może powodować poważne zatrucia;niejadalny;trujący;"liściasty
+"
+Lactarius aurantiacus;mleczaj pomarańczowy;Grzyb o pomarańczowym kapeluszu, średnica 3 do 8 cm. Wydziela białe, łagodne mleczko. Występuje w lasach iglastych, szczególnie pod świerkami. Mimo że nie jest trujący, ze względu na mierną wartość kulinarną rzadko zbierany;niejadalny;nietrujący;"iglasty
+"
+Lactarius blennius;mleczaj śluzowaty;Grzyb o szarozielonawym, śliskim kapeluszu, średnica 4 do 10 cm. Wydziela białe, ostre mleczko. Występuje pod bukami. Ze względu na ostry smak i śluzowatą konsystencję nie nadaje się do spożycia;niejadalny;nietrujący;"liściasty
+"
+Lactarius deliciosus;mleczaj rydz;Jeden z najbardziej cenionych grzybów jadalnych o pomarańczowym kapeluszu z charakterystycznymi strefami, średnica 4 do 12 cm. Wydziela pomarańczowe mleczko, które nie zmienia barwy. Występuje pod sosnami. Ma charakterystyczny, przyjemny zapach i smak. Doskonały do marynowania i smażenia;jadalny;nietrujący;"iglasty
+"
+Lactarius helvus;mleczaj płowy;Grzyb o płowobrązowym kapeluszu, średnica 5 do 12 cm. Charakterystyczny intensywny zapach przypominający seler lub maggi. Wydziela wodniste, białe mleczko. Występuje w wilgotnych lasach, szczególnie wśród torfowców. Dawniej uważany za jadalny, obecnie uznawany za niejadalny ze względu na właściwości trujące;niejadalny;nietrujący;"mieszany
+"
+Lactarius quietus;mleczaj dębowy;Grzyb o czerwonobrązowym kapeluszu, średnica 4 do 8 cm. Wydziela białe, łagodne mleczko. Charakterystyczny zapach przypominający pluskwy. Występuje wyłącznie pod dębami. Ze względu na nieprzyjemny zapach nie jest zbierany;niejadalny;nietrujący;"liściasty
+"
+Lactarius rufus;mleczaj rudy;Grzyb o czerwonobrązowym kapeluszu, średnica 3 do 8 cm. Wydziela białe, bardzo ostre w smaku mleczko. Występuje głównie w lasach iglastych. Ze względu na piekący smak nie nadaje się do spożycia;niejadalny;nietrujący;"iglasty
+"
+Lactarius torminosus;mleczaj wełnianka;Grzyb o różowawym, owłosionym kapeluszu, średnica 5 do 12 cm. Wydziela białe, ostre mleczko. Charakterystyczny kosmate owłosienie brzegu kapelusza. Występuje pod brzozami. Grzyb trujący, powodujący dolegliwości żołądkowo-jelitowe;niejadalny;trujący;"liściasty
+"
+Lactarius turpis;mleczaj paskudnik;Grzyb o oliwkowobrązowym kapeluszu, średnica 5 do 15 cm. Wydziela białe, ostre mleczko. Występuje pod brzozami. Zawiera substancje trujące, może powodować dolegliwości żołądkowe;niejadalny;trujący;"liściasty
+"
+Lactarius uvidus;mleczaj lepki;Grzyb o szarofioletowym, śliskim kapeluszu, średnica 4 do 10 cm. Charakterystyczne fioletowienie mleczka po kontakcie z powietrzem. Występuje w wilgotnych lasach liściastych. Grzyb trujący, powodujący zaburzenia pokarmowe;niejadalny;trujący;"liściasty
+"
+Lactifluus piperatus;mleczaj biel;Grzyb o białym, lejkowatym kapeluszu, średnica 5 do 15 cm. Wydziela bardzo ostre, białe mleczko. Charakterystyczne gęste blaszki. Występuje w lasach liściastych. Mimo że w niektórych krajach jest spożywany po odpowiedniej obróbce, ze względu na ekstremalnie ostry smak nie jest zalecany do konsumpcji;niejadalny;nietrujący;"liściasty
+"
+Lactifluus vellereus;mleczaj chrząstka;Masywny grzyb o białym kapeluszu, średnica 8 do 20 cm. Wydziela ostre, białe mleczko. Charakterystyczny gruby, twardy miąższ. Występuje w lasach liściastych. Ze względu na ostry smak i twardą konsystencję nie nadaje się do spożycia;niejadalny;nietrujący;"liściasty
+"
+Lactifluus volemus;mleczaj smaczny;Grzyb o pomarańczowobrązowym kapeluszu, średnica 5 do 12 cm. Wydziela obfite, białe, łagodne mleczko. Charakterystyczny zapach przypominający ryby lub skorupiaki. Występuje w lasach liściastych. Jadalny i ceniony w niektórych regionach, mimo specyficznego zapachu;jadalny;nietrujący;"liściasty
+"
+Laetiporus sulphureus;żółciak siarkowy;Efektowny grzyb o jaskrawożółtych, wachlarzowatych owocnikach, średnica 10 do 40 cm. Rośnie na pniach drzew liściastych, szczególnie na dębach. Młode owocniki są jadalne, mają smak i konsystencję przypominającą kurczaka. Znany jako kurczak z lasu. Zawiera naturalne antybiotyki;jadalny;nietrujący;"liściasty
+"
+Laricifomes officinalis;pniarek lekarski;Grzyb o kopytowatym, białawym owocniku, średnica 10 do 30 cm. Występuje na modrzewiach. Historycznie używany w medycynie ludowej ze względu na właściwości przeciwbakteryjne i przeciwgrzybicze. Obecnie rzadki i chroniony;niejadalny;nietrujący;"iglasty
+"
+Leccinellum griseum;koźlarz grabowy;Grzyb o szarym kapeluszu, średnica 5 do 12 cm. Trzon pokryty ciemnymi łuseczkami. Charakterystyczne szarzenie miąższu po przekrojeniu. Występuje wyłącznie pod grabami. Jadalny, ale mniej ceniony niż inne koźlarze;jadalny;nietrujący;"liściasty
+"
+Leccinum aurantiacum;koźlarz czerwony;Efektowny grzyb o pomarańczowoczerwonym kapeluszu, średnica 5 do 15 cm. Charakterystyczny trzon pokryty czarnymi łuseczkami. Miąższ po przekrojeniu szarzeje, później czarnieje. Występuje pod osikami. Jeden z najsmaczniejszych koźlarzy, wymaga jednak dokładnej obróbki termicznej;jadalny;nietrujący;"liściasty
+"
+Leccinum duriusculum;koźlarz topolowy;Grzyb o szarobrązowym kapeluszu, średnica 5 do 15 cm. Trzon pokryty ciemnymi łuseczkami układającymi się w charakterystyczny wzór. Występuje wyłącznie pod topolami. Miąższ po przekrojeniu szarzeje. Jadalny, ale mniej ceniony niż inne gatunki koźlarzy;jadalny;nietrujący;"liściasty
+"
+Leccinum holopus;koźlarz białawy;Grzyb o białawym kapeluszu, średnica 5 do 12 cm. Trzon pokryty białawymi łuseczkami. Miąższ po przekrojeniu różowieje, później szarzeje. Występuje pod brzozami na podmokłych terenach. Jadalny, ale ze względu na wodnisty miąższ mniej wartościowy kulinarnie;jadalny;nietrujący;"liściasty
+"
+Leccinum piceinum;koźlarz świerkowy;Grzyb o ciemnobrązowym kapeluszu, średnica 5 do 15 cm. Trzon pokryty czarnymi łuseczkami. Miąższ po przekrojeniu różowieje, później czarnieje. Występuje wyłącznie pod świerkami. Jadalny, wymaga dokładnej obróbki termicznej;jadalny;nietrujący;"iglasty
+"
+Leccinum scabrum;koźlarz babka;Najpospolitszy z koźlarzy, o szarobrązowym kapeluszu, średnica 5 do 15 cm. Trzon pokryty ciemnymi łuseczkami. Miąższ nie zmienia barwy po przekrojeniu. Występuje pod brzozami. Bardzo dobry grzyb jadalny, nadaje się do wszelkich form przetwarzania;jadalny;nietrujący;"liściasty
+"
+Leccinum versipelle;koźlarz pomarańczowożółty;Grzyb o pomarańczowym kapeluszu, średnica 5 do 15 cm. Trzon pokryty czarnymi łuseczkami. Miąższ po przekrojeniu szarzeje. Występuje pod brzozami. Jadalny, często mylony z koźlarzem czerwonym, równie smaczny;jadalny;nietrujący;"liściasty
+"
+Leccinum vulpinum;koźlarz sosnowy;Grzyb o czerwonobrązowym kapeluszu, średnica 5 do 15 cm. Trzon pokryty ciemnymi łuseczkami. Miąższ po przekrojeniu szarzeje. Występuje wyłącznie pod sosnami. Jadalny, ale rzadziej spotykany niż inne koźlarze;jadalny;nietrujący;"iglasty
+"
+Lentinus substrictus;żagiew orzęsiona;Grzyb o lejkowatym, brązowym kapeluszu, średnica 3 do 8 cm. Charakterystyczne orzęsione blaszki na spodzie kapelusza. Rośnie na martwym drewnie drzew liściastych. Ze względu na twardą konsystencję nie nadaje się do spożycia;niejadalny;nietrujący;"liściasty
+"
+Lepiota cristata;czubajeczka cuchnąca;Niewielki grzyb o białawym kapeluszu pokrytym czerwonobrązowymi łuskami, średnica 2 do 5 cm. Charakterystyczny nieprzyjemny zapach przypominający gumę. Występuje w parkach i ogrodach. Grzyb trujący, zawiera substancje powodujące zaburzenia żołądkowo-jelitowe;niejadalny;trujący;"mieszany
+"
+Lepista nuda;gąsówka fioletowa;Grzyb o fioletowawym zabarwieniu całego owocnika, średnica 5 do 15 cm. Charakterystyczny przyjemny zapach. Występuje późną jesienią, często w kępach. Jadalny po dłuższej obróbce termicznej. Ceniony w kuchni francuskiej;jadalny;nietrujący;"mieszany
+"
+Leucocybe candicans;lejkówka biaława;Całkowicie biały grzyb o lejkowatym kapeluszu, średnica 3 do 8 cm. Charakterystyczny mączny zapach. Występuje w lasach liściastych, często w kręgach. Mimo że nie jest trujący, nie przedstawia wartości kulinarnej;niejadalny;nietrujący;"liściasty
+"
+Lycoperdon perlatum;purchawka chropowata;Grzyb o gruszkowatym kształcie, wysokość 3 do 8 cm, pokryty charakterystycznymi kolczastymi brodawkami. Młode owocniki białe i jędrne, jadalne. Dojrzałe uwalniają zarodniki w formie brązowego pyłu. Występuje we wszystkich typach lasów;jadalny;nietrujący;"mieszany
+"
+Lyophyllum decastes;kępkowiec jasnobrązowy;Grzyb rosnący w gęstych kępach, o jasnobrązowym kapeluszu średnicy 3 do 8 cm. Charakterystyczny elastyczny miąższ i przyjemny smak. Występuje od lata do późnej jesieni w lasach i parkach. Dobry grzyb jadalny, szczególnie nadający się do marynowania;jadalny;nietrujący;"mieszany
+"
+Macrolepiota procera;czubajka kania;Okazały grzyb o brązowym, łuskowatym kapeluszu, średnica 15 do 30 cm. Charakterystyczny wysoki trzon z ruchomym pierścieniem i wzorem wężowej skóry. Występuje na polanach i skrajach lasów. Jeden z najsmaczniejszych grzybów jadalnych, szczególnie nadaje się do panierowania;jadalny;nietrujący;"mieszany
+"
+Marasmius oreades;twardzioszek przydrożny;Niewielki grzyb o żółtobrązowym kapeluszu, średnica 2 do 5 cm. Charakterystyczny przyjemny zapach. Rośnie na łąkach i trawnikach, często w czarcich kręgach. Jadalny, nadaje się do suszenia. Ceniony dodatek do zup i sosów;jadalny;nietrujący;"mieszany
+"
+Morchella vulgaris;smardz jadalny;Grzyb o charakterystycznym pofałdowanym, plastrowym kapeluszu, wysokość 5 do 15 cm. Występuje wczesną wiosną w lasach liściastych i parkach. Doskonały grzyb jadalny po odpowiedniej obróbce termicznej. Należy do najdroższych grzybów jadalnych;jadalny;nietrujący;"liściasty
+"
+Mycena pura;grzybówka fioletowawa;Niewielki grzyb o fioletowawym kapeluszu, średnica 2 do 5 cm. Charakterystyczny zapach rzodkwi. Występuje pospolicie w lasach. Zawiera substancje trujące, może powodować zatrucia;niejadalny;trujący;"mieszany
+"
+Mycena rosea;grzybówka różowa;Drobny grzyb o różowym kapeluszu, średnica 2 do 4 cm. Podobna do grzybówki fioletowawej. Występuje w lasach liściastych. Zawiera substancje toksyczne, nie nadaje się do spożycia;niejadalny;trujący;"liściasty
+"
+Neoboletus erythropus;borowik ceglastopory;Grzyb o ciemnobrązowym kapeluszu, średnica 5 do 15 cm. Charakterystyczne czerwone rurki i czerwono nakrapiany trzon. Miąższ po przekrojeniu silnie sinieje. Występuje w lasach liściastych i mieszanych. Jadalny po dokładnej obróbce termicznej;jadalny;nietrujący;"mieszany
+"
+Paxillus involutus;krowiak podwinięty;Grzyb o brązowym kapeluszu z podwiniętym brzegiem, średnica 5 do 15 cm. Miąższ po uszkodzeniu brązowieje. Dawniej uważany za jadalny, obecnie uznany za silnie trujący. Zawiera toksyny wywołujące reakcje immunologiczne, które mogą prowadzić do śmierci;niejadalny;trujący;"mieszany
+"
+Paxillus rubicundulus;krowiak olszowy;Grzyb podobny do krowiaka podwiniętego, ale mniejszy, średnica 3 do 8 cm. Występuje wyłącznie pod olszami. Zawiera te same toksyny co krowiak podwinięty. Szczególnie niebezpieczny ze względu na podobieństwo do jadalnych grzybów;niejadalny;trujący;"liściasty
+"
+Phallus impudicus;sromotnik smrodliwy;Grzyb o charakterystycznym fallicznym kształcie i nieprzyjemnym zapachu padliny, wysokość 15 do 25 cm. Młode owocniki w postaci czarciego jaja. Zapach przyciąga owady rozprzestrzeniające zarodniki. Mimo odpychającego zapachu, młode owocniki są jadalne;niejadalny;nietrujący;"mieszany
+"
+Phellinus igniarius;czyreń ogniowy;Grzyb o twardym, kopytowatym owocniku, średnica 5 do 20 cm. Wieloletni pasożyt drzew liściastych. Historycznie używany do rozniecania ognia. Ze względu na twardą konsystencję niejadalny;niejadalny;nietrujący;"liściasty
+"
+Phellinus pomaceus;czyreń śliwowy;Grzyb o twardym owocniku, średnica 3 do 10 cm. Występuje głównie na drzewach z rodziny różowatych, szczególnie na śliwach. Pasożyt powodujący białą zgniliznę drewna;niejadalny;nietrujący;"liściasty
+"
+Pholiota squarrosoides;łuskwiak rdzawołuskowy;Grzyb o żółtawym kapeluszu pokrytym rdzawymi łuskami, średnica 5 do 12 cm. Rośnie kępkowo na martwym drewnie drzew liściastych. Mimo atrakcyjnego wyglądu nie nadaje się do spożycia;niejadalny;nietrujący;"liściasty
+"
+Pleurotus ostreatus;boczniak ostrygowaty;Grzyb o muszlowatym, szarym kapeluszu, średnica 5 do 15 cm. Rośnie kępkowo na pniach drzew liściastych, szczególnie późną jesienią i zimą. Ceniony grzyb jadalny, bogaty w białko i witaminy. Często uprawiany komercyjnie;jadalny;nietrujący;"liściasty
+"
+Pluteus cervinus;łuskowiec jeleni;Grzyb o szarobrązowym kapeluszu, średnica 5 do 12 cm. Charakterystyczne różowe blaszki. Występuje na martwym drewnie drzew liściastych. Jadalny, ale mało popularny ze względu na wodnisty miąższ;jadalny;nietrujący;"liściasty
+"
+Pseudoboletus parasiticus;podgrzybek tęgoskórowy;Grzyb pasożytujący na tęgoskórze pospolitym, średnica 3 do 8 cm. Jedyny znany grzyb rurkowy pasożytujący na innym grzybie. Rzadki i interesujący z naukowego punktu widzenia;niejadalny;nietrujący;"mieszany
+"
+Rubroboletus rhodoxanthus;borowik purpurowy;Efektowny grzyb o purpurowoczerwonym kapeluszu, średnica 5 do 15 cm. Charakterystyczne żółte rurki i czerwona siateczka na trzonie. Występuje w ciepłych lasach liściastych. Grzyb trujący, powoduje zaburzenia żołądkowo-jelitowe;niejadalny;trujący;"liściasty
+"
+Rubroboletus satanas;borowik szatański;Masywny grzyb o białawym kapeluszu, średnica 10 do 25 cm. Charakterystyczne czerwone rurki i czerwona siateczka na trzonie. Jeden z najbardziej trujących borowikowatych. Występuje w ciepłych lasach liściastych;niejadalny;trujący;"liściasty
+"
+Russula aeruginea;gołąbek grynszpanowy;Grzyb o zielonkawym kapeluszu, średnica 5 do 12 cm. Charakterystyczny łagodny smak i kruchy miąższ. Występuje głównie pod brzozami. Jadalny, ale mniej ceniony niż inne gołąbki;jadalny;nietrujący;"liściasty
+"
+Russula atropurpurea;gołąbek ciemnopurpurowy;Grzyb o ciemnopurpurowym kapeluszu, średnica 5 do 12 cm. Charakterystyczny ostry smak. Występuje w lasach liściastych i mieszanych. Ze względu na ostry smak nie nadaje się do spożycia;niejadalny;nietrujący;"mieszany
+"
+Russula badia;gołąbek brunatny;Grzyb o czerwonobrązowym kapeluszu, średnica 4 do 10 cm. Charakterystyczny ostry, piekący smak. Występuje głównie w lasach iglastych. Ze względu na ostry smak niejadalny;niejadalny;nietrujący;"iglasty
+"
+Russula cavipes;gołąbek komorowaty;Grzyb o różowawym kapeluszu, średnica 5 do 12 cm. Charakterystyczny pusty trzon. Występuje w lasach liściastych. Mimo że nie jest trujący, ze względu na wodnisty miąższ nie przedstawia wartości kulinarnej;niejadalny;nietrujący;"liściasty
+"
+Russula claroflava;gołąbek jasnożółty;Grzyb o żółtym kapeluszu, średnica 5 do 12 cm. Charakterystyczny łagodny smak i przyjemny zapach. Występuje pod brzozami. Dobry grzyb jadalny, szczególnie ceniony w krajach skandynawskich;jadalny;nietrujący;"liściasty
+"
+Russula cyanoxantha;gołąbek zielonawofioletowy;Grzyb o zmiennym zabarwieniu od fioletowego do zielonawego, średnica 5 do 15 cm. Charakterystyczny łagodny smak i elastyczne blaszki. Jeden z najsmaczniejszych gołąbków, nadaje się do spożycia na surowo;jadalny;nietrujący;"mieszany
+"
+Russula delica;gołąbek smaczny;Masywny, całkowicie biały grzyb, średnica 8 do 20 cm. Charakterystyczny łagodny smak i zapach. Występuje w różnych typach lasów. Jadalny, ale ze względu na twardy miąższ wymaga dłuższej obróbki;jadalny;nietrujący;"mieszany
+"
+Russula densifolia;gołąbek gęstoblaszkowy;Grzyb o szarym kapeluszu, średnica 5 do 12 cm. Charakterystyczne czerwienienie, a następnie czernienie miąższu po przekrojeniu. Występuje w lasach liściastych. Ze względu na czernienie miąższu niejadalny;niejadalny;nietrujący;"liściasty
+"
+Russula emetica;gołąbek wymiotny;Grzyb o jaskrawoczerwonym kapeluszu, średnica 5 do 10 cm. Charakterystyczny bardzo ostry, piekący smak. Występuje w lasach iglastych. Grzyb trujący, powodujący silne dolegliwości żołądkowo-jelitowe;niejadalny;trujący;"iglasty
+"
+Russula fellea;gołąbek żółciowy;Grzyb o ochrowym kapeluszu, średnica 4 do 8 cm. Charakterystyczny bardzo gorzki smak. Występuje pod bukami. Ze względu na gorzki smak nie nadaje się do spożycia;niejadalny;nietrujący;"liściasty
+"
+Russula foetens;gołąbek śmierdzący;Grzyb o brudnożółtym kapeluszu, średnica 8 do 15 cm. Charakterystyczny nieprzyjemny zapach przypominający zgniłe mięso. Występuje w różnych typach lasów. Ze względu na zapach i smak niejadalny;niejadalny;nietrujący;"mieszany
+"
+Russula fragilis;gołąbek kruchy;Delikatny grzyb o zmiennym zabarwieniu, średnica 3 do 6 cm. Charakterystyczny bardzo ostry smak i kruchy miąższ. Występuje w różnych typach lasów. Ze względu na ostry smak niejadalny;niejadalny;nietrujący;"mieszany
+"
+Russula heterophylla;gołąbek oliwkowozielony;Grzyb o oliwkowozielonym kapeluszu, średnica 5 do 12 cm. Charakterystyczny łagodny, orzechowy smak. Występuje w lasach liściastych. Jeden z lepszych jadalnych gołąbków;jadalny;nietrujący;"liściasty
+"
+Russula integra;gołąbek słodkawy;Grzyb o czerwonobrązowym kapeluszu, średnica 5 do 12 cm. Charakterystyczny słodkawy smak i przyjemny zapach. Występuje w lasach iglastych. Dobry grzyb jadalny;jadalny;nietrujący;"iglasty
+"
+Russula nobilis;gołąbek buczynowy;Grzyb o czerwonym kapeluszu, średnica 4 do 8 cm. Charakterystyczny bardzo ostry smak. Występuje pod bukami. Grzyb trujący, powodujący dolegliwości żołądkowo-jelitowe;niejadalny;trujący;"liściasty
+"
+Russula paludosa;gołąbek błotny;Duży grzyb o czerwonym kapeluszu, średnica 8 do 15 cm. Charakterystyczny łagodny smak. Występuje w wilgotnych lasach iglastych. Dobry grzyb jadalny;jadalny;nietrujący;"iglasty
+"
+Russula sanguinea;gołąbek krwisty;Grzyb o krwistoczerwonym kapeluszu, średnica 5 do 12 cm. Charakterystyczny ostry smak. Występuje w lasach iglastych, szczególnie pod sosnami. Ze względu na ostry smak niejadalny;niejadalny;nietrujący;"iglasty
+"
+Russula sardonia;gołąbek czerwonofioletowy;Grzyb o fioletowoczerwonym kapeluszu, średnica 5 do 10 cm. Charakterystyczny bardzo ostry smak. Występuje w lasach iglastych. Ze względu na ostry smak i właściwości trujące niejadalny;niejadalny;trujący;"iglasty
+"
+Russula vesca;gołąbek jadalny;Grzyb o różowawym kapeluszu, średnica 5 do 12 cm. Charakterystyczny łagodny, orzechowy smak. Występuje w różnych typach lasów. Jeden z najlepszych jadalnych gołąbków, można spożywać nawet na surowo;jadalny;nietrujący;"mieszany
+"
+Russula virescens;gołąbek zielonawy;Grzyb o zielonkawym, popękanym na poletka kapeluszu, średnica 5 do 15 cm. Charakterystyczny łagodny smak i przyjemny zapach. Jeden z najsmaczniejszych grzybów jadalnych, szczególnie ceniony w południowej Europie;jadalny;nietrujący;"liściasty
+"
+Russula viscida;gołąbek lepki;Grzyb o brązowawym, lepkim kapeluszu, średnica 5 do 10 cm. Charakterystyczny ostry smak. Występuje w lasach iglastych. Ze względu na ostry smak i lepką konsystencję niejadalny;niejadalny;nietrujący;"iglasty
+"
+Russula xerampelina;gołąbek śledziowy;Grzyb o czerwonobrązowym kapeluszu, średnica 5 do 12 cm. Charakterystyczny zapach śledzi lub skorupiaków. Występuje w lasach iglastych. Jadalny, mimo specyficznego zapachu;jadalny;nietrujący;"iglasty
+"
+Sarcosphaera coronaria;koronica ozdobna;Grzyb o kulistym, później gwiaździście pękającym owocniku, średnica 5 do 15 cm. Charakterystyczny fioletowy kolor wewnętrznej powierzchni. Występuje w lasach iglastych. Grzyb trujący;niejadalny;trujący;"iglasty
+"
+Scleroderma citrinum;tęgoskór cytrynowy;Grzyb o kulistym owocniku pokrytym łuskami, średnica 3 do 10 cm. Charakterystyczny czarny miąższ u dojrzałych okazów. Występuje w różnych typach lasów. Grzyb trujący;niejadalny;trujący;"mieszany
+"
+Scleroderma septentrionale;tęgoskór korzeniasty;Grzyb o kulistym owocniku z charakterystycznym korzeniowatym wyrostkiem, średnica 3 do 8 cm. Występuje w lasach iglastych. Grzyb trujący, podobnie jak inne tęgoskóry;niejadalny;trujący;"iglasty
+"
+Sparassis crispa;siedzuń sosnowy;Grzyb o kremowej, kędzierzawej formie przypominającej kalafior, średnica 15 do 40 cm. Występuje u podstawy starych sosen. Ceniony grzyb jadalny, szczególnie w młodym stadium. Zawiera substancje przeciwnowotworowe;jadalny;nietrujący;"iglasty
+"
+Strobilomyces strobilaceus;szyszkowiec łuskowaty;Charakterystyczny grzyb o czarnym, łuskowatym kapeluszu przypominającym szyszkę, średnica 5 do 15 cm. Miąższ po przekrojeniu czerwienieje, później czernieje. Występuje w lasach liściastych. Jadalny, ale mało popularny;jadalny;nietrujący;"liściasty
+"
+Suillus bovinus;maślak sitarz;Grzyb o brązowym, śliskim kapeluszu, średnica 4 do 12 cm. Charakterystyczne szerokie rurki. Występuje pod sosnami. Jadalny, ale mniej ceniony niż inne maślaki;jadalny;nietrujący;"iglasty
+"
+Suillus cavipes;borowiec dęty;Grzyb o żółtobrązowym kapeluszu, średnica 5 do 12 cm. Charakterystyczny pusty trzon. Występuje pod modrzewiami. Jadalny, ale rzadko zbierany;jadalny;nietrujący;"iglasty
+"
+Suillus flavidus;maślak błotny;Grzyb o żółtawym, śliskim kapeluszu, średnica 3 do 8 cm. Występuje w podmokłych lasach iglastych. Ze względu na miejsce występowania i wodnisty miąższ rzadko zbierany;jadalny;nietrujący;"iglasty
+"
+Suillus granulatus;maślak ziarnisty;Grzyb o brązowym, lepkim kapeluszu, średnica 4 do 12 cm. Charakterystyczne kropelki mleczka na młodych rurkach. Występuje pod sosnami. Dobry grzyb jadalny po obraniu ze śliskiej skórki;jadalny;nietrujący;"iglasty
+"
+Suillus grevillei;maślak żółty;Grzyb o jaskrawożółtym, lepkim kapeluszu, średnica 5 do 12 cm. Występuje wyłącznie pod modrzewiami. Jadalny po obraniu ze śliskiej skórki, ceniony ze względu na intensywny kolor i smak;jadalny;nietrujący;"iglasty
+"
+Suillus luteus;maślak zwyczajny;Grzyb o brązowym, bardzo śliskim kapeluszu, średnica 5 do 15 cm. Charakterystyczny pierścień na trzonie. Jeden z najpospolitszych maślaków, występuje pod sosnami. Dobry grzyb jadalny po obraniu ze skórki;jadalny;nietrujący;"iglasty
+"
+Suillus variegatus;maślak pstry;Grzyb o żółtobrązowym, matowym kapeluszu, średnica 5 do 15 cm. Charakterystyczne ciemne łuski na kapeluszu. Występuje pod sosnami. Jadalny, ale mniej ceniony niż inne maślaki;jadalny;nietrujący;"iglasty
+"
+Suillus viscidus;maślak lepki;Grzyb o szarobrązowym, bardzo śliskim kapeluszu, średnica 4 do 10 cm. Występuje wyłącznie pod modrzewiami. Jadalny po obraniu ze śliskiej skórki;jadalny;nietrujący;"iglasty
+"
+Tapinella atrotomentosa;ponurnik aksamitny;Grzyb o brązowym kapeluszu i charakterystycznym czarnym, aksamitnym trzonie, średnica 5 do 15 cm. Występuje na drewnie drzew iglastych. Dawniej uważany za jadalny, obecnie uznany za trujący;niejadalny;trujący;"iglasty
+"
+Trametes gibbosa;wrośniak garbaty;Grzyb o półkolistym, białawym owocniku z charakterystycznym garbem, średnica 5 do 15 cm. Wieloletni grzyb nadrzewny o twardej konsystencji. Występuje na martwym drewnie drzew liściastych;niejadalny;nietrujący;"liściasty
+"
+Trametes ochracea;wrośniak strefowany;Grzyb o wachlarzowatym owocniku z koncentrycznymi strefami, średnica 3 do 10 cm. Występuje na martwym drewnie drzew liściastych. Ze względu na twardą konsystencję niejadalny;niejadalny;nietrujący;"liściasty
+"
+Trametes versicolor;wrośniak różnobarwny;Grzyb o cienkim, wielobarwnym owocniku z koncentrycznymi strefami, średnica 3 do 8 cm. Jeden z najpospolitszych grzybów nadrzewnych. Zawiera substancje przeciwnowotworowe;niejadalny;nietrujący;"liściasty
+"
+Tricholoma albobrunneum;gąska białobrązowa;Grzyb o brązowym kapeluszu z białawym brzegiem, średnica 5 do 12 cm. Występuje w lasach iglastych. Ze względu na gorzki smak i właściwości trujące niejadalny;niejadalny;trujący;"iglasty
+"
+Tricholoma album;gąska biaława;Grzyb o białawym kapeluszu, średnica 5 do 10 cm. Charakterystyczny nieprzyjemny zapach i gorzki smak. Występuje w lasach liściastych. Grzyb trujący;niejadalny;trujący;"liściasty
+"
+Tricholoma atrosquamosum;gąska czarnołuskowa;Grzyb o szarym kapeluszu pokrytym czarnymi łuskami, średnica 5 do 12 cm. Występuje w lasach liściastych. Ze względu na gorzki smak niejadalny;niejadalny;nietrujący;"liściasty
+"
+Tricholoma equestre;gąska zielonka;Grzyb o żółtozielonkawym kapeluszu, średnica 5 do 12 cm. Dawniej bardzo ceniony grzyb jadalny, obecnie uznany za trujący po stwierdzeniu przypadków rabdomiolizy (rozpadu mięśni) po jego spożyciu w większych ilościach;niejadalny;trujący;"iglasty
+"
+Tricholoma fracticum;gąska czerwonobrązowa;Grzyb o czerwonobrązowym kapeluszu, średnica 5 do 12 cm. Występuje w lasach iglastych. Ze względu na gorzki smak i właściwości trujące niejadalny;niejadalny;trujący;"iglasty
+"
+Tricholoma fulvum;gąska żółtobrunatna;Grzyb o żółtobrązowym kapeluszu, średnica 5 do 12 cm. Charakterystyczne żółte zabarwienie blaszek. Występuje pod brzozami. Ze względu na gorzki smak niejadalny;niejadalny;nietrujący;"liściasty
+"
+Tricholoma pardinum;gąska tygrysia;Grzyb o szarym kapeluszu pokrytym ciemnymi łuskami, średnica 5 do 15 cm. Jeden z najbardziej trujących gatunków gąsek, powoduje silne zatrucia pokarmowe. Występuje w górskich lasach;niejadalny;trujący;"mieszany
+"
+Tricholoma pessundatum;gąska kroplistobrzega;Grzyb o brązowym kapeluszu z charakterystycznymi kropelkami na brzegu, średnica 5 do 12 cm. Występuje w lasach iglastych. Grzyb trujący;niejadalny;trujący;"iglasty
+"
+Tricholoma portentosum;gąska niekształtna;Grzyb o szaroczarnym kapeluszu z żółtawym odcieniem, średnica 5 do 15 cm. Występuje w lasach iglastych. Dobry grzyb jadalny o przyjemnym smaku;jadalny;nietrujący;"iglasty
+"
+Tricholoma saponaceum;gąska mydlana;Grzyb o szarozielonkawym kapeluszu, średnica 5 do 12 cm. Charakterystyczny zapach mydła. Występuje w różnych typach lasów. Ze względu na nieprzyjemny zapach i smak niejadalny;niejadalny;nietrujący;"mieszany
+"
+Tricholoma sejunctum;gąska zielonożółta;Grzyb o żółtawym kapeluszu z oliwkowymi włókienkami, średnica 5 do 12 cm. Występuje w lasach liściastych. Ze względu na gorzki smak niejadalny;niejadalny;nietrujący;"liściasty
+"
+Tricholoma stiparophyllum;gąska jasna;Grzyb o białawym kapeluszu, średnica 4 do 10 cm. Występuje w lasach liściastych. Ze względu na nieprzyjemny smak niejadalny;niejadalny;nietrujący;"liściasty
+"
+Tricholoma sulphureum;gąska siarkowa;Grzyb o żółtym kapeluszu, średnica 4 do 8 cm. Charakterystyczny nieprzyjemny zapach gazu świetlnego. Występuje w lasach liściastych. Grzyb trujący;niejadalny;trujący;"liściasty
+"
+Tricholoma ustale;gąska bukowa;Grzyb o czerwonobrązowym kapeluszu, średnica 5 do 10 cm. Występuje w lasach bukowych. Ze względu na gorzki smak niejadalny;niejadalny;nietrujący;"liściasty
+"
+Tricholoma vaccinum;gąska krowia;Grzyb o czerwonobrązowym, włóknistym kapeluszu, średnica 5 do 12 cm. Występuje w lasach iglastych. Ze względu na gorzki smak niejadalny;niejadalny;nietrujący;"iglasty
+"
+Tricholoma virgatum;gąska pieprzna;Grzyb o szarym kapeluszu z ciemnymi promieniście ułożonymi włókienkami, średnica 4 do 10 cm. Charakterystyczny ostry, piekący smak. Występuje w lasach iglastych. Grzyb trujący;niejadalny;trujący;"iglasty
+"
+Tricholomopsis rutilans;rycerzyk czerwonozłoty;Efektowny grzyb o purpurowoczerwonym kapeluszu pokrytym żółtymi łuseczkami, średnica 5 do 12 cm. Występuje na martwym drewnie drzew iglastych. Mimo atrakcyjnego wyglądu niejadalny;niejadalny;nietrujący;"iglasty
+"
+Tuber aestivum;trufla letnia;Podziemny grzyb o czarnej, brodawkowatej okrywie, średnica 2 do 10 cm. Charakterystyczny intensywny zapach. Występuje w lasach liściastych, szczególnie pod dębami. Jedna z najcenniejszych jadalnych trufli europejskich;jadalny;nietrujący;"liściasty
+"
+Xerocomellus chrysenteron;podgrzybek złotawy;Grzyb o brązowym, często spękanym kapeluszu ukazującym czerwonawe mięso, średnica 4 do 10 cm. Charakterystyczne czerwone zabarwienie podstawy trzonu. Występuje w różnych typach lasów. Dobry grzyb jadalny;jadalny;nietrujący;"mieszany
+"
+Xerocomus subtomentosus;podgrzybek zajączek;Grzyb o oliwkowobrązowym, aksamitnym kapeluszu, średnica 5 do 12 cm. Miąższ żółtawy, nie sinieją po przekrojeniu. Występuje w różnych typach lasów. Dobry grzyb jadalny;jadalny;nietrujący;mieszany

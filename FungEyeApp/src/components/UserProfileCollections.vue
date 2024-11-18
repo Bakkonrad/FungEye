@@ -2,14 +2,17 @@
   <div id="collections">
     <div class="bottom-collections">
       <div class="collection">
-        <h3>Zebrane grzyby</h3>
-        <div v-if="mushrooms.length > 0" class="hstack gap-3 mushroom-collection">
-          <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
-            <img class="mushroom" :src="mushroom" alt="Mushroom" />
+        <h3>Ostatnio zapisane grzyby</h3>
+        <div v-if="mushrooms.length > 0" class="mushrooms">
+          <div class="hstack gap-3 mushroom-collection">
+            <div class="p-2" v-for="mushroom in mushrooms" :key="mushroom">
+              <img class="mushroom" :src="mushroom.imagesUrl[0]" :alt="mushroom.polishName"
+                @click="goToMushroom(mushroom.id)" />
+            </div>
           </div>
         </div>
         <div v-else>
-          <p>Brak zebranych grzybów</p>
+          <p>Brak zapisanych grzybów</p>
         </div>
       </div>
       <div class="collection">
@@ -56,6 +59,12 @@ export default {
     trophys: Array,
     follows: Array,
     followers: Array,
+    showMoreMushrooms: Boolean,
+  },
+  methods: {
+    goToMushroom(id) {
+      this.$router.push("/mushroom/" + id);
+    },
   },
 };
 </script>
@@ -74,6 +83,12 @@ export default {
   background-color: rgba(0, 0, 0, 0.063);
   padding: 10px 20px 10px 20px;
   border-radius: 15px;
+}
+
+.mushrooms {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }
 
 .upper-collection {
@@ -118,10 +133,6 @@ export default {
   .upper-collection {
     width: 80vw;
   }
-
-  /* .bottom-collections {
-    width: 80vw;
-  } */
 }
 
 @media screen and (max-width: 768px) {

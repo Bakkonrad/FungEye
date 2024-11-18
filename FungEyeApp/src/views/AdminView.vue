@@ -1,55 +1,54 @@
 <template>
   <div v-if="isAdmin == true" class="admin-panel" @scroll="handleScroll">
-    <h1>Panel administratora</h1>
+    <h1 class="panel-admin">Panel administratora</h1>
     <div v-if="error" class="error-loading-data">
       {{ errorMessage }}
     </div>
-    <!-- search bar and table for users -->
+    <!-- search bar and Tab for users -->
     <div v-else>
       <div class="buttons my-3">
-        <button class="btn category-btn" :class="getActiveTable('users')" @click="showUsers">
+        <button class="btn category-btn" :class="getActiveTab('users')" @click="showUsers">
           Użytkownicy
         </button>
-        <button class="btn category-btn disabled" :class="getActiveTable('mushrooms')"
-          @click="showMushrooms">Grzyby</button>
+        <button class="btn category-btn" :class="getActiveTab('reports')" @click="showReports">
+          Zgłoszenia
+        </button>
       </div>
-      <div v-if="activeTable === 'users'">
+      <div v-if="activeTab === 'users'">
         <div v-if="!isEditing && !isBanning">
           <button ref="goToTheTopButton" class="btn fungeye-default-button" type="button" id="goToTheTopButton"
             @click="goToTheTop" title="go to the top"><font-awesome-icon icon="fa-solid fa-arrow-up" /></button>
           <div class="admin-actions">
             <button class="btn fungeye-default-button" @click="addmin">
-              <font-awesome-icon icon="fa-solid fa-plus" class="button-icon"/>
-              Zarejestruj nowego admina</button>
+              <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
+              Zarejestruj nowego admina
+            </button>
             <SearchBar @search="handleSearch" />
           </div>
-          <UserTable :users="users"/>
+          <UserTable :users="users" />
           <LoadingSpinner v-if="isLoading"></LoadingSpinner>
           <div v-if="noUsersFound">
-            <p class="no-users">
-              {{ noUsersMessage }}
-            </p>
+            <p class="no-users">{{ noUsersMessage }}</p>
           </div>
         </div>
         <UserEdit v-if="isEditing" :user="selectedUser" @cancel-edit="cancelEditing" @save-user="saveUser" />
         <UserBan v-if="isBanning" :user="selectedUser" @cancel-ban="cancelBanning" @ban-user="banUser" />
       </div>
-      <!-- search bar and table for mushrooms -->
-      <div v-else>
-        <h2>Grzyby</h2>
-        <p>not implemented</p>
+
+      <!-- reports -->
+      <div v-else-if="activeTab === 'reports'">
+        <ReportsView />
+      </div>
+      <div v-else style="display: flex; justify-content: center; flex-direction: column; align-items: center;">
       </div>
     </div>
   </div>
+
   <!-- is not admin -->
-  <div v-else style="
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      align-items: center;
-    ">
+  <div v-else class="unauthorized">
     <h1>Brak dostępu!</h1>
     <p>Aby zobaczyć tę stronę, należy zalogować się jako administrator</p>
+    <RouterLink to="/log-in" class="btn fungeye-default-button">Zaloguj się</RouterLink>
   </div>
 </template>
 
@@ -61,6 +60,8 @@ import { checkAdmin, isAdmin } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import SearchBar from "@/components/SearchBar.vue";
 import UserBan from "@/components/BanUser.vue";
+import { RouterLink } from "vue-router";
+import ReportsView from "@/views/ReportsView.vue";
 
 export default {
   components: {
@@ -69,6 +70,7 @@ export default {
     LoadingSpinner,
     SearchBar,
     UserBan,
+    ReportsView,
   },
   data() {
     return {
@@ -86,7 +88,7 @@ export default {
       errorMessage: "",
       noUsersFound: false,
       noUsersMessage: "",
-      activeTable: "users",
+      activeTab: "users",
       goToTheTopButton: null,
     };
   },
@@ -99,11 +101,10 @@ export default {
   async mounted() {
     this.goToTheTopButton = this.$refs.goToTheTopButton;
     if (localStorage.getItem("token") && this.isAdmin == true) {
-      // console.log(localStorage.getItem("role"));
       this.fetchUsers(this.currentPage);
     } else {
-      // console.log(localStorage.getItem("role"));
-      console.log("No token or no admin rights");
+      this.error = true;
+      this.errorMessage = "Brak dostępu!";
     }
     window.addEventListener("scroll", this.handleScroll);
   },
@@ -124,15 +125,12 @@ export default {
           this.noUsersFound = true;
           this.noUsersMessage = "Nie znaleziono użytkowników spełniających kryteria.";
           return;
-        }
-        else if (response.data.length === 0) {
+        } else if (response.data.length === 0) {
           this.noUsersFound = true;
           this.noUsersMessage = "To już wszystkie wyniki.";
           return;
         }
         this.noUsersFound = false;
-        // console.log(response.data);
-        // console.log(response.data.length);
         const newUsers = response.data;
         this.users = [...this.users, ...newUsers];
       } catch (error) {
@@ -158,7 +156,6 @@ export default {
         this.goToTheTopButton.style.display = "none";
       }
     },
-    // When the user clicks on the button, scroll to the top of the document
     goToTheTop() {
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
@@ -168,6 +165,7 @@ export default {
       this.currentPage = 1;
       this.fetchUsers();
     },
+    // register admin
     addmin() {
       this.$router.push("/register/admin");
     },
@@ -175,9 +173,9 @@ export default {
       this.searchQuery = query;
       this.cleanUsers();
     },
-    getActiveTable(table) {
+    getActiveTab(tab) {
       let classString = "category-btn";
-      if (this.activeTable === table) {
+      if (this.activeTab === tab) {
         classString += " active";
       }
       return classString;
@@ -185,12 +183,12 @@ export default {
     showUsers() {
       this.isEditing = false;
       this.selectedUser = null;
-      this.activeTable = "users";
+      this.activeTab = "users";
     },
-    showMushrooms() {
+    showReports() {
       this.isEditing = false;
       this.selectedUser = null;
-      this.activeTable = "mushrooms";
+      this.activeTab = "reports";
     },
   },
 };
@@ -198,7 +196,6 @@ export default {
 
 <style scoped>
 .admin-panel {
-  text-align: center;
   color: var(--black) !important;
   height: auto;
   overflow-y: auto;
@@ -206,10 +203,12 @@ export default {
 
 .buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
   width: 23%;
   margin: 0 auto;
   margin-bottom: 30px;
+  gap: 30px;
 }
 
 .category-btn {
@@ -269,6 +268,10 @@ export default {
   flex-direction: column;
   gap: 20px;
   margin-bottom: 20px;
+}
+
+.panel-admin {
+  text-align: center;
 }
 
 .no-users {

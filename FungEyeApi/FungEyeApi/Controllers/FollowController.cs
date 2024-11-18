@@ -1,5 +1,4 @@
 ﻿using FungEyeApi.Interfaces;
-using FungEyeApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -42,7 +41,7 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("getFollows/{userId}")]
+        [HttpGet("getFollows/{userId}")]
         public async Task<IActionResult> GetFollows(int userId)
         {
 
@@ -58,7 +57,7 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("getFollowers/{userId}")]
+        [HttpGet("getFollowers/{userId}")]
         public async Task<IActionResult> GetFollowers(int userId)
         {
 
@@ -74,7 +73,7 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("removeFollow/{userId}/{followId}")]
+        [HttpDelete("removeFollow/{userId}/{followId}")]
         public async Task<IActionResult> RemoveFollow(int userId, int followId)
         {
             if (!ValidateUserId(userId))
@@ -94,7 +93,7 @@ namespace FungEyeApi.Controllers
         }
 
         [Authorize]
-        [HttpPost("isFollowing/{userId}/{followId}")]
+        [HttpGet("isFollowing/{userId}/{followId}")]
         public async Task<IActionResult> IsFollowing(int userId, int followId)
         {
             try

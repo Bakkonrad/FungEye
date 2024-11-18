@@ -3,6 +3,7 @@ using System;
 using FungEyeApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -15,15 +16,52 @@ namespace FungEyeApi.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.18");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.CommentEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments", (string)null);
+                });
 
             modelBuilder.Entity("FungEyeApi.Data.Entities.FollowEntity", b =>
                 {
                     b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.Property<int>("FollowedUserId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.HasKey("UserId", "FollowedUserId");
 
@@ -34,51 +72,219 @@ namespace FungEyeApi.Migrations
                     b.ToTable("Follows", (string)null);
                 });
 
+            modelBuilder.Entity("FungEyeApi.Data.Entities.FungiEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(-1)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Edibility")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Habitat")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("LatinName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("PolishName")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Toxicity")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Fungies", (string)null);
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.FungiImageEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("FungiEntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FungiEntityId");
+
+                    b.ToTable("FungiesImages");
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.Fungies.UserFungiCollectionEntity", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FungiId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "FungiId");
+
+                    b.HasIndex("FungiId");
+
+                    b.ToTable("UserFungiCollections", (string)null);
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.PostEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Posts", (string)null);
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.PostReactionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reactions", (string)null);
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.ReportEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CommentId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReportedById")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("ReportedById");
+
+                    b.ToTable("Reports", (string)null);
+                });
+
             modelBuilder.Entity("FungEyeApi.Data.Entities.UserEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("BanExpirationDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DateDeleted")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FirstName")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("int");
 
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -89,6 +295,25 @@ namespace FungEyeApi.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.CommentEntity", b =>
+                {
+                    b.HasOne("FungEyeApi.Data.Entities.PostEntity", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FungEyeApi.Data.Entities.UserEntity", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("FungEyeApi.Data.Entities.FollowEntity", b =>
@@ -110,9 +335,123 @@ namespace FungEyeApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FungEyeApi.Data.Entities.FungiImageEntity", b =>
+                {
+                    b.HasOne("FungEyeApi.Data.Entities.FungiEntity", "FungiEntity")
+                        .WithMany("Images")
+                        .HasForeignKey("FungiEntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FungiEntity");
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.Fungies.UserFungiCollectionEntity", b =>
+                {
+                    b.HasOne("FungEyeApi.Data.Entities.FungiEntity", "Fungi")
+                        .WithMany("UserCollections")
+                        .HasForeignKey("FungiId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FungEyeApi.Data.Entities.UserEntity", "User")
+                        .WithMany("FungiCollection")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Fungi");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.PostEntity", b =>
+                {
+                    b.HasOne("FungEyeApi.Data.Entities.UserEntity", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.PostReactionEntity", b =>
+                {
+                    b.HasOne("FungEyeApi.Data.Entities.PostEntity", "Post")
+                        .WithMany("Reactions")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FungEyeApi.Data.Entities.UserEntity", "User")
+                        .WithMany("Reactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.ReportEntity", b =>
+                {
+                    b.HasOne("FungEyeApi.Data.Entities.CommentEntity", "Comment")
+                        .WithMany("Reports")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FungEyeApi.Data.Entities.PostEntity", "Post")
+                        .WithMany("Reports")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("FungEyeApi.Data.Entities.UserEntity", "ReportedBy")
+                        .WithMany("Reports")
+                        .HasForeignKey("ReportedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("ReportedBy");
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.CommentEntity", b =>
+                {
+                    b.Navigation("Reports");
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.FungiEntity", b =>
+                {
+                    b.Navigation("Images");
+
+                    b.Navigation("UserCollections");
+                });
+
+            modelBuilder.Entity("FungEyeApi.Data.Entities.PostEntity", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Reactions");
+
+                    b.Navigation("Reports");
+                });
+
             modelBuilder.Entity("FungEyeApi.Data.Entities.UserEntity", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("Follows");
+
+                    b.Navigation("FungiCollection");
+
+                    b.Navigation("Reactions");
+
+                    b.Navigation("Reports");
                 });
 #pragma warning restore 612, 618
         }

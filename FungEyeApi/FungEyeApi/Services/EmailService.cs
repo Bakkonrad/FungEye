@@ -1,6 +1,7 @@
-﻿using System.Net.Mail;
-using System.Net;
+﻿using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
+using System.Net;
+using System.Net.Mail;
 
 namespace FungEyeApi.Services
 {
@@ -13,8 +14,11 @@ namespace FungEyeApi.Services
             _config = config;
         }
 
-        public async Task<bool> SendEmailAsync(string toEmail, string subject, string message)
+        public async Task<bool> SendEmailAsync(string toEmail, SendEmailOptionsEnum sendEmailOption, string? link = null)
         {
+
+            (string subject, string message) = GetMessage(sendEmailOption, link);
+
             var smtpClient = new SmtpClient(_config["Smtp:Host"])
             {
                 Port = int.Parse(_config["Smtp:Port"]),
@@ -33,6 +37,52 @@ namespace FungEyeApi.Services
 
             await smtpClient.SendMailAsync(mailMessage);
             return true;
+        }
+
+        private static (string, string) GetMessage(SendEmailOptionsEnum sendEmailOption, string? link = null)
+        {
+            string subject;
+            string message;
+
+            switch (sendEmailOption)
+            {
+                case SendEmailOptionsEnum.ResetPassword:
+                    subject = "Resetowanie hasła FungEye";
+                    message = LoadHtmlFile("Resources/resetPasswordMessage.html", link);
+                    break;
+                case SendEmailOptionsEnum.SetAdminPassword:
+                    subject = "Ustawianie hasła dla admina FungEye";
+                    message = LoadHtmlFile("Resources/setAdminPasswordMessage.html", link);
+                    break;
+                case SendEmailOptionsEnum.RemindOfExpiredAccount:
+                    subject = "Przypomnienie o wygasłym koncie FungEye";
+                    message = LoadHtmlFile("Resources/remindOfExpiredAccountMessage.html", link);
+                    break;
+                default:
+                    subject = "Default subject";
+                    message = LoadHtmlFile("Resources/ResetPassword.html");
+                    break;
+            }
+
+            return (subject, message);
+        }
+
+        private static string LoadHtmlFile(string relativePath, string? link = null)
+        {
+            string result;
+            var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
+            var linkProvided = !String.IsNullOrWhiteSpace(link);
+
+            if (File.Exists(fullPath))
+            {
+                string htmlContent = File.ReadAllText(fullPath);
+                result = linkProvided ? htmlContent.Replace("{0}", link) : htmlContent;
+                return result;
+            }
+            else
+            {
+                throw new Exception("File not found");
+            }
         }
     }
 

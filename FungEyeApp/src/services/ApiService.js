@@ -17,6 +17,8 @@ const handleApiError = (error) => {
                 return 'Użytkownik o podanym adresie email lub loginie już istnieje.';
             case 409:
                 return 'Błąd: Użytkownik zbanowany do dnia ' + error.response.data;
+            case 410:
+                return 'Błąd: Użytkownik nie istnieje.';
             case 500:
                 return 'Błąd: Wewnętrzny błąd serwera.';
             default:
@@ -44,7 +46,6 @@ const validateToken = async () => {
             AuthService.logout();
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        // console.log('Token is valid');
         return { success: true };
     } catch (error) {
         console.error('Error validating token:', error);

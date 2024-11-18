@@ -1,14 +1,12 @@
 <template>
   <div class="container">
     <section class="header">
-      <!-- <div class="header-image">
-          <img src="../assets/images/backgrounds/pexels-fabianwiktor-3466363.jpg" alt="Mushrooms in forest" />
-        </div> -->
       <div class="header-content">
         <h3>Miej oko na grzyby z</h3>
         <h1 id="fungeye">FungEye</h1>
         <p>
           Odkryj fascynujący świat grzybów dzięki naszej innowacyjnej aplikacji FungEye! Co możesz z nią zrobić?
+        </p>
         <ul>
           <li><b>Przeglądaj grzyby:</b> Eksploruj bogatą bazę danych grzybów i poznawaj nowe gatunki.</li>
           <li><b>Obserwuj pogodę:</b> Sprawdzaj prognozy pogody, aby zaplanować idealny wypad na grzybobranie.</li>
@@ -19,7 +17,6 @@
             zidentyfikować znalezione okazy.</li>
         </ul>
 
-        </p>
         <p>Dołącz do nas i zacznij swoją przygodę z grzybobraniem na nowo – z FungEye!</p>
         <router-link to="/recognize" class="btn fungeye-default-button">Rozpoznaj grzyby</router-link>
       </div>
@@ -58,7 +55,7 @@
         </div>
       </div>
       <div class="button-container">
-        <RouterLink to="/portal" class="btn fungeye-default-button" id="portal-button">Przejdź do portalu</RouterLink>
+        <RouterLink to="/register" class="btn fungeye-default-button" id="portal-button">Dołącz do społeczności</RouterLink>
       </div>
     </section>
   </div>
@@ -67,12 +64,10 @@
 <script>
 </script>
 
-<!-- scoped? -->
 <style scoped>
 .container {
   color: #333;
   padding: 20px;
-  /* overflow: hidden; */
   position: relative;
 }
 
@@ -87,10 +82,8 @@
   background-position: center;
   color: white;
   width: 99vw;
-  /* Pełna szerokość ekranu */
   padding: 5em;
   margin: 0;
-  /* overflow: hidden; */
   top: 0;
   left: 50%;
   transform: translateX(-50%);
@@ -107,21 +100,17 @@
   background-size: inherit;
   background-position: inherit;
   filter: blur(2px);
-  /* Dodanie efektu rozmycia */
   box-sizing: border-box;
-  /* Uwzględnienie obramowania w wymiarach elementu */
   z-index: 1;
 }
 
 .header-content {
   background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4));
-  /* Gradient od czarnego do przezroczystego */
   z-index: 2;
   padding: 40px;
   border-radius: 20px;
 }
 
-/* można by było dodać klasy/idiki do tekstu (np. .header h1 na header-title albo coś w tym stylu) */
 .header h1,
 .header h2 {
   margin: 0;
@@ -170,7 +159,6 @@
   display: flex;
   justify-content: space-around;
   margin-top: 50px;
-  /* Dodanie marginesu górnego dla sekcji kart */
   align-items: center;
   margin-bottom: 50px;
   gap: 2em;
@@ -178,7 +166,6 @@
 
 .card {
   border-radius: 20px;
-  /* Zaokrąglenie ramek */
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   color: white;
@@ -190,14 +177,12 @@
 
 .left-card {
   width: 30%;
-  /* Ustawienie szerokości left-card i right-card na 25% */
   height: 550px;
   background: linear-gradient(to left, var(--dark-green), var(--green));
 }
 
 .right-card {
   width: 30%;
-  /* Ustawienie szerokości left-card i right-card na 25% */
   height: 550px;
   background: linear-gradient(to left, var(--dark-green), var(--green));
 }
@@ -205,9 +190,7 @@
 .middle-card {
   width: 35%;
   height: 650px;
-  /* Zwiększona wysokość środkowej karty */
   background: linear-gradient(to right, var(--dark-green), var(--green));
-  /* margin-top: -50px; */
 }
 
 .card img {

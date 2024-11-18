@@ -1,17 +1,27 @@
 ﻿using FungEyeApi.Data.Entities;
-using FungEyeApi.Enums;
+using Newtonsoft.Json;
 
 namespace FungEyeApi.Models.Posts
 {
     public class PostReaction
     {
+        public PostReaction() { }
+        public PostReaction(PostReactionEntity postReactionEntity)
+        {
+            Id = postReactionEntity.Id;
+            PostId = postReactionEntity.PostId;
+            UserId = postReactionEntity.UserId;
+
+        }
+
+        [JsonProperty("id")]
         public int Id { get; set; }
-        public ReactionTypeEnum ReactionTypeId { get; set; }
+
+        [JsonProperty("postId")]
         public int PostId { get; set; }
+
+        [JsonProperty("userId")]
         public int UserId { get; set; }
-        public PostReactionTypeEntity? ReactionType { get; set; }
-        public Post? Post { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? ModifiedAt { get; set; }
     }
+
 }

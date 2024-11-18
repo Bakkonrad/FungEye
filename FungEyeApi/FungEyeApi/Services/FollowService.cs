@@ -1,6 +1,5 @@
 ﻿using FungEyeApi.Data;
 using FungEyeApi.Data.Entities;
-using FungEyeApi.Enums;
 using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using Microsoft.EntityFrameworkCore;

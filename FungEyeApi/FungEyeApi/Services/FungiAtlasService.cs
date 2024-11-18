@@ -171,13 +171,15 @@ namespace FungEyeApi.Services
         {
             try
             {
+                var query = db.Fungies.Include(f => f.UserCollections).Include(f => f.Images).OrderBy(f => f.PolishName).AsQueryable();
+
 
                 if (getFungiParams.SavedByUser != null && getFungiParams.SavedByUser is true)
                 {
-                    return await GetFungiesSavedByUser((int)getFungiParams.UserId!);
+                    //query fungies saved by user
+                    query = query.Where(f => f.UserCollections!.Any(uf => uf.UserId == getFungiParams.UserId));
                 }
 
-                var query = db.Fungies.Include(f => f.Images).OrderBy(f => f.PolishName).AsQueryable();
 
 
                 List<Fungi> result = new List<Fungi>();
@@ -279,24 +281,6 @@ namespace FungEyeApi.Services
             fungi.SavedByUser = await collections.AnyAsync(f => f.FungiId == fungi.Id && f.UserId == userId);
 
             return fungi;
-        }
-
-        private async Task<List<Fungi>> GetFungiesSavedByUser(int userId)
-        {
-            var collections = db.FungiesUserCollections.AsQueryable();
-
-            var fungiIds = await collections.Where(f => f.UserId == userId).Select(f => f.FungiId).ToListAsync();
-
-            var fungies = await db.Fungies.Include(f => f.Images).Where(f => fungiIds.Contains(f.Id)).ToListAsync();
-
-            var result = new List<Fungi>();
-
-            foreach (var fungi in fungies)
-            {
-                result.Add(await GetFungiInfo(new Fungi(fungi), userId));
-            }
-
-            return result;
         }
     }
 }

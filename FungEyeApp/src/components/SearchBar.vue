@@ -22,6 +22,13 @@ export default {
             searchQuery: this.initialQuery,
         };
     },
+    watch: {
+        searchQuery(newQuery) {
+            if (newQuery === "") {
+                this.onSearch();
+            }
+        },
+    },
     methods: {
         onSearch() {
             this.$emit("search", this.searchQuery);

@@ -171,17 +171,16 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var query = db.Fungies.Include(f => f.UserCollections).Include(f => f.Images).OrderBy(f => f.PolishName).AsQueryable();
+                
 
+                var query = db.Fungies.Include(f=>f.UserCollections).Include(f => f.Images).OrderBy(f => f.PolishName).AsQueryable();
 
                 if (getFungiParams.SavedByUser != null && getFungiParams.SavedByUser is true)
                 {
                     //query fungies saved by user
                     query = query.Where(f => f.UserCollections!.Any(uf => uf.UserId == getFungiParams.UserId));
                 }
-
-
-
+                
                 List<Fungi> result = new List<Fungi>();
 
                 //if search parameter is provided, filter fungies by search parameter but if Letter parameter is provided, filter fungies by first letter of PolishName
@@ -194,17 +193,18 @@ namespace FungEyeApi.Services
                     query = query.Where(f => f.LatinName != null && f.LatinName.Contains(getFungiParams.Search) ||
                                              f.PolishName != null && f.PolishName.Contains(getFungiParams.Search));
                 }
-                else if(!String.IsNullOrWhiteSpace(getFungiParams.Edibility)) 
+                
+                if(!String.IsNullOrWhiteSpace(getFungiParams.Edibility)) 
                 {
-                    query = query.Where(f => f.Edibility != null && f.Edibility.Contains(getFungiParams.Edibility));
+                    query = query.Where(f => f.Edibility != null && f.Edibility.Equals(getFungiParams.Edibility));
                 }
-                else if (!String.IsNullOrWhiteSpace(getFungiParams.Toxicity))
+                if (!String.IsNullOrWhiteSpace(getFungiParams.Toxicity))
                 {
-                    query = query.Where(f => f.Toxicity != null && f.Toxicity.Contains(getFungiParams.Toxicity));
+                    query = query.Where(f => f.Toxicity != null && f.Toxicity.Equals(getFungiParams.Toxicity));
                 }
-                else if (!String.IsNullOrWhiteSpace(getFungiParams.Habitat))
+                if (!String.IsNullOrWhiteSpace(getFungiParams.Habitat))
                 {
-                    query = query.Where(f => f.Habitat != null && f.Habitat.Contains(getFungiParams.Habitat));
+                    query = query.Where(f => f.Habitat != null && f.Habitat.Equals(getFungiParams.Habitat));
                 }
 
                 int pageSize = getFungiParams.PageSize ?? 20;

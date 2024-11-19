@@ -25,12 +25,12 @@ const predict = async (image) => {
   try {
     const formData = new FormData();
     formData.append("image", image);
-    const predictResponse = await $http.post("api/Model/predict", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    // const predictResponse = {status: 200, data: [{"Item1":"Boletus_edulis","Item2":0.864475548},{"Item1":"Imleria_badia","Item2":0.0371585973},{"Item1":"Boletus_pinophilus","Item2":0.0329410769},{"Item1":"Boletus_reticulatus","Item2":0.0282462705},{"Item1":"Suillus_variegatus","Item2":0.0259523895}]};
+    // const predictResponse = await $http.post("api/Model/predict", formData, {
+    //   headers: {
+    //     "Content-Type": "multipart/form-data",
+    //   },
+    // });
+    const predictResponse = { status: 200, data: [{ "Item1": "Boletus_edulis", "Item2": 0.864475548 }, { "Item1": "Imleria_badia", "Item2": 0.0371585973 }, { "Item1": "Boletus_pinophilus", "Item2": 0.0329410769 }, { "Item1": "Boletus_reticulatus", "Item2": 0.0282462705 }, { "Item1": "Suillus_variegatus", "Item2": 0.0259523895 }] };
     if (predictResponse.status === 200) {
       let fungiData = [];
       const fungiResults = await Promise.all(predictResponse.data.map(async (result) => {
@@ -55,7 +55,7 @@ const predict = async (image) => {
       }));
       if (fungiResults.length === fungiData.length) {
         fungiData = fungiData.sort((a, b) => b.probability - a.probability);
-        return { success: true, data: fungiData};
+        return { success: true, data: fungiData };
       }
       return { success: false, message: "Nieznany błąd" };
     }
@@ -72,18 +72,28 @@ const formatName = (name) => {
   return formattedName;
 };
 
-const getAllFungies = async (page, search, userId) => {
+const getAllFungies = async (page, search, filters) => {
   try {
-    if (!userId) {
+    let userId = null;
+    if (localStorage.getItem("id")) {
       userId = parseInt(localStorage.getItem("id"));
     }
-    const formData = new FormData();
-    formData.append("userId", userId);
-    if (page) {
-      formData.append("page", page);
+    const data = {
+      "userId": userId,
+      "search": search,
+      "page": page,
+      pageSize: null,
+      edibility: filters ? filters.edibility : null,
+      toxicity: filters ? filters.toxicity : null,
+      habitat: filters ? filters.habitat : null,
+      letter: filters ? filters.letter : null,
+      savedByUser: filters ? filters.savedByUser : null,
     }
-    if (search) {
-      formData.append("search", search);
+    const formData = new FormData();
+    for (const key in data) {
+      if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key]);
+      }
     }
     const response = await $http.post("api/FungiAtlas/getFungies", formData, {
       headers: {
@@ -159,7 +169,8 @@ const addAttributes = (fungies) => {
       newFungi.attributes.push("jadalny");
     } else if (fungi.toxicity === "trujący") {
       newFungi.attributes.push("trujący");
-    } else if (fungi.edibility === "niejadalny") {
+    }
+    if (fungi.edibility === "niejadalny") {
       newFungi.attributes.push("niejadalny");
     }
     if (fungi.habitat === "iglasty") {
@@ -183,7 +194,8 @@ const addAttributesToSingle = (fungi) => {
     newFungi.attributes.push("jadalny");
   } else if (fungi.toxicity === "trujący") {
     newFungi.attributes.push("trujący");
-  } else if (fungi.edibility === "niejadalny") {
+  }
+  if (fungi.edibility === "niejadalny") {
     newFungi.attributes.push("niejadalny");
   }
   if (fungi.habitat === "iglasty") {

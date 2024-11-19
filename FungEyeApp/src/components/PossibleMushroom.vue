@@ -111,7 +111,7 @@ export default {
 }
 
 .red {
-  background-color: var(--red);
+  background-color: var(--light-red);
 }
 
 .orange {
@@ -119,7 +119,7 @@ export default {
 }
 
 .green {
-  background-color: var(--green);
+  background-color: var(--lighter-green);
 }
 
 .album-photo {

@@ -199,13 +199,15 @@ export default {
       this.getPost();
     },
     async deleteComment(commentId) {
-      const response = await PostService.deleteComment(commentId);
-      if (response.success === false) {
-        alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
-        return;
+      if (confirm("Czy na pewno chcesz usunąć ten komentarz?")) {
+        const response = await PostService.deleteComment(commentId);
+        if (response.success === false) {
+          alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
+          return;
+        }
+        alert("Usunięto komentarz");
+        this.getPost();
       }
-      alert("Usunięto komentarz");
-      this.getPost();
     },
     async editComment(commentId) {
       if (this.commentContentToEdit.trim() === "") {

@@ -30,9 +30,11 @@ body {
   --dark-green: #355f3d;
   /* --green: #6a994e; */
   --green: #47762b;
+  --lighter-green: #5f9f3a;
   --light-green: #a7c957;
   --beige: #f1ebdd;
   --dark-beige: #dfd1a0;
+  --light-red: #e85558;
   --red: #b84345;
   --dark-red: #712b2c;
   --warning: #eebc3c;

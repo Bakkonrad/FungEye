@@ -1033,4 +1033,6 @@ yarn-error.log
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,vue,vuejs,node
 FungEyeApi/.idea/.idea.FungEyeApi/.idea
-FungEyeAi/inception_v3_mushroomsv1_3_8/variables/variables.data-00000-of-00001
+FungEyeAi/inception_v3_mushroomsv1_5_5/variables/variables.data-00000-of-00001
+secrets.json
+/inception_v3_mushroomsv1_5_5/

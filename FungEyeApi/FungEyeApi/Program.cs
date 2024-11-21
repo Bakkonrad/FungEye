@@ -1,12 +1,15 @@
 using FungEyeApi.Data;
 using FungEyeApi.Interfaces;
 using FungEyeApi.Services;
+using FungEyeApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using Microsoft.Extensions.Azure;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,9 +71,12 @@ builder.Services.AddScoped<IFungiAtlasService, FungiAtlasService>();
 builder.Services.AddScoped<IPostsService, PostsService>();
 
 var app = builder.Build();
+
+app.UseMetricServer();
+app.UseMiddleware<MetricsMiddleware>();
+app.UseHttpMetrics();
+
 app.UseCors();
-
-
 
 app.UseSwagger();
 //app.UseSwaggerUI();

@@ -104,7 +104,7 @@ namespace FungEyeApi.Services
             {
                 var predictionList = new List<(string, double)>();
 
-                using (var fileReader = new StreamReader(@"Resources\mushroom_names.txt"))
+                using (var fileReader = new StreamReader(@"Resources/mushroom_names.txt"))
                 {
                     var classNames = (await fileReader.ReadToEndAsync()).Split('\n').Select(x => x.Trim()).ToList();
                     for (int i = 0; i < predictions[0].Count; i++)

@@ -52,7 +52,7 @@
                   'password-input': !submitted,
                   validInput: submitted && !v$.password.$invalid,
                   invalidInput: submitted && v$.password.$invalid,
-                }" color="black" />
+                }" color="white" />
                 <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
                   {{ error.$message }}
                 </span>
@@ -61,7 +61,7 @@
                     'confirmPassword-input': !submitted,
                     validInput: submitted && !v$.confirmPassword.$invalid,
                     invalidInput: submitted && v$.confirmPassword.$invalid,
-                  }" color="black" />
+                  }" color="white" />
                 <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
                   {{ error.$message }}
                 </span>

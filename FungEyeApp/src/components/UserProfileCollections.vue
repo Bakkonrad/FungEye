@@ -112,13 +112,7 @@ export default {
   width: auto;
   height: 100px;
   border-radius: 15px;
-}
-
-.trophy-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  cursor: pointer;
 }
 
 .follow-content {

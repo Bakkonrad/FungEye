@@ -250,8 +250,8 @@ export default {
 }
 
 .mushroom-images {
-  width: 100px;
-  height: 100px;
+  width: 250px;
+  height: auto;
   object-fit: cover;
   border-radius: 10px;
 }
@@ -270,5 +270,48 @@ export default {
   background-size: cover;
   background-position: center;
   display: inline-block;
+}
+
+@media screen and (max-width: 768px) {
+  .mushroom-view-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+  }
+
+  .mushroom-view-header-image {
+    width: 90%;
+    height: auto;
+    margin: 0;
+  }
+
+  .mushroom-names {
+    margin-top: 20px;
+    align-items: center;
+  }
+
+  .mushroom-names h1 {
+    text-align: center;
+    font-size: 2.5em;
+  }
+
+  .attribute-list {
+    justify-content: center;
+  }
+
+  .mushroom-view-photos {
+    justify-content: center;
+  }
+
+  .mushroom-images {
+    width: 100%;
+    height: auto;
+  }
+  
 }
 </style>

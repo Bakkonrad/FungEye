@@ -558,7 +558,7 @@ h1 {
 .active-attribute.deciduous,
 .attribute-filter span.deciduous.active-attribute,
 .attribute-filter span.mixed.active-attribute,
-.active-attribute.mixed, 
+.active-attribute.mixed,
 .active-attribute.edible,
 .attribute-filter span.edible-active-attribute,
 .active-attribute.inedible,
@@ -667,6 +667,24 @@ h1 {
     flex-direction: column-reverse;
     gap: 15px;
     width: 95%;
+  }
+}
+
+@media screen and (max-width: 794px) {
+  .attribute-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .attribute-filter .attributes-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .separator {
+    display: none;
   }
 }
 

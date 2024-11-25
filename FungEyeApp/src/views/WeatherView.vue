@@ -6,10 +6,11 @@
         <p>Zaplanuj swoją wyprawę na grzyby sprawdzając aktualną pogodę w wybranej lokalizacji.</p>
         <div class="search-container">
           <input 
+          type="text"
             v-model="city" 
             placeholder="Wpisz nazwę miasta" 
             @keyup.enter="fetchWeather"
-            class="search-input" 
+            class="form-control search-input searchBar-input" 
           />
           <button @click="fetchWeather" class="btn fungeye-default-button">
             Sprawdź pogodę
@@ -207,6 +208,11 @@ export default {
   border: none;
   width: 300px;
   font-size: 1.1em;
+  color: white;
+}
+
+.search-input::placeholder {
+  color: #ccc !important;
 }
 
 .weather-card {
@@ -253,10 +259,10 @@ export default {
 }
 
 .error-message {
-  background-color: #ff5757;
+  background-color: var(--red);
   color: white;
   padding: 1em;
-  border-radius: 5px;
+  border-radius: 15px;
   display: inline-block;
 }
 

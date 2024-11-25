@@ -5,7 +5,7 @@
     >
       <p class="col-md-4 mb-0 text-body-secondary">© 2024 FungEye</p>
 
-      <p class="col-md-6 warning">
+      <p class="col-md-6 poisoning-warning">
         <b>Uwaga!</b>
         <br /> Wyniki rozpoznawania grzybów uzyskane za pomocą aplikacji FungEye
         mogą nie być w 100% dokładne. Zawsze zalecamy potwierdzenie
@@ -39,7 +39,7 @@ footer {
   gap: 2em;
 }
 
-.warning {
+.poisoning-warning {
   font-size: medium;
 }
 

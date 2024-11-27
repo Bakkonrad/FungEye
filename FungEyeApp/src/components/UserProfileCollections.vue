@@ -1,6 +1,6 @@
 <template>
-  <div id="collections">
-    <div class="bottom-collections">
+  <div class="collections-container">
+    <div class="collections">
       <div class="collection">
         <h3>Ostatnio zapisane grzyby</h3>
         <div v-if="mushrooms.length > 0" class="mushrooms">
@@ -70,7 +70,7 @@ export default {
 </script>
 
 <style scoped>
-#collections {
+.collections-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -95,7 +95,7 @@ export default {
   width: 50vw;
 }
 
-.bottom-collections {
+.collections {
   display: flex;
   flex-direction: row;
   gap: 2em;
@@ -109,8 +109,10 @@ export default {
 }
 
 .mushroom {
-  width: auto;
+  width: 100px;
   height: 100px;
+  object-fit: cover;
+  object-position: center;
   border-radius: 15px;
   cursor: pointer;
 }
@@ -123,24 +125,16 @@ export default {
   text-decoration: none;
 }
 
-@media screen and (max-width: 1630px) {
-  .upper-collection {
-    width: 80vw;
-  }
-}
-
 @media screen and (max-width: 768px) {
-  #collections {
-    gap: 1em;
-  }
-
   .collection {
     width: 90vw;
+    margin: auto 0;
   }
 
-  .bottom-collections {
+  .collections {
     flex-direction: column;
-    gap: 2em;
+    gap: 1em;
+    margin-top: 1em;
   }
 
 }

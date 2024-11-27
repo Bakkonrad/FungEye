@@ -1,17 +1,22 @@
 <template>
   <div class="atlas-view">
-    <h1>Atlas grzybów</h1>
+    <h1 class="page-title">Atlas grzybów</h1>
 
     <div class="upper-buttons">
       <div v-if="isAdmin" class="button-center">
         <button @click="showAddMushroomModal = true" class="btn fungeye-default-button">
           <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
-          Nowy grzyb</button>
+          <p class="button-text">
+            Nowy grzyb
+          </p>
+        </button>
       </div>
       <div class="button-center">
         <button v-if="isLoggedIn" class="btn fungeye-default-button" @click="toggleSavedTab">
           <font-awesome-icon v-if="!showSaved" icon="fa-solid fa-bookmark" class="button-icon" />
-          {{ showSaved === true ? 'Pokaż wszystkie' : 'Pokaż tylko zapisane' }}
+          <p class="button-text">
+            {{ showSaved === true ? 'Pokaż wszystkie' : 'Pokaż tylko zapisane' }}
+          </p>
         </button>
       </div>
     </div>
@@ -483,6 +488,11 @@ h3 {
   margin-bottom: 1rem;
 }
 
+.button-text {
+  margin: 0;
+  font-size: 1em;
+}
+
 .attribute-selection {
   display: flex;
   justify-content: center;
@@ -679,7 +689,6 @@ h1 {
 
   .attribute-filter .attributes-categories {
     display: flex;
-    flex-wrap: wrap;
     gap: 5px;
   }
 
@@ -696,6 +705,25 @@ h1 {
   .mushroom-card .left {
     flex-direction: column;
     gap: 10px;
+  }
+}
+
+@media screen and (max-width: 405px) {
+  .page-title {
+    font-size: 2.5em;
+  }
+
+  .attribute-filter .attributes-categories {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .button-text {
+    display: none;
+  }
+
+  .button-icon {
+    margin-right: 0;
   }
 }
 

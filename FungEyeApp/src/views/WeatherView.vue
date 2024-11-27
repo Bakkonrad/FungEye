@@ -94,15 +94,15 @@ export default {
         
         // First, geocode the city
         const geoResponse = await ApiService.geocodeCity(searchCity);
-        console.log('Geocoding response:', geoResponse.data);
+        // console.log('Geocoding response:', geoResponse.data);
         
         if (geoResponse.data.results && geoResponse.data.results.length > 0) {
           const { latitude, longitude } = geoResponse.data.results[0];
-          console.log(`Coordinates: lat ${latitude}, lon ${longitude}`);
+          // console.log(`Coordinates: lat ${latitude}, lon ${longitude}`);
           
           // Then, fetch the weather
           const weatherResponse = await ApiService.getWeather(latitude, longitude);
-          console.log('Weather response:', weatherResponse.data);
+          // console.log('Weather response:', weatherResponse.data);
           
           this.weather = weatherResponse.data;
           this.displayCity = displayCity; // pokazuje oryginalną nazwę (Warszawa)

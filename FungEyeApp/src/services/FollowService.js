@@ -78,6 +78,14 @@ const unfollowUser = async (followId) => {
 // obserwatorzy
 const getFollowers = async (userId) => {
   try {
+    const isTokenValid = await ApiService.validateToken();
+    if (isTokenValid.success == false) {
+      return {
+        success: false,
+        message: "Sesja wygasła, zaloguj się ponownie.",
+      };
+    }
+
     userId = parseInt(userId);
     const response = await $http.get(`api/Follow/getFollowers/${userId}`);
 
@@ -95,6 +103,14 @@ const getFollowers = async (userId) => {
 // obserwowani
 const getFollowing = async (userId) => {
   try {
+    const isTokenValid = await ApiService.validateToken();
+    if (isTokenValid.success == false) {
+      return {
+        success: false,
+        message: "Sesja wygasła, zaloguj się ponownie.",
+      };
+    }
+
     userId = parseInt(userId);
     const response = await $http.get(`api/Follow/getFollows/${userId}`);
 
@@ -111,6 +127,14 @@ const getFollowing = async (userId) => {
 
 const isFollowing = async (userId, followId) => {
   try {
+    const isTokenValid = await ApiService.validateToken();
+    if (isTokenValid.success == false) {
+      return {
+        success: false,
+        message: "Sesja wygasła, zaloguj się ponownie.",
+      };
+    }
+    
     userId = parseInt(userId);
     followId = parseInt(followId);
     const response = await $http.get(

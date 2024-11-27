@@ -20,7 +20,7 @@
               <h2 class="latin-name">{{ latinName }}</h2>
             </div>
           </div>
-          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button"
+          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button save-button"
             @click="savedByUser ? deleteMushroomFromCollection() : saveMushroomToCollection()">
             <font-awesome-icon v-if="savedByUser" icon="fa-solid fa-bookmark" />
             <font-awesome-icon v-else icon="fa-regular fa-bookmark" />
@@ -272,7 +272,7 @@ export default {
   display: inline-block;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 560px) {
   .mushroom-view-header {
     flex-direction: column;
     gap: 20px;
@@ -300,6 +300,10 @@ export default {
     font-size: 2.5em;
   }
 
+  .save-button {
+    width: 100%;
+  }
+
   .attribute-list {
     justify-content: center;
   }
@@ -311,6 +315,20 @@ export default {
   .mushroom-images {
     width: 100%;
     height: auto;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .return {
+    flex-direction: column;
+  }
+
+  .mushroom-names h1 {
+    font-size: 2em;
+  }
+
+  .mushroom-names h2 {
+    font-size: 1em;
   }
   
 }

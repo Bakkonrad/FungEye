@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const ApiService = {
+const WeatherApiService = {
   async geocodeCity(city) {
     try {
       const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`;
@@ -22,4 +22,4 @@ const ApiService = {
   },
 };
 
-export default ApiService;
+export default WeatherApiService;

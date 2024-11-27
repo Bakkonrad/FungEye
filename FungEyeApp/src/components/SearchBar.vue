@@ -1,6 +1,6 @@
 <template>
-    <div class="input-group mb-3 searchBar">
-        <input type="text" v-model="searchQuery" placeholder="Szukaj..." class="form-control search-bar searchBar-input" aria-describedby="searchButton" v-on:keyup.enter="onSearch" />
+    <div class="input-group mb-3 search-bar-container">
+        <input type="text" v-model="searchQuery" placeholder="Szukaj..." class="form-control search-bar search-bar-input" aria-describedby="searchButton" v-on:keyup.enter="onSearch" />
         <button @click="onSearch" class="btn fungeye-default-button" type="button" id="searchButton">
             <font-awesome-icon icon="fa-solid fa-magnifying-glass" class="search-icon" />
         </button>
@@ -9,7 +9,7 @@
 
 <script>
 export default {
-    name: "SearchBar",
+    name: "search-bar-container",
     props: {
         initialQuery: {
             type: String,
@@ -37,7 +37,7 @@ export default {
 </script>
 
 <style>
-.searchBar {
+.search-bar-container {
     width: 30%;
     margin: 0 auto;
     align-items: center;
@@ -47,7 +47,7 @@ export default {
     gap: 0.5em;
 }
 
-.searchBar-input {
+.search-bar-input {
     border-radius: 15px 0 0 15px;
     color: var(--black);
 }
@@ -64,17 +64,18 @@ export default {
 }
 
 @media screen and (max-width: 768px) {
-    .searchBar {
+    .search-bar-container {
         width: 95%;
+        margin-bottom: 1em;
     }
 }
 
 @media screen and (max-width: 576px) {
-    .searchBar {
+    .search-bar {
         flex-direction: column;
     }
 
-    .searchBar-input {
+    .search-bar-input {
         width: 100%;
     }
 

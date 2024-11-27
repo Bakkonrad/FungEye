@@ -2,6 +2,9 @@
   <div v-if="isLoading" class="loading">
     <LoadingSpinner />
   </div>
+  <div v-else-if="!isLoggedIn" class="unauthorized">
+    <LogInToContinue />
+  </div>
   <div v-else class="container-md">
     <div class="button-container">
       <button class="btn fungeye-default-button" @click="goToPortal">
@@ -99,14 +102,16 @@
 import ProfileImage from "../components/ProfileImage.vue";
 import PostService from "@/services/PostService";
 import Post from "../components/Post.vue";
-import { checkAdmin, isAdmin, profileImage } from "@/services/AuthService";
+import { checkAdmin, isAdmin, isLoggedIn, profileImage } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import LogInToContinue from "@/components/LogInToContinue.vue";
 
 export default {
   components: {
     ProfileImage,
     Post,
     LoadingSpinner,
+    LogInToContinue,
   },
   props: {
     reportedCommentId: {
@@ -149,9 +154,11 @@ export default {
       },
       reportedComment: this.reportedCommentId,
       isLoading: false,
+      isLoggedIn: isLoggedIn,
     };
   },
   mounted() {
+    if (!this.isLoggedIn) return;
     this.getPost();
     this.checkAuthor();
     checkAdmin();

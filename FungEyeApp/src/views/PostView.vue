@@ -213,6 +213,10 @@ export default {
           return;
         }
         alert("Usunięto komentarz");
+        if (this.isAdmin) {
+          const authorOfTheComment = this.comments.find(comment => comment.id === commentId).user.id;
+          confirm("Czy chcesz przejść na profil autora komentarza?") ? this.goToProfile(authorOfTheComment) : null;
+        }
         this.getPost();
       }
     },
@@ -260,6 +264,9 @@ export default {
           return;
         }
         alert("Usunięto post");
+        if (this.isAdmin) {
+          confirm("Czy chcesz przejść na profil autora posta?") ? this.goToProfile(this.post.userId) : null;
+        }
         this.$router.push({ name: 'portal' });
       }
     },

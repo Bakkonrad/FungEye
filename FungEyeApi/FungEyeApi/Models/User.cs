@@ -1,6 +1,5 @@
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Enums;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Data;
 
@@ -24,12 +23,12 @@ namespace FungEyeApi.Models
             BanExpirationDate = user.BanExpirationDate;
             DateDeleted = user.DateDeleted;
 
-            if(user.Follows != null)
+            if (user.Follows != null)
             {
                 Follows = user.Follows.Where(u => u.FollowedUser is not null).Select(u => new User(u.FollowedUser!)).ToList();
             }
 
-            if(user.FungiCollection != null)
+            if (user.FungiCollection != null)
             {
                 CollectedFungies = user.FungiCollection.Where(f => f.Fungi is not null).Select(f => new Fungi(f.Fungi!)).ToList();
             }

@@ -23,7 +23,7 @@ class Program
         optionsBuilder.UseSqlServer("CONNECTION_STRING");
 
         using var context = new DataContext(optionsBuilder.Options);
-        var blobStorageService = serviceProvider.GetRequiredService <IBlobStorageService>();
+        var blobStorageService = serviceProvider.GetRequiredService<IBlobStorageService>();
 
         //context.Database.Migrate();
 

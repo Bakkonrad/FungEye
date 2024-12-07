@@ -13,7 +13,7 @@ namespace FungEyeApi.Models
             PostId = reportEntity.PostId;
             CommentId = reportEntity.CommentId;
             Completed = reportEntity.Completed;
-            ReportedBy = new FollowUser(reportEntity.ReportedBy);
+            ReportedBy = new FollowUser(reportEntity.ReportedBy!);
         }
 
         [JsonProperty("id")]

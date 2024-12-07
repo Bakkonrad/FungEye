@@ -12,7 +12,7 @@ namespace FungEyeApi.Models
             Content = commentEntity.Content;
             CreatedAt = commentEntity.CreatedAt;
             PostId = commentEntity.PostId;
-            User = new FollowUser(commentEntity.User);
+            User = new FollowUser(commentEntity.User!);
         }
 
         [JsonProperty("id")]

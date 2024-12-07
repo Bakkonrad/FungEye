@@ -5,6 +5,7 @@ using FungEyeApi.Interfaces;
 using FungEyeApi.Models;
 using FungEyeApi.Models.Posts;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
 
 namespace FungEyeApi.Services
 {
@@ -61,10 +62,16 @@ namespace FungEyeApi.Services
             try
             {
                 var comment = await db.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
+                var commentReports = db.Reports.Where(c => c.CommentId == commentId).ToListAsync().Result;
 
                 if (comment == null)
                 {
                     throw new Exception("Comment not found");
+                }
+
+                if(commentReports != null && commentReports.Count > 0)
+                {
+                    db.Reports.RemoveRange(commentReports);
                 }
 
                 db.Comments.Remove(comment);
@@ -83,6 +90,7 @@ namespace FungEyeApi.Services
             try
             {
                 var post = await db.Posts.FirstOrDefaultAsync(p => p.Id == postId);
+                var postReports = db.Reports.Where(c => c.PostId == postId).ToListAsync().Result;
 
                 if (post == null)
                 {
@@ -92,6 +100,11 @@ namespace FungEyeApi.Services
                 if (post.ImageUrl != null)
                 {
                     await _blobStorageService.DeleteFile(post.ImageUrl, Enums.BlobContainerEnum.Posts);
+                }
+
+                if (postReports != null && postReports.Count > 0)
+                {
+                    db.Reports.RemoveRange(postReports);
                 }
 
                 db.Posts.Remove(post);
@@ -225,7 +238,7 @@ namespace FungEyeApi.Services
 
                 if (post == null)
                 {
-                    throw new Exception("Post not found");
+                    throw new KeyNotFoundException("Post not found");
                 }
 
                 var postToModel = new Post(post);
@@ -308,7 +321,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var reports = await db.Reports.Include(r => r.ReportedBy).ToListAsync();
+                var reports = await db.Reports.Include(r => r.ReportedBy).OrderBy(r => r.Completed).ToListAsync();
                 var reportsToModel = reports.Select(r => new Report(r)).ToList();
 
                 return reportsToModel;

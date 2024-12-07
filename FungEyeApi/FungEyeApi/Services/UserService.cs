@@ -126,7 +126,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var query = db.Users.AsQueryable();
+                var query = db.Users.OrderBy( u => u.Username).AsQueryable();
 
                 if (!String.IsNullOrWhiteSpace(search))
                 {

@@ -142,6 +142,10 @@ namespace FungEyeApi.Controllers
                 var result = await _postsService.GetPost(postId, userId);
                 return Ok(result);
             }
+            catch(KeyNotFoundException)
+            {
+                return StatusCode(520, "Post not found");
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);

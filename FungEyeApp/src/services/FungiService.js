@@ -1,11 +1,13 @@
 import axios from "axios";
 import ApiService from "./ApiService";
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+
 const $http = axios.create({
-  baseURL: "http://localhost:5268/",
-  headers: {
-    "Content-type": "application/json",
-  },
+    baseURL: apiUrl,
+    headers: {
+        "Content-type": "application/json",
+    },
 });
 
 $http.interceptors.request.use(
@@ -25,7 +27,7 @@ const predict = async (image) => {
   try {
     const formData = new FormData();
     formData.append("image", image);
-    const predictResponse = await $http.post("api/Model/predict", formData, {
+    const predictResponse = await $http.post("Model/predict", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -95,7 +97,7 @@ const getAllFungies = async (page, search, filters) => {
         formData.append(key, data[key]);
       }
     }
-    const response = await $http.post("api/FungiAtlas/getFungies", formData, {
+    const response = await $http.post("FungiAtlas/getFungies", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -139,7 +141,7 @@ const getFilteredFungies = async (
       formData.append("savedByUser", savedByUser);
     }
     const response = await $http.post(
-      "api/FungiAtlas/getFilteredFungies",
+      "FungiAtlas/getFilteredFungies",
       formData,
       {
         headers: {
@@ -240,7 +242,7 @@ const getFungi = async (id) => {
     const fungiId = parseInt(id);
     const userId = JSON.stringify(parseInt(localStorage.getItem("id")));
     const response = await $http.post(
-      `api/FungiAtlas/getFungi/${fungiId}`,
+      `FungiAtlas/getFungi/${fungiId}`,
       userId
     );
     if (response.status === 200) {
@@ -261,7 +263,7 @@ const getFungiByName = async (fungiName) => {
     const data = new FormData();
     data.append("userId", userId);
     data.append("fungiName", fungiName);
-    const response = await $http.post(`api/FungiAtlas/getFungiByName`, data, {
+    const response = await $http.post(`FungiAtlas/getFungiByName`, data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -290,7 +292,7 @@ const addFungi = async (fungi, images) => {
         formData.append("images", images[i]);
       }
     }
-    const response = await $http.post("api/FungiAtlas/addFungi", formData, {
+    const response = await $http.post("FungiAtlas/addFungi", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -318,7 +320,7 @@ const editFungi = async (fungi, images) => {
         formData.append("images", images[i]);
       }
     }
-    const response = await $http.post(`api/FungiAtlas/editFungi`, formData, {
+    const response = await $http.post(`FungiAtlas/editFungi`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -340,7 +342,7 @@ const deleteFungi = async (id) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiId", id);
-    const response = await $http.post(`api/FungiAtlas/deleteFungi/`, formData, {
+    const response = await $http.post(`FungiAtlas/deleteFungi/`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -363,7 +365,7 @@ const saveFungiToCollection = async (fungiId) => {
     formData.append("userId", userId);
     formData.append("fungiId", fungiId);
     const response = await $http.post(
-      "api/FungiAtlas/addFungiToCollection",
+      "FungiAtlas/addFungiToCollection",
       formData,
       {
         headers: {
@@ -389,7 +391,7 @@ const deleteFungiFromCollection = async (fungiId) => {
     formData.append("userId", userId);
     formData.append("fungiId", fungiId);
     const response = await $http.post(
-      "api/FungiAtlas/deleteFungiFromCollection",
+      "FungiAtlas/deleteFungiFromCollection",
       formData,
       {
         headers: {

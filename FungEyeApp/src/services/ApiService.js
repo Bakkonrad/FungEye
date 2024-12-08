@@ -16,13 +16,15 @@ const handleApiError = (error) => {
             case 405:
                 return 'Użytkownik o podanym adresie email lub loginie już istnieje.';
             case 409:
-                return 'Błąd: Użytkownik zbanowany do dnia ' + error.response.data;
+                return 'Błąd: Użytkownik zbanowany do dnia ' + error.response.data + '.';
             case 410:
                 return 'Błąd: Użytkownik nie istnieje.';
             case 500:
                 return 'Błąd: Wewnętrzny błąd serwera.';
+            case 520:
+                return 'Błąd: Nie znaleziono.';
             default:
-                return `Błąd: ${error.response.statusText}`;
+                return `Błąd: ${error.response.statusText}.`;
         }
     } else if (error.request) {
         // Request was made but no response received

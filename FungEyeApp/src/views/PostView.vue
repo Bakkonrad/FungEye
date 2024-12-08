@@ -5,6 +5,17 @@
   <div v-else-if="!isLoggedIn" class="unauthorized">
     <LogInToContinue />
   </div>
+  <div v-else-if="error" class="not-found">
+    <h1>Błąd wczytywania posta</h1>
+    <p class="error-message">
+      {{ errorMessage }}
+    </p>
+    <div class="button-container">
+      <button class="btn fungeye-default-button" @click="goToPortal">
+        <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon"></font-awesome-icon>
+        Powrót do portalu</button>
+    </div>
+  </div>
   <div v-else class="container-md">
     <div class="button-container">
       <button class="btn fungeye-default-button" @click="goToPortal">
@@ -158,7 +169,7 @@ export default {
     };
   },
   mounted() {
-    if (!this.isLoggedIn) return;
+    if (this.isLoggedIn === false) return;
     this.getPost();
     this.checkAuthor();
     checkAdmin();
@@ -170,7 +181,15 @@ export default {
       try {
         const response = await PostService.getPost(this.id);
         if (response.success === false) {
+          this.error = true;
+          if (response.status === 520) {
+            this.errorMessage = "Nie znaleziono posta";
+          }
+          else {
+            this.errorMessage = "Nie udało się pobrać posta. Spróbuj ponownie później";
+          }
           console.error("Error while fetching post data");
+          this.isLoading = false;
           return;
         }
         this.post = response.data;
@@ -179,6 +198,8 @@ export default {
         }
       }
       catch (error) {
+        this.error = true;
+        this.errorMessage = "Nie udało się pobrać posta. Spróbuj ponownie później";
         console.error(error);
       }
       this.isLoading = false;
@@ -380,6 +401,13 @@ export default {
   padding: 20px;
   border-radius: 10px;
   width: 450px;
+}
+
+.not-found {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .edit-input {

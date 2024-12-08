@@ -3,11 +3,13 @@ import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import ApiService from './ApiService';
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+
 const $http = axios.create({
-    baseURL: "http://localhost:5268/",
+    baseURL: apiUrl,
     headers: {
-        "Content-type": "application/json"
-    }
+        "Content-type": "application/json",
+    },
 });
 
 $http.interceptors.request.use(
@@ -25,7 +27,7 @@ $http.interceptors.request.use(
 
 const login = async (user) => {
     try {
-        const response = await $http.post('api/Auth/loginUser', user);
+        const response = await $http.post('Auth/loginUser', user);
         if (response.status === 200) {
             localStorage.setItem('token', response.data);
             isLoggedIn.value = true;
@@ -42,7 +44,7 @@ const login = async (user) => {
 
 const register = async (admin, user) => {
     try {
-        const response = await $http.post(admin ? 'api/Auth/registerAdmin' : 'api/Auth/registerUser', user);
+        const response = await $http.post(admin ? 'Auth/registerAdmin' : 'Auth/registerUser', user);
         
         if (response.status === 200) {
             if (admin) {
@@ -89,7 +91,7 @@ const setUser = () => {
 
 const sendResetPasswordEmail = async (email) => {
     try {
-        const response = await $http.post(`api/Auth/sendResetPasswordEmail`, {email: email});
+        const response = await $http.post(`Auth/sendResetPasswordEmail`, {email: email});
         if (response.status === 200) {
             return { success: true };
         }
@@ -105,7 +107,7 @@ const resetPassword = async (token, password) => {
         var decodedToken = jwtDecode(token);
         var userId = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
 
-        const response = await $http.post(`api/Auth/resetPassword/${parseInt(userId)}`, {password: password}, {headers: {Authorization: `Bearer ${token}`}});
+        const response = await $http.post(`Auth/resetPassword/${parseInt(userId)}`, {password: password}, {headers: {Authorization: `Bearer ${token}`}});
         if (response.status === 200) {
             alert('Hasło zostało zresetowane! Zaloguj się.');
             return { success: true };
@@ -131,6 +133,7 @@ export const isAdmin = ref(false);
 export const profileImage = ref(localStorage.getItem("profileImg"));
 
 export function checkAuth() {
+    ApiService.validateToken();
     if (localStorage.getItem("token")) {
         isLoggedIn.value = true;
     } else {

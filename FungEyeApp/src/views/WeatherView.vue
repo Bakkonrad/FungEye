@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import ApiService from '@/services/WeatherService';
+import WeatherApiService from '@/services/WeatherService';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 
 export default {
@@ -93,7 +93,7 @@ export default {
         const searchCity = this.normalizeCity(this.city); // zamień na Warsaw jeśli trzeba
         
         // First, geocode the city
-        const geoResponse = await ApiService.geocodeCity(searchCity);
+        const geoResponse = await WeatherApiService.geocodeCity(searchCity);
         // console.log('Geocoding response:', geoResponse.data);
         
         if (geoResponse.data.results && geoResponse.data.results.length > 0) {
@@ -101,7 +101,7 @@ export default {
           // console.log(`Coordinates: lat ${latitude}, lon ${longitude}`);
           
           // Then, fetch the weather
-          const weatherResponse = await ApiService.getWeather(latitude, longitude);
+          const weatherResponse = await WeatherApiService.getWeather(latitude, longitude);
           // console.log('Weather response:', weatherResponse.data);
           
           this.weather = weatherResponse.data;

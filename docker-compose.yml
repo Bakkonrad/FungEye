@@ -7,9 +7,6 @@ services:
       - "5268:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-    volumes:
-      - ./secrets.json:/app/secrets.json:ro
-      - ./FungEyeApi:/app/data
     depends_on:
       - tfserving
     networks:
@@ -20,7 +17,7 @@ services:
       context: ./FungEyeApp
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "80:80"
     depends_on:
       - api
 
@@ -28,8 +25,6 @@ services:
     image: tensorflow/serving:latest-gpu
     ports:
       - "8501:8501"
-    volumes:
-      - ./inception_v3_mushroomsv1_5_5:/models/inception/1
     environment:
       - MODEL_NAME=inception
 
@@ -37,8 +32,6 @@ services:
     image: prom/prometheus
     ports:
       - "9090:9090"
-    volumes:
-      - ./Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - default
 
@@ -46,9 +39,6 @@ services:
     image: grafana/grafana
     ports:
       - "3000:3000"
-    volumes:
-      - ./Grafana/provisioning:/etc/grafana/provisioning
-      - ./Grafana/dashboards:/etc/grafana/dashboards
     depends_on:
       - prometheus
     networks:
@@ -56,8 +46,6 @@ services:
 
   blackbox-exporter:
     image: prom/blackbox-exporter:latest
-    volumes:
-      - ./Blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml
     command:
       - '--config.file=/etc/blackbox_exporter/config.yml'
     ports:

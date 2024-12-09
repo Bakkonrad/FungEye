@@ -1,11 +1,13 @@
 import axios from 'axios';
 import ApiService from './ApiService';
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+
 const $http = axios.create({
-    baseURL: "http://localhost:5268/",
+    baseURL: apiUrl,
     headers: {
-        "Content-type": "application/json"
-    }
+        "Content-type": "application/json",
+    },
 });
 
 $http.interceptors.request.use(
@@ -27,7 +29,7 @@ const getUserData = async (userId) => {
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        const response = await $http.get(`api/User/getProfile/${userId}`);
+        const response = await $http.get(`User/getProfile/${userId}`);
 
         if (response.status === 200) {
             return { success: true, data: response.data };
@@ -46,7 +48,7 @@ const getSmallUserData = async (userId) => {
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        const response = await $http.get(`api/User/getSmallProfile/${userId}`);
+        const response = await $http.get(`User/getSmallProfile/${userId}`);
 
         if (response.status === 200) {
             return { success: true, data: response.data };
@@ -70,7 +72,7 @@ const getAllUsers = async (page, search) => {
         if (search) {
             formData.append('search', search);
         }
-        const response = await $http.post('api/User/getUsers', formData, {
+        const response = await $http.post('User/getUsers', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -91,7 +93,7 @@ const deleteAccount = async (userId) => {
         if (isTokenValid.success == false) {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
-        const response = await $http.delete(`/api/User/removeAccount/${userId}`);
+        const response = await $http.delete(`/User/removeAccount/${userId}`);
         if (response.status === 200) {
             return { success: true }
         }
@@ -118,7 +120,7 @@ const updateUser = async (user, image) => {
             formData.append('image', image);
         }
 
-        const response = await $http.put('/api/User/updateUser', formData, {
+        const response = await $http.put('/User/updateUser', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${token}`
@@ -142,7 +144,7 @@ const banUser = async (userId, ban) => {
             return { success: false, message: 'Sesja wygasła, zaloguj się ponownie.' };
         }
         const banInt = parseInt(ban);
-        const response = await $http.post(`/api/User/banUser/${userId}/${banInt}`);
+        const response = await $http.post(`/User/banUser/${userId}/${banInt}`);
         if (response.status === 200) {
             alert('Użytkownik zbanowany!');
             return { success: true, message: 'Użytkownik zbanowany', data: response.data };
@@ -157,7 +159,7 @@ const banUser = async (userId, ban) => {
 
 const retrieveAccount = async (userId) => {
     try {
-        const response = await $http.get(`/api/User/retrieveAccount/${userId}`);
+        const response = await $http.get(`/User/retrieveAccount/${userId}`);
         if (response.status === 200) {
             return { success: true, message: 'Konto odzyskane' };
         }
@@ -172,7 +174,7 @@ const retrieveAccount = async (userId) => {
 const followUser = async (follow) => {
     try {
         const userId = parseInt(localStorage.getItem('id'));
-        const response = await $http.post(`/api/User/addFollow/${userId}/${follow}`);
+        const response = await $http.post(`/User/addFollow/${userId}/${follow}`);
         if (response.status === 200) {
             return { success: true, message: 'Użytkownik obserwowany' };
         }
@@ -187,7 +189,7 @@ const followUser = async (follow) => {
 const unfollowUser = async (follow) => {
     try {
         const userId = parseInt(localStorage.getItem('id'));
-        const response = await $http.delete(`/api/User/removeFollow/${userId}/${follow}`);
+        const response = await $http.delete(`/User/removeFollow/${userId}/${follow}`);
         if (response.status === 200) {
             return { success: true, message: 'Użytkownik przestał być obserwowany' };
         }

@@ -223,6 +223,10 @@ namespace FungEyeApi.Services
 
                 return postToModel;
             }
+            catch (KeyNotFoundException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new Exception("Error during retrieving post: " + ex.Message);

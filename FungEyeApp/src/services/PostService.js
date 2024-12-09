@@ -1,8 +1,10 @@
 import axios from "axios";
 import ApiService from "./ApiService";
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+
 const $http = axios.create({
-    baseURL: "http://localhost:5268/",
+    baseURL: apiUrl,
     headers: {
         "Content-type": "application/json",
     },
@@ -32,7 +34,7 @@ const getPosts = async (postsFilter, page) => {
         if (page) {
             formData.append("page", page);
         }
-        const response = await $http.post("api/Post/getPosts", formData, {
+        const response = await $http.post("Post/getPosts", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -55,7 +57,7 @@ const getPost = async (postId) => {
         const formData = new FormData();
         formData.append("userId", userId);
         formData.append("postId", postId);
-        const response = await $http.post("api/Post/getPost", formData, {
+        const response = await $http.post("Post/getPost", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -68,7 +70,7 @@ const getPost = async (postId) => {
     } catch (error) {
         const errorMessage = ApiService.handleApiError(error);
         console.error("Error getting post:", errorMessage);
-        return { success: false, message: errorMessage };
+        return { success: false, message: errorMessage, status: error.response.status };
     }
 }
 
@@ -81,7 +83,7 @@ const addPost = async (post, image) => {
         if (image) {
             formData.append("image", image);
         }
-        const response = await $http.post("api/Post/addPost", formData, {
+        const response = await $http.post("Post/addPost", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -107,7 +109,7 @@ const editPost = async (post, image) => {
         if (image) {
             formData.append("image", image);
         }
-        const response = await $http.put("api/Post/editPost", formData, {
+        const response = await $http.put("Post/editPost", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -130,7 +132,7 @@ const deletePost = async (postId) => {
         const userId = parseInt(localStorage.getItem("id"));
         formData.append("userId", userId);
         formData.append("postId", postId);
-        const response = await $http.post(`api/Post/deletePost`, formData, {
+        const response = await $http.post(`Post/deletePost`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -153,7 +155,7 @@ const likePost = async (postId) => {
         const userId = parseInt(localStorage.getItem("id"));
         formData.append("userId", userId);
         formData.append("postId", postId);
-        const response = await $http.post(`api/Post/addPostReaction`, formData, {
+        const response = await $http.post(`Post/addPostReaction`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -176,7 +178,7 @@ const unlikePost = async (postId) => {
         const userId = parseInt(localStorage.getItem("id"));
         formData.append("userId", userId);
         formData.append("postId", postId);
-        const response = await $http.post(`api/Post/deletePostReaction`, formData, {
+        const response = await $http.post(`Post/deletePostReaction`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             }
@@ -195,7 +197,7 @@ const unlikePost = async (postId) => {
 
 const getLikes = async (postId) => {
     try {
-        const response = await $http.post(`api/Post/getLikes/${postId}`);
+        const response = await $http.post(`Post/getLikes/${postId}`);
 
         if (response.status === 200) {
             return { success: true, data: response.data };
@@ -214,7 +216,7 @@ const getComments = async (postId) => {
         const formData = new FormData();
         formData.append("userId", userId);
         formData.append("postId", postId);
-        const response = await $http.post(`api/Post/getComments`, formData, {
+        const response = await $http.post(`Post/getComments`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -237,7 +239,7 @@ const addComment = async (comment) => {
         const formData = new FormData();
         formData.append("userId", userId);
         formData.append("commentJson", JSON.stringify(comment));
-        const response = await $http.post("api/Post/addComment", formData, {
+        const response = await $http.post("Post/addComment", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -260,7 +262,7 @@ const editComment = async (comment) => {
         const formData = new FormData();
         formData.append("userId", userId);
         formData.append("commentJson", JSON.stringify(comment));
-        const response = await $http.put("api/Post/editComment", formData, {
+        const response = await $http.put("Post/editComment", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -282,7 +284,7 @@ const deleteComment = async (commentId) => {
         const userId = parseInt(localStorage.getItem("id"));
         formData.append("userId", userId);
         formData.append("commentId", commentId);
-        const response = await $http.post(`api/Post/deleteComment`, formData, {
+        const response = await $http.post(`Post/deleteComment`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -310,7 +312,7 @@ const report = async (postId, commentId) => {
         if (commentId) {
             formData.append("commentId", commentId);
         }
-        const response = await $http.post("api/Post/report", formData, {
+        const response = await $http.post("Post/report", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -328,7 +330,7 @@ const report = async (postId, commentId) => {
 
 const getReports = async () => {
     try {
-        const response = await $http.get("api/Post/getReports");
+        const response = await $http.get("Post/getReports");
         if (response.status === 200) {
             return { success: true, data: response.data };
         }
@@ -345,7 +347,7 @@ const deleteReport = async (reportId) => {
         const userId = parseInt(localStorage.getItem("id"));
         formData.append("userId", userId);
         formData.append("reportId", reportId);
-        const response = await $http.post("api/Post/markReportAsCompleted", formData, {
+        const response = await $http.post("Post/markReportAsCompleted", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },

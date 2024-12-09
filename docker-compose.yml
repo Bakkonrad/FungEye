@@ -22,21 +22,26 @@ services:
       - api
 
   tfserving:
-    image: tensorflow/serving:latest-gpu
+    build:
+      dockerfile: Dockerfile.tfserving
     ports:
       - "8501:8501"
     environment:
       - MODEL_NAME=inception
 
   prometheus:
-    image: prom/prometheus
+    build:
+      context: ./Prometheus
+      dockerfile: Dockerfile
     ports:
       - "9090:9090"
     networks:
       - default
 
   grafana:
-    image: grafana/grafana
+    build:
+      context: ./Grafana
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     depends_on:
@@ -45,7 +50,9 @@ services:
       - default
 
   blackbox-exporter:
-    image: prom/blackbox-exporter:latest
+    build:
+      context: ./Blackbox
+      dockerfile: Dockerfile
     command:
       - '--config.file=/etc/blackbox_exporter/config.yml'
     ports:

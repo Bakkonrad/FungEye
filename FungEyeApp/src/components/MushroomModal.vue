@@ -202,6 +202,7 @@ export default {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    height: 100px;
 }
 
 .photo-upload {

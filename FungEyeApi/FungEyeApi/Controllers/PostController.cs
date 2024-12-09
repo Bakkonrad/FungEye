@@ -50,7 +50,7 @@ namespace FungEyeApi.Controllers
 
                 post.UserId = userId;
 
-                var result = _postsService.AddPost(post);
+                var result = await _postsService.AddPost(post);
                 return Ok();
             }
             catch (Exception ex)
@@ -141,6 +141,10 @@ namespace FungEyeApi.Controllers
 
                 var result = await _postsService.GetPost(postId, userId);
                 return Ok(result);
+            }
+            catch (KeyNotFoundException ex) //Post not found
+            {
+                return StatusCode(520, ex.Message);
             }
             catch (Exception ex)
             {

@@ -17,9 +17,15 @@
             nieprawidłowe.
           </p>
           <p>
-            2. Po wybraniu zdjęcia, kliknij przycisk "Rozpoznaj". Po chwili dostaniesz 3 prawdopodobne wyniki
+            2. Po wybraniu zdjęcia, kliknij przycisk "Rozpoznaj". Po chwili dostaniesz prawdopodobne wyniki
             rozpoznania.
+            Liczba oznacza procent na ile algorytm jest pewny, że to dany gatunek grzyba.
           </p>
+          <ul class="list-of-colors">
+            <li class="green">kolor zielony: powyżej 80% pewności</li>
+            <li class="orange">kolor żółty: powyżej 50% pewności</li>
+            <li class="red">kolor czerwony: <u>poniżej</u> 50% pewności </li>
+          </ul>
           <p>
             <b>Uwaga!</b> Wyniki mogą być niedokładne. W celu uzyskania pewniejszych wyników, skonsultuj się z
             ekspertem.
@@ -226,6 +232,8 @@ export default {
 
 .directions-column {
   display: flex;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
   justify-content: center;
   align-items: center;
   flex-direction: column;
@@ -242,6 +250,22 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.list-of-colors {
+  font-weight: 500;
+}
+
+.red {
+  color: var(--light-red);
+}
+
+.orange {
+  color: var(--warning);
+}
+
+.green {
+  color: var(--lighter-green);
 }
 
 .photo-upload {
@@ -385,6 +409,7 @@ export default {
   .photo-upload {
     width: 70%;
   }
+
   .result-chosen-files {
     height: 20rem;
     width: 15rem;

@@ -24,7 +24,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var commentEntity = CommentEntity.Create(comment.PostId, comment.User.Id, comment.Content);
+                var commentEntity = CommentEntity.Create(comment.PostId, comment.User!.Id, comment.Content!);
                 await db.Comments.AddAsync(commentEntity);
                 await db.SaveChangesAsync();
 
@@ -42,7 +42,7 @@ namespace FungEyeApi.Services
             {
                 if (post.Content == null)
                 {
-                    throw new Exception("Post content cannot be null");
+                    throw new Exception("Post content cannot be null.");
                 }
                 var postEntity = PostEntity.Create(post.UserId, post.Content, post.ImageUrl);
                 await db.Posts.AddAsync(postEntity);
@@ -60,11 +60,13 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var comment = await db.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
+                var comment = await db.Comments.FirstOrDefaultAsync(c => c.Id == commentId) ?? throw new Exception("Comment not found.");
+                var commentReports = db.Reports.Where(c => c.CommentId == commentId).ToListAsync().Result;
 
-                if (comment == null)
+
+                if (commentReports != null && commentReports.Count > 0)
                 {
-                    throw new Exception("Comment not found");
+                    db.Reports.RemoveRange(commentReports);
                 }
 
                 db.Comments.Remove(comment);
@@ -82,16 +84,17 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var post = await db.Posts.FirstOrDefaultAsync(p => p.Id == postId);
-
-                if (post == null)
-                {
-                    throw new Exception("Post not found");
-                }
+                var post = await db.Posts.FirstOrDefaultAsync(p => p.Id == postId) ?? throw new Exception("Post not found.");
+                var postReports = db.Reports.Where(c => c.PostId == postId).ToListAsync().Result;
 
                 if (post.ImageUrl != null)
                 {
                     await _blobStorageService.DeleteFile(post.ImageUrl, Enums.BlobContainerEnum.Posts);
+                }
+
+                if (postReports != null && postReports.Count > 0)
+                {
+                    db.Reports.RemoveRange(postReports);
                 }
 
                 db.Posts.Remove(post);
@@ -109,15 +112,11 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var commentEntity = await db.Comments.FirstOrDefaultAsync(c => c.Id == comment.Id);
+                var commentEntity = await db.Comments.FirstOrDefaultAsync(c => c.Id == comment.Id) ?? throw new Exception("Comment not found.");
 
-                if (commentEntity == null)
+                if (String.IsNullOrWhiteSpace(comment.Content))
                 {
-                    throw new Exception("Comment not found");
-                }
-                else if (String.IsNullOrWhiteSpace(comment.Content))
-                {
-                    throw new Exception("Content cannot be null");
+                    throw new Exception("Content cannot be null.");
                 }
 
                 commentEntity.Content = comment.Content;
@@ -136,15 +135,11 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var postEntity = await db.Posts.FirstOrDefaultAsync(p => p.Id == post.Id);
+                var postEntity = await db.Posts.FirstOrDefaultAsync(p => p.Id == post.Id) ?? throw new Exception("Post not found."); ;
 
-                if (postEntity == null)
+                if (post.Content == null)
                 {
-                    throw new Exception("Post not found");
-                }
-                else if (post.Content == null)
-                {
-                    throw new Exception("New content cannot be null");
+                    throw new Exception("New content cannot be null.");
                 }
 
                 postEntity.Content = post.Content;
@@ -221,12 +216,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var post = await db.Posts.FirstOrDefaultAsync(r => r.Id == postId);
-
-                if (post == null)
-                {
-                    throw new Exception("Post not found");
-                }
+                var post = await db.Posts.FirstOrDefaultAsync(r => r.Id == postId) ?? throw new KeyNotFoundException("Post not found.");
 
                 var postToModel = new Post(post);
                 postToModel = await GetPostInfo(postToModel, userId);
@@ -265,12 +255,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var existingReaction = await db.Reactions.FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId);
-
-                if (existingReaction == null)
-                {
-                    throw new Exception("Reaction not found");
-                }
+                var existingReaction = await db.Reactions.FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId) ?? throw new Exception("Reaction not found");
 
                 db.Reactions.Remove(existingReaction);
                 await db.SaveChangesAsync();
@@ -289,7 +274,7 @@ namespace FungEyeApi.Services
             {
                 if (postId == null && commentId == null)
                 {
-                    throw new Exception("There is no data provided to create a report");
+                    throw new Exception("There is no data provided to create a report.");
                 }
 
                 var reportEntity = ReportEntity.Create(reporterId, postId, commentId);
@@ -308,7 +293,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var reports = await db.Reports.Include(r => r.ReportedBy).ToListAsync();
+                var reports = await db.Reports.Include(r => r.ReportedBy).OrderBy(r => r.Completed).ToListAsync();
                 var reportsToModel = reports.Select(r => new Report(r)).ToList();
 
                 return reportsToModel;
@@ -323,12 +308,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var reportEntity = await db.Reports.FirstOrDefaultAsync(r => r.Id == reportId);
-
-                if (reportEntity == null)
-                {
-                    throw new Exception("Report not found");
-                }
+                var reportEntity = await db.Reports.FirstOrDefaultAsync(r => r.Id == reportId) ?? throw new Exception("Report not found.");
 
                 reportEntity.Completed = true;
                 reportEntity.ModifiedAt = DateTime.Now;

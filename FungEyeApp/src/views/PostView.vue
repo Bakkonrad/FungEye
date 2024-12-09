@@ -2,6 +2,9 @@
   <div v-if="isLoading" class="loading">
     <LoadingSpinner />
   </div>
+  <div v-else-if="!isLoggedIn" class="unauthorized">
+    <LogInToContinue />
+  </div>
   <div v-else class="container-md">
     <div class="button-container">
       <button class="btn fungeye-default-button" @click="goToPortal">
@@ -99,14 +102,16 @@
 import ProfileImage from "../components/ProfileImage.vue";
 import PostService from "@/services/PostService";
 import Post from "../components/Post.vue";
-import { checkAdmin, isAdmin, profileImage } from "@/services/AuthService";
+import { checkAdmin, isAdmin, isLoggedIn, profileImage } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import LogInToContinue from "@/components/LogInToContinue.vue";
 
 export default {
   components: {
     ProfileImage,
     Post,
     LoadingSpinner,
+    LogInToContinue,
   },
   props: {
     reportedCommentId: {
@@ -149,9 +154,11 @@ export default {
       },
       reportedComment: this.reportedCommentId,
       isLoading: false,
+      isLoggedIn: isLoggedIn,
     };
   },
   mounted() {
+    if (!this.isLoggedIn) return;
     this.getPost();
     this.checkAuthor();
     checkAdmin();
@@ -199,13 +206,19 @@ export default {
       this.getPost();
     },
     async deleteComment(commentId) {
-      const response = await PostService.deleteComment(commentId);
-      if (response.success === false) {
-        alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
-        return;
+      if (confirm("Czy na pewno chcesz usunąć ten komentarz?")) {
+        const response = await PostService.deleteComment(commentId);
+        if (response.success === false) {
+          alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
+          return;
+        }
+        alert("Usunięto komentarz");
+        if (this.isAdmin) {
+          const authorOfTheComment = this.comments.find(comment => comment.id === commentId).user.id;
+          confirm("Czy chcesz przejść na profil autora komentarza?") ? this.goToProfile(authorOfTheComment) : null;
+        }
+        this.getPost();
       }
-      alert("Usunięto komentarz");
-      this.getPost();
     },
     async editComment(commentId) {
       if (this.commentContentToEdit.trim() === "") {
@@ -251,6 +264,9 @@ export default {
           return;
         }
         alert("Usunięto post");
+        if (this.isAdmin) {
+          confirm("Czy chcesz przejść na profil autora posta?") ? this.goToProfile(this.post.userId) : null;
+        }
         this.$router.push({ name: 'portal' });
       }
     },

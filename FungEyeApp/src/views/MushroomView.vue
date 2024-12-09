@@ -20,7 +20,7 @@
               <h2 class="latin-name">{{ latinName }}</h2>
             </div>
           </div>
-          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button"
+          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button save-button"
             @click="savedByUser ? deleteMushroomFromCollection() : saveMushroomToCollection()">
             <font-awesome-icon v-if="savedByUser" icon="fa-solid fa-bookmark" />
             <font-awesome-icon v-else icon="fa-regular fa-bookmark" />
@@ -250,8 +250,8 @@ export default {
 }
 
 .mushroom-images {
-  width: 100px;
-  height: 100px;
+  width: 250px;
+  height: auto;
   object-fit: cover;
   border-radius: 10px;
 }
@@ -270,5 +270,66 @@ export default {
   background-size: cover;
   background-position: center;
   display: inline-block;
+}
+
+@media screen and (max-width: 560px) {
+  .mushroom-view-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+  }
+
+  .mushroom-view-header-image {
+    width: 90%;
+    height: auto;
+    margin: 0;
+  }
+
+  .mushroom-names {
+    margin-top: 20px;
+    align-items: center;
+  }
+
+  .mushroom-names h1 {
+    text-align: center;
+    font-size: 2.5em;
+  }
+
+  .save-button {
+    width: 100%;
+  }
+
+  .attribute-list {
+    justify-content: center;
+  }
+
+  .mushroom-view-photos {
+    justify-content: center;
+  }
+
+  .mushroom-images {
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .return {
+    flex-direction: column;
+  }
+
+  .mushroom-names h1 {
+    font-size: 2em;
+  }
+
+  .mushroom-names h2 {
+    font-size: 1em;
+  }
+  
 }
 </style>

@@ -6,10 +6,11 @@
         <p>Zaplanuj swoją wyprawę na grzyby sprawdzając aktualną pogodę w wybranej lokalizacji.</p>
         <div class="search-container">
           <input 
+          type="text"
             v-model="city" 
             placeholder="Wpisz nazwę miasta" 
             @keyup.enter="fetchWeather"
-            class="search-input" 
+            class="form-control search-input searchBar-input" 
           />
           <button @click="fetchWeather" class="btn fungeye-default-button">
             Sprawdź pogodę
@@ -93,15 +94,15 @@ export default {
         
         // First, geocode the city
         const geoResponse = await ApiService.geocodeCity(searchCity);
-        console.log('Geocoding response:', geoResponse.data);
+        // console.log('Geocoding response:', geoResponse.data);
         
         if (geoResponse.data.results && geoResponse.data.results.length > 0) {
           const { latitude, longitude } = geoResponse.data.results[0];
-          console.log(`Coordinates: lat ${latitude}, lon ${longitude}`);
+          // console.log(`Coordinates: lat ${latitude}, lon ${longitude}`);
           
           // Then, fetch the weather
           const weatherResponse = await ApiService.getWeather(latitude, longitude);
-          console.log('Weather response:', weatherResponse.data);
+          // console.log('Weather response:', weatherResponse.data);
           
           this.weather = weatherResponse.data;
           this.displayCity = displayCity; // pokazuje oryginalną nazwę (Warszawa)
@@ -207,6 +208,11 @@ export default {
   border: none;
   width: 300px;
   font-size: 1.1em;
+  color: white;
+}
+
+.search-input::placeholder {
+  color: #ccc !important;
 }
 
 .weather-card {
@@ -253,10 +259,10 @@ export default {
 }
 
 .error-message {
-  background-color: #ff5757;
+  background-color: var(--red);
   color: white;
   padding: 1em;
-  border-radius: 5px;
+  border-radius: 15px;
   display: inline-block;
 }
 

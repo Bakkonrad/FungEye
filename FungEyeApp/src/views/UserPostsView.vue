@@ -1,5 +1,10 @@
 <template>
-  <div class="container">
+  <div v-if="!isAdmin" class="unauthorized">
+    <h1>Brak dostępu</h1>
+    <p>Aby zobaczyć tę stronę, należy zalogować się jako administrator</p>
+    <RouterLink to="/log-in" class="btn fungeye-default-button">Zaloguj się</RouterLink>
+  </div>
+  <div v-else class="container">
     <h1>Posty użytkownika: {{ id }}</h1>
     <button class="btn fungeye-default-button my-3" @click="goBackToAdmin">Powrót do zakładki admin</button>
     <div v-if="loading">
@@ -21,6 +26,7 @@
 import PostService from '@/services/PostService';
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import Post from '@/components/Post.vue';
+import { isAdmin } from '@/services/AuthService';
 
 export default {
   components: {
@@ -33,10 +39,12 @@ export default {
       posts: [],
       loading: false,
       error: false,
-      errorMessage: ''
+      errorMessage: '',
+      isAdmin: isAdmin
     };
   },
   mounted() {
+    if (!this.isAdmin) return;
     this.fetchPosts();
   },
   methods: {
@@ -81,6 +89,14 @@ export default {
   flex-direction: column;
   align-items: center;
   text-align: center;
+}
+
+.unauthorized {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 50px;
 }
 
 h1 {

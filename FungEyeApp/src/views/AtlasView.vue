@@ -1,17 +1,22 @@
 <template>
   <div class="atlas-view">
-    <h1>Atlas grzybów</h1>
+    <h1 class="page-title">Atlas grzybów</h1>
 
     <div class="upper-buttons">
       <div v-if="isAdmin" class="button-center">
         <button @click="showAddMushroomModal = true" class="btn fungeye-default-button">
           <font-awesome-icon icon="fa-solid fa-plus" class="button-icon" />
-          Nowy grzyb</button>
+          <p class="button-text">
+            Nowy grzyb
+          </p>
+        </button>
       </div>
       <div class="button-center">
         <button v-if="isLoggedIn" class="btn fungeye-default-button" @click="toggleSavedTab">
           <font-awesome-icon v-if="!showSaved" icon="fa-solid fa-bookmark" class="button-icon" />
-          {{ showSaved === true ? 'Pokaż wszystkie' : 'Pokaż tylko zapisane' }}
+          <p class="button-text">
+            {{ showSaved === true ? 'Pokaż wszystkie' : 'Pokaż tylko zapisane' }}
+          </p>
         </button>
       </div>
     </div>
@@ -165,6 +170,13 @@ export default {
       goToTheTopButton: null,
       fetchMushroomsErrorMessage: '',
       noMoreResults: false,
+      filters: {
+        edibility: '',
+        habitat: '',
+        toxicity: '',
+        letter: '',
+        savedByUser: '',
+      },
     };
   },
   async mounted() {
@@ -185,22 +197,28 @@ export default {
         if (this.noMoreResults || this.isLoading) {
           return;
         }
+        if (page === undefined || this.currentPage === undefined) {
+          page = 1;
+        }
         this.isLoading = true;
-        const response = await FungiService.getAllFungies(page, this.searchQuery);
+        this.setFilters();
+        const response = await FungiService.getAllFungies(page, this.searchQuery, this.filters);
         if (response.success === false) {
           this.error = true;
           this.fetchMushroomsErrorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
           return;
         }
-        if (response.data.length === 0 && this.mushrooms.length === 0) {
-          this.error = true;
-          this.fetchMushroomsErrorMessage = "Nie znaleziono grzybów spełniających kryteria.";
-          return;
-        } else if (response.data.length === 0) {
+        if (response.data.length === 0 && this.mushrooms.length > 0) {
           this.error = true;
           this.noMoreResults = true;
           return;
         }
+        else if (response.data.length === 0) {
+          this.error = true;
+          this.fetchMushroomsErrorMessage = "Nie znaleziono grzybów spełniających kryteria.";
+          return;
+        }
+        this.fetchMushroomsErrorMessage = '';
         this.noMoreResults = false;
         this.error = false;
         const newFungies = response.data;
@@ -239,75 +257,38 @@ export default {
     async filterMushrooms() {
       let filtered = [...this.mushrooms];
 
-      if (this.searchQuery) {
-        filtered = filtered.filter((mushroom) =>
-          mushroom.polishName.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      }
-
-      if (this.selectedAttributes.length) {
-        filtered = filtered.filter((mushroom) =>
-          this.selectedAttributes.every((attr) => mushroom.attributes.includes(attr))
-        );
-      }
-
-      if (this.activeLetter) {
-        filtered = filtered.filter((mushroom) =>
-          mushroom.polishName.toLowerCase().startsWith(this.activeLetter.toLowerCase())
-        );
-      }
-
-      if (this.showSaved) {
-        filtered = filtered.filter((mushroom) => mushroom.savedByUser === true);
-      }
-
       this.filteredMushrooms = filtered;
     },
-    async filteredMushroomsAPI() {
-      if (this.noMoreResults || this.isLoading) {
-        return;
-      }
-      let edibility = '';
-      let habitat = '';
-      let toxicity = '';
-      let letter = '';
-      let savedByUser = '';
+    setFilters() {
+      this.filters = {
+        edibility: '',
+        habitat: '',
+        toxicity: '',
+        letter: '',
+        savedByUser: '',
+      };
+
       if (this.selectedAttributes.length > 0) {
         if (this.selectedAttributes.includes('jadalny')) {
-          edibility = 'jadalny';
+          this.filters.edibility = 'jadalny';
         } else if (this.selectedAttributes.includes('trujący')) {
-          toxicity = 'trujący';
+          this.filters.toxicity = 'trujący';
         } else if (this.selectedAttributes.includes('niejadalny')) {
-          toxicity = 'niejadalny';
+          this.filters.edibility = 'niejadalny';
         }
         if (this.selectedAttributes.includes('iglaste')) {
-          habitat = 'iglasty';
+          this.filters.habitat = 'iglasty';
         } else if (this.selectedAttributes.includes('liściaste')) {
-          habitat = 'liściasty';
+          this.filters.habitat = 'liściasty';
         } else if (this.selectedAttributes.includes('mieszane')) {
-          habitat = 'mieszany';
+          this.filters.habitat = 'mieszany';
         }
       }
       if (this.activeLetter) {
-        letter = this.activeLetter;
+        this.filters.letter = this.activeLetter;
       }
       if (this.showSaved) {
-        savedByUser = true;
-      }
-      this.isLoading = true;
-
-      try {
-        const response = await FungiService.getFilteredFungies(edibility, habitat, toxicity, letter, savedByUser);
-        if (response.success === false) {
-          this.error = true;
-          this.errorMessage = 'Wystąpił błąd podczas pobierania grzybów.';
-          return;
-        }
-        this.error = false;
-        this.mushrooms = response.data;
-      }
-      catch (error) {
-        console.error(error);
+        this.filters.savedByUser = true;
       }
     },
     handleImageError(id) {
@@ -335,16 +316,20 @@ export default {
       this.noMoreResults = false;
       this.getFungies(this.currentPage);
     },
+    clearMusrooms() {
+      this.noMoreResults = false;
+      this.mushrooms = [];
+      this.filteredMushrooms = [];
+      this.currentPage = 1;
+      this.getFungies();
+    },
     filterByLetter(letter) {
       if (this.activeLetter === letter) {
-        this.resetActiveLetter();
+        this.activeLetter = '';
       } else {
         this.activeLetter = letter;
       }
-      this.filterMushrooms();
-    },
-    resetActiveLetter() {
-      this.activeLetter = '';
+      this.clearMusrooms();
     },
     openMushroomView(id) {
       const mushroomId = parseInt(id);
@@ -367,7 +352,7 @@ export default {
         });
         this.selectedAttributes.push(attribute);
       }
-      this.filterMushrooms();
+      this.clearMusrooms();
     },
     isActiveAttribute(attribute) {
       return this.selectedAttributes.includes(attribute);
@@ -444,7 +429,7 @@ export default {
     },
     toggleSavedTab() {
       this.showSaved = !this.showSaved;
-      this.filterMushrooms();
+      this.clearMusrooms();
     },
   },
 };
@@ -501,6 +486,11 @@ h3 {
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
+}
+
+.button-text {
+  margin: 0;
+  font-size: 1em;
 }
 
 .attribute-selection {
@@ -577,6 +567,8 @@ h1 {
 .attribute-filter span.coniferous.active-attribute,
 .active-attribute.deciduous,
 .attribute-filter span.deciduous.active-attribute,
+.attribute-filter span.mixed.active-attribute,
+.active-attribute.mixed,
 .active-attribute.edible,
 .attribute-filter span.edible-active-attribute,
 .active-attribute.inedible,
@@ -688,6 +680,23 @@ h1 {
   }
 }
 
+@media screen and (max-width: 794px) {
+  .attribute-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .attribute-filter .attributes-categories {
+    display: flex;
+    gap: 5px;
+  }
+
+  .separator {
+    display: none;
+  }
+}
+
 @media screen and (max-width: 576px) {
   .mushroom-card {
     width: 100%;
@@ -696,6 +705,25 @@ h1 {
   .mushroom-card .left {
     flex-direction: column;
     gap: 10px;
+  }
+}
+
+@media screen and (max-width: 405px) {
+  .page-title {
+    font-size: 2.5em;
+  }
+
+  .attribute-filter .attributes-categories {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .button-text {
+    display: none;
+  }
+
+  .button-icon {
+    margin-right: 0;
   }
 }
 

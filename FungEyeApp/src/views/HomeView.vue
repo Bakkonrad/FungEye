@@ -12,13 +12,19 @@
           <li><b>Obserwuj pogodę:</b> Sprawdzaj prognozy pogody, aby zaplanować idealny wypad na grzybobranie.</li>
           <li><b>Połącz się z grzybiarzami:</b> Dołącz do społeczności grzybiarzy, dziel się swoimi odkryciami i
             konkuruj z przyjaciółmi.</li>
-          <li><b>Zdobywaj trofea:</b> Zbieraj osiągnięcia i chwal się swoimi sukcesami.</li>
           <li><b>Gatunki grzybów:</b> Korzystaj z zaawansowanego systemu rozpoznawania grzybów, który pomoże Ci
             zidentyfikować znalezione okazy.</li>
         </ul>
 
         <p>Dołącz do nas i zacznij swoją przygodę z grzybobraniem na nowo – z FungEye!</p>
         <router-link to="/recognize" class="btn fungeye-default-button">Rozpoznaj grzyby</router-link>
+
+        <p class="poisoning-warning">Uwaga! Wyniki rozpoznawania grzybów uzyskane za pomocą aplikacji FungEye
+        mogą nie być w 100% dokładne. Zawsze zalecamy potwierdzenie
+        identyfikacji grzybów u eksperta przed ich spożyciem. Twórcy aplikacji
+        FungEye nie biorą odpowiedzialności za jakiekolwiek zatrucia czy inne
+        szkody wynikające z niewłaściwego rozpoznania grzybów za pomocą
+        aplikacji.</p>
       </div>
     </section>
     <section class="main">
@@ -221,6 +227,12 @@
 .button-container {
   display: flex;
   justify-content: center;
+}
+
+.poisoning-warning {
+  font-size: 1em;
+  margin-top: 20px;
+  margin-bottom: 1px;
 }
 
 @media screen and (max-width: 1200px) {

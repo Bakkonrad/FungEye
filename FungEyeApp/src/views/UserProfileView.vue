@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <div v-if="!isLoggedIn" class="unauthorized">
+    <h1>Profil użytkownika</h1>
+    <LogInToContinue />
+  </div>
+  <div v-else>
     <div v-if="errorFindingUser" class="not-loggedIn container-md">
       <h1>Profil użytkownika</h1>
       <p>Taki użytkownik nie istnieje!</p>
@@ -38,8 +42,9 @@ import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import UserService from "@/services/UserService";
 import FollowService from "@/services/FollowService";
 import { ref } from "vue";
-import { checkAdmin, isAdmin } from "@/services/AuthService";
+import { checkAdmin, isAdmin, isLoggedIn } from "@/services/AuthService";
 import UserBan from "@/components/BanUser.vue";
+import LogInToContinue from "@/components/LogInToContinue.vue";
 
 export default {
   components: {
@@ -47,8 +52,10 @@ export default {
     UserProfileCollections,
     UserProfileInfo,
     UserBan,
+    LogInToContinue,
   },
   async created() {
+    if (!this.isLoggedIn) return;
     this.fetchUser();
     this.checkIfFollowed();
     this.isLoggedUser = this.isThisUserLoggedIn();
@@ -66,6 +73,7 @@ export default {
       errorFindingUser: false,
       isAdmin: false,
       isBanning: false,
+      isLoggedIn: isLoggedIn,
     };
   },
   setup() {

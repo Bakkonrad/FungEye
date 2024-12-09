@@ -1,13 +1,10 @@
 <template>
   <div>
     <div v-if="errorLoadingData || isLoading" class="error-div container-md">
-      <h2>Profil użytkownika</h2>
+      <h1 class="page-title">Profil użytkownika</h1>
       <div v-if="errorLoadingData" class="error-div">
-        <p class="error-loading-data">{{ errorMessage }}</p>
-        <router-link v-if="!isLoggedIn" to="/log-in" class="btn fungeye-red-button" @click="logOut">Przejdź do
-          logowania</router-link>
-        <router-link v-else to="/log-in" class="btn fungeye-red-button" @click="logOut">Zaloguj się
-          ponownie</router-link>
+        <!-- <p class="error-loading-data">{{ errorMessage }}</p> -->
+        <LogInToContinue/>
       </div>
       <div v-if="isLoading" class="container-md data-loading">
         <h3 class="data-loading">Trwa ładowanie danych. Proszę czekać</h3>
@@ -31,56 +28,58 @@
         </div>
         <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" />
       </div>
-    </div>
-    <div class="settings container-md" v-if="isEditing">
-      <div class="main-header">
-        <h2>Ustawienia</h2>
-        <button @click="cancelEditing" type="button" class="btn fungeye-default-button">
-          <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
-          Powrót do mojego profilu
-        </button>
-      </div>
-      <div class="settings-content">
-        <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
-        <!-- zmiana hasła -->
-        <div class="settings-content-right">
-          <div class="edit-container">
-            <div class="edit-form">
-              <h3>Zmiana hasła</h3>
-              <form @submit.prevent="resetPassword">
-                <BaseInput v-model="resetPasswordFormData.password" type="password" placeholder="Nowe hasło" :class="{
-                  'password-input': !submitted,
-                  validInput: submitted && !v$.password.$invalid,
-                  invalidInput: submitted && v$.password.$invalid,
-                }" color="black" />
-                <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
-                  {{ error.$message }}
-                </span>
-                <BaseInput v-model="resetPasswordFormData.confirmPassword" type="password"
-                  placeholder="Powtórz nowe hasło" :class="{
-                    'confirmPassword-input': !submitted,
-                    validInput: submitted && !v$.confirmPassword.$invalid,
-                    invalidInput: submitted && v$.confirmPassword.$invalid,
-                  }" color="black" />
-                <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
-                  {{ error.$message }}
-                </span>
-                <p v-if="error" class="error-message">{{ errorMessage }}</p>
-                <button type="submit" class="btn fungeye-default-button">
-                  Zmień hasło
-                </button>
-              </form>
+      <div class="settings container-md" v-if="isEditing">
+        <div class="main-header">
+          <h2>Ustawienia</h2>
+          <button @click="cancelEditing" type="button" class="btn fungeye-default-button">
+            <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
+            Powrót do mojego profilu
+          </button>
+        </div>
+        <div class="settings-content">
+          <EditUser :user="user" @cancel-edit="cancelEditing" @save-user="saveUser" />
+          <!-- zmiana hasła -->
+          <div class="settings-content-right">
+            <div class="edit-container">
+              <div class="edit-form">
+                <h3>Zmiana hasła</h3>
+                <form @submit.prevent="resetPassword">
+                  <BaseInput v-model="resetPasswordFormData.password" type="password" placeholder="Nowe hasło" :class="{
+                    'password-input': !submitted,
+                    validInput: submitted && !v$.password.$invalid,
+                    invalidInput: submitted && v$.password.$invalid,
+                  }" color="white" />
+                  <span class="error-message" v-for="error in v$.password.$errors" :key="error.$uid">
+                    {{ error.$message }}
+                  </span>
+                  <BaseInput v-model="resetPasswordFormData.confirmPassword" type="password"
+                    placeholder="Powtórz nowe hasło" :class="{
+                      'confirmPassword-input': !submitted,
+                      validInput: submitted && !v$.confirmPassword.$invalid,
+                      invalidInput: submitted && v$.confirmPassword.$invalid,
+                    }" color="white" />
+                  <span class="error-message" v-for="error in v$.confirmPassword.$errors" :key="error.$uid">
+                    {{ error.$message }}
+                  </span>
+                  <p v-if="error" class="error-message">{{ errorMessage }}</p>
+                  <button type="submit" class="btn fungeye-default-button">
+                    Zmień hasło
+                  </button>
+                </form>
+              </div>
             </div>
-          </div>
-          <div class="edit-container">
-            <div class="edit-form">
-              <h3>Usuwanie konta</h3>
-              <p class="delete-info">Uwaga! Kliknięcie tego przycisku spowoduje wygaśnięcie konta i nie będzie można się na nie zalogować. Aby przywrócić swoje konto, należy wysłać wiadomość do Administratora.</p>
-              <p class="delete-info">Po okresie 30 dni od kliknięcia przycisku "Usuń konto" zostanie ono trwale usunięte i nie będzie można go przywrócić.</p>
-              <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
-                <font-awesome-icon icon="fa-solid fa-trash" class="button-icon" />
-                Usuń konto
-              </button>
+            <div class="edit-container">
+              <div class="edit-form">
+                <h3>Usuwanie konta</h3>
+                <p class="delete-info">Uwaga! Kliknięcie tego przycisku spowoduje wygaśnięcie konta i nie będzie można
+                  się na nie zalogować. Aby przywrócić swoje konto, należy wysłać wiadomość do Administratora.</p>
+                <p class="delete-info">Po okresie 30 dni od kliknięcia przycisku "Usuń konto" zostanie ono trwale
+                  usunięte i nie będzie można go przywrócić.</p>
+                <button @click="deleteAccount" type="button" class="btn fungeye-red-button">
+                  <font-awesome-icon icon="fa-solid fa-trash" class="button-icon" />
+                  Usuń konto
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -99,8 +98,9 @@ import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import EditUser from "@/components/EditUser.vue";
 import BaseInput from "@/components/BaseInput.vue";
 import { onMounted, reactive, ref, computed } from "vue";
-import { profileImage, setProfileImage } from "@/services/AuthService";
+import { profileImage, setProfileImage, isLoggedIn } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import LogInToContinue from "@/components/LogInToContinue.vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minLength, helpers, sameAs } from "@vuelidate/validators";
 
@@ -112,12 +112,14 @@ export default {
     BaseInput,
     EditUser,
     LoadingSpinner,
+    LogInToContinue,
   },
   data() {
     return {
       submitted: false,
       errorLoadingData: false,
       error: false,
+      isLoggedIn: isLoggedIn,
     };
   },
   methods: {
@@ -162,11 +164,15 @@ export default {
     },
   },
   setup() {
+    const errorLoadingData = ref(false);
+    if (isLoggedIn === false) {
+      errorLoadingData.value = true;
+      return;
+    }
     const imgSrc = reactive(profileImage);
     const imgFile = ref(null);
     const isEditing = ref(false);
     const isLoading = ref(false);
-    const errorLoadingData = ref(false);
     const errorMessage = ref('');
     const user = ref(null);
     const username = ref('');

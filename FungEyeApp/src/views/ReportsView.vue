@@ -36,10 +36,22 @@ export default {
                     return;
                 }
                 this.reports = response.data;
+                this.reports = this.sortReports(this.reports);
             } catch (error) {
                 this.reports = [];
                 console.error(error);
             }
+        },
+        sortReports(reports) {
+            return reports.sort((a, b) => {
+                if (a.completed && !b.completed) {
+                    return -1;
+                }
+                if (!a.completed && b.completed) {
+                    return 1;
+                }
+                return 0;
+            });
         },
         async deleteReport(reportId) {
             try {

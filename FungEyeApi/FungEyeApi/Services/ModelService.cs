@@ -1,7 +1,6 @@
 using FungEyeApi.Data;
 using FungEyeApi.Interfaces;
 using Newtonsoft.Json;
-using SixLabors.ImageSharp.ColorSpaces;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -13,7 +12,7 @@ namespace FungEyeApi.Services
         private readonly HttpClient httpClient;
         private readonly IConfiguration configuration;
 
-        public ModelService(DataContext db, IConfiguration configuration, ILogger<ModelService> logger)
+        public ModelService(DataContext db, IConfiguration configuration)
         {
             this.db = db;
             this.httpClient = new HttpClient();
@@ -36,7 +35,7 @@ namespace FungEyeApi.Services
             }
         }
 
-        private async Task<float[,,]> PreprocessImage(IFormFile file)
+        private static async Task<float[,,]> PreprocessImage(IFormFile file)
         {
             // Preprocess the image
             using var memoryStream = new MemoryStream();
@@ -83,11 +82,7 @@ namespace FungEyeApi.Services
 
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                var predictions = JsonConvert.DeserializeObject<dynamic>(responseContent)?.predictions;
-                if (predictions == null)
-                {
-                    throw new InvalidOperationException("Predictions of AI model could not be retrieved from the response.");
-                }
+                var predictions = JsonConvert.DeserializeObject<dynamic>(responseContent)?.predictions ?? throw new InvalidOperationException("Predictions of AI model could not be retrieved from the response.");
 
                 return predictions;
             }
@@ -95,10 +90,10 @@ namespace FungEyeApi.Services
             {
                 throw;
             }
-            
+
         }
 
-        private async Task<List<(string, double)>> ParsePredictions(dynamic predictions)
+        private static async Task<List<(string, double)>> ParsePredictions(dynamic predictions)
         {
             try
             {

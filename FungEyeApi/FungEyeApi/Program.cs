@@ -1,15 +1,14 @@
 using FungEyeApi.Data;
 using FungEyeApi.Interfaces;
-using FungEyeApi.Services;
 using FungEyeApi.Middleware;
+using FungEyeApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
-using Microsoft.Extensions.Azure;
-using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 

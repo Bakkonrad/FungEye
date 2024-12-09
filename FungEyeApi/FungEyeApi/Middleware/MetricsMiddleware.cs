@@ -8,6 +8,10 @@ namespace FungEyeApi.Middleware
         private readonly Counter _requestCounter;
         private readonly Histogram _responseTimeHistogram;
 
+        private static readonly string[] counterLabelNames = { "method", "endpoint", "status_code" };
+        private static readonly string[] histogramLabelNames = { "method", "endpoint" };
+        private static readonly double[] histogramBuckets = { .001, .005, .01, .025, .05, .075, .1, .25, .5, .75, 1, 2.5, 5, 7.5, 10 };
+
         public MetricsMiddleware(RequestDelegate next)
         {
             _next = next;
@@ -16,17 +20,17 @@ namespace FungEyeApi.Middleware
                 "Total number of requests",
                 new CounterConfiguration
                 {
-                    LabelNames = new[] { "method", "endpoint", "status_code" }
+                    LabelNames = counterLabelNames
                 }
             );
-            
+
             _responseTimeHistogram = Metrics.CreateHistogram(
                 "fungeye_api_response_time_seconds",
                 "Response time in seconds",
                 new HistogramConfiguration
                 {
-                    LabelNames = new[] { "method", "endpoint" },
-                    Buckets = new[] { .001, .005, .01, .025, .05, .075, .1, .25, .5, .75, 1, 2.5, 5, 7.5, 10 }
+                    LabelNames = histogramLabelNames,
+                    Buckets = histogramBuckets
                 }
             );
         }
@@ -44,10 +48,10 @@ namespace FungEyeApi.Middleware
             finally
             {
                 var statusCode = context.Response.StatusCode.ToString();
-                _requestCounter.Labels(method, path, statusCode).Inc();
+                _requestCounter.Labels(method, path!, statusCode).Inc();
 
                 var duration = (DateTime.UtcNow - startTime).TotalSeconds;
-                _responseTimeHistogram.Labels(method, path).Observe(duration);
+                _responseTimeHistogram.Labels(method, path!).Observe(duration);
             }
         }
     }

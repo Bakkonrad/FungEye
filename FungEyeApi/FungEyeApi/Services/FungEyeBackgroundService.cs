@@ -18,7 +18,7 @@ namespace FungEyeApi.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 // Run tasks every 24 hours
-                await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
 
 
                 await SendRemiderEmailForExpiredAccountsAsync();
@@ -42,7 +42,7 @@ namespace FungEyeApi.Services
 
                     try
                     {
-                        var date = DateTime.Now.AddMinutes(-3);
+                        var date = DateTime.Now.AddDays(-30);
 
                         var expiredUsers = await dbContext.Users
                             .Where(u => u.DateDeleted != null && u.DateDeleted <= date)
@@ -100,7 +100,7 @@ namespace FungEyeApi.Services
                 var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
 
-                var date = DateTime.Now.AddMinutes(-1);
+                var date = DateTime.Now.AddDays(-2);
 
                 var expiredUsers = await dbContext.Users
                     .Where(u => u.DateDeleted != null && u.DateDeleted <= date)

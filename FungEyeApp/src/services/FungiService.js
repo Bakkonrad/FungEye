@@ -259,9 +259,12 @@ const getFungi = async (id) => {
 
 const getFungiByName = async (fungiName) => {
   try {
-    const userId = parseInt(localStorage.getItem("id"));
+    let userId = null;
     const data = new FormData();
-    data.append("userId", userId);
+    if (localStorage.getItem("id")) {
+      userId = parseInt(localStorage.getItem("id"));
+      data.append("userId", userId);
+    }
     data.append("fungiName", fungiName);
     const response = await $http.post(`FungiAtlas/getFungiByName`, data, {
       headers: {

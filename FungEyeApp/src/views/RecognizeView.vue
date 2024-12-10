@@ -40,7 +40,7 @@
     <div class="container-md content">
       <div class="photo-upload" :class="showResult ? 'result-chosen-files' : ''">
         <div class="card">
-          <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" multiple />
+          <input style="display: none" type="file" accept="image/*" capture="environment" @change="onFileChange" ref="fileInput" />
           <div v-if="showResult" class="back-to-file-upload">
             <button type="button" class="btn fungeye-secondary-button" @click="clearImages">Wybierz inne
               zdjęcie</button>

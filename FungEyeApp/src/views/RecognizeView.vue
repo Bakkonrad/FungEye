@@ -38,9 +38,27 @@
       </div>
     </div>
     <div class="container-md content">
+      <div class="taking-photo">
+        <h2>Zrób zdjęcie</h2>
+        <div v-if="!photo">
+          <!-- Kamera -->
+          <video ref="video" autoplay playsinline style="max-width: 100%;"></video>
+          <button @click="capturePhoto">Zrób zdjęcie</button>
+        </div>
+
+        <!-- Podgląd Zrobionego Zdjęcia -->
+        <div v-else>
+          <h3>Zrobione zdjęcie:</h3>
+          <img :src="photo" alt="Captured Photo" style="max-width: 100%;" />
+          <button @click="resetPhoto">Zrób nowe zdjęcie</button>
+        </div>
+
+        <!-- Opcjonalnie możesz dodać ukryte canvas -->
+        <canvas ref="canvas" style="display: none;"></canvas>
+      </div>
       <div class="photo-upload" :class="showResult ? 'result-chosen-files' : ''">
         <div class="card">
-          <input style="display: none" type="file" accept="image/*" capture="environment" @change="onFileChange" ref="fileInput" />
+          <input style="display: none" type="file" @change="onFileChange" ref="fileInput" />
           <div v-if="showResult" class="back-to-file-upload">
             <button type="button" class="btn fungeye-secondary-button" @click="clearImages">Wybierz inne
               zdjęcie</button>
@@ -115,9 +133,57 @@ export default {
       maxFileSize: 10 * 1024 * 1024, // 10MB
       fileSizeError: false,
       errorRecognizing: false,
+      photo: null, // Zrobione zdjęcie w formacie Base64
+      stream: null, // Strumień wideo z kamery
     };
   },
+  mounted() {
+    this.startCamera();
+  },
+  beforeDestroy() {
+    this.stopCamera();
+  },
   methods: {
+    async startCamera() {
+      try {
+        // Uzyskaj dostęp do kamery
+        this.stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // Wyświetl obraz z kamery w elemencie <video>
+        this.$refs.video.srcObject = this.stream;
+      } catch (err) {
+        console.error("Error accessing the camera: ", err);
+        alert("Unable to access camera. Please allow camera permissions.");
+      }
+    },
+    capturePhoto() {
+      const video = this.$refs.video;
+      const canvas = this.$refs.canvas;
+
+      // Dopasuj rozmiar canvas do rozmiaru wideo
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      // Narysuj klatkę z kamery na canvas
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Pobierz obraz w formacie Base64
+      this.photo = canvas.toDataURL("image/png");
+
+      // Możesz zamienić Base64 na Blob, jeśli chcesz przesłać zdjęcie na serwer:
+      canvas.toBlob(blob => { console.log(blob); }, "image/png");
+    },
+    resetPhoto() {
+      // Resetuj podgląd zdjęcia i uruchom ponownie kamerę
+      this.photo = null;
+      this.startCamera();
+    },
+    stopCamera() {
+      // Zatrzymaj strumień wideo, aby zwolnić kamerę
+      if (this.stream) {
+        this.stream.getTracks().forEach((track) => track.stop());
+      }
+    },
     onFileChange(event) {
       const files = event.target.files;
       if (files.length === 0) return;

@@ -12,6 +12,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+options.ListenAnyIP(80);
+options.ListenAnyIP(443, listenOptions =>
+{
+    listenOptions.UseHttps("/etc/ssl/certs/certificate.pfx", "0Fung3y3@");
+});
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>

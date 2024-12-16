@@ -12,12 +12,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddUserSecrets<Program>();
+
+
 builder.WebHost.ConfigureKestrel(options =>
 {
 options.ListenAnyIP(80);
 options.ListenAnyIP(443, listenOptions =>
 {
-    listenOptions.UseHttps("/etc/ssl/certs/certificate.pfx", "0Fung3y3@");
+    listenOptions.UseHttps("/etc/ssl/certs/certificate.pfx", builder.Configuration.GetSection("SSL_password").Value!);
 });
 });
 
@@ -28,7 +31,6 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
-builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

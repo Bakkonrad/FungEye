@@ -31,3 +31,5 @@ coverage
 *.tsbuildinfo
 
 .env*
+fullchain.pem
+privkey.pem

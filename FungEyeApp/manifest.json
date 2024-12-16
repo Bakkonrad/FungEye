@@ -1,7 +1,7 @@
 {
   "name": "fungeye-app",
   "short_name": "FungEye",
-  "theme_color": "#355f3d",
+  "theme_color": "#f1ebdd",
   "icons": [
     {
       "src": "/src/assets/images/ikona-aplikacji-120x120.png",

@@ -12,10 +12,10 @@
             1. Aby rozpocząć proces rozpoznawania grzybów, wybierz zdjęcie grzyba z dysku lub zrób zdjęcie za pomocą
             kamery.
           </p>
-          <p>
+          <!-- <p>
             <b>Uwaga!</b> Do jednej analizy należy wybrać zdjęcia tylko jednego grzyba. Inaczej wyniki mogą być
             nieprawidłowe.
-          </p>
+          </p> -->
           <p>
             2. Po wybraniu zdjęcia, kliknij przycisk "Rozpoznaj". Po chwili dostaniesz prawdopodobne wyniki
             rozpoznania.
@@ -45,7 +45,7 @@
             <button type="button" class="btn fungeye-secondary-button" @click="clearImages">Wybierz inne
               zdjęcie</button>
           </div>
-          <div v-if="!showResult" class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
+          <div v-if="!showResult && !imagesUploaded" class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
             @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
             <span class="mobile-photo-upload">
               <span class="select">Kliknij aby zrobić lub dodać zdjęcie</span>
@@ -77,7 +77,7 @@
           <span v-if="errorRecognizing === true" class="error-message">Błąd podczas rozpoznawania. Spróbuj
             ponownie.</span>
           <span v-if="fileSizeError === true" class="error-message">Przesłano za duży plik. Maksymalny rozmiar to
-            10MB.</span>
+            20MB.</span>
         </div>
         <div v-if="!showResult" class="recognize-button">
           <button @click="recognize" class="btn fungeye-default-button" id="upload-button">
@@ -160,6 +160,7 @@ export default {
         this.showResult = false;
         this.errorRecognizing = false;
       }
+      this.imagesUploaded = null;
     },
     onDragOver(event) {
       event.preventDefault();

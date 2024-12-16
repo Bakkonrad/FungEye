@@ -38,24 +38,6 @@
       </div>
     </div>
     <div class="container-md content">
-      <div class="taking-photo">
-        <h2>Zrób zdjęcie</h2>
-        <div v-if="!photo">
-          <!-- Kamera -->
-          <video ref="video" autoplay playsinline style="max-width: 100%;"></video>
-          <button @click="capturePhoto">Zrób zdjęcie</button>
-        </div>
-
-        <!-- Podgląd Zrobionego Zdjęcia -->
-        <div v-else>
-          <h3>Zrobione zdjęcie:</h3>
-          <img :src="photo" alt="Captured Photo" style="max-width: 100%;" />
-          <button @click="resetPhoto">Zrób nowe zdjęcie</button>
-        </div>
-
-        <!-- Opcjonalnie możesz dodać ukryte canvas -->
-        <canvas ref="canvas" style="display: none;"></canvas>
-      </div>
       <div class="photo-upload" :class="showResult ? 'result-chosen-files' : ''">
         <div class="card">
           <input style="display: none" type="file" @change="onFileChange" ref="fileInput" />
@@ -90,7 +72,8 @@
           </div>
         </div>
         <div class="error mt-2">
-          <span v-if="imagesUploaded === false" class="error-message">Nie wybrano zdjęcia</span>
+          <span v-if="imagesUploaded === false" class="error-message">Nie wybrano zdjęcia.</span>
+          <span v-if="fileTypeError === true" class="error-message">Wybrano plik, który nie jest zdjęciem.</span>
           <span v-if="errorRecognizing === true" class="error-message">Błąd podczas rozpoznawania. Spróbuj
             ponownie.</span>
           <span v-if="fileSizeError === true" class="error-message">Przesłano za duży plik. Maksymalny rozmiar to
@@ -130,67 +113,28 @@ export default {
       isLoading: false,
       predictingResults: [],
       directionsState: "Pokaż instrukcję",
-      maxFileSize: 10 * 1024 * 1024, // 10MB
+      maxFileSize: 20 * 1024 * 1024, // 20MB
       fileSizeError: false,
+      fileTypeError: false,
       errorRecognizing: false,
-      photo: null, // Zrobione zdjęcie w formacie Base64
-      stream: null, // Strumień wideo z kamery
     };
   },
-  mounted() {
-    this.startCamera();
-  },
-  beforeDestroy() {
-    this.stopCamera();
-  },
   methods: {
-    async startCamera() {
-      try {
-        // Uzyskaj dostęp do kamery
-        this.stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        // Wyświetl obraz z kamery w elemencie <video>
-        this.$refs.video.srcObject = this.stream;
-      } catch (err) {
-        console.error("Error accessing the camera: ", err);
-        alert("Unable to access camera. Please allow camera permissions.");
-      }
-    },
-    capturePhoto() {
-      const video = this.$refs.video;
-      const canvas = this.$refs.canvas;
-
-      // Dopasuj rozmiar canvas do rozmiaru wideo
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      // Narysuj klatkę z kamery na canvas
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Pobierz obraz w formacie Base64
-      this.photo = canvas.toDataURL("image/png");
-
-      // Możesz zamienić Base64 na Blob, jeśli chcesz przesłać zdjęcie na serwer:
-      canvas.toBlob(blob => { console.log(blob); }, "image/png");
-    },
-    resetPhoto() {
-      // Resetuj podgląd zdjęcia i uruchom ponownie kamerę
-      this.photo = null;
-      this.startCamera();
-    },
-    stopCamera() {
-      // Zatrzymaj strumień wideo, aby zwolnić kamerę
-      if (this.stream) {
-        this.stream.getTracks().forEach((track) => track.stop());
-      }
+    checkIfImage(file) {
+      return file.type.startsWith("image/");
     },
     onFileChange(event) {
+      this.fileTypeError = false;
       const files = event.target.files;
       if (files.length === 0) return;
       for (let i = 0; i < files.length; i++) {
         if (this.checkFileSize(files[i]) === false) {
           return;
         };
+        if (!this.checkIfImage(files[i])) {
+          this.fileTypeError = true;
+          return;
+        }
         if (!this.images.some((image) => image.name === files[i].name)) {
           this.images.push({
             name: files[i].name,
@@ -227,6 +171,7 @@ export default {
       this.isDragging = false;
     },
     onDrop(event) {
+      this.fileTypeError = false;
       event.preventDefault();
       this.isDragging = false;
       const files = event.dataTransfer.files;
@@ -235,6 +180,10 @@ export default {
         if (this.checkFileSize(files[i]) === false) {
           return;
         };
+        if (!this.checkIfImage(files[i])) {
+          this.fileTypeError = true;
+          return;
+        }
         if (!this.images.some((image) => image.name === files[i].name)) {
           this.images.push({
             name: files[i].name,

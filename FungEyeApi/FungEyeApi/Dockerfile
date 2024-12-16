@@ -16,4 +16,9 @@ WORKDIR /app
 COPY --from=build /app/publish .
 COPY --from=build /app/Resources ./Resources
 COPY --from=build /app/secrets.json .
+
+COPY certificate.pfx /etc/ssl/certs/certificate.pfx
+
+EXPOSE 443
+
 ENTRYPOINT ["dotnet", "FungEyeApi.dll"]

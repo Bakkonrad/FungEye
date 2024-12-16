@@ -1036,3 +1036,5 @@ FungEyeApi/.idea/.idea.FungEyeApi/.idea
 FungEyeAi/inception_v3_mushroomsv1_5_5/variables/variables.data-00000-of-00001
 secrets.json
 /inception_v3_mushroomsv1_5_5/
+fullchain.pem
+privkey.pem

@@ -1038,3 +1038,4 @@ secrets.json
 /inception_v3_mushroomsv1_5_5/
 fullchain.pem
 privkey.pem
+.env.deploy

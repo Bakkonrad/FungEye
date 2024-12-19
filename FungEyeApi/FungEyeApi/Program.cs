@@ -15,14 +15,27 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
 
 
-builder.WebHost.ConfigureKestrel(options =>
+// Configure Kestrel based on environment
+if (builder.Environment.IsProduction())
 {
-options.ListenAnyIP(80);
-options.ListenAnyIP(443, listenOptions =>
+  // Development: HTTP only
+  builder.WebHost.ConfigureKestrel(options =>
+  {
+      options.ListenAnyIP(80);
+      options.ListenAnyIP(443, listenOptions =>
+      {
+          listenOptions.UseHttps("/etc/ssl/certs/certificate.pfx", builder.Configuration.GetSection("SSL_password").Value!);
+      });
+  });
+}
+else
 {
-    listenOptions.UseHttps("/etc/ssl/certs/certificate.pfx", builder.Configuration.GetSection("SSL_password").Value!);
-});
-});
+  // Production (Azure): HTTPS
+  builder.WebHost.ConfigureKestrel(options =>
+  {
+      options.ListenAnyIP(80);
+  });
+}
 
 builder.Services.AddCors(options =>
 {

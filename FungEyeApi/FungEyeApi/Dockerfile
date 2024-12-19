@@ -20,5 +20,6 @@ COPY --from=build /app/secrets.json .
 COPY certificate.pfx /etc/ssl/certs/certificate.pfx
 
 EXPOSE 443
+EXPOSE 80
 
 ENTRYPOINT ["dotnet", "FungEyeApi.dll"]

@@ -8,7 +8,7 @@
             znajdziesz instrukcje instalacji na systemach Android i iOS.
         </p>
         <div class="qr-code-container">
-            <img src="@/assets/images/QR-code.png" alt="QR code" class="qr-code" />
+            <img src="../assets/images/QR-code.png" alt="QR code" class="qr-code" />
             <p>Zeskanuj ten kod QR, aby przejść na stronę FungEye na telefonie.</p>
         </div>
         <div class="os-buttons">
@@ -29,7 +29,7 @@
                 </p>
                 <ol>
                     <li>Otwórz przeglądarkę internetową na swoim urządzeniu (np. Chrome). </li>
-                    <img src="@/assets/images/android/1.jpg" alt="Step 1" class="instruction-image" />
+                    <img src="../assets/images/android/1.jpg" alt="Step 1" class="instruction-image" />
                     <li>Wprowadź adres
                         <a href="https://fungeye-app.westeurope.azurecontainer.io/" class="external-link">
                             <strong>https://fungeye-app.westeurope.azurecontainer.io/</strong>
@@ -39,24 +39,24 @@
                     </li>
                     <li>Po załadowaniu strony powinien pojawić się przycisk <strong>Zainstaluj</strong>. Kliknij go.
                     </li>
-                    <img src="@/assets/images/android/2.1.jpg" alt="Step 2" class="instruction-image" />
+                    <img src="../assets/images/android/2.1.jpg" alt="Step 2" class="instruction-image" />
                     <p>Jeżeli nie widzisz tego przycisku, przejdź do kolejnych kroków.</p>
                     <li>Kliknij 3 pionowe kropki (
                         <font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
                         ) na pasku narzędzi.
                     </li>
-                    <img src="@/assets/images/android/2.jpg" alt="Step 2" class="instruction-image" />
+                    <img src="../assets/images/android/2.jpg" alt="Step 2" class="instruction-image" />
                     <li>Wybierz opcję <strong>Dodaj do ekranu głównego</strong>.</li>
-                    <img src="@/assets/images/android/3.jpg" alt="Step 3" class="instruction-image" />
+                    <img src="../assets/images/android/3.jpg" alt="Step 3" class="instruction-image" />
                     <li>Następnie kliknij przycisk <strong>Zainstaluj</strong>.</li>
-                    <img src="@/assets/images/android/4.jpg" alt="Step 4" class="instruction-image" />
+                    <img src="../assets/images/android/4.jpg" alt="Step 4" class="instruction-image" />
                     <li>Aplikacja pojawi się w panelu aplikacji. </li>
-                    <img src="@/assets/images/android/5.jpg" alt="Step 5" class="instruction-image" />
+                    <img src="../assets/images/android/5.jpg" alt="Step 5" class="instruction-image" />
                     <li>Aby dodać aplikację do ekranu głównego, naciśnij i przytrzymaj ikonę aplikacji. Następnie
                         kliknij opcję <strong>Dodaj do ekranu startowego</strong>.</li>
-                    <img src="@/assets/images/android/6.jpg" alt="Step 6" class="instruction-image" />
+                    <img src="../assets/images/android/6.jpg" alt="Step 6" class="instruction-image" />
                     <li>Aplikacja pojawi się na ekranie głównym.</li>
-                    <img src="@/assets/images/android/7.jpg" alt="Step 7" class="instruction-image" />
+                    <img src="../assets/images/android/7.jpg" alt="Step 7" class="instruction-image" />
                 </ol>
             </div>
         </div>
@@ -68,7 +68,7 @@
                 </p>
                 <ol>
                     <li>Otwórz przeglądarkę internetową na swoim urządzeniu (np. Safari, Chrome).</li>
-                    <img src="@/assets/images/ios/1.jpg" alt="Step 1" class="instruction-image" />
+                    <img src="../assets/images/ios/1.jpg" alt="Step 1" class="instruction-image" />
                     <li>Wprowadź adres
                         <a href="https://fungeye-app.westeurope.azurecontainer.io/" class="external-link">
                             <strong>https://fungeye-app.westeurope.azurecontainer.io/</strong>
@@ -78,13 +78,13 @@
                         <font-awesome-icon icon="fa-solid fa-arrow-up-from-bracket" /> (na dole ekranu w Safari, w
                         Chrome w prawym górnym rogu).
                     </li>
-                    <img src="@/assets/images/ios/2.jpg" alt="Step 1" class="instruction-image" />
+                    <img src="../assets/images/ios/2.jpg" alt="Step 1" class="instruction-image" />
                     <li>Na pasku narzędzi kliknij przycisk <strong>Do ekranu głównego</strong>.</li>
-                    <img src="@/assets/images/ios/3.jpg" alt="Step 2" class="instruction-image" />
+                    <img src="../assets/images/ios/3.jpg" alt="Step 2" class="instruction-image" />
                     <li>Wprowadź nazwę aplikacji i kliknij <strong>Dodaj</strong>.</li>
-                    <img src="@/assets/images/ios/4.jpg" alt="Step 3" class="instruction-image" />
+                    <img src="../assets/images/ios/4.jpg" alt="Step 3" class="instruction-image" />
                     <li>Aplikacja pojawi się na ekranie głównym.</li>
-                    <img src="@/assets/images/ios/5.jpg" alt="Step 4" class="instruction-image" />
+                    <img src="../assets/images/ios/5.jpg" alt="Step 4" class="instruction-image" />
                 </ol>
             </div>
         </div>

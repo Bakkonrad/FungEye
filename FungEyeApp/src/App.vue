@@ -89,7 +89,7 @@ p1 {
   font-size: 1.2em;
 }
 
-ul {
+ul, ol {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
 }

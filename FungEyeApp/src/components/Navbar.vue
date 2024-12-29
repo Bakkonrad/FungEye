@@ -18,6 +18,9 @@
             </RouterLink>
           </li>
           <li class="nav-item">
+            <RouterLink to="/installation-guide" :class="getActiveNavLink('installation-guide')">Instrukcja instalacji</RouterLink>
+          </li>
+          <li class="nav-item">
             <RouterLink to="/recognize" :class="getActiveNavLink('recognize')">Rozpoznawanie grzybów
             </RouterLink>
           </li>
@@ -199,7 +202,7 @@ export default {
   text-decoration: none;
 }
 
-@media screen and (max-width: 1248px) {
+@media screen and (max-width: 1548px) {
   .navbar-nav {
     flex-direction: column;
     justify-content: center;

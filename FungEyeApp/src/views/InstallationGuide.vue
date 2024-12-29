@@ -128,7 +128,6 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: 20px 0;
 }
 
 .qr-code {
@@ -166,8 +165,12 @@ export default {
     align-items: center;
 }
 
-.android-instructions {
-    margin: 20px 10px;
+.android-instructions, .ios-instructions {
+    margin: 20px 0;
+}
+
+.android-instructions-list, .ios-instructions-list {
+    padding: 0 !important;
 }
 
 .external-link {

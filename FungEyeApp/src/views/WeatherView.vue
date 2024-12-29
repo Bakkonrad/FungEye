@@ -161,7 +161,6 @@ export default {
   justify-content: center;
   align-items: center;
   background-color: var(--dark-green);
-  background-image: url("../assets/images/backgrounds/weather-background.jpg"); /* You'll need to add this image */
   background-size: cover;
   background-position: center;
   color: white;

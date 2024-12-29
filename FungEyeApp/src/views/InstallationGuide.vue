@@ -4,7 +4,9 @@
             Instrukcja instalacji aplikacji na urządzeniu mobilnym
         </h1>
         <p>
-            Aby korzystać z aplikacji FungEye na urządzeniu mobilnym, zainstaluj ją na swoim telefonie. Poniżej
+            Aby korzystać z aplikacji FungEye na urządzeniu mobilnym, zainstaluj ją na swoim telefonie. 
+            <br>
+            Poniżej
             znajdziesz instrukcje instalacji na systemach Android i iOS.
         </p>
         <div class="qr-code-container">
@@ -27,7 +29,7 @@
                 <p>
                     Aby zainstalować aplikację na urządzeniu z systemem Android, wykonaj następujące kroki:
                 </p>
-                <ol>
+                <ol class="android-instructions-list">
                     <li>Otwórz przeglądarkę internetową na swoim urządzeniu (np. Chrome). </li>
                     <img src="../assets/images/android/1.jpg" alt="Step 1" class="instruction-image" />
                     <li>Wprowadź adres
@@ -66,7 +68,7 @@
                 <p>
                     Aby zainstalować aplikację na urządzeniu z systemem iOS, wykonaj następujące kroki:
                 </p>
-                <ol>
+                <ol class="ios-instructions-list">
                     <li>Otwórz przeglądarkę internetową na swoim urządzeniu (np. Safari, Chrome).</li>
                     <img src="../assets/images/ios/1.jpg" alt="Step 1" class="instruction-image" />
                     <li>Wprowadź adres
@@ -118,6 +120,7 @@ export default {
 .container-md {
     justify-content: center;
     flex-wrap: wrap;
+    text-align: center;
 }
 
 .qr-code-container {
@@ -142,6 +145,10 @@ export default {
     gap: 20px;
 }
 
+.os-button {
+    width: 150px;
+}
+
 .os-icon {
     width: auto;
     height: 25px;
@@ -150,6 +157,13 @@ export default {
 .os-name {
     margin: 0;
     font-size: 1.2rem;
+}
+
+.android-instructions-list, .ios-instructions-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .android-instructions {

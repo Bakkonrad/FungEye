@@ -21,12 +21,12 @@ namespace FungEyeApi.Services
         {
             try
             {
-                //check if follow already exists between users
+                //check if follow relation between users already exists
                 var existingFollow = await db.Follows.FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedUserId == followId);
 
                 if (existingFollow != null)
                 {
-                    throw new InvalidOperationException("Error during adding follow");
+                    throw new InvalidOperationException("Error during adding follow.");
                 }
 
                 var follow = new FollowEntity
@@ -59,7 +59,7 @@ namespace FungEyeApi.Services
                             .Select(f => f.User)
                             .ToListAsync();
 
-                return followers.Select(u => new FollowUser(u)).ToList();
+                return followers != null && followers.Count > 0 ? followers.Select(f => new FollowUser(f!)).ToList() : [];
             }
             catch (Exception ex)
             {
@@ -76,7 +76,7 @@ namespace FungEyeApi.Services
                             .Select(f => f.FollowedUser)
                             .ToListAsync();
 
-                return follows.Select(u => new FollowUser(u)).ToList();
+                return follows != null && follows.Count > 0 ? follows.Select(f => new FollowUser(f!)).ToList() : [];
             }
             catch (Exception ex)
             {
@@ -90,12 +90,7 @@ namespace FungEyeApi.Services
             try
             {
                 var follow = await db.Follows
-                .FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedUserId == followId);
-
-                if (follow == null)
-                {
-                    throw new Exception("Error during deleting follow: Follow doesn't exist");
-                }
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.FollowedUserId == followId) ?? throw new Exception("Error during deleting follow: Follow doesn't exist.");
 
                 db.Follows.Remove(follow);
                 await db.SaveChangesAsync();

@@ -52,7 +52,6 @@ export default {
 <style scoped>
 .card {
     margin-top: 2em;
-    /* border-radius: 15px; */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     background-color: var(--beige);
 }

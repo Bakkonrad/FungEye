@@ -1,5 +1,4 @@
 ﻿using FungEyeApi.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -16,7 +15,6 @@ namespace FungEyeApi.Controllers
             this._modelService = modelService;
         }
 
-        [Authorize]
         [Consumes("multipart/form-data")]
         [HttpPost("predict")]
         public async Task<IActionResult> Predict([FromForm] IFormFile image)

@@ -120,7 +120,6 @@ export default {
       localNumOfLikes: this.numOfLikes,
       isAuthor: false,
       isAdmin: false,
-      post: {},
       localIsLiked: this.isLiked,
       reportedPostId: this.reportedUserId,
     };
@@ -142,7 +141,7 @@ export default {
       if (!this.userId) {
         return;
       }
-      const response = await UserService.getUserData(this.userId);
+      const response = await UserService.getSmallUserData(this.userId);
       if (response.success === false) {
         console.error("Error while fetching user data");
         return;
@@ -171,6 +170,7 @@ export default {
       this.localNumOfLikes--;
       this.localIsLiked = false;
     },
+    // report the post
     async report() {
       try {
         const commentId = null;
@@ -186,6 +186,7 @@ export default {
         console.error(error);
       }
     },
+    // check if the logged in user is the author of the post
     checkAuthor() {
       this.isAuthor = this.userId == localStorage.getItem("id");
     },

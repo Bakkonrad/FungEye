@@ -1,11 +1,13 @@
 import axios from "axios";
 import ApiService from "./ApiService";
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+
 const $http = axios.create({
-  baseURL: "http://localhost:5268/",
-  headers: {
-    "Content-type": "application/json",
-  },
+    baseURL: apiUrl,
+    headers: {
+        "Content-type": "application/json",
+    },
 });
 
 $http.interceptors.request.use(
@@ -34,7 +36,7 @@ const followUser = async (followId) => {
     const userId = parseInt(localStorage.getItem("id"));
     followId = parseInt(followId);
     const response = await $http.post(
-      `api/Follow/addFollow/${userId}/${followId}`
+      `Follow/addFollow/${userId}/${followId}`
     );
 
     if (response.status === 200) {
@@ -61,7 +63,7 @@ const unfollowUser = async (followId) => {
     const userId = parseInt(localStorage.getItem("id"));
     followId = parseInt(followId);
     const response = await $http.delete(
-      `api/Follow/removeFollow/${userId}/${followId}`
+      `Follow/removeFollow/${userId}/${followId}`
     );
 
     if (response.status === 200) {
@@ -78,8 +80,16 @@ const unfollowUser = async (followId) => {
 // obserwatorzy
 const getFollowers = async (userId) => {
   try {
+    const isTokenValid = await ApiService.validateToken();
+    if (isTokenValid.success == false) {
+      return {
+        success: false,
+        message: "Sesja wygasła, zaloguj się ponownie.",
+      };
+    }
+
     userId = parseInt(userId);
-    const response = await $http.get(`api/Follow/getFollowers/${userId}`);
+    const response = await $http.get(`Follow/getFollowers/${userId}`);
 
     if (response.status === 200) {
       return { success: true, data: response.data };
@@ -95,8 +105,16 @@ const getFollowers = async (userId) => {
 // obserwowani
 const getFollowing = async (userId) => {
   try {
+    const isTokenValid = await ApiService.validateToken();
+    if (isTokenValid.success == false) {
+      return {
+        success: false,
+        message: "Sesja wygasła, zaloguj się ponownie.",
+      };
+    }
+
     userId = parseInt(userId);
-    const response = await $http.get(`api/Follow/getFollows/${userId}`);
+    const response = await $http.get(`Follow/getFollows/${userId}`);
 
     if (response.status === 200) {
       return { success: true, data: response.data };
@@ -111,10 +129,18 @@ const getFollowing = async (userId) => {
 
 const isFollowing = async (userId, followId) => {
   try {
+    const isTokenValid = await ApiService.validateToken();
+    if (isTokenValid.success == false) {
+      return {
+        success: false,
+        message: "Sesja wygasła, zaloguj się ponownie.",
+      };
+    }
+    
     userId = parseInt(userId);
     followId = parseInt(followId);
     const response = await $http.get(
-      `api/Follow/isFollowing/${userId}/${followId}`
+      `Follow/isFollowing/${userId}/${followId}`
     );
 
     if (response.status === 200) {

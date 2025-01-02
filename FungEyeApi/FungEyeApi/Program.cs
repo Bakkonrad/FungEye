@@ -1,14 +1,41 @@
 using FungEyeApi.Data;
 using FungEyeApi.Interfaces;
+using FungEyeApi.Middleware;
 using FungEyeApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddUserSecrets<Program>();
+
+
+// Configure Kestrel based on environment
+if (builder.Environment.IsProduction())
+{
+    // Production (Azure): HTTPS
+    builder.WebHost.ConfigureKestrel(options =>
+  {
+      options.ListenAnyIP(80);
+      options.ListenAnyIP(443, listenOptions =>
+      {
+          listenOptions.UseHttps("/etc/ssl/certs/certificate.pfx", builder.Configuration.GetSection("SSL_password").Value!);
+      });
+  });
+}
+else
+{
+    // Development: HTTP only
+    builder.WebHost.ConfigureKestrel(options =>
+  {
+      options.ListenAnyIP(80);
+  });
+}
 
 builder.Services.AddCors(options =>
 {
@@ -17,7 +44,6 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
-builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -37,7 +63,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     {
         ValidateIssuerSigningKey = true,
         ValidateLifetime = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:Token").Value)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:Token").Value!)),
         ValidateIssuer = false,
         ValidateAudience = false
     };
@@ -68,9 +94,12 @@ builder.Services.AddScoped<IFungiAtlasService, FungiAtlasService>();
 builder.Services.AddScoped<IPostsService, PostsService>();
 
 var app = builder.Build();
+
+app.UseMetricServer();
+app.UseMiddleware<MetricsMiddleware>();
+app.UseHttpMetrics();
+
 app.UseCors();
-
-
 
 app.UseSwagger();
 //app.UseSwaggerUI();

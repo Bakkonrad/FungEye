@@ -2,6 +2,20 @@
   <div v-if="isLoading" class="loading">
     <LoadingSpinner />
   </div>
+  <div v-else-if="!isLoggedIn" class="unauthorized">
+    <LogInToContinue />
+  </div>
+  <div v-else-if="error" class="not-found">
+    <h1>Błąd wczytywania posta</h1>
+    <p class="error-message">
+      {{ errorMessage }}
+    </p>
+    <div class="button-container">
+      <button class="btn fungeye-default-button" @click="goToPortal">
+        <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon"></font-awesome-icon>
+        Powrót do portalu</button>
+    </div>
+  </div>
   <div v-else class="container-md">
     <div class="button-container">
       <button class="btn fungeye-default-button" @click="goToPortal">
@@ -9,10 +23,12 @@
         Powrót do portalu</button>
     </div>
 
+    <!-- Post -->
     <Post :id="post.id" :userId="post.userId" :content="post.content" :image="post.imageUrl"
       :num-of-likes="post.likeAmount" :num-of-comments="post.commentsAmount" :created-at="post.createdAt"
       :is-liked="post.loggedUserReacted" :detailsView="true" @edit="editPost" @delete="deletePost"></Post>
 
+    <!-- Comments -->
     <div class="card-footer comment-section">
       <div class="add-comment">
         <ProfileImage :imgSrc="imgSrc" class="profile-image" />
@@ -55,6 +71,8 @@
         <p>Brak komentarzy</p>
       </div>
     </div>
+
+    <!-- Edit post modal -->
     <div v-if="showEditModal" class="modal">
       <div class="modal-content">
         <h2>Edytuj post</h2>
@@ -95,14 +113,16 @@
 import ProfileImage from "../components/ProfileImage.vue";
 import PostService from "@/services/PostService";
 import Post from "../components/Post.vue";
-import { checkAdmin, isAdmin, profileImage } from "@/services/AuthService";
+import { checkAdmin, isAdmin, isLoggedIn, profileImage } from "@/services/AuthService";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import LogInToContinue from "@/components/LogInToContinue.vue";
 
 export default {
   components: {
     ProfileImage,
     Post,
     LoadingSpinner,
+    LogInToContinue,
   },
   props: {
     reportedCommentId: {
@@ -145,14 +165,15 @@ export default {
       },
       reportedComment: this.reportedCommentId,
       isLoading: false,
+      isLoggedIn: isLoggedIn,
     };
   },
   mounted() {
+    if (this.isLoggedIn === false) return;
     this.getPost();
     this.checkAuthor();
     checkAdmin();
     this.isAdmin = isAdmin;
-    // console.log(this.reportedComment)
   },
   methods: {
     async getPost() {
@@ -160,16 +181,25 @@ export default {
       try {
         const response = await PostService.getPost(this.id);
         if (response.success === false) {
+          this.error = true;
+          if (response.status === 520) {
+            this.errorMessage = "Nie znaleziono posta";
+          }
+          else {
+            this.errorMessage = "Nie udało się pobrać posta. Spróbuj ponownie później";
+          }
           console.error("Error while fetching post data");
+          this.isLoading = false;
           return;
         }
-        // console.log(response.data);
         this.post = response.data;
         if (response.data.comments) {
           this.comments = response.data.comments;
         }
       }
       catch (error) {
+        this.error = true;
+        this.errorMessage = "Nie udało się pobrać posta. Spróbuj ponownie później";
         console.error(error);
       }
       this.isLoading = false;
@@ -187,7 +217,6 @@ export default {
         content: this.newCommentContent,
         postId: this.post.id,
       };
-      // console.log(comment);
       const response = await PostService.addComment(comment);
       if (response.success === false) {
         console.error("Error while adding comment");
@@ -198,17 +227,21 @@ export default {
       this.getPost();
     },
     async deleteComment(commentId) {
-      // console.log(commentId);
-      const response = await PostService.deleteComment(commentId);
-      if (response.success === false) {
-        alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
-        return;
+      if (confirm("Czy na pewno chcesz usunąć ten komentarz?")) {
+        const response = await PostService.deleteComment(commentId);
+        if (response.success === false) {
+          alert("Nie udało się usunąć komentarza. Spróbuj ponownie później");
+          return;
+        }
+        alert("Usunięto komentarz");
+        if (this.isAdmin) {
+          const authorOfTheComment = this.comments.find(comment => comment.id === commentId).user.id;
+          confirm("Czy chcesz przejść na profil autora komentarza?") ? this.goToProfile(authorOfTheComment) : null;
+        }
+        this.getPost();
       }
-      alert("Usunięto komentarz");
-      this.getPost();
     },
     async editComment(commentId) {
-      // console.log(this.commentContentToEdit);
       if (this.commentContentToEdit.trim() === "") {
         this.error = true;
         this.errorMessage = "Komentarz nie może być pusty";
@@ -231,7 +264,6 @@ export default {
     editPost() {
       this.showEditModal = true;
       this.postContentToEdit = this.post.content;
-      // console.log(this.post.image);
       if (this.post.image == "" || this.post.image == null) {
         this.postImageToEdit = {
           name: "",
@@ -253,6 +285,9 @@ export default {
           return;
         }
         alert("Usunięto post");
+        if (this.isAdmin) {
+          confirm("Czy chcesz przejść na profil autora posta?") ? this.goToProfile(this.post.userId) : null;
+        }
         this.$router.push({ name: 'portal' });
       }
     },
@@ -265,7 +300,6 @@ export default {
         id: this.post.id,
         content: this.postContentToEdit,
       };
-      console.log(this.file)
       const response = await PostService.editPost(editedPost, this.file);
       if (response.success === false) {
         alert("Nie udało się zapisać zmian");
@@ -321,7 +355,6 @@ export default {
     },
     async report(commentId) {
       try {
-        // console.log(this.id, commentId);
         const response = await PostService.report(this.id, commentId);
         if (response.success === false) {
           console.error("Error while reporting comment");
@@ -368,6 +401,13 @@ export default {
   padding: 20px;
   border-radius: 10px;
   width: 450px;
+}
+
+.not-found {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .edit-input {

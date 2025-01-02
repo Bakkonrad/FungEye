@@ -19,15 +19,31 @@ namespace FungEyeApi.Services
             _blobStorageService = blobStorageService;
         }
 
-        public async Task<User> GetUserProfile(int userId) // Zwraca dane u�ytkownika do okna profilu
+        public async Task<User> GetUserProfile(int userId)
         {
             try
             {
-                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (userEntity == null)
-                {
-                    throw new Exception("User not found");
-                }
+                var userEntity = await db.Users
+                                            .Include(u => u.Follows!)
+                                                .ThenInclude(f => f.FollowedUser!)
+                                            .Include(u => u.FungiCollection!)
+                                                .ThenInclude(fc => fc.Fungi!)
+                                                .ThenInclude(fc => fc.Images)
+                                            .FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found.");
+
+                return new User(userEntity);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error during retrieving profile :" + ex.Message);
+            }
+        }
+
+        public async Task<User> GetSmallUserProfile(int userId)
+        {
+            try
+            {
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found.");
 
                 return new User(userEntity);
             }
@@ -41,11 +57,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (userEntity == null)
-                {
-                    throw new Exception("User doesn't exist");
-                }
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User doesn't exist");
 
                 userEntity.DateDeleted = DateTime.Now;
                 await db.SaveChangesAsync();
@@ -60,10 +72,10 @@ namespace FungEyeApi.Services
 
         public async Task<bool> UpdateUser(User user)
         {
-            var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == user.Id) ?? throw new Exception("User not found in the database");
+            var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == user.Id) ?? throw new Exception("User not found in the database.");
 
-            userEntity.Username = user.Username ?? throw new Exception("Username cannot be null");
-            userEntity.Email = user.Email ?? "";
+            userEntity.Username = user.Username ?? throw new Exception("Username cannot be null.");
+            userEntity.Email = user.Email ?? throw new Exception("Email cannot be null.");
             userEntity.FirstName = user.FirstName;
             userEntity.LastName = user.LastName;
             userEntity.ImageUrl = user.ImageUrl;
@@ -78,7 +90,7 @@ namespace FungEyeApi.Services
 
         public async Task<bool> UpdateUserImage(int userId, string imageUrl)
         {
-            var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
+            var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database.");
             userEntity.ImageUrl = imageUrl;
 
             db.SaveChanges();
@@ -87,7 +99,7 @@ namespace FungEyeApi.Services
 
         public async Task<bool> IsAdmin(int userId)
         {
-            var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
+            var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database.");
             if ((RoleEnum)userEntity.Role != RoleEnum.Admin)
             {
                 return false;
@@ -100,11 +112,10 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var query = db.Users.AsQueryable();
+                var query = db.Users.OrderBy(u => u.Username).AsQueryable();
 
                 if (!String.IsNullOrWhiteSpace(search))
                 {
-                    //query = query.Where(u => u.Username.Contains(search.ToString()) || u.Email.Contains(search.ToString()) || u.FirstName.Contains(search.ToString()));
                     query = query.Where(u => u.Username != null && u.Username.Contains(search) ||
                                              u.Email != null && u.Email.Contains(search) ||
                                              u.FirstName != null && u.FirstName.Contains(search));
@@ -128,11 +139,11 @@ namespace FungEyeApi.Services
 
         public async Task<string> GetUserImage(int userId)
         {
-            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database");
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found in the database.");
 
             if (user.ImageUrl == null)
             {
-                throw new Exception("User doesn't have an avatar");
+                throw new Exception("User doesn't have an avatar.");
             }
 
             return user.ImageUrl;
@@ -142,11 +153,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (userEntity == null)
-                {
-                    throw new Exception("User doesn't exist");
-                }
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User doesn't exist.");
 
                 switch (banOption)
                 {
@@ -191,21 +198,17 @@ namespace FungEyeApi.Services
             }
             else
             {
-                throw new Exception("Username or email is required");
+                throw new Exception("Username or email is required.");
             }
 
-            return existingUser != null ? true : false;
+            return existingUser != null;
         }
 
         public async Task<bool> RetrieveAccount(int userId)
         {
             try
             {
-                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (userEntity == null)
-                {
-                    throw new Exception("User not found");
-                }
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found.");
 
                 userEntity.DateDeleted = null;
                 await db.SaveChangesAsync();
@@ -221,16 +224,12 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (userEntity == null)
-                {
-                    throw new Exception("User not found");
-                }
-                else if (userEntity.ImageUrl == null)
-                {
-                    throw new Exception("User doesn't have an avatar");
-                }
+                var userEntity = await db.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new Exception("User not found.");
 
+                if (userEntity.ImageUrl == null)
+                {
+                    throw new Exception("User doesn't have an avatar.");
+                }
 
                 var result = await _blobStorageService.DeleteFile(userEntity.ImageUrl, BlobContainerEnum.Users);
 
@@ -241,7 +240,7 @@ namespace FungEyeApi.Services
                 }
                 else
                 {
-                    throw new Exception("Error during deleting avatar");
+                    throw new Exception("Error during deleting avatar.");
                 }
 
                 return true;

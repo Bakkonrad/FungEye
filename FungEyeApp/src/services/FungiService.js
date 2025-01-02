@@ -1,11 +1,13 @@
 import axios from "axios";
 import ApiService from "./ApiService";
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+
 const $http = axios.create({
-  baseURL: "http://localhost:5268/",
-  headers: {
-    "Content-type": "application/json",
-  },
+    baseURL: apiUrl,
+    headers: {
+        "Content-type": "application/json",
+    },
 });
 
 $http.interceptors.request.use(
@@ -25,13 +27,39 @@ const predict = async (image) => {
   try {
     const formData = new FormData();
     formData.append("image", image);
-    const response = await $http.post("api/Model/predict", formData, {
+    const predictResponse = await $http.post("Model/predict", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    if (response.status === 200) {
-      return { success: true, data: response.data };
+    // const predictResponse = { status: 200, data: [{ "Item1": "Boletus_edulis", "Item2": 0.864475548 }, { "Item1": "Imleria_badia", "Item2": 0.0371585973 }, { "Item1": "Boletus_pinophilus", "Item2": 0.0329410769 }, { "Item1": "Boletus_reticulatus", "Item2": 0.0282462705 }, { "Item1": "Suillus_variegatus", "Item2": 0.0259523895 }] };
+    if (predictResponse.status === 200) {
+      let fungiData = [];
+      const fungiResults = await Promise.all(predictResponse.data.map(async (result) => {
+        const latinName = formatName(result.Item1);
+        const probability = parseFloat((result.Item2 * 100).toFixed(0));
+        const getFungiByNameResponse = await getFungiByName(latinName);
+        if (getFungiByNameResponse.success === true) {
+          const id = getFungiByNameResponse.data.id;
+          const polishName = getFungiByNameResponse.data.polishName;
+          const image = getFungiByNameResponse.data.imagesUrl[0];
+          const fungi = {
+            id: id,
+            polishName: polishName,
+            latinName: latinName,
+            image: image,
+            probability: probability,
+          };
+          fungiData.push(fungi);
+          return fungi;
+        }
+        return null;
+      }));
+      if (fungiResults.length === fungiData.length) {
+        fungiData = fungiData.sort((a, b) => b.probability - a.probability);
+        return { success: true, data: fungiData };
+      }
+      return { success: false, message: "Nieznany błąd" };
     }
     return { success: false, message: "Nieznany błąd" };
   } catch (error) {
@@ -41,39 +69,40 @@ const predict = async (image) => {
   }
 };
 
-const getAllFungies = async (page, search, userId) => {
+const formatName = (name) => {
+  const formattedName = name.split("_")[0] + " " + name.split("_")[1];
+  return formattedName;
+};
+
+const getAllFungies = async (page, search, filters) => {
   try {
-    if (!userId) {
+    let userId = null;
+    if (localStorage.getItem("id")) {
       userId = parseInt(localStorage.getItem("id"));
     }
-    // const userId = parseInt(localStorage.getItem("id"));
-    // console.log("get users: ", page, search);
+    const data = {
+      "userId": userId,
+      "search": search,
+      "page": page,
+      pageSize: null,
+      edibility: filters ? filters.edibility : null,
+      toxicity: filters ? filters.toxicity : null,
+      habitat: filters ? filters.habitat : null,
+      letter: filters ? filters.letter : null,
+      savedByUser: filters ? filters.savedByUser : null,
+    }
     const formData = new FormData();
-    formData.append('userId', userId);
-    if (page) {
-      formData.append('page', page);
-    }
-    if (search) {
-      formData.append('search', search);
-    }
-    const response = await $http.post('api/FungiAtlas/getFungies', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+    for (const key in data) {
+      if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key]);
       }
+    }
+    const response = await $http.post("FungiAtlas/getFungies", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
-    // const response = {
-    //   status: 200, data: [{
-    //     id: 1,
-    //     name: 'Borowik szlachetny',
-    //     image: 'src/assets/images/mushrooms/ATLAS-borowik.jpg',
-    //     edibility: 'jadalny',
-    //     toxicity: 'nietrujący',
-    //     habitat: 'iglasty',
-    //     description: 'Borowik szlachetny to jeden z najbardziej cenionych grzybów jadalnych.'
-    //   }]
-    // };
     if (response.status === 200) {
-      // console.log("fungies: ", response.data);
       const data = addAttributes(response.data);
       return { success: true, data: data };
     }
@@ -81,6 +110,53 @@ const getAllFungies = async (page, search, userId) => {
   } catch (error) {
     const errorMessage = ApiService.handleApiError(error);
     console.error("Error getting all fungis:", errorMessage);
+    return { success: false, message: errorMessage };
+  }
+};
+
+const getFilteredFungies = async (
+  edibility,
+  toxicity,
+  habitat,
+  letter,
+  savedByUser
+) => {
+  try {
+    const userId = parseInt(localStorage.getItem("id"));
+    const formData = new FormData();
+    formData.append("userId", userId);
+    if (edibility) {
+      formData.append("edibility", edibility);
+    }
+    if (toxicity) {
+      formData.append("toxicity", toxicity);
+    }
+    if (habitat) {
+      formData.append("habitat", habitat);
+    }
+    if (letter) {
+      formData.append("letter", letter);
+    }
+    if (savedByUser) {
+      formData.append("savedByUser", savedByUser);
+    }
+    const response = await $http.post(
+      "FungiAtlas/getFilteredFungies",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    if (response.status === 200) {
+      const data = addAttributes(response.data);
+      return { success: true, data: data };
+    }
+    return { success: false, message: "Nieznany błąd" };
+  } catch (error) {
+    const errorMessage = ApiService.handleApiError(error);
+    console.error("Error getting fungis by attributes:", errorMessage);
     return { success: false, message: errorMessage };
   }
 };
@@ -93,24 +169,23 @@ const addAttributes = (fungies) => {
     };
     if (fungi.edibility === "jadalny") {
       newFungi.attributes.push("jadalny");
-    } else if (fungi.edibility === "niejadalny") {
-      newFungi.attributes.push("niejadalny");
-    }
-    if (fungi.toxicity === "trujący") {
+    } else if (fungi.toxicity === "trujący") {
       newFungi.attributes.push("trujący");
+    }
+    if (fungi.edibility === "niejadalny") {
+      newFungi.attributes.push("niejadalny");
     }
     if (fungi.habitat === "iglasty") {
       newFungi.attributes.push("iglaste");
     } else if (fungi.habitat === "liściasty") {
       newFungi.attributes.push("liściaste");
-    }
-    else if (fungi.habitat === "mieszany") {
+    } else if (fungi.habitat === "mieszany") {
       newFungi.attributes.push("mieszane");
     }
     return newFungi;
   });
   return newFungies;
-}
+};
 
 const addAttributesToSingle = (fungi) => {
   const newFungi = {
@@ -119,22 +194,21 @@ const addAttributesToSingle = (fungi) => {
   };
   if (fungi.edibility === "jadalny") {
     newFungi.attributes.push("jadalny");
-  } else if (fungi.edibility === "niejadalny") {
-    newFungi.attributes.push("niejadalny");
-  }
-  if (fungi.toxicity === "trujący") {
+  } else if (fungi.toxicity === "trujący") {
     newFungi.attributes.push("trujący");
+  }
+  if (fungi.edibility === "niejadalny") {
+    newFungi.attributes.push("niejadalny");
   }
   if (fungi.habitat === "iglasty") {
     newFungi.attributes.push("iglaste");
   } else if (fungi.habitat === "liściasty") {
     newFungi.attributes.push("liściaste");
-  }
-  else if (fungi.habitat === "mieszany") {
+  } else if (fungi.habitat === "mieszany") {
     newFungi.attributes.push("mieszane");
   }
   return newFungi;
-}
+};
 
 const reconvertAttributes = (fungi) => {
   const newFungi = {
@@ -161,14 +235,16 @@ const reconvertAttributes = (fungi) => {
     newFungi.habitat = "mieszany";
   }
   return newFungi;
-}
+};
 
 const getFungi = async (id) => {
   try {
     const fungiId = parseInt(id);
     const userId = JSON.stringify(parseInt(localStorage.getItem("id")));
-    // send post request to get fungi by id
-    const response = await $http.post(`api/FungiAtlas/getFungi/${fungiId}`, userId);
+    const response = await $http.post(
+      `FungiAtlas/getFungi/${fungiId}`,
+      userId
+    );
     if (response.status === 200) {
       const data = addAttributesToSingle(response.data);
       return { success: true, data: data };
@@ -183,8 +259,18 @@ const getFungi = async (id) => {
 
 const getFungiByName = async (fungiName) => {
   try {
-    const userId = JSON.stringify(parseInt(localStorage.getItem("id")));
-    const response = await $http.get(`api/FungiAtlas/getFungi/${fungiName}`, { userId: userId });
+    let userId = null;
+    const data = new FormData();
+    if (localStorage.getItem("id")) {
+      userId = parseInt(localStorage.getItem("id"));
+      data.append("userId", userId);
+    }
+    data.append("fungiName", fungiName);
+    const response = await $http.post(`FungiAtlas/getFungiByName`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     if (response.status === 200) {
       const data = addAttributesToSingle(response.data);
       return { success: true, data: data };
@@ -192,10 +278,10 @@ const getFungiByName = async (fungiName) => {
     return { success: false, message: "Nieznany błąd" };
   } catch (error) {
     const errorMessage = ApiService.handleApiError(error);
-    console.error("Error getting fungi by id:", errorMessage);
+    console.error("Error getting fungi by name:", errorMessage);
     return { success: false, message: errorMessage };
   }
-}
+};
 
 const addFungi = async (fungi, images) => {
   try {
@@ -204,22 +290,16 @@ const addFungi = async (fungi, images) => {
     formData.append("userId", userId);
     const fungiJson = JSON.stringify(reconvertAttributes(fungi));
     formData.append("fungiJson", fungiJson);
-    // formData.append("images", images);
-    console.log(images);
-    console.log(images.length);
     if (images.length > 0) {
       for (let i = 0; i < images.length; i++) {
         formData.append("images", images[i]);
       }
     }
-    console.log("addFungi: ", formData.get("fungiJson"));
-    console.log(formData.get("images"));
-    const response = await $http.post("api/FungiAtlas/addFungi", formData, {
+    const response = await $http.post("FungiAtlas/addFungi", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    // const response = {status: 201, data: fungi};
     if (response.status === 201) {
       return { success: true, data: response.data };
     }
@@ -238,21 +318,16 @@ const editFungi = async (fungi, images) => {
     formData.append("userId", userId);
     const fungiJson = JSON.stringify(reconvertAttributes(fungi));
     formData.append("fungiJson", fungiJson);
-    console.log(images);
-    console.log(images.length);
     if (images.length > 0) {
       for (let i = 0; i < images.length; i++) {
         formData.append("images", images[i]);
       }
     }
-    console.log("addFungi: ", formData.get("fungiJson"));
-    console.log(formData.get("images"));
-    const response = await $http.post(`api/FungiAtlas/editFungi`, formData, {
+    const response = await $http.post(`FungiAtlas/editFungi`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-      }
-    }
-    );
+      },
+    });
     if (response.status === 200) {
       return { success: true, data: response.data };
     }
@@ -270,14 +345,11 @@ const deleteFungi = async (id) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiId", id);
-    console.log("deleteFungi: ", formData.get("userId"), formData.get("fungiId"));
-    const response = await $http.post(`api/FungiAtlas/deleteFungi/`, formData, {
+    const response = await $http.post(`FungiAtlas/deleteFungi/`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    console.log(response)
-    // const response = { status: 200, data: { id: id } };
     if (response.status === 200 || response.status === 201) {
       return { success: true };
     }
@@ -295,11 +367,15 @@ const saveFungiToCollection = async (fungiId) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiId", fungiId);
-    const response = await $http.post("api/FungiAtlas/addFungiToCollection", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await $http.post(
+      "FungiAtlas/addFungiToCollection",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     if (response.status === 201 || response.status === 200) {
       return { success: true, data: response.data };
     }
@@ -309,7 +385,7 @@ const saveFungiToCollection = async (fungiId) => {
     console.error("Error saving fungi to collection:", errorMessage);
     return { success: false, message: errorMessage };
   }
-}
+};
 
 const deleteFungiFromCollection = async (fungiId) => {
   try {
@@ -317,11 +393,15 @@ const deleteFungiFromCollection = async (fungiId) => {
     const formData = new FormData();
     formData.append("userId", userId);
     formData.append("fungiId", fungiId);
-    const response = await $http.post("api/FungiAtlas/deleteFungiFromCollection", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await $http.post(
+      "FungiAtlas/deleteFungiFromCollection",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     if (response.status === 201 || response.status === 200) {
       return { success: true, data: response.data };
     }
@@ -331,17 +411,17 @@ const deleteFungiFromCollection = async (fungiId) => {
     console.error("Error saving fungi to collection:", errorMessage);
     return { success: false, message: errorMessage };
   }
-}
-
+};
 
 export default {
   predict,
   getAllFungies,
+  getFilteredFungies,
   getFungi,
   getFungiByName,
   addFungi,
   editFungi,
   deleteFungi,
   saveFungiToCollection,
-  deleteFungiFromCollection
+  deleteFungiFromCollection,
 };

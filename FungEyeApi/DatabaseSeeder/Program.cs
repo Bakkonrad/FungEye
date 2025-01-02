@@ -1,22 +1,34 @@
 ﻿using FungEyeApi.Data;
 using FungEyeApi.Data.Entities;
 using FungEyeApi.Enums;
+using FungEyeApi.Interfaces;
+using FungEyeApi.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 class Program
 {
     static async Task Main(string[] args)
     {
+        var serviceCollection = new ServiceCollection();
+        ConfigureServices(serviceCollection);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
         var optionsBuilder = new DbContextOptionsBuilder<DataContext>();
-        optionsBuilder.UseSqlite(@"Data Source=C:\Users\konra\Documents\pliki\programowanie\FungEye\FungEyeApi\mydatabase.db");
+
+        //optionsBuilder.UseSqlite(@"Data Source=C:\Users\konra\Documents\pliki\programowanie\FungEye\FungEyeApi\mydatabase.db"); 
+        optionsBuilder.UseSqlServer("CONNECTION_STRING");
 
         using var context = new DataContext(optionsBuilder.Options);
+        var blobStorageService = serviceProvider.GetRequiredService<IBlobStorageService>();
 
-        context.Database.Migrate();
-        //Zadania do wykonania
+        //context.Database.Migrate();
 
-        await AddUsersAsync(context);
-        //await AddFungiImagesAsync(context);
+        //await AddUsersAsync(context);
+        await AddFungiImagesAsync(context, blobStorageService, @"C:\Users\Konrad\Documents\pliki\projekty\Mushroom_photos");
     }
 
     private static async Task AddUsersAsync(DataContext context)
@@ -36,51 +48,72 @@ class Program
     }
 
 
-    //private static async Task AddFungiImagesAsync(DataContext context, IBlobStorageService blobStorageService, string basePath)
-    //{
-    //    // Odczytaj wszystkie podfoldery w bazie
-    //    var fungiDirectories = Directory.GetDirectories(basePath);
+    private static async Task AddFungiImagesAsync(DataContext context, IBlobStorageService blobStorageService, string basePath)
+    {
+        // Odczytaj wszystkie podfoldery w bazie
+        var fungiDirectories = Directory.GetDirectories(basePath);
 
-    //    foreach (var fungiDir in fungiDirectories)
-    //    {
-    //        // Nazwa folderu to nazwa grzyba
-    //        var fungiName = Path.GetFileName(fungiDir);
+        foreach (var fungiDir in fungiDirectories)
+        {
+            // Nazwa folderu to nazwa grzyba
+            var fungiName = Path.GetFileName(fungiDir);
 
-    //        // Sprawdź, czy grzyb już istnieje w bazie, jeśli nie, stwórz encję
-    //        var fungi = await context.Fungies.FirstOrDefaultAsync(f => f.Name == fungiName);
-    //        if (fungi == null)
-    //        {
-    //            fungi = new FungiEntity { Name = fungiName };
-    //            await context.Fungies.AddAsync(fungi);
-    //            await context.SaveChangesAsync(); // Upewnij się, że grzyb jest zapisany przed dodaniem obrazów
-    //        }
+            var formatedfungiName = fungiName.Replace("_", " ");
 
-    //        // Odczytaj wszystkie obrazy w folderze grzyba
-    //        var imageFiles = Directory.GetFiles(fungiDir);
+            // Sprawdź, czy grzyb już istnieje w bazie, jeśli nie, stwórz encję
+            var fungi = await context.Fungies.FirstOrDefaultAsync(f => f.LatinName == formatedfungiName);
 
-    //        foreach (var imagePath in imageFiles)
-    //        {
-    //            using var fileStream = new FileStream(imagePath, FileMode.Open);
-    //            var fileName = Path.GetFileName(imagePath);
+            if (fungi == null) { continue; }
 
-    //            // Prześlij obraz do Blob Storage i uzyskaj URL
-    //            var imageUrl = await blobStorageService.UploadFile(fileStream, BlobContainerEnum.Fungi, fileName);
+            // Odczytaj wszystkie obrazy w folderze grzyba
+            var imageFiles = Directory.GetFiles(fungiDir);
 
-    //            // Stwórz encję obrazu i połącz z grzybem
-    //            var fungiImage = new FungiImageEntity
-    //            {
-    //                FungiId = fungi.Id,
-    //                ImageUrl = imageUrl
-    //            };
+            int i = 0;
 
-    //            await context.FungiImages.AddAsync(fungiImage);
-    //        }
+            foreach (var imagePath in imageFiles)
+            {
+                using var fileStream = new FileStream(imagePath, FileMode.Open);
 
-    //        // Zapisz wszystkie dodane obrazy dla bieżącego grzyba
-    //        await context.SaveChangesAsync();
-    //    }
+                //get IFormFile from fileStream
 
-    //    Console.WriteLine("Grzyby i obrazy zostały dodane do bazy danych.");
-    //}
+                var file = new FormFile(fileStream, 0, fileStream.Length, $"{fungiName}_{i}", Path.GetFileName(imagePath));
 
+                i++;
+
+                // Prześlij obraz do Blob Storage i uzyskaj URL
+                var imageUrl = await blobStorageService.UploadFile(file, BlobContainerEnum.Fungies);
+
+                // Stwórz encję obrazu i połącz z grzybem
+                var fungiImage = new FungiImageEntity
+                {
+                    FungiEntityId = fungi.Id,
+                    ImageUrl = imageUrl
+                };
+
+                await context.FungiesImages.AddAsync(fungiImage);
+            }
+
+            // Zapisz wszystkie dodane obrazy dla bieżącego grzyba
+            await context.SaveChangesAsync();
+        }
+
+        Console.WriteLine("Grzyby i obrazy zostały dodane do bazy danych.");
+    }
+
+    private static void ConfigureServices(IServiceCollection services)
+    {
+        // Build configuration
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .Build();
+
+        // Register configuration
+        services.AddSingleton<IConfiguration>(configuration);
+
+        // Register your BlobStorageService
+        services.AddTransient<IBlobStorageService, BlobStorageService>();
+
+        // Register other services if needed
+    }
 }

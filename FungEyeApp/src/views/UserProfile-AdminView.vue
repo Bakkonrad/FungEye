@@ -1,5 +1,10 @@
 <template>
-    <div class="container-md">
+    <div v-if="!isLoggedUserAdmin" class="unauthorized">
+        <h1>Brak dostępu!</h1>
+        <p>Aby zobaczyć tę stronę, należy zalogować się jako administrator</p>
+        <RouterLink to="/log-in" class="btn fungeye-default-button">Zaloguj się</RouterLink>
+    </div>
+    <div v-else class="container-md">
         <div class="goBack">
             <button @click="goBack" class="btn fungeye-default-button">
                 <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon"></font-awesome-icon>
@@ -8,7 +13,10 @@
         <div class="page-title-container">
             <h1 class="page-title">Profil użytkownika</h1>
         </div>
-        <div class="content">
+        <div v-if="errorFindingUser" class="noUserFound">
+            <p class="error-message">Nie znaleziono użytkownika</p>
+        </div>
+        <div v-else class="content">
             <div id="user-info">
                 <UserProfileInfo :imgSrc="imgSrc" :username="username" :name_surname="name_surname" :email="email"
                     :createdAt="createdAt" />
@@ -18,7 +26,7 @@
                 <div class="user-admin-info">
                     <h2>Informacje</h2>
                     <ul class="infos">
-                        <li><b>Administrator:</b> {{ isAdmin ? "Tak" : "Nie" }}</li>
+                        <li><b>Administrator:</b> {{ isUserAdmin ? "Tak" : "Nie" }}</li>
                         <li><b>Konto zbanowane:</b> {{ isBanned ? "Tak" : "Nie" }}</li>
                         <li v-if="isBanned"><b>Konto zbanowane do dnia:</b> {{ dateBanned }}</li>
                         <li><b>Konto usunięte:</b> {{ dateDeleted ? "Tak" : "Nie" }}</li>
@@ -70,6 +78,7 @@ import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import ProfileImage from "@/components/ProfileImage.vue";
 import UserEdit from "@/components/EditUser.vue";
 import UserBan from "@/components/BanUser.vue";
+import { isAdmin } from "@/services/AuthService";
 
 export default {
     components: {
@@ -88,7 +97,7 @@ export default {
             name_surname: null,
             email: null,
             createdAt: null,
-            isAdmin: false,
+            isUserAdmin: false,
             isBanned: false,
             isDeleted: false,
             dateBanned: null,
@@ -97,6 +106,7 @@ export default {
             isEditing: false,
             isBanning: false,
             isThisUserLoggedIn: false,
+            isLoggedUserAdmin: isAdmin,
         };
     },
     methods: {
@@ -160,13 +170,12 @@ export default {
                 try {
                     const response = await UserService.deleteAccount(this.id);
                     if (response.success === false) {
-                        console.log(response.message);
                         return;
                     }
                     alert("Konto użytkownika zostało usunięte.");
                     this.fetchUser();
                 } catch (error) {
-                    console.log(error);
+                    console.error(error);
                 }
             }
         },
@@ -174,31 +183,25 @@ export default {
             try {
                 const response = await UserService.retrieveAccount(this.id);
                 if (response.success === false) {
-                    console.log(response.message);
                     return;
                 }
                 alert("Konto użytkownika zostało przywrócone.");
                 this.fetchUser();
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         },
         async fetchUser() {
             this.id = this.$route.params.id;
-            // if (this.id == localStorage.getItem("id")) {
-            //     this.$router.push({ name: "myProfile" });
-            //     return;
-            // }
             const response = await UserService.getUserData(this.id);
             if (response.success === false) {
                 this.errorFindingUser = true;
-                console.log(response.message);
                 return;
             }
             this.user = response.data;
             this.role = response.data.role;
             if (this.role === 2) {
-                this.isAdmin = true;
+                this.isUserAdmin = true;
             }
             this.dateBanned = this.formatDate(response.data.banExpirationDate);
             this.dateDeleted = this.formatDeletedDate(response.data.dateDeleted);

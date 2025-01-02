@@ -12,14 +12,20 @@
             1. Aby rozpocząć proces rozpoznawania grzybów, wybierz zdjęcie grzyba z dysku lub zrób zdjęcie za pomocą
             kamery.
           </p>
-          <p>
+          <!-- <p>
             <b>Uwaga!</b> Do jednej analizy należy wybrać zdjęcia tylko jednego grzyba. Inaczej wyniki mogą być
             nieprawidłowe.
-          </p>
+          </p> -->
           <p>
-            2. Po wybraniu zdjęcia, kliknij przycisk "Rozpoznaj". Po chwili dostaniesz 3 prawdopodobne wyniki
+            2. Po wybraniu zdjęcia, kliknij przycisk "Rozpoznaj". Po chwili dostaniesz prawdopodobne wyniki
             rozpoznania.
+            Liczba oznacza procent na ile algorytm jest pewny, że to dany gatunek grzyba.
           </p>
+          <ul class="list-of-colors">
+            <li class="green">kolor zielony: powyżej 80% pewności</li>
+            <li class="orange">kolor żółty: powyżej 50% pewności</li>
+            <li class="red">kolor czerwony: <u>poniżej</u> 50% pewności </li>
+          </ul>
           <p>
             <b>Uwaga!</b> Wyniki mogą być niedokładne. W celu uzyskania pewniejszych wyników, skonsultuj się z
             ekspertem.
@@ -31,16 +37,15 @@
         </div>
       </div>
     </div>
-    <!-- <div class="recognize-content"> -->
     <div class="container-md content">
-      <div class="photo-upload">
+      <div class="photo-upload" :class="showResult ? 'result-chosen-files' : ''">
         <div class="card">
-          <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" multiple />
+          <input style="display: none" type="file" @change="onFileChange" ref="fileInput" />
           <div v-if="showResult" class="back-to-file-upload">
             <button type="button" class="btn fungeye-secondary-button" @click="clearImages">Wybierz inne
-              zdjęcia</button>
+              zdjęcie</button>
           </div>
-          <div v-if="!showResult" class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
+          <div v-if="!showResult && !imagesUploaded" class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
             @dragleave.prevent="onDragLeave" @drop.prevent="onDrop">
             <span class="mobile-photo-upload">
               <span class="select">Kliknij aby zrobić lub dodać zdjęcie</span>
@@ -57,7 +62,7 @@
             </span>
           </div>
           <h3 v-if="images.length > 0" class="chosen-files-header">
-            Wybrane zdjęcia:
+            Wybrane zdjęcie:
           </h3>
           <div class="container uploaded-images" :class="images.length > 0 ? 'images-uploaded' : ''">
             <div class="image" v-for="(image, index) in images" :key="index">
@@ -67,22 +72,24 @@
           </div>
         </div>
         <div class="error mt-2">
-          <span v-if="imagesUploaded === false" class="error-message">Nie wybrano zdjęcia</span>
-          <span v-if="errorRecognizing === true" class="error-message">Błąd podczas rozpoznawania. Spróbuj ponownie.</span>
-          <span v-if="fileSizeError === true" class="error-message">Przesłano za duży plik. Maksymalny rozmiar to 10MB.</span>
+          <span v-if="imagesUploaded === false" class="error-message">Nie wybrano zdjęcia.</span>
+          <span v-if="fileTypeError === true" class="error-message">Wybrano plik, który nie jest zdjęciem.</span>
+          <span v-if="errorRecognizing === true" class="error-message">Błąd podczas rozpoznawania. Spróbuj
+            ponownie.</span>
+          <span v-if="fileSizeError === true" class="error-message">Przesłano za duży plik. Maksymalny rozmiar to
+            20MB.</span>
         </div>
-        <div class="recognize-button">
+        <div v-if="!showResult" class="recognize-button">
           <button @click="recognize" class="btn fungeye-default-button" id="upload-button">
             Rozpoznaj
           </button>
         </div>
       </div>
       <LoadingSpinner v-if="isLoading"></LoadingSpinner>
-      <RecognizeResult v-if="showResult && images.length > 0" :image="images[0].url" :results="results">
+      <RecognizeResult v-if="showResult && images.length > 0" :image="images[0].url" :results="predictingResults">
       </RecognizeResult>
     </div>
   </div>
-  <!-- </div> -->
 </template>
 
 <script>
@@ -104,21 +111,30 @@ export default {
       imagesUploaded: null,
       id: 2,
       isLoading: false,
-      results: [],
+      predictingResults: [],
       directionsState: "Pokaż instrukcję",
-      maxFileSize: 10 * 1024 * 1024, // 10MB
+      maxFileSize: 20 * 1024 * 1024, // 20MB
       fileSizeError: false,
+      fileTypeError: false,
       errorRecognizing: false,
     };
   },
   methods: {
+    checkIfImage(file) {
+      return file.type.startsWith("image/");
+    },
     onFileChange(event) {
+      this.fileTypeError = false;
       const files = event.target.files;
       if (files.length === 0) return;
       for (let i = 0; i < files.length; i++) {
         if (this.checkFileSize(files[i]) === false) {
           return;
         };
+        if (!this.checkIfImage(files[i])) {
+          this.fileTypeError = true;
+          return;
+        }
         if (!this.images.some((image) => image.name === files[i].name)) {
           this.images.push({
             name: files[i].name,
@@ -128,7 +144,6 @@ export default {
       }
       this.file = files[0];
       this.imagesUploaded = true;
-      console.log(this.images);
     },
     checkFileSize(file) {
       if (file.size > this.maxFileSize) {
@@ -143,8 +158,9 @@ export default {
       this.images.splice(index, 1);
       if (this.images.length === 0) {
         this.showResult = false;
-        this.errorRecognizing = false;  
+        this.errorRecognizing = false;
       }
+      this.imagesUploaded = null;
     },
     onDragOver(event) {
       event.preventDefault();
@@ -156,6 +172,7 @@ export default {
       this.isDragging = false;
     },
     onDrop(event) {
+      this.fileTypeError = false;
       event.preventDefault();
       this.isDragging = false;
       const files = event.dataTransfer.files;
@@ -164,6 +181,10 @@ export default {
         if (this.checkFileSize(files[i]) === false) {
           return;
         };
+        if (!this.checkIfImage(files[i])) {
+          this.fileTypeError = true;
+          return;
+        }
         if (!this.images.some((image) => image.name === files[i].name)) {
           this.images.push({
             name: files[i].name,
@@ -172,7 +193,6 @@ export default {
         }
       }
       this.file = files[0];
-      console.log(this.images);
     },
     async recognize() {
       if (this.images.length === 0) {
@@ -180,18 +200,16 @@ export default {
         return;
       }
       this.isLoading = true;
-      console.log(this.file);
       const response = await FungiService.predict(this.file);
       if (response.success == false || response.data.length === 0) {
-        console.log(response.message);
         this.errorRecognizing = true;
         this.isLoading = false;
         return;
       }
-      console.log(response.data);
-      this.results = response.data.slice(0, 3);
+      this.predictingResults = response.data.slice(0, 3);
       this.showResult = true;
       this.isLoading = false;
+
     },
     toggleDirections() {
       this.directionsState = this.directionsState === "Pokaż instrukcję" ? "Zwiń instrukcję" : "Pokaż instrukcję";
@@ -199,7 +217,7 @@ export default {
     clearImages() {
       this.images = [];
       this.imagesUploaded = null;
-      this.results = [];
+      this.predictingResults = [];
       this.showResult = false;
     },
   },
@@ -230,6 +248,8 @@ export default {
 
 .directions-column {
   display: flex;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
   justify-content: center;
   align-items: center;
   flex-direction: column;
@@ -248,6 +268,22 @@ export default {
   align-items: center;
 }
 
+.list-of-colors {
+  font-weight: 500;
+}
+
+.red {
+  color: var(--light-red);
+}
+
+.orange {
+  color: var(--warning);
+}
+
+.green {
+  color: var(--lighter-green);
+}
+
 .photo-upload {
   display: flex;
   justify-content: center;
@@ -259,8 +295,7 @@ export default {
 .card {
   background: radial-gradient(135.63% 132.41% at 149.88% 23.51%,
       var(--green) 50%,
-      var(--dark-green) 100%)
-  ;
+      var(--dark-green) 100%);
   width: 100%;
   height: 400px;
   border-radius: 10px;
@@ -269,6 +304,11 @@ export default {
   margin-top: 20px;
   color: white;
   overflow: hidden;
+}
+
+.result-chosen-files {
+  height: 25rem;
+  width: 20rem;
 }
 
 .mobile-photo-upload {
@@ -385,12 +425,22 @@ export default {
   .photo-upload {
     width: 70%;
   }
+
+  .result-chosen-files {
+    height: 20rem;
+    width: 15rem;
+  }
 }
 
 @media screen and (max-width: 992px) {
 
   .photo-upload {
     width: 90%;
+  }
+
+  .result-chosen-files {
+    height: 20rem;
+    width: 15rem;
   }
 
 }

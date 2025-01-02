@@ -1,23 +1,23 @@
 <template>
-  <div v-if="probability > 0" class="possible-mushroom" @click="copyName">
-    <!-- <RouterLink v-if="probability > 0" :to="'/mushroom/' + id" class="possible-mushroom"> -->
-    <div class="left-side">
-      <img src="../assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg" alt="" class="album-photo" />
-      <div class="mushroom-names">
-        <h2 class="mushroom-name">{{ mushroomName }}</h2>
-        <p class="mushroom-latin">{{ formattedMushroomLatin() }}</p>
+  <div v-if="probability > 0" class="possible-mushroom-container">
+    <RouterLink :to="'/mushroom/' + id" class="possible-mushroom">
+      <div class="left-side">
+        <img :src="image" alt="" class="album-photo" />
+        <div class="mushroom-names">
+          <h2 class="mushroom-name">{{ polishName }}</h2>
+          <p class="mushroom-latin">{{ latinName }}</p>
+        </div>
       </div>
-    </div>
-    <div class="right-side">
-      <div class="probability" :class="probabilityColor()">
-        <p>{{ probability }}</p>
-        <p>%</p>
+      <div class="right-side">
+        <div class="probability" :class="probabilityColor()">
+          <p>{{ probability }}</p>
+          <p>%</p>
+        </div>
+        <div class="arrow">
+          &#10095;
+        </div>
       </div>
-      <div class="arrow">
-        &#10095;
-      </div>
-    </div>
-  <!-- </RouterLink> -->
+    </RouterLink>
   </div>
 </template>
 
@@ -25,20 +25,24 @@
 export default {
   props: {
     id: {
-      type: String,
-      default: "0",
+      type: Number,
+      default: 0,
     },
-    mushroomName: {
+    polishName: {
       type: String,
       default: "Nieznany gatunek",
     },
-    mushroomLatin: {
+    latinName: {
       type: String,
       default: "Nieznana łacińska nazwa",
     },
     probability: {
       type: Number,
       default: 0,
+    },
+    image: {
+      type: String,
+      default: "../assets/images/mushrooms/RECOGNIZE-example-mushroom.jpg",
     },
   },
   // change color of probability depending on its value
@@ -52,24 +56,20 @@ export default {
         return "green";
       }
     },
-    formattedMushroomLatin() {
-      return this.mushroomLatin.split('_')[0] + ' ' + this.mushroomLatin.split('_')[1];
-    },
-    copyName() {
-      console.log('copying: ' + this.formattedMushroomLatin());
-      navigator.clipboard.writeText(this.formattedMushroomLatin());
-    },
   }
 };
 </script>
 
 <style scoped>
+.possible-mushroom-container {
+  width: 100%;
+}
+
 .possible-mushroom {
   background: rgba(0,
       0,
       0,
       0.6);
-  /* Półprzezroczyste tło dla czytelności tekstu */
   padding: 0.5em 1em 0.5em 1em;
   border-radius: 1rem;
   color: white;
@@ -79,6 +79,7 @@ export default {
   align-items: center;
   gap: 1.5em;
   width: 100%;
+  min-width: 18rem;
   text-decoration: none;
   cursor: pointer;
 }
@@ -110,7 +111,7 @@ export default {
 }
 
 .red {
-  background-color: var(--red);
+  background-color: var(--light-red);
 }
 
 .orange {
@@ -118,7 +119,7 @@ export default {
 }
 
 .green {
-  background-color: var(--green);
+  background-color: var(--lighter-green);
 }
 
 .album-photo {
@@ -134,7 +135,7 @@ export default {
 }
 
 .mushroom-name {
-  font-size: 1.5em;
+  font-size: 1.2em;
 }
 
 .mushroom-latin {
@@ -142,11 +143,35 @@ export default {
   font-style: italic;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
   .possible-mushroom {
     flex-direction: column;
     align-items: flex-start;
     gap: 1em;
+    min-width: 5rem;
+  }
+
+  .mushroom-names {
+    flex-wrap: wrap;
+  }
+
+  .right-side {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5em;
+  }
+  
+}
+
+@media screen and (max-width: 768px) {
+  .possible-mushroom-container {
+    width: 100%;
+  }
+  .possible-mushroom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1em;
+    min-width: 5rem;
   }
 
   .mushroom-names {

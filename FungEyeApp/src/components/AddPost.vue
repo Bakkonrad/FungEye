@@ -37,7 +37,6 @@
 <script>
 import PostService from "@/services/PostService";
 import ProfileImage from "./ProfileImage.vue";
-import AuthService from "@/services/AuthService";
 import { profileImage } from "@/services/AuthService";
 import LoadingSpinner from "./LoadingSpinner.vue";
 
@@ -63,6 +62,7 @@ export default {
     };
   },
   methods: {
+    // handling files added to the post
     onDragOver(event) {
       this.isDragging = true;
       event.dataTransfer.dropEffect = "copy";
@@ -92,6 +92,7 @@ export default {
     deleteImage() {
       this.image = '';
     },
+    // publishing the post
     async publishPost() {
       this.isLoading = true;
       if (this.content.trim() == '' && this.image.name == '') {
@@ -102,21 +103,17 @@ export default {
       const post = {
         id: 0,
         content: this.content,
-        // image: this.image,
         userId: parseInt(localStorage.getItem("id")),
       };
 
-      console.log(post);
-      console.log(this.file);
       const response = await PostService.addPost(post, this.file);
-      // const response = { success: true };
       if (response.success == false) {
         this.error = true;
         this.errorMessage = response.message;
-        console.log(response.message);
         return;
       }
       this.$emit('post-added', post);
+      // clearing the form
       this.content = '';
       this.image = {
         name: '',
@@ -125,6 +122,7 @@ export default {
       this.file = '';
       this.isLoading = false;
     },
+    // resizing the textarea
     autoResize(event) {
       const textarea = event.target;
       textarea.style.height = 'auto';
@@ -165,7 +163,6 @@ export default {
 
 .add-post .textarea:focus {
   border-color: var(--green);
-  /* background-color: var(--dark-beige) !important; */
   color: var(--black) !important;
 }
 

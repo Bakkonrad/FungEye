@@ -29,3 +29,7 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+.env*
+fullchain.pem
+privkey.pem

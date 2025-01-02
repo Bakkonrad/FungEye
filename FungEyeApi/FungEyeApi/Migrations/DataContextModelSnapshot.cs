@@ -81,8 +81,8 @@ namespace FungEyeApi.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(-1)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Edibility")
                         .HasMaxLength(100)

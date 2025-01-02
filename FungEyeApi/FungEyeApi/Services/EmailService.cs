@@ -7,36 +7,56 @@ namespace FungEyeApi.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _config;
+        private readonly string _smtpHost;
+        private readonly int _smtpPort;
+        private readonly string _smtpUserName;
+        private readonly string _smtpPassword;
+        private readonly bool _enableSsl;
+        private static readonly string argumentMessage = "There are missing parameters in the configuration for EmailService";
 
         public EmailService(IConfiguration config)
         {
-            _config = config;
+            // Read and validate configuration
+            _smtpHost = config["Smtp:Host"] ?? throw new ArgumentNullException(argumentMessage);
+            _smtpPort = int.TryParse(config["Smtp:Port"], out var port) ? port : throw new ArgumentNullException(argumentMessage);
+            _smtpUserName = config["Smtp:UserName"] ?? throw new ArgumentNullException(argumentMessage);
+            _smtpPassword = config["Smtp:Password"] ?? throw new ArgumentNullException(argumentMessage);
+            _enableSsl = bool.TryParse(config["Smtp:EnableSsl"], out var enableSsl) ? enableSsl : throw new ArgumentNullException(argumentMessage);
         }
 
         public async Task<bool> SendEmailAsync(string toEmail, SendEmailOptionsEnum sendEmailOption, string? link = null)
         {
-
             (string subject, string message) = GetMessage(sendEmailOption, link);
 
-            var smtpClient = new SmtpClient(_config["Smtp:Host"])
+            try
             {
-                Port = int.Parse(_config["Smtp:Port"]),
-                Credentials = new NetworkCredential(_config["Smtp:UserName"], _config["Smtp:Password"]),
-                EnableSsl = bool.Parse(_config["Smtp:EnableSsl"])
-            };
+                // Configure SMTP client
+                using var smtpClient = new SmtpClient(_smtpHost)
+                {
+                    Port = _smtpPort,
+                    Credentials = new NetworkCredential(_smtpUserName, _smtpPassword),
+                    EnableSsl = _enableSsl,
+                };
 
-            var mailMessage = new MailMessage
+                // Create e-mail message
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(_smtpUserName),
+                    Subject = subject,
+                    Body = message,
+                    IsBodyHtml = true,
+                };
+                mailMessage.To.Add(toEmail);
+
+                // Sending message
+                await smtpClient.SendMailAsync(mailMessage);
+                return true;
+            }
+            catch (Exception ex)
             {
-                From = new MailAddress(_config["Smtp:UserName"]),
-                Subject = subject,
-                Body = message,
-                IsBodyHtml = true,
-            };
-            mailMessage.To.Add(toEmail);
-
-            await smtpClient.SendMailAsync(mailMessage);
-            return true;
+                Console.WriteLine($"Error sending email: {ex.Message}");
+                throw new Exception("Failed to send email.", ex);
+            }
         }
 
         private static (string, string) GetMessage(SendEmailOptionsEnum sendEmailOption, string? link = null)
@@ -81,7 +101,7 @@ namespace FungEyeApi.Services
             }
             else
             {
-                throw new Exception("File not found");
+                throw new Exception("File not found.");
             }
         }
     }

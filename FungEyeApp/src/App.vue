@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
+import { RouterView } from "vue-router";
 </script>
 
 <script>
@@ -23,17 +23,19 @@ export default {
 </template>
 
 <style>
-/* body */
+
 body {
-  /* zmienne css, przykładowe użycie: color: var(--dark-green); */
   /* --dark-green: #386641; */
+  --darkest-green: #29492f;
   --dark-green: #355f3d;
   /* --green: #6a994e; */
-  --green: #538237;
+  --green: #47762b;
+  --lighter-green: #5f9f3a;
   --light-green: #a7c957;
   --beige: #f1ebdd;
   --dark-beige: #dfd1a0;
-  --red: #bc4749;
+  --light-red: #e85558;
+  --red: #b84345;
   --dark-red: #712b2c;
   --warning: #eebc3c;
   --black: #333333;
@@ -54,9 +56,7 @@ input {
   -webkit-user-select: none;
   /* Safari */
   -ms-user-select: none;
-  /* IE 10 and IE 11 */
   user-select: none;
-  /* Standard syntax */
 }
 
 b {
@@ -89,7 +89,7 @@ p1 {
   font-size: 1.2em;
 }
 
-ul {
+ul, ol {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
 }
@@ -178,7 +178,6 @@ ul {
 }
 
 .fungeye-secondary-button {
-  /* transparent background */
   background: transparent;
   border: 1px solid white;
   color: white;
@@ -225,15 +224,12 @@ ul {
 
 input,
 textarea {
-  /* color: white !important; */
   color: white;
-  /* width: 90% !important; */
 
   box-sizing: border-box;
   height: 50px;
 
-  background: rgba(255, 255, 255, 0.3) !important;
-  /* input-stroke */
+  background: rgba(255, 255, 255, 0.1) !important;
   border: 1px solid rgba(56, 102, 65, 0.2) !important;
   border-radius: 15px !important;
 }
@@ -302,47 +298,77 @@ input.validInput {
 
 /* mushroom attributes */
 .attribute {
-  background-color: var(--green);
+  background-color: var(--beige);
   padding: 1px 25px;
-  color: white;
+  color: var(--black);
   border-radius: 15px;
   font-weight: 300;
 }
 
+.active-attribute {
+  border-width: 2px;
+}
+
 /* iglaste */
 .attribute.coniferous {
-  background-color: var(--dark-green);
+  color: var(--darkest-green);
+  border: 1px solid var(--darkest-green);
 }
-
-/* liściaste */
-.attribute.deciduous {
-  background-color: var(--light-green);
-  color: var(--black);
-}
-
-/* jadalny */
-.attribute.edible {
-  background-color: var(--green);
-}
-
-/* niejadalny */
-.attribute.inedible {
-  background-color: var(--beige);
-  border: 1px solid var(--dark-red);
-  color: var(--dark-red);
-}
-
-/* trujący */
-.attribute.poisonous {
-  background-color: var(--red);
+.active-attribute.coniferous {
+  background-color: var(--darkest-green);
+  color: white;
 }
 
 /* mieszane */
 .attribute.mixed {
-  background-color: var(--beige);
-  border: 1px solid var(--dark-green);
   color: var(--dark-green);
+  border: 1px solid var(--dark-green);
 }
+.active-attribute.mixed {
+  background-color: var(--dark-green);
+  color: white;
+}
+
+/* liściaste */
+.attribute.deciduous {
+  color: var(--green);
+  border: 1px solid var(--light-green);
+}
+.active-attribute.deciduous {
+  background-color: var(--light-green);
+  color: var(--black) ;
+}
+
+/* jadalny */
+.attribute.edible {
+  color: var(--green);
+  border: 1px solid var(--green);
+}
+.active-attribute.edible {
+  background-color: var(--green);
+  color: white;
+}
+
+/* niejadalny */
+.attribute.inedible {
+  color: var(--red);
+  border: 1px solid var(--red);
+}
+.active-attribute.inedible {
+  background-color: var(--red);
+  color: white;
+}
+
+/* trujący */
+.attribute.poisonous {
+  color: var(--dark-red);
+  border: 1px solid var(--dark-red);
+}
+.active-attribute.poisonous {
+  background-color: var(--dark-red);
+  color: white;
+}
+
 
 .unauthorized {
   display: flex;

@@ -168,7 +168,7 @@ export default {
   max-width: 500px;
   min-width: 300px;
 
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(9.5px);
   border-radius: 30px;
 

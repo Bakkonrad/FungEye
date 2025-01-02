@@ -37,6 +37,10 @@ input {
   border-radius: 0.25rem;
 }
 
+input::placeholder {
+  color: #ccc !important;
+}
+
 .white {
   color: white;
 }

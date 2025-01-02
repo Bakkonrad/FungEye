@@ -1,10 +1,11 @@
 <template>
     <div class="modal-content">
         <h2>{{ showEditMushroomModal ? 'Edytuj grzyb' : 'Dodaj nowy grzyb' }}</h2>
+        <!-- Nazwy grzyba -->
         <BaseInput v-model="mushroomForm.polishName" placeholder="Nazwa polska grzyba" color="black" />
         <BaseInput v-model="mushroomForm.latinName" placeholder="Nazwa łacińska grzyba" color="black" />
 
-        <!-- Dodaj zdjęcie grzyba -->
+        <!-- Zdjęcie grzyba -->
         <div class="photo-upload">
             <input style="display: none" type="file" accept="image/*" @change="onFileChange" ref="fileInput" multiple />
             <div class="drag-area" @click="$refs.fileInput.click()" @dragover.prevent="onDragOver"
@@ -19,23 +20,32 @@
                 </span>
             </div>
             <div class="container uploaded-images">
-                <div v-for="(image, index) in images" :key="index" class="image">
-                    <span class="delete" @click="deleteImage(index)">&times;</span>
-                    <img v-if="!image.url" :src="image" alt="Zdjęcie grzyba" class="uploaded-image" />
-                    <img v-if="image.url" :src="image.url" alt="Zdjęcie grzyba" class="uploaded-image" />
+                <div v-for="(image, index) in oldImages" class="image old-images">
+                    <span class="delete" @click="deleteOldImage(index)">&times;</span>
+                    <img v-if="image" :src="image" alt="Zdjęcie grzyba" class="uploaded-image" @error="handleImageError(index)" />
+                </div>
+                <div v-for="(image, index) in newImagesUrls" :key="index" class="image new-images">
+                    <span class="delete" @click="deleteNewImage(index)">&times;</span>
+                    <img v-if="image" :src="image" alt="Zdjęcie grzyba" class="uploaded-image" />
                 </div>
             </div>
         </div>
 
+        <!-- Opis grzyba -->
         <textarea v-model="mushroomForm.description" placeholder="Opis grzyba"
             class="edit-input form-control"></textarea>
+
+        <!-- Filtry atrybutów -->
         <div class="attribute-selection">
-            <span v-for="attribute in availableAttributes" :key="attribute" @click="toggleAttributeFilter(attribute)"
+            <span v-for="category in availableAttributes" class="attribute-categories">
+                <span v-for="attribute in category" :key="attribute" @click="toggleAttributeFilter(attribute)"
                 :class="['attribute', attributeClass(attribute), { 'active-attribute': isActiveAttribute(attribute) }]">
                 {{ attribute }}
             </span>
+        </span>
         </div>
         <hr>
+
         <span class="buttons">
             <button class="btn fungeye-default-button" @click="saveChanges">{{ showEditMushroomModal ? 'Zapisz zmiany' :
                 'Dodaj grzyb' }}</button>
@@ -61,18 +71,17 @@ export default {
         return {
             isDragging: false,
             selectedAttributes: this.mushroomForm.attributes || [],
-            files: [],
-            images: this.mushroomForm.imagesUrl || [],
+            oldImages: this.mushroomForm.imagesUrl,
+            newImages: [],
+            newImagesUrls: [],
             imagesUrlsToDelete: [],
         };
     },
     methods: {
+        // handling images
         onFileChange(e) {
-            this.files.push(...Array.from(e.target.files));
-            this.images.push(...this.files.map(file => ({
-                id: file.name,
-                url: URL.createObjectURL(file)
-            })));
+            this.newImages.push(...Array.from(e.target.files));
+            this.newImagesUrls.push(...Array.from(e.target.files).map(file => URL.createObjectURL(file)));
         },
         onDragOver(e) {
             e.preventDefault();
@@ -83,25 +92,26 @@ export default {
             this.isDragging = false;
         },
         onDrop(e) {
-            e.preventDefault();
-            this.isDragging = false;
-            this.files.push(...Array.from(e.dataTransfer.files));
-            this.images.push(...this.files.map(file => ({
-                id: file.name,
-                url: URL.createObjectURL(file)
-            })));
-
+            this.onDragLeave(e);
+            this.newImages.push(...Array.from(e.dataTransfer.files));
+            this.newImagesUrls.push(...Array.from(e.dataTransfer.files).map(file => URL.createObjectURL(file)));
         },
-        deleteImage(index) {
-            if (this.images[index].id) {
-                this.imagesUrlsToDelete.push(this.images[index].url);
-            }
-            else {
-                this.imagesUrlsToDelete.push(this.images[index]);
-            }
-            this.images.splice(index, 1);
-            this.files.splice(index, 1);
+        deleteOldImage(index) {
+            this.imagesUrlsToDelete.push(this.oldImages[index]);
+            this.oldImages.splice(index, 1);
         },
+        deleteNewImage(index) {
+            this.newImages.splice(index, 1);
+            this.newImagesUrls.splice(index, 1);
+        },
+        handleImageError(index) {
+            if (this.oldImages.length > 0) {
+                this.oldImages.splice(index, 1);
+            } else {
+                this.oldImages.push('src/assets/images/no-image.svg');
+            }
+        },
+        // handling attributes
         toggleAttributeFilter(attribute) {
             if (this.selectedAttributes.includes(attribute)) {
                 this.selectedAttributes = this.selectedAttributes.filter((a) => a !== attribute);
@@ -132,9 +142,8 @@ export default {
                 poisonous: attribute === 'trujący',
             };
         },
+        // saving form
         saveChanges() {
-            console.log(this.mushroomForm);
-            console.log(this.selectedAttributes);
             if (this.mushroomForm.polishName === '' || this.mushroomForm.latinName === '' || this.mushroomForm.image === '' || this.mushroomForm.description === '' || this.selectedAttributes.length === 0) {
                 alert('Wypełnij wszystkie pola');
                 return;
@@ -146,7 +155,7 @@ export default {
                 description: this.mushroomForm.description,
                 attributes: this.selectedAttributes,
             };
-            const images = this.files;
+            const images = this.newImages;
             if (this.showEditMushroomModal) {
                 this.editMushroom(fungi, images);
             } else {
@@ -155,7 +164,6 @@ export default {
         },
         editMushroom(fungi, images) {
             fungi = { ...fungi, imagesUrlsToDelete: this.imagesUrlsToDelete };
-            console.log(fungi);
             const response = FungiService.editFungi(fungi, images);
             if (response.success === false) {
                 alert('Nie udało się edytować grzyba');
@@ -194,6 +202,7 @@ export default {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    height: 100px;
 }
 
 .photo-upload {
@@ -281,14 +290,13 @@ export default {
     gap: 5px;
 }
 
-/* css dla filtrów atrybutów */
+/* attributes as filters */
 .attribute-filter span {
     margin: 0 7px;
     cursor: pointer;
     font-size: 17px;
     padding: 1px 10px;
     border-radius: 15px;
-    /* background-color: #f0f0f0; */
     transition: font-weight 0.3s, background-color 0.3s;
     user-select: none;
 }
@@ -297,7 +305,7 @@ export default {
     font-weight: bold;
 }
 
-.attribute-selection {
+.attribute-categories {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -305,7 +313,7 @@ export default {
     margin: 1rem 0
 }
 
-/* css dla atrybutów w kartach grzybów */
+/* attributes in mushroom cards */
 .attributes span {
     padding: 2px 15px;
     border-radius: 15px;
@@ -314,7 +322,7 @@ export default {
     user-select: none;
 }
 
-/* pogrubienie dla aktywnych atrybutów */
+/* bolder for chosen attributes */
 .active-attribute.coniferous,
 .attribute-filter span.coniferous.active-attribute,
 .active-attribute.deciduous,

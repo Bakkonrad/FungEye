@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <div v-if="!isLoggedIn" class="unauthorized">
+    <h1>Profil użytkownika</h1>
+    <LogInToContinue />
+  </div>
+  <div v-else>
     <div v-if="errorFindingUser" class="not-loggedIn container-md">
       <h1>Profil użytkownika</h1>
       <p>Taki użytkownik nie istnieje!</p>
@@ -26,7 +30,7 @@
           <button @click="goToMyProfile" class="btn fungeye-default-button">Przejdź do swojego profilu</button>
         </div>
       </div>
-      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" :showMoreMushrooms="showMoreMushrooms" />
+      <UserProfileCollections :mushrooms="mushrooms" :follows="follows" :followers="followers" @click="fetchUser" />
     </div>
   </div>
 </template>
@@ -37,10 +41,10 @@ import UserProfileCollections from "@/components/UserProfileCollections.vue";
 import UserProfileInfo from "@/components/UserProfileInfo.vue";
 import UserService from "@/services/UserService";
 import FollowService from "@/services/FollowService";
-import FungiService from "@/services/FungiService";
 import { ref } from "vue";
-import { checkAdmin, isAdmin } from "@/services/AuthService";
+import { checkAdmin, isAdmin, isLoggedIn } from "@/services/AuthService";
 import UserBan from "@/components/BanUser.vue";
+import LogInToContinue from "@/components/LogInToContinue.vue";
 
 export default {
   components: {
@@ -48,10 +52,11 @@ export default {
     UserProfileCollections,
     UserProfileInfo,
     UserBan,
+    LogInToContinue,
   },
   async created() {
+    if (!this.isLoggedIn) return;
     this.fetchUser();
-    this.fetchSavedMushrooms();
     this.checkIfFollowed();
     this.isLoggedUser = this.isThisUserLoggedIn();
   },
@@ -66,23 +71,22 @@ export default {
       mushrooms: [],
       createdAt: "",
       errorFindingUser: false,
-      isLoggedUser: false,
       isAdmin: false,
       isBanning: false,
-      showMoreMushrooms: false,
+      isLoggedIn: isLoggedIn,
     };
   },
   setup() {
+    const followed = ref(null);
+    const isLoggedUser = ref(false);
     checkAdmin();
     return {
       isAdmin: isAdmin,
-      followed: ref(null),
+      followed,
+      isLoggedUser,
       follows: ref([]),
       followers: ref([]),
     };
-  },
-  mounted() {
-    this.fetchSavedMushrooms();
   },
   methods: {
     async fetchUser() {
@@ -92,7 +96,6 @@ export default {
       const followersResponse = await FollowService.getFollowers(this.id);
       if (response.success === false) {
         this.errorFindingUser = true;
-        console.log(response.message);
         return;
       }
       this.user = response.data;
@@ -101,28 +104,15 @@ export default {
       this.name_surname = response.data.firstName + " " + response.data.lastName;
       this.email = response.data.email;
       this.createdAt = response.data.createdAt;
+      this.mushrooms = response.data.collectedFungies;
       this.follows = followsResponse.data;
       this.followers = followersResponse.data;
-    },
-    async fetchSavedMushrooms() {
-      const page = null;
-      const search = "";
-      const response = await FungiService.getAllFungies(page, search, this.id);
-      if (response.success === false) {
-        console.log(response.message);
-        return;
-      }
-      this.mushrooms = response.data.filter((mushroom) => mushroom.savedByUser == true);
-      if (this.mushrooms.length > 5) {
-        this.mushrooms = this.mushrooms.slice(0, 4);
-        this.showMoreMushrooms = true;  
-      }
-      console.log(this.mushrooms);  
+      this.checkIfFollowed();
+      this.isLoggedUser = this.isThisUserLoggedIn();
     },
     async checkIfFollowed() {
       const response = await FollowService.isFollowing(localStorage.getItem("id"), this.id);
       if (response.success === false) {
-        console.log(response.message);
         return;
       }
       this.followed = response.data;
@@ -130,7 +120,6 @@ export default {
     follow() {
       const response = FollowService.followUser(this.id);
       if (response.success === false) {
-        console.log(response.message);
         return;
       }
       this.followed = true;
@@ -139,7 +128,6 @@ export default {
     unfollow() {
       const response = FollowService.unfollowUser(this.id);
       if (response.success === false) {
-        console.log(response.message);
         return;
       }
       this.followed = false;

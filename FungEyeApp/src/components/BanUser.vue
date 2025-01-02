@@ -1,17 +1,11 @@
 <template>
     <div class="container">
-        <!-- <div v-if="(banSuccessful || user.banExpirationDate) && !banExpired" class="ban-successful">
-            <h2>Użytkownik {{ user.username }} został zbanowany!</h2>
-            <p>Użytkownik <b>{{ user.username }}</b> jest zbanowany do <b>{{ formatDate(user.banExpirationDate)
-                    }}</b></p>
-        </div> -->
         <div class="banUser-container container-md">
             <h2>Banowanie użytkownika {{ user.username }}</h2>
             <p>Wybierz okres czasu, na który chcesz zbanować użytkownika:</p>
 
             <div class="button-group bans">
-                <button type="radio" class="btn fungeye-default-button ban-button" v-for="(ban, key) in bans" :key="ban"
-                    @click="chooseBan(key)">{{ ban }}</button>
+                <button type="radio" class="btn fungeye-default-button ban-button" v-for="(ban, key) in bans" :key="ban" @click="chooseBan(key)">{{ ban }}</button>
             </div>
 
             <span class="error-message" v-if="error">{{ apiErrorMessage }}</span>
@@ -52,7 +46,6 @@ export default {
     methods: {
         chooseBan(key) {
             this.chosenBan = key;
-            console.log(`Chosen ban period key: ${key}`);
         },
         async save() {
             try {
@@ -63,7 +56,6 @@ export default {
                 }
                 const response = await UserService.banUser(this.user.id, this.chosenBan);
                 if (response.success === false) {
-                    console.log(response.message);
                     return;
                 }
                 this.user.banExpirationDate = response.data;
@@ -73,13 +65,6 @@ export default {
                 this.error = true;
                 this.apiErrorMessage = error.message || 'Wystąpił błąd';
             }
-        },
-        formatDate(date) {
-            if (date === null || new Date(date) < new Date()) {
-                this.banExpired = true;
-                return;
-            }
-            return new Date(date).toLocaleString();
         },
     },
 };

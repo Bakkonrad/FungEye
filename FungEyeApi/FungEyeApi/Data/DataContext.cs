@@ -115,7 +115,7 @@ namespace FungEyeApi.Data
             fungi.HasKey(f => f.Id);
             fungi.Property(f => f.LatinName).HasMaxLength(255).IsRequired();
             fungi.Property(f => f.PolishName).HasMaxLength(255);
-            fungi.Property(f => f.Description).HasMaxLength(255);
+            fungi.Property(f => f.Description).HasMaxLength(-1);
             fungi.Property(f => f.Edibility).HasMaxLength(100);
             fungi.Property(f => f.Toxicity).HasMaxLength(100);
             fungi.Property(f => f.Habitat).HasMaxLength(100);

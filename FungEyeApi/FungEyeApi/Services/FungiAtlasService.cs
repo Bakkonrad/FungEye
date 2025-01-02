@@ -48,14 +48,27 @@ namespace FungEyeApi.Services
             try
             {
                 var fungiEntity = await db.Fungies.FirstOrDefaultAsync(f => f.Id == fungi.Id);
+                var fungiImages = await db.FungiesImages.Where(i => i.FungiEntityId == fungi.Id).ToListAsync();
 
                 if (fungiEntity == null)
                 {
-                    throw new Exception("Error during editing fungi: fungi not found.");
+                    throw new Exception($"Fungi with id {fungi.Id} doesn't exist.");
                 }
 
-                //fungiEntity.Images = null;
-                //await db.SaveChangesAsync();
+                if (fungi.ImagesUrlsToDelete != null && fungi.ImagesUrlsToDelete.Count > 0)
+                {
+                    foreach (var imageUrl in fungi.ImagesUrlsToDelete)
+                    {
+                        var imageEntity = fungiImages.FirstOrDefault(i => i.ImageUrl == imageUrl);
+                        if (imageEntity == null)
+                        {
+                            continue;
+                        }
+                        // delete image entity from database and blob storage
+                        await _blobStorageService.DeleteFile(imageEntity.ImageUrl, BlobContainerEnum.Fungies);
+                        db.FungiesImages.Remove(imageEntity);
+                    }
+                }
 
                 fungiEntity.Description = fungi.Description;
                 fungiEntity.LatinName = fungi.LatinName;
@@ -63,7 +76,16 @@ namespace FungEyeApi.Services
                 fungiEntity.Edibility = fungi.Edibility;
                 fungiEntity.Toxicity = fungi.Toxicity;
                 fungiEntity.Habitat = fungi.Habitat;
-                fungiEntity.Images = fungi.ImagesUrl?.Select(i => new FungiImageEntity { ImageUrl = i, FungiEntityId = fungiEntity.Id }).ToList();
+                if (fungi.ImagesUrl != null)
+                {
+                    var imageEntities = fungi.ImagesUrl?.Select(i => new FungiImageEntity { ImageUrl = i, FungiEntityId = fungiEntity.Id }).ToList();
+
+                    foreach (var image in imageEntities!)
+                    {
+                        fungiEntity.Images!.Add(image);
+
+                    }
+                }
 
                 await db.SaveChangesAsync();
 
@@ -84,7 +106,7 @@ namespace FungEyeApi.Services
 
                 if (fungi == null)
                 {
-                    return false;
+                    throw new Exception($"Fungi with id {fungiId} doesn't exist.");
                 }
 
                 foreach (var image in fungiImages)
@@ -109,11 +131,7 @@ namespace FungEyeApi.Services
         {
             try
             {
-                var fungiEntity = await db.Fungies.Include(f => f.Images).FirstOrDefaultAsync(u => u.Id == fungiId);
-                if (fungiEntity == null)
-                {
-                    throw new Exception("Fungi not found");
-                }
+                var fungiEntity = await db.Fungies.Include(f => f.Images).FirstOrDefaultAsync(u => u.Id == fungiId) ?? throw new Exception($"Fungi with id {fungiId} not found.");
 
                 var result = await GetFungiInfo(new Fungi(fungiEntity), userId);
 
@@ -125,15 +143,11 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<Fungi> GetFungi(string fungiName, int? userId = null)
+        public async Task<Fungi> GetFungiByName(string fungiName, int? userId = null)
         {
             try
             {
-                var fungiEntity = await db.Fungies.Include(f => f.Images).FirstOrDefaultAsync(f => f.LatinName == fungiName);
-                if (fungiEntity == null)
-                {
-                    throw new Exception("Fungi not found");
-                }
+                var fungiEntity = await db.Fungies.Include(f => f.Images).FirstOrDefaultAsync(f => f.LatinName == fungiName) ?? throw new Exception($"Fungi with name {fungiName} not found.");
 
                 var result = await GetFungiInfo(new Fungi(fungiEntity), userId);
 
@@ -145,28 +159,55 @@ namespace FungEyeApi.Services
             }
         }
 
-        public async Task<List<Fungi>> GetFungies(int? userId = null, int? page = null, string? search = null)
+        public async Task<List<Fungi>> GetFungies(GetFungiParams getFungiParams)
         {
             try
             {
-                List<Fungi> result = new List<Fungi>();
-                var query = db.Fungies.Include(f => f.Images).AsQueryable();
 
-                if (!String.IsNullOrWhiteSpace(search))
+
+                var query = db.Fungies.Include(f => f.UserCollections).Include(f => f.Images).OrderBy(f => f.PolishName).AsQueryable();
+
+                if (getFungiParams.SavedByUser != null && getFungiParams.SavedByUser is true)
                 {
-                    query = query.Where(f => f.LatinName != null && f.LatinName.Contains(search) ||
-                                             f.PolishName != null && f.PolishName.Contains(search));
+                    //query fungies saved by user
+                    query = query.Where(f => f.UserCollections!.Any(uf => uf.UserId == getFungiParams.UserId));
                 }
 
-                int pageSize = 5;
-                int pageNumber = page ?? 1;
+                List<Fungi> result = [];
+
+                //if search parameter is provided, filter fungies by search parameter but if Letter parameter is provided, filter fungies by first letter of PolishName
+                if (!String.IsNullOrWhiteSpace(getFungiParams.Letter))
+                {
+                    query = query.Where(f => f.PolishName != null && f.PolishName.StartsWith(getFungiParams.Letter));
+                }
+                else if (!String.IsNullOrWhiteSpace(getFungiParams.Search))
+                {
+                    query = query.Where(f => f.LatinName != null && f.LatinName.Contains(getFungiParams.Search) ||
+                                             f.PolishName != null && f.PolishName.Contains(getFungiParams.Search));
+                }
+
+                if (!String.IsNullOrWhiteSpace(getFungiParams.Edibility))
+                {
+                    query = query.Where(f => f.Edibility != null && f.Edibility.Equals(getFungiParams.Edibility));
+                }
+                if (!String.IsNullOrWhiteSpace(getFungiParams.Toxicity))
+                {
+                    query = query.Where(f => f.Toxicity != null && f.Toxicity.Equals(getFungiParams.Toxicity));
+                }
+                if (!String.IsNullOrWhiteSpace(getFungiParams.Habitat))
+                {
+                    query = query.Where(f => f.Habitat != null && f.Habitat.Equals(getFungiParams.Habitat));
+                }
+
+                int pageSize = getFungiParams.PageSize ?? 20;
+                int pageNumber = getFungiParams.Page ?? 1;
                 query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
                 var fungies = await query.ToListAsync();
 
                 foreach (var fungi in fungies)
                 {
-                    result.Add(await GetFungiInfo(new Fungi(fungi), userId));
+                    result.Add(await GetFungiInfo(new Fungi(fungi), getFungiParams.UserId));
                 }
 
                 return result;

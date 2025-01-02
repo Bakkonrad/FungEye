@@ -83,18 +83,6 @@ namespace FungEyeApi.Controllers
 
                 var fungi = JsonConvert.DeserializeObject<Fungi>(fungiJson) ?? throw new Exception("Cannot deserialize Fungi object");
 
-                if (fungi.ImagesUrlsToDelete != null && fungi.ImagesUrlsToDelete.Count > 0)
-                {
-                    foreach (var imageUrl in fungi.ImagesUrlsToDelete)
-                    {
-                        if (fungi.ImagesUrl != null && fungi.ImagesUrl.Contains(imageUrl))
-                        {
-                            fungi.ImagesUrl.Remove(imageUrl);
-                        }
-                        await _blobStorageService.DeleteFile(imageUrl, blobContainer);
-                    }
-                }
-
                 if (images != null && images.Count > 0)
                 {
                     fungi.ImagesUrl ??= new List<string>();
@@ -144,11 +132,11 @@ namespace FungEyeApi.Controllers
 
         [Consumes("multipart/form-data")]
         [HttpPost("getFungies")]
-        public async Task<IActionResult> GetFungies([FromForm] int? page = null, [FromForm] string? search = null, [FromForm] int? userId = null)
+        public async Task<IActionResult> GetFungies([FromForm] GetFungiParams getFungiParams)
         {
             try
             {
-                var result = await _fungiAtlasService.GetFungies(userId, page, search);
+                var result = await _fungiAtlasService.GetFungies(getFungiParams);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -171,12 +159,13 @@ namespace FungEyeApi.Controllers
             }
         }
 
-        [HttpGet("getFungiByName/{fungiName}")]
-        public async Task<IActionResult> GetFungiByName(string fungiName, [FromBody] int? userId = null)
+        [Consumes("multipart/form-data")]
+        [HttpPost("getFungiByName")]
+        public async Task<IActionResult> GetFungiByName([FromForm] string fungiName, [FromForm] int? userId = null)
         {
             try
             {
-                var result = await _fungiAtlasService.GetFungi(fungiName, userId);
+                var result = await _fungiAtlasService.GetFungiByName(fungiName, userId);
                 return Ok(result);
             }
             catch (Exception ex)

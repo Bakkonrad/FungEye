@@ -16,6 +16,7 @@ import ForgotPassword from "@/views/ForgotPasswordView.vue";
 import ResetPasswordView from "@/views/ResetPasswordView.vue";
 import PostView from "@/views/PostView.vue";
 import MapView from "@/views/MapView.vue";
+import InstallationGuide from "@/views/InstallationGuide.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -136,6 +137,11 @@ const router = createRouter({
       name: 'post',
       component: PostView,
       props: route => ({ id: Number(route.params.id), reportedCommentId: Number(route.query.reportedCommentId) || null }),
+    },
+    {
+      path: '/installation-guide',
+      name: 'installationGuide',
+      component: InstallationGuide
     }
   ]
 })

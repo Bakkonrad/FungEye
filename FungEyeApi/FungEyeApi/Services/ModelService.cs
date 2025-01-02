@@ -1,7 +1,8 @@
 using FungEyeApi.Data;
 using FungEyeApi.Interfaces;
 using Newtonsoft.Json;
-using System.Drawing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace FungEyeApi.Services
 {
@@ -9,94 +10,111 @@ namespace FungEyeApi.Services
     {
         private readonly DataContext db;
         private readonly HttpClient httpClient;
+        private readonly IConfiguration configuration;
 
-        public ModelService(DataContext db)
+        public ModelService(DataContext db, IConfiguration configuration)
         {
             this.db = db;
             this.httpClient = new HttpClient();
+            this.configuration = configuration;
         }
 
         public async Task<List<(string, double)>> Predict(IFormFile file)
         {
             try
             {
-                // Preprocess the image
-                using var memoryStream = new MemoryStream();
-                await file.CopyToAsync(memoryStream);
+                var imageArray = await PreprocessImage(file);
+                var predictions = await GetPredictions(imageArray);
+                var predictionList = await ParsePredictions(predictions);
 
-                // Resize the image to 299x299
-                using var image = System.Drawing.Image.FromStream(memoryStream);
-                using var resizedImage = new Bitmap(image, new Size(299, 299));
+                return predictionList;
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
-                // Normalize the image data to [0, 1] and reshape it into [1, 299, 299, 3]
-                float[,,] imageArray = new float[299, 299, 3]; // Batch of 1 image, 299x299 size, 3 channels (RGB)
+        private static async Task<float[,,]> PreprocessImage(IFormFile file)
+        {
+            // Preprocess the image
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
 
-                for (int i = 0; i < 299; i++)
+            // Load the image using ImageSharp
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            using var image = SixLabors.ImageSharp.Image.Load<Rgb24>(memoryStream);
+
+            // Resize the image to 299x299
+            image.Mutate(x => x.Resize(299, 299));
+
+            // Normalize the image data to [0, 1] and reshape it into [1, 299, 299, 3]
+            float[,,] imageArray = new float[299, 299, 3]; // Batch of 1 image, 299x299 size, 3 channels (RGB)
+
+            for (int i = 0; i < 299; i++)
+            {
+                for (int j = 0; j < 299; j++)
                 {
-                    for (int j = 0; j < 299; j++)
-                    {
-                        var pixel = resizedImage.GetPixel(i, j);
-                        imageArray[i, j, 0] = pixel.R / 255.0f; // Red channel
-                        imageArray[i, j, 1] = pixel.G / 255.0f; // Green channel
-                        imageArray[i, j, 2] = pixel.B / 255.0f; // Blue channel
-                    }
+                    var pixel = image[i, j];
+                    imageArray[i, j, 0] = pixel.R / 255.0f; // Red channel
+                    imageArray[i, j, 1] = pixel.G / 255.0f; // Green channel
+                    imageArray[i, j, 2] = pixel.B / 255.0f; // Blue channel
                 }
+            }
 
+            return imageArray;
+        }
 
+        private async Task<dynamic> GetPredictions(float[,,] imageArray)
+        {
+            try
+            {
                 var batchJson = new
                 {
                     signature_name = "serving_default",
                     instances = new[] { imageArray }
                 };
 
-
-                using var resizedStream = new MemoryStream();
-                resizedImage.Save(resizedStream, System.Drawing.Imaging.ImageFormat.Jpeg); // Save in JPEG format
-                var imageData = resizedStream.ToArray();
-
-                // Normalize the image data to [0, 1]
-                var imageList = new List<List<double>> { imageData.Select(b => (double)b / 255.0).ToList() };
-
-                // Specify the endpoint and make the request
-                var endpoint = "http://localhost:8501/v1/models/inception:predict";
-                var headers = new Dictionary<string, string> { { "Content-Type", "application/json" } };
-                //var batchJson = new { signature_name = "serving_default", instances = new[] { imageList } };
-
+                var endpoint = configuration["ModelEndpoint"];
                 var response = await httpClient.PostAsync(endpoint, new StringContent(JsonConvert.SerializeObject(batchJson), System.Text.Encoding.UTF8, "application/json"));
 
-                var objec = JsonConvert.SerializeObject(batchJson).ToString();
-
-                response.EnsureSuccessStatusCode(); // Ensure we throw if response is not successful
+                response.EnsureSuccessStatusCode();
 
                 var responseContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Response: {responseContent}");
 
-                var predictions = JsonConvert.DeserializeObject<dynamic>(responseContent).predictions;
+                var predictions = JsonConvert.DeserializeObject<dynamic>(responseContent)?.predictions ?? throw new InvalidOperationException("Predictions of AI model could not be retrieved from the response.");
 
-                // Make the predictions more readable
+                return predictions;
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
+        private static async Task<List<(string, double)>> ParsePredictions(dynamic predictions)
+        {
+            try
+            {
                 var predictionList = new List<(string, double)>();
-                using (var fileReader = new StreamReader(@"Resources\mushroom_names.txt"))
+
+                using (var fileReader = new StreamReader(@"Resources/mushroom_names.txt"))
                 {
-                    var classNames = fileReader.ReadToEnd().Split('\n').Select(x => x.Trim()).ToList();
+                    var classNames = (await fileReader.ReadToEndAsync()).Split('\n').Select(x => x.Trim()).ToList();
                     for (int i = 0; i < predictions[0].Count; i++)
                     {
                         predictionList.Add((classNames[i], (double)predictions[0][i]));
                     }
                 }
 
-                // Sort the predictions by probability
                 predictionList.Sort((x, y) => y.Item2.CompareTo(x.Item2));
-
                 return predictionList.Take(5).ToList();
             }
             catch (Exception ex)
             {
-                // Log the exception (optional)
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                // Handle any exceptions
-                return new List<(string, double)>();
+                throw new Exception("Error during parsing predictions: " + ex.Message);
             }
         }
     }
 }
-

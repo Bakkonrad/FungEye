@@ -18,6 +18,9 @@
             </RouterLink>
           </li>
           <li class="nav-item">
+            <RouterLink to="/installation-guide" :class="getActiveNavLink('installation-guide')">Instrukcja instalacji</RouterLink>
+          </li>
+          <li class="nav-item">
             <RouterLink to="/recognize" :class="getActiveNavLink('recognize')">Rozpoznawanie grzybów
             </RouterLink>
           </li>
@@ -109,7 +112,7 @@ export default {
 
     const router = useRouter();
     router.beforeEach((to, from, next) => {
-      hideNavbar();  // Ukryj navbar przed zmianą trasy
+      hideNavbar(); // hiding navbar on route change
       next();
     });
 
@@ -138,9 +141,7 @@ export default {
   -webkit-user-select: none;
   /* Safari */
   -ms-user-select: none;
-  /* IE 10 and IE 11 */
   user-select: none;
-  /* Standard syntax */
 }
 
 .container-fluid {
@@ -201,7 +202,7 @@ export default {
   text-decoration: none;
 }
 
-@media screen and (max-width: 1158px) {
+@media screen and (max-width: 1548px) {
   .navbar-nav {
     flex-direction: column;
     justify-content: center;

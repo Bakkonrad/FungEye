@@ -52,6 +52,7 @@ export default {
     }
   },
   methods: {
+    // show border around image
     showBorderClass() {
       if (this.showBorder == true) {
         return "profile-image-stroke";
@@ -66,7 +67,7 @@ export default {
     },
     handleImageError() {
       console.error("Image failed to load; switching to placeholder.");
-      this.imageSrc = this.placeholderPath; // Fallback to placeholder if error
+      this.imageSrc = this.placeholderPath; // change to placeholder if error
     },
   },
 };

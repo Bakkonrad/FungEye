@@ -114,8 +114,6 @@ export default {
             if (!result) {
                 return;
             }
-            console.log(this.token);
-            console.log(this.formData.password);
             const response = await AuthService.resetPassword(this.token, this.formData.password);
             if (!response.success) {
                 this.error = true;

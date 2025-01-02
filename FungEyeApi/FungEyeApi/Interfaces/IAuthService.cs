@@ -11,6 +11,5 @@ namespace FungEyeApi.Interfaces
         Task<string> Login(LoginUser user); //JWT token
         Task<bool> SendResetPasswordEmail(string userEmail);
         Task<bool> SendSetAdminPasswordEmail(string userEmail);
-        Task<bool> ValidateToken(string token);
     }
 }

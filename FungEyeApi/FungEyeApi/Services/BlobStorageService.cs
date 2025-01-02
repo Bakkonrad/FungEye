@@ -36,7 +36,7 @@ namespace FungEyeApi.Services
 
                 return url;
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 throw;
             }
@@ -59,7 +59,7 @@ namespace FungEyeApi.Services
                 var response = await blobClient.DeleteIfExistsAsync();
                 return response.Value;
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 throw;
             }

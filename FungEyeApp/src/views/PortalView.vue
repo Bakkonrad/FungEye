@@ -2,9 +2,7 @@
   <div class="container-md">
     <h1 class="page-title">Portal</h1>
     <div v-if="!loggedIn" class="unauthorized">
-      <h2>Brak dostępu!</h2>
-      <p>Aby zobaczyć tę stronę, należy się zalogować</p>
-      <RouterLink to="/log-in" class="btn fungeye-default-button">Zaloguj się</RouterLink>
+      <LogInToContinue />
     </div>
     <div v-else class="content">
       <!-- Przyciski -->
@@ -72,6 +70,7 @@ import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import UserService from "@/services/UserService";
 import PostService from "@/services/PostService";
 import ProfileImage from "@/components/ProfileImage.vue";
+import LogInToContinue from "@/components/LogInToContinue.vue";
 
 export default {
   components: {
@@ -80,6 +79,7 @@ export default {
     SearchBar,
     LoadingSpinner,
     ProfileImage,
+    LogInToContinue,
   },
   props: {
     defaultTab: {
@@ -117,18 +117,22 @@ export default {
     };
   },
   mounted() {
+    if (!this.loggedIn) {
+      return;
+    }
     this.toggleTab(this.defaultTab);
     this.searchQuery = this.query;
     if (this.defaultTab === 'search' && this.searchQuery !== '') {
       this.handleSearch(this.searchQuery);
     }
     this.goToTheTopButton = this.$refs.goToTheTopButton;
-    window.addEventListener("scroll", this.debounce(this.handleScroll, 200)); // Use debounce to limit the rate of handleScroll calls
+    window.addEventListener("scroll", this.debounce(this.handleScroll, 200)); 
   },
   beforeDestroy() {
-    window.removeEventListener("scroll", this.debounce(this.handleScroll, 200)); // Use debounce to limit the rate of handleScroll calls
+    window.removeEventListener("scroll", this.debounce(this.handleScroll, 200));
   },
   methods: {
+    // function to limit the rate of handleScroll calls
     debounce(func, wait) {
       let timeout;
       return function (...args) {
@@ -258,8 +262,8 @@ export default {
   width: 100%;
 }
 
-.page-title {
-  margin-bottom: 2rem;
+.content{
+  margin-top: 2rem;
 }
 
 .buttons {

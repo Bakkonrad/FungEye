@@ -2,25 +2,26 @@
   <div class="container-md">
     <div class="return">
       <RouterLink to="/atlas" class="btn fungeye-default-button">
-        <font-awesome-icon icon="fa-solid fa-left-long" class="button-icon" />
-        Powrót
+        <font-awesome-icon icon="fa-solid fa-book-atlas" class="button-icon" />
+        Atlas
+      </RouterLink>
+      <RouterLink to="/recognize" class="btn fungeye-default-button">
+        <font-awesome-icon icon="fa-solid fa-eye" class="button-icon" />
+        Rozpoznawanie
       </RouterLink>
     </div>
     <div v-if="error === false" class="container-md">
-      <!-- <div class="breadcrumbs">
-      <RouterLink to="/recognize" class="r-link">Rozpoznawanie</RouterLink> / {{ name }}
-    </div> -->
       <div class="mushroom-view">
         <div class="mushroom-view-header mb-3">
           <div class="header">
-            <!-- <span class="placeholder main-image"></span> -->
-            <img class="mushroom-view-header-image" :src="mainImg" alt="Mushroom" />
+            <img class="mushroom-view-header-image" :src="setMainImage()" alt="Mushroom" @error="handleMainImageError()" />
             <div class="mushroom-names">
               <h1>{{ polishName }}</h1>
               <h2 class="latin-name">{{ latinName }}</h2>
             </div>
           </div>
-          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button" @click="savedByUser ? deleteMushroomFromCollection() : saveMushroomToCollection()">
+          <button v-if="isLoggedIn" type="button" class="btn fungeye-default-button save-button"
+            @click="savedByUser ? deleteMushroomFromCollection() : saveMushroomToCollection()">
             <font-awesome-icon v-if="savedByUser" icon="fa-solid fa-bookmark" />
             <font-awesome-icon v-else icon="fa-regular fa-bookmark" />
           </button>
@@ -38,10 +39,10 @@
             <h3>Opis</h3>
             <p>{{ description }}</p>
           </div>
-          <div class="mushroom-view-photos-container">
+          <div v-if="imagesUrl" class="mushroom-view-photos-container">
             <h4>Inne zdjęcia</h4>
-            <div v-if="imagesUrl" class="mushroom-view-photos">
-                <img v-for="photo in imagesUrl" :key="photo.id" :src="photo" class="mushroom-images" alt="User Photo"/>
+            <div class="mushroom-view-photos">
+              <img v-for="photo in imagesUrl" :key="photo.id" :src="photo" class="mushroom-images" alt="User Photo" @error="handleImageError(photo)"/>
             </div>
           </div>
         </div>
@@ -59,6 +60,8 @@
 <script>
 import { checkAuth, isLoggedIn } from '@/services/AuthService';
 import FungiService from '@/services/FungiService';
+import noImage from '@/assets/images/no-image.svg';
+
 export default {
   props: {
     id: {
@@ -96,25 +99,46 @@ export default {
       this.isLoading = true;
       try {
         const response = await FungiService.getFungi(this.id);
-        // const response = { success: true };
         if (response.success === false) {
           this.error = true;
           this.errorMessage = "Błąd podczas pobierania danych grzyba";
           return;
         }
-        console.log(response.data);
         this.polishName = response.data.polishName;
         this.latinName = response.data.latinName;
-        this.mainImg = response.data.imagesUrl[0];
-        this.imagesUrl = response.data.imagesUrl;
+        if (response.data.imagesUrl.length > 0) {
+          this.mainImg = response.data.imagesUrl[0];
+          this.imagesUrl = response.data.imagesUrl;
+        }
         this.attributes = response.data.attributes;
         this.description = response.data.description;
         this.savedByUser = response.data.savedByUser;
       } catch (error) {
         console.error("Failed to fetch mushroom data:", error);
       } finally {
-        this.isLoading = false; // Ensure loading state is updated regardless of success or failure
+        this.isLoading = false;
       }
+    },
+    handleImageError(image) {
+      if (this.imagesUrl.length > 0) {
+        this.imagesUrl = this.imagesUrl.filter((photo) => photo !== image);
+        return;
+      }
+      this.imagesUrl = [];
+    },
+    handleMainImageError() {
+      if (this.imagesUrl.length > 0) {
+        this.mainImg = this.imagesUrl[0];
+        this.imagesUrl = this.imagesUrl.slice(1);
+        return;
+      }
+      this.mainImg = noImage;
+    },
+    setMainImage() {
+      if (this.imagesUrl.length > 0) {
+        return this.imagesUrl[0];
+      }
+      return noImage;
     },
     changeAttributeClass(attribute) {
       return {
@@ -154,6 +178,10 @@ export default {
 <style scoped>
 .return {
   margin-top: 20px;
+  display: flex;
+  justify-content: flex-start;
+  /* flex-direction: column; */
+  gap: 10px;
 }
 
 .mushroom-view {
@@ -207,7 +235,7 @@ export default {
 }
 
 .mushroom-view-description {
-  width: 50%;
+  width: 100%;
 }
 
 .mushroom-view-photos-container {
@@ -222,8 +250,8 @@ export default {
 }
 
 .mushroom-images {
-  width: 100px;
-  height: 100px;
+  width: 250px;
+  height: auto;
   object-fit: cover;
   border-radius: 10px;
 }
@@ -242,5 +270,66 @@ export default {
   background-size: cover;
   background-position: center;
   display: inline-block;
+}
+
+@media screen and (max-width: 560px) {
+  .mushroom-view-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+  }
+
+  .mushroom-view-header-image {
+    width: 90%;
+    height: auto;
+    margin: 0;
+  }
+
+  .mushroom-names {
+    margin-top: 20px;
+    align-items: center;
+  }
+
+  .mushroom-names h1 {
+    text-align: center;
+    font-size: 2.5em;
+  }
+
+  .save-button {
+    width: 100%;
+  }
+
+  .attribute-list {
+    justify-content: center;
+  }
+
+  .mushroom-view-photos {
+    justify-content: center;
+  }
+
+  .mushroom-images {
+    width: 100%;
+    height: auto;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .return {
+    flex-direction: column;
+  }
+
+  .mushroom-names h1 {
+    font-size: 2em;
+  }
+
+  .mushroom-names h2 {
+    font-size: 1em;
+  }
+  
 }
 </style>

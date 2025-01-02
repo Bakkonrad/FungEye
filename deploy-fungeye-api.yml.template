@@ -1,0 +1,29 @@
+apiVersion: 2021-10-01
+location: westeurope
+name: fungeye-api
+properties:
+  imageRegistryCredentials:
+  - server: ${ACR_SERVER}
+    username: ${ACR_USERNAME}
+    password: ${ACR_PASSWORD}
+  containers:
+  - name: fungeye-api
+    properties:
+      image: ${ACR_SERVER}/fungeye-api:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 0.5
+      ports:
+      - port: 443
+      environmentVariables:
+      - name: ASPNETCORE_ENVIRONMENT
+        value: Production
+  osType: Linux
+  ipAddress:
+    type: Public
+    dnsNameLabel: fungeye-api
+    ports:
+    - protocol: tcp
+      port: 443
+  restartPolicy: OnFailure

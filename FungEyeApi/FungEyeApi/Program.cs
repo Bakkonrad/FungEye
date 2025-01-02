@@ -18,8 +18,8 @@ builder.Configuration.AddUserSecrets<Program>();
 // Configure Kestrel based on environment
 if (builder.Environment.IsProduction())
 {
-  // Development: HTTP only
-  builder.WebHost.ConfigureKestrel(options =>
+    // Production (Azure): HTTPS
+    builder.WebHost.ConfigureKestrel(options =>
   {
       options.ListenAnyIP(80);
       options.ListenAnyIP(443, listenOptions =>
@@ -30,8 +30,8 @@ if (builder.Environment.IsProduction())
 }
 else
 {
-  // Production (Azure): HTTPS
-  builder.WebHost.ConfigureKestrel(options =>
+    // Development: HTTP only
+    builder.WebHost.ConfigureKestrel(options =>
   {
       options.ListenAnyIP(80);
   });

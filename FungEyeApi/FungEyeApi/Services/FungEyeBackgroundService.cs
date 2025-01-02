@@ -48,7 +48,7 @@ namespace FungEyeApi.Services
                             .Where(u => u.DateDeleted != null && u.DateDeleted <= date)
                             .ToListAsync();
 
-                        if (expiredUsers.Count == 0) return;
+                        if (expiredUsers.Count == 0) return; // no users to delete
 
                         foreach (var user in expiredUsers)
                         {

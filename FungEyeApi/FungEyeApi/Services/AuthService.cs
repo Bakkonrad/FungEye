@@ -146,7 +146,7 @@ namespace FungEyeApi.Services
                 var user = GetUser(userEmail);
 
                 var token = user.Result != null ? CreateToken(user.Result, CreateTokenEnum.ResetPassword) : throw new Exception("User not found.");
-                var resetLink = $"http://localhost:5173/resetPassword?token={token.Result}";
+                var resetLink = $"https://fungeye-app.westeurope.azurecontainer.io/resetPassword?token={token.Result}";
 
                 var result = await _emailService.SendEmailAsync(userEmail, SendEmailOptionsEnum.ResetPassword, resetLink);
 
@@ -177,7 +177,7 @@ namespace FungEyeApi.Services
                 var user = GetUser(userEmail);
 
                 var token = user.Result != null ? CreateToken(user.Result, CreateTokenEnum.ResetPassword) : throw new Exception("User not found.");
-                var setLink = $"http://localhost:5173/resetPassword?token={token.Result}";
+                var setLink = $"https://fungeye-app.westeurope.azurecontainer.io/resetPassword?token={token.Result}";
 
                 var result = await _emailService.SendEmailAsync(userEmail, SendEmailOptionsEnum.SetAdminPassword, setLink);
 

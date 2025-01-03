@@ -4,13 +4,14 @@ import { MapboxMap, MapboxGeolocateControl, MapboxNavigationControl, MapboxGeoco
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-geocoder/lib/mapbox-gl-geocoder.css';
 const mapCenter = ref([16.930, 52.405]);
+const accessToken = import.meta.env.VITE_APP_MAP_ACCESS_TOKEN;
 </script>
 
 <template>
   <h1 class="page-title">Mapa</h1>
   <div class="map-container">
     <MapboxMap class="map" style="width: 100%; height: 85%;"
-      access-token="pk.eyJ1IjoiYWRpYmVrIiwiYSI6ImNtMnN6NHY0eDAzZmoybHM5Z3dxajAydDkifQ.n038VfqEieWLx_sk7Rr14g"
+      :access-token="accessToken"
       map-style="mapbox://styles/mapbox/streets-v11" :center="mapCenter" :zoom="12">
       <MapboxGeolocateControl :track-user-location="true" :show-user-location="true" />
       <MapboxNavigationControl position="bottom-right" />

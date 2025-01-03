@@ -98,9 +98,9 @@ namespace FungEyeApi.Controllers
             {
                 return StatusCode(400, ex.Message);
             }
-            catch (KeyNotFoundException ex) //User not found
+            catch (KeyNotFoundException ex) //User not found, same status code as with incorrect data for better security
             {
-                return StatusCode(520, ex.Message);
+                return StatusCode(400, ex.Message);
             }
             catch (AccessViolationException ex) //User is banned
             {

@@ -50,22 +50,22 @@ class Program
 
     private static async Task AddFungiImagesAsync(DataContext context, IBlobStorageService blobStorageService, string basePath)
     {
-        // Odczytaj wszystkie podfoldery w bazie
+        // Read all folders in basePath
         var fungiDirectories = Directory.GetDirectories(basePath);
 
         foreach (var fungiDir in fungiDirectories)
         {
-            // Nazwa folderu to nazwa grzyba
+            // Folder name is the name of fungi
             var fungiName = Path.GetFileName(fungiDir);
 
             var formatedfungiName = fungiName.Replace("_", " ");
 
-            // Sprawdź, czy grzyb już istnieje w bazie, jeśli nie, stwórz encję
+            // Check if given fungi exists in database, if not then create entity
             var fungi = await context.Fungies.FirstOrDefaultAsync(f => f.LatinName == formatedfungiName);
 
             if (fungi == null) { continue; }
 
-            // Odczytaj wszystkie obrazy w folderze grzyba
+            // Read all images in given fungi folder
             var imageFiles = Directory.GetFiles(fungiDir);
 
             int i = 0;
@@ -75,15 +75,14 @@ class Program
                 using var fileStream = new FileStream(imagePath, FileMode.Open);
 
                 //get IFormFile from fileStream
-
                 var file = new FormFile(fileStream, 0, fileStream.Length, $"{fungiName}_{i}", Path.GetFileName(imagePath));
 
                 i++;
 
-                // Prześlij obraz do Blob Storage i uzyskaj URL
+                // Send the image to Blob Storage and get image URL
                 var imageUrl = await blobStorageService.UploadFile(file, BlobContainerEnum.Fungies);
 
-                // Stwórz encję obrazu i połącz z grzybem
+                // Create entity fo this image and set foreign key with fungi it belongs to
                 var fungiImage = new FungiImageEntity
                 {
                     FungiEntityId = fungi.Id,
@@ -93,7 +92,7 @@ class Program
                 await context.FungiesImages.AddAsync(fungiImage);
             }
 
-            // Zapisz wszystkie dodane obrazy dla bieżącego grzyba
+            // Save all images for given fungi
             await context.SaveChangesAsync();
         }
 

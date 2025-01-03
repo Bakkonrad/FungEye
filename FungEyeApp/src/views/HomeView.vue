@@ -20,7 +20,7 @@
         <router-link to="/recognize" class="btn fungeye-default-button">Rozpoznaj grzyby</router-link>
 
         <p class="poisoning-warning">Uwaga! Wyniki rozpoznawania grzybów uzyskane za pomocą aplikacji FungEye
-        mogą nie być w 100% dokładne. Zawsze zalecamy potwierdzenie
+        mogą nie być w 100% dokładne. Zalecamy potwierdzenie
         identyfikacji grzybów u eksperta przed ich spożyciem. Twórcy aplikacji
         FungEye nie biorą odpowiedzialności za jakiekolwiek zatrucia czy inne
         szkody wynikające z niewłaściwego rozpoznania grzybów za pomocą

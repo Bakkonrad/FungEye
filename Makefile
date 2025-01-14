@@ -2,6 +2,8 @@
 DOCKER_COMPOSE = docker compose
 DOCKER_COMPOSE_FILE = docker-compose.yml
 RESOURCE_GROUP = FungEye
+VERSION_FILE = .version
+CHANGELOG_FILE = CHANGELOG.md
 
 # Include deployment environment variables
 -include .env.deploy
@@ -28,17 +30,28 @@ help:
 	@echo -e "  $(GREEN)make start-app$(NC) - Start fungeye-app ACI"
 	@echo -e "  $(GREEN)make start-api$(NC) - Start fungeye-api ACI"
 	@echo -e "  $(GREEN)make start-ai$(NC)  - Start fungeye-tfserving ACI"
+	@echo -e ""
 	@echo -e "  $(GREEN)make stop-all$(NC)  - Stop all ACI services"
 	@echo -e "  $(GREEN)make stop-app$(NC)  - Stop fungeye-app ACI"
 	@echo -e "  $(GREEN)make stop-api$(NC)  - Stop fungeye-api ACI"
 	@echo -e "  $(GREEN)make stop-ai$(NC)   - Stop fungeye-tfserving ACI"
+	@echo -e ""
 	@echo -e "  $(GREEN)make build-api$(NC) - Build and push API image"
 	@echo -e "  $(GREEN)make build-app$(NC) - Build and push frontend image"
 	@echo -e "  $(GREEN)make build-ai$(NC)  - Build and push TF Serving image"
+	@echo -e ""
 	@echo -e "  $(GREEN)make deploy-api$(NC)- Deploy API to ACI"
 	@echo -e "  $(GREEN)make deploy-app$(NC)- Deploy frontend to ACI"
 	@echo -e "  $(GREEN)make deploy-ai$(NC) - Deploy TF Serving to ACI"
 	@echo -e "  $(GREEN)make deploy-all$(NC)- Deploy all services to ACI"
+
+# Bump version
+bump-version:
+	@current=$$(cat $(VERSION_FILE)); \
+	next=$$(echo "$$current + 0.1" | bc -l | xargs printf "%.1f"); \
+	echo $$next > $(VERSION_FILE); \
+	echo -e "$(YELLOW)Version bumped: $$current -> $$next$(NC)"; \
+	printf '\n## [%s] - %s\n- New version\n- Updated: %s\n' "$$next" "$$(date +'%d-%m-%Y')" "$(COMPONENT)" | cat - $(CHANGELOG_FILE) > temp && mv temp $(CHANGELOG_FILE)
 
 # Check for deployment environment variables
 check-env:
@@ -80,26 +93,38 @@ build:
 
 # Build and push API image
 build-api: check-env
-	@echo -e "$(YELLOW)Building and pushing API image...$(NC)"
+	@export COMPONENT="API" && make bump-version && \
+	VERSION=$$(cat $(VERSION_FILE)); \
+	echo -e "$(YELLOW)Building and pushing $$COMPONENT image v$$VERSION...$(NC)"; \
 	cd FungEyeApi/FungEyeApi && \
-	docker build -t $(ACR_SERVER)/fungeye-api:latest -f Dockerfile . && \
-	docker push $(ACR_SERVER)/fungeye-api:latest
-	@echo -e "$(GREEN)API image built and pushed successfully.$(NC)"
+	docker build -t $(ACR_SERVER)/fungeye-api:v$$VERSION -f Dockerfile . && \
+	docker push $(ACR_SERVER)/fungeye-api:v$$VERSION && \
+	docker tag $(ACR_SERVER)/fungeye-api:v$$VERSION $(ACR_SERVER)/fungeye-api:latest && \
+	docker push $(ACR_SERVER)/fungeye-api:latest && \
+	echo -e "$(GREEN)$$COMPONENT image v$$(cat $(VERSION_FILE)) built and pushed successfully.$(NC)"
 
 # Build and push frontend image
 build-app: check-env
-	@echo -e "$(YELLOW)Building and pushing frontend image...$(NC)"
+	@export COMPONENT="APP" && make bump-version && \
+	VERSION=$$(cat $(VERSION_FILE)); \
+	echo -e "$(YELLOW)Building and pushing $$COMPONENT image v$$VERSION...$(NC)"; \
 	cd FungEyeApp && \
-	docker build -t $(ACR_SERVER)/fungeye-app:latest -f Dockerfile . && \
-	docker push $(ACR_SERVER)/fungeye-app:latest
-	@echo -e "$(GREEN)Frontend image built and pushed successfully.$(NC)"
+	docker build -t $(ACR_SERVER)/fungeye-app:v$$VERSION -f Dockerfile . && \
+	docker push $(ACR_SERVER)/fungeye-app:v$$VERSION && \
+	docker tag $(ACR_SERVER)/fungeye-app:v$$VERSION $(ACR_SERVER)/fungeye-app:latest && \
+	docker push $(ACR_SERVER)/fungeye-app:latest && \
+	echo -e "$(GREEN)$$COMPONENT image v$$(cat $(VERSION_FILE)) built and pushed successfully.$(NC)"
 
 # Build and push TF Serving image
 build-ai: check-env
-	@echo -e "$(YELLOW)Building and pushing TF Serving image...$(NC)"
-	docker build -t $(ACR_SERVER)/fungeye-tfserving:latest -f Dockerfile.tfserving . && \
-	docker push $(ACR_SERVER)/fungeye-tfserving:latest
-	@echo -e "$(GREEN)TF Serving image built and pushed successfully.$(NC)"
+	@export COMPONENT="Tf Serving" && make bump-version && \
+	VERSION=$$(cat $(VERSION_FILE)); \
+	echo -e "$(YELLOW)Building and pushing $$COMPONENT image v$$VERSION...$(NC)"; \
+	docker build -t $(ACR_SERVER)/fungeye-tfserving:v$$VERSION -f Dockerfile.tfserving . && \
+	docker push $(ACR_SERVER)/fungeye-tfserving:v$$VERSION && \
+	docker tag $(ACR_SERVER)/fungeye-tfserving:v$$VERSION $(ACR_SERVER)/fungeye-tfserving:latest && \
+	docker push $(ACR_SERVER)/fungeye-tfserving:latest && \
+	echo -e "$(GREEN)$$COMPONENT image v$$(cat $(VERSION_FILE)) built and pushed successfully.$(NC)"
 
 # Deploy API to ACI
 deploy-api: deploy-fungeye-api.yml
@@ -166,8 +191,5 @@ stop-api:
 
 # Stop all ACI services
 stop-all: stop-api stop-app stop-ai
-
-# Build and deploy everything
-build-and-deploy-all: build-api build-app build-ai deploy-all
 
 .PHONY: help start stop restart build build-api build-app build-ai deploy-api deploy-app deploy-ai deploy-all build-and-deploy-all check-env

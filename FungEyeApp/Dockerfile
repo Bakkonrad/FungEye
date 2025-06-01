@@ -7,6 +7,7 @@ COPY . .
 RUN npm install -D vite@4.5.0 esbuild@0.20.2
 RUN npm run build
 
+# Production stage
 FROM --platform=linux/amd64 nginx:stable-alpine AS production
 COPY --from=build /app/dist /usr/share/nginx/html
 

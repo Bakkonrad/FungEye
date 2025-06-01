@@ -1,0 +1,42 @@
+scrape_configs:
+  # Internal monitoring for API
+  - job_name: 'api-internal'
+    static_configs:
+      - targets: ['api:8080']
+    metrics_path: '/metrics'
+
+  # # External monitoring for API endpoints
+  # - job_name: 'blackbox-api'
+  #   metrics_path: /probe
+  #   params:
+  #     module: [http_2xx]
+  #   static_configs:
+  #     - targets:
+  #       - http://api:8080/api/Auth/loginUser
+  #       - http://api:8080/api/Auth/registerUser
+  #       - http://api:8080/api/User/getProfile/1
+  #       - http://api:8080/api/Follow/getFollowers/1
+  #       - http://api:8080/api/Model/predict
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: blackbox-exporter:9115
+
+  # External monitoring for Website
+  - job_name: 'blackbox-website'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://app:80/
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

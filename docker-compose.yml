@@ -1,0 +1,67 @@
+services:
+  api:
+    build:
+      context: ./FungEyeApi/FungEyeApi
+      dockerfile: Dockerfile
+    ports:
+      - "5268:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - tfserving
+    networks:
+      - default
+
+  app:
+    build:
+      context: ./FungEyeApp
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./FungEyeApp/nginx.dev.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api
+
+  tfserving:
+    build:
+      dockerfile: Dockerfile.tfserving
+    ports:
+      - "8501:8501"
+    environment:
+      - MODEL_NAME=inception
+
+  prometheus:
+    build:
+      context: ./Prometheus
+      dockerfile: Dockerfile
+    ports:
+      - "9090:9090"
+    networks:
+      - default
+
+  grafana:
+    build:
+      context: ./Grafana
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - default
+
+  blackbox-exporter:
+    build:
+      context: ./Blackbox
+      dockerfile: Dockerfile
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+    ports:
+      - "9115:9115"
+    networks:
+      - default
+
+networks:
+  default:
+    name: fungeye-network
